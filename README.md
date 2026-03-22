@@ -37,12 +37,12 @@ Ein modernes, reaktionsschnelles Dashboard zur Überwachung von Kinovorstellunge
     npm install
     ```
 
-3.  **Entwicklungsserver starten**:
-    Das Projekt verwendet ein duales Setup für Backend und Frontend.
-    ```bash
-    # Startet sowohl das Backend (Port 3001) als auch das Frontend (Port 5173)
+    # Startet die App inklusive Cloudflare Functions lokal
     npm run dev
     ```
+
+    *Hinweis: Dies simuliert die Cloudflare-Umgebung (Port 8788 für Assets, Port 8787 für Functions).*
+
 
 4.  **Dashboard öffnen**:
     Öffne [http://localhost:5173](http://localhost:5173) in deinem Browser.

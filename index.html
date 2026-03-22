@@ -395,6 +395,13 @@
             margin-top: 0;
         }
 
+        .alerts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+        }
+
         .poster-change-alert {
             background: linear-gradient(135deg, rgba(229, 9, 20, 0.15) 0%, rgba(20, 20, 25, 0.8) 100%);
             border: 1px solid rgba(229, 9, 20, 0.3);
@@ -680,7 +687,7 @@
                     </svg>
                 </button>
             </div>
-            <div id="poster-alerts" class="collapsible-content dashboard-grid"></div>
+            <div id="poster-alerts" class="collapsible-content alerts-list"></div>
         </div>
         
         <div id="dashboard" class="dashboard-grid">
@@ -692,8 +699,8 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:3001/api/sessions';
-        const LOCATIONS_URL = 'http://localhost:3001/api/locations';
+        const API_URL = '/api/sessions';
+        const LOCATIONS_URL = '/api/locations';
 
         let tomorrowSessions = [];
         let currentCity = 'kp';
