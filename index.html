@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kinopolis Automation Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0a0a0d;
+            --surface-color: rgba(20, 20, 25, 0.6);
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --primary-red: #E50914;
+            --primary-blue: #0078FF;
+            --text-main: #F2F2F2;
+            --text-muted: #8E8E93;
+            --accent-glow: rgba(0, 120, 255, 0.2);
+            --red-glow: rgba(229, 9, 20, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 0%, var(--accent-glow) 0%, transparent 40%),
+                radial-gradient(circle at 85% 100%, var(--red-glow) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        /* Glassmorphism Utilities */
+        .glass {
+            background: var(--surface-color);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--surface-border);
+            border-radius: 24px;
+        }
+
+        header {
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--surface-border);
+            margin-bottom: 2rem;
+            background: rgba(10, 10, 13, 0.8);
+            backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            height: 48px;
+            width: 48px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            background: rgba(255,255,255,0.05); /* Placeholder if image fails */
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(90deg, #fff, #b3b3b3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .location-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--surface-border);
+            color: white;
+            padding: 0.75rem 2.5rem 0.75rem 1rem;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%238E8E93' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .location-select:hover, .location-select:focus {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 2rem 2rem;
+        }
+
+        .dashboard-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .dashboard-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .location-badge {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--primary-red), #ff4d4d);
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px var(--red-glow);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 2rem;
+        }
+
+        .hall-card {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .hall-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .hall-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .hall-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .session-count {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            background: rgba(255,255,255,0.1);
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+        }
+
+        .session-item {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: 60px 1fr;
+            gap: 1rem;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.02);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated background for the active session */
+        .session-item.active::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 3s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+
+        .session-time-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 0.8rem 0;
+            height: 100%;
+        }
+
+        .time-start {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .time-end {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        .session-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .movie-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1.05rem;
+            line-height: 1.3;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .meta-tags {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        .tag {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-muted);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+        }
+
+        .occupancy-wrapper {
+            margin-top: 0.5rem;
+        }
+
+        .occupancy-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+        }
+
+        .occupancy-val {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .occupancy-track {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .occupancy-bar {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--primary-blue), #00d2ff);
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .occupancy-bar.high {
+            background: linear-gradient(90deg, #ffab00, #ffea00);
+        }
+        
+        .occupancy-bar.full {
+            background: linear-gradient(90deg, var(--primary-red), #ff4d4d);
+        }
+
+        /* Alerts */
+        .poster-change-alert {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, rgba(229, 9, 20, 0.15) 0%, rgba(20, 20, 25, 0.8) 100%);
+            border: 1px solid rgba(229, 9, 20, 0.3);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: none;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 10px 40px rgba(229, 9, 20, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .poster-change-alert::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--primary-red);
+            box-shadow: 0 0 15px var(--primary-red);
+        }
+
+        .alert-content {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .alert-icon {
+            font-size: 3rem;
+            text-shadow: 0 0 20px rgba(229, 9, 20, 0.5);
+        }
+
+        .alert-text h2 {
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .alert-text h2 span {
+            color: var(--primary-red);
+        }
+
+        .alert-text p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .next-movie-preview {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            background: rgba(0,0,0,0.3);
+            padding: 1rem 1.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .poster-img {
+            width: 70px;
+            height: 100px;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+        }
+
+        .next-movie-info h4 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary-blue);
+            margin-bottom: 0.2rem;
+        }
+
+        .next-movie-info h3 {
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .next-movie-info .time {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 40vh;
+            gap: 1.5rem;
+            grid-column: 1 / -1;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-blue);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: 0.05em;
+        }
+
+        /* Responsive - Tablet */
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Responsive - Mobile */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 0.75rem;
+                align-items: center;
+                padding: 1rem;
+            }
+            .brand h1 {
+                font-size: 1.2rem;
+            }
+            .logo {
+                height: 36px;
+                width: 36px;
+                border-radius: 8px;
+            }
+            .brand {
+                gap: 0.6rem;
+            }
+            .controls {
+                width: 100%;
+            }
+            .location-select {
+                width: 100%;
+                font-size: 1rem;
+                padding: 0.85rem 2.5rem 0.85rem 1rem;
+            }
+            main {
+                padding: 0.75rem;
+            }
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+            }
+            .dashboard-header h2 {
+                font-size: 1.6rem;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            .hall-card {
+                border-radius: 16px;
+                padding: 1rem;
+            }
+            .session-row {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                padding: 0.75rem;
+            }
+            .session-poster {
+                display: none; /* Hide poster on mobile to save space */
+            }
+            .session-info {
+                flex: 1;
+                min-width: 0;
+            }
+            .session-time {
+                font-size: 1.1rem;
+            }
+            .session-title {
+                font-size: 0.9rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .occupancy-bar-wrap {
+                width: 100%;
+            }
+            .alert-card {
+                border-radius: 16px;
+                padding: 1.25rem;
+            }
+            .alert-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .alert-text h2 {
+                font-size: 1.05rem;
+                line-height: 1.3;
+                flex-wrap: wrap;
+            }
+
+            .next-movie-preview {
+                width: 100%;
+                flex-direction: row;
+                align-items: center;
+                gap: 1rem;
+                padding: 0.75rem;
+            }
+            .next-movie-preview img {
+                height: 70px;
+                width: auto;
+                border-radius: 6px;
+            }
+            .time-badge {
+                font-size: 0.75rem;
+                padding: 0.2rem 0.6rem;
+            }
+        }
+
+        /* Very small screens */
+        @media (max-width: 420px) {
+            .brand h1 {
+                display: none; /* Show only logo on tiny screens */
+            }
+            .logo {
+                height: 30px;
+                width: auto;
+                min-width: 80px;
+                border-radius: 0;
+                background: transparent;
+                box-shadow: none;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <!-- Ensure correct absolute path for logo -->
+            <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" alt="Kinopolis" class="logo" id="brand-logo" onerror="this.style.display='none'">
+            <h1>Kinopolis Automation</h1>
+        </div>
+        <div class="controls">
+            <select id="cinema-selector" class="location-select glass"></select>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <div>
+                <h2 class="dashboard-title">Live Overview</h2>
+                <div class="location-badge" id="location-name">Darmstadt: KINOPOLIS</div>
+            </div>
+            <div style="color: var(--text-muted); font-size: 0.9rem;" id="current-time-display">
+                Verbinde...
+            </div>
+        </div>
+
+        <div id="poster-alerts" class="dashboard-grid" style="display: block;"></div>
+        
+        <div id="dashboard" class="dashboard-grid">
+            <div id="loading" class="loading-state">
+                <div class="spinner"></div>
+                <div class="loading-text">Abrufen der Live-Daten...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3001/api/sessions';
+        const LOCATIONS_URL = 'http://localhost:3001/api/locations';
+
+        let tomorrowSessions = [];
+        let currentCity = 'kp';
+
+        // Update clock continuously
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('current-time-display').innerText = 
+                now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+        }, 1000);
+
+        async function init() {
+            await fetchLocations();
+            await fetchSessions();
+            setInterval(fetchSessions, 60000);
+        }
+
+        async function fetchLocations() {
+            try {
+                const response = await fetch(LOCATIONS_URL);
+                const locations = await response.json();
+                const selector = document.getElementById('cinema-selector');
+                
+                Object.keys(locations).forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = locations[name];
+                    option.textContent = name;
+                    if(locations[name] === currentCity) option.selected = true;
+                    selector.appendChild(option);
+                });
+
+                selector.addEventListener('change', (e) => {
+                    currentCity = e.target.value;
+                    const cityName = e.target.options[e.target.selectedIndex].text;
+                    document.getElementById('location-name').innerText = cityName;
+                    document.getElementById('dashboard').innerHTML = '<div class="loading-state"><div class="spinner"></div><div class="loading-text">Aktualisiere Daten...</div></div>';
+                    fetchSessions();
+                });
+            } catch (err) {
+                console.error('Failed to load locations', err);
+            }
+        }
+
+        async function fetchSessions() {
+            try {
+                const url = `${API_URL}?location=${currentCity}`;
+                const response = await fetch(url);
+                const sessions = await response.json();
+                
+                if(!sessions || sessions.length === 0) {
+                     document.getElementById('dashboard').innerHTML = '<div class="glass" style="padding: 3rem; text-align: center; grid-column: 1/-1;"><h3>Keine Vorstellungen gefunden</h3><p style="color: var(--text-muted); margin-top: 1rem;">Möglicherweise ist das Kino heute geschlossen oder die Daten sind nicht verfügbar.</p></div>';
+                     document.getElementById('poster-alerts').innerHTML = '';
+                     return;
+                }
+
+                const responseTom = await fetch(`${url}&tomorrow=true`);
+                tomorrowSessions = await responseTom.json();
+
+                renderDashboard(sessions);
+                checkPosterChanges(sessions, tomorrowSessions);
+            } catch (error) {
+                console.error('Fetch error:', error);
+                document.getElementById('dashboard').innerHTML = '<div class="glass" style="padding: 2rem; color: #ff4d4d;">Verbindungsfehler zum Backend.</div>';
+            }
+        }
+
+        function renderDashboard(sessions) {
+            const dashboard = document.getElementById('dashboard');
+            dashboard.innerHTML = '';
+
+            const halls = {};
+            sessions.forEach(s => {
+                if (!halls[s.hall]) halls[s.hall] = [];
+                halls[s.hall].push(s);
+            });
+
+            const sortedHalls = Object.keys(halls).sort((a,b) => {
+                const numA = parseInt(a.match(/\d+/)) || 0;
+                const numB = parseInt(b.match(/\d+/)) || 0;
+                return numA - numB;
+            });
+
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+            sortedHalls.forEach(hallName => {
+                const card = document.createElement('div');
+                card.className = 'hall-card glass';
+                
+                let sessionsHtml = halls[hallName].map(s => {
+                    const capacity = s.capacity || 1; // Prevent division by zero
+                    const occupancyPct = Math.min(100, Math.round((s.sold / capacity) * 100)) || 0;
+                    const endTime = calculateEndTime(s.time, s.duration);
+                    
+                    // Determine status class
+                    let barClass = '';
+                    if(occupancyPct > 85) barClass = 'full';
+                    else if(occupancyPct > 60) barClass = 'high';
+
+                    // Check if active (current time is between start and end)
+                    const [h, m] = s.time.split(':').map(Number);
+                    const startMin = h * 60 + m;
+                    const endMin = startMin + s.duration;
+                    const isActive = currentMinutes >= startMin && currentMinutes <= endMin;
+
+                    return `
+                        <div class="session-item ${isActive ? 'active' : ''}">
+                            <div class="session-time-col">
+                                <div class="time-start">${s.time}</div>
+                                <div class="time-end">${endTime}</div>
+                            </div>
+                            <div class="session-info">
+                                <div class="movie-title" title="${s.title}">${s.title}</div>
+                                <div class="meta-tags">
+                                    <span class="tag">${s.duration} Min</span>
+                                </div>
+                                <div class="occupancy-wrapper">
+                                    <div class="occupancy-header">
+                                        <span>Auslastung</span>
+                                        <span class="occupancy-val">${s.sold} / ${s.capacity}</span>
+                                    </div>
+                                    <div class="occupancy-track">
+                                        <div class="occupancy-bar ${barClass}" style="width: ${occupancyPct}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                card.innerHTML = `
+                    <div class="hall-header">
+                        <span class="hall-name">${hallName}</span>
+                        <span class="session-count">${halls[hallName].length} Vorstellungen</span>
+                    </div>
+                    ${sessionsHtml}
+                `;
+                dashboard.appendChild(card);
+            });
+        }
+
+        function calculateEndTime(startTime, duration) {
+            const [h, m] = startTime.split(':').map(Number);
+            const totalMinutes = h * 60 + m + duration;
+            const endH = Math.floor(totalMinutes / 60) % 24;
+            const endM = totalMinutes % 60;
+            return `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`;
+        }
+
+        function checkPosterChanges(sessions, tomSessions) {
+            const alertsContainer = document.getElementById('poster-alerts');
+            alertsContainer.innerHTML = '';
+
+            const halls = {};
+            sessions.forEach(s => {
+                if (!halls[s.hall]) halls[s.hall] = [];
+                halls[s.hall].push(s);
+            });
+
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+            Object.keys(halls).forEach(hallName => {
+                const hallSessions = halls[hallName].sort((a, b) => a.time.localeCompare(b.time));
+                const lastSession = hallSessions[hallSessions.length - 1];
+
+                const [h, m] = lastSession.time.split(':').map(Number);
+                const startTimeMinutes = h * 60 + m;
+                const changeTimeMinutes = startTimeMinutes + 30;
+
+                // Threshold: 30 minutes after last session starts
+                if (currentMinutes >= changeTimeMinutes) {
+                    const tomHallSessions = tomSessions.filter(s => s.hall === hallName).sort((a,b) => a.time.localeCompare(b.time));
+                    const nextMovie = tomHallSessions[0];
+
+                    // Skip alert if there are no sessions tomorrow in this hall
+                    // (e.g. sneak preview that only runs on specific weekdays)
+                    if (!nextMovie) return;
+
+                    const alert = document.createElement('div');
+                    alert.className = 'poster-change-alert';
+                    alert.style.display = 'block';
+                    
+                    alert.innerHTML = `
+                        <div class="alert-content">
+                            <div class="alert-icon">⚠️</div>
+                            <div class="alert-text" style="flex: 1">
+                                <h2>Plakatwechsel erforderlich in <span style="white-space: nowrap">${hallName}</span></h2>
+                                <p>Die <strong>letzte Vorstellung</strong> des Tages hat begonnen. Das Plakat kann nun für das morgige Programm gewechselt werden.</p>
+                            </div>
+                            <div class="next-movie-preview">
+                                ${nextMovie.poster ? `<img src="${nextMovie.poster}" class="poster-img" alt="Poster">` : ''}
+                                <div class="next-movie-info">
+                                    <h4>Erster Film Morgen</h4>
+                                    <h3>${nextMovie.title}</h3>
+                                    <div class="time">Start: ${nextMovie.time} Uhr</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    alertsContainer.appendChild(alert);
+                }
+            });
+        }
+
+        // Initial load
+        init();
+        
+        // Ensure image visibility fallback
+        document.getElementById('brand-logo').onload = function() {
+            this.style.display = 'block';
+            this.style.background = 'transparent';
+        };
+    </script>
+</body>
+</html>
