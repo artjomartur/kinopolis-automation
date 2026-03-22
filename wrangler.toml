@@ -1,6 +1,0 @@
-name = "kinopolis-automation"
-compatibility_date = "2024-03-22"
-pages_build_output_dir = "."
-
-[vars]
-# Add any environment variables here if needed
