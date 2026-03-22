@@ -35,7 +35,25 @@ app.get('/api/sessions', async (req, res) => {
             const title = $(movieEl).find('.hl-link, .prog2__movie-title').first().text().trim();
             if (!title) return;
             
-            console.log(`Processing movie: ${title}`);
+            // 2. Finding the performance IDs for the requested date to filter out other days
+            // The date we are looking for is dateStr (YYYY-MM-DD), let's find the nav item for it
+            // Kinopolis might use "So. 22.03." style or similar in the nav
+            const d = new Date(dateStr);
+            const dayNum = d.getDate();
+            const monthNum = d.getMonth() + 1;
+            const shortDateStr = `${dayNum < 10 ? '0' : ''}${dayNum}.${monthNum < 10 ? '0' : ''}${monthNum}.`;
+            
+            let allowedPerformanceIds = new Set();
+            $('.prog-nav__item').each((_, navEl) => {
+                if ($(navEl).text().includes(shortDateStr)) {
+                    const idsAttr = $(navEl).attr('data-performance-ids');
+                    if (idsAttr) {
+                        // IDs are in format [ID1,ID2,ID3]
+                        idsAttr.replace(/[\[\]]/g, '').split(',').forEach(id => allowedPerformanceIds.add(id.trim()));
+                    }
+                }
+            });
+
             const poster = $(movieEl).find('.prog2__movie-img img, img.img-fluid').first().attr('src');
             const durationText = $(movieEl).find('.movie__specs-el, .prog2__movie-info-item, .prog2__infos').text().trim();
             // Match "Dauer: 157 Minuten" or "157 Min." specifically to avoid matching FSK age rating
@@ -46,6 +64,13 @@ app.get('/api/sessions', async (req, res) => {
             const seenSessions = new Set(); // To deduplicate sessions for this movie
 
             $(movieEl).find('.prog2__cont, .prog2__movie-session').each((j, sessionEl) => {
+                const perfId = $(sessionEl).attr('data-performance-id');
+                
+                // If we found date-specific allowed performance IDs, use them to filter
+                if (allowedPerformanceIds.size > 0 && perfId && !allowedPerformanceIds.has(perfId)) {
+                    return; // Skip session from another day
+                }
+
                 const time = $(sessionEl).find('.prog2__time').first().text().trim();
                 
                 // Clean hall name: take first div or remove trailing 'i'
@@ -70,10 +95,7 @@ app.get('/api/sessions', async (req, res) => {
                 if (seenSessions.has(sessionKey)) return;
                 seenSessions.add(sessionKey);
 
-                console.log(`  Session: ${time} in ${hall}`);
-
                 // Occupancy logic – try multiple patterns from the Kinopolis DOM
-                const buyEl = $(sessionEl).find('.buy__text, [class*="buy"], .prog2__seats, [class*="seats"], [class*="frei"]').first();
                 const occupancyText = $(sessionEl).text().trim();
                 
                 // Try: "X Plätze frei" or "X% frei" or data-attributes
@@ -114,7 +136,8 @@ app.get('/api/sessions', async (req, res) => {
                     capacity,
                     freePercent,
                     sold,
-                    isBookable
+                    isBookable,
+                    performanceId: perfId
                 });
             });
         });

@@ -310,14 +310,80 @@
         }
 
         /* Alerts */
+        #poster-alerts-container {
+            margin-bottom: 2rem;
+        }
+
+        .alerts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            border-bottom: none;
+            border-radius: 24px;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .alerts-header:hover {
+            background: rgba(229, 9, 20, 0.1);
+        }
+
+        .alerts-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alerts-title h2 {
+            font-size: 1.2rem;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .alert-icon-small {
+            font-size: 1.2rem;
+        }
+
+        .badge {
+            background: var(--primary-red);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-btn.collapsed {
+            transform: rotate(180deg);
+        }
+
+        .collapsible-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, margin-top 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .collapsible-content.collapsed {
+            max-height: 0;
+            margin-top: 0;
+        }
+
         .poster-change-alert {
-            grid-column: 1 / -1;
             background: linear-gradient(135deg, rgba(229, 9, 20, 0.15) 0%, rgba(20, 20, 25, 0.8) 100%);
             border: 1px solid rgba(229, 9, 20, 0.3);
             border-radius: 24px;
             padding: 2rem;
-            margin-bottom: 2rem;
-            display: none;
+            margin-bottom: 1rem;
             backdrop-filter: blur(20px);
             box-shadow: 0 10px 40px rgba(229, 9, 20, 0.1);
             position: relative;
@@ -584,7 +650,21 @@
             </div>
         </div>
 
-        <div id="poster-alerts" class="dashboard-grid" style="display: block;"></div>
+        <div id="poster-alerts-container">
+            <div class="alerts-header glass" onclick="toggleAlerts()">
+                <div class="alerts-title">
+                    <span class="alert-icon-small">⚠️</span>
+                    <h2>Dringende Plakatwechsel</h2>
+                    <span id="alert-count-badge" class="badge">0</span>
+                </div>
+                <button class="toggle-btn" id="alerts-toggle-btn">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
+                    </svg>
+                </button>
+            </div>
+            <div id="poster-alerts" class="collapsible-content dashboard-grid"></div>
+        </div>
         
         <div id="dashboard" class="dashboard-grid">
             <div id="loading" class="loading-state">
@@ -607,6 +687,13 @@
             document.getElementById('current-time-display').innerText = 
                 now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
         }, 1000);
+
+        function toggleAlerts() {
+            const content = document.getElementById('poster-alerts');
+            const btn = document.getElementById('alerts-toggle-btn');
+            content.classList.toggle('collapsed');
+            btn.classList.toggle('collapsed');
+        }
 
         async function init() {
             await fetchLocations();
@@ -767,18 +854,15 @@
                 const startTimeMinutes = h * 60 + m;
                 const changeTimeMinutes = startTimeMinutes + 30;
 
-                // Threshold: 30 minutes after last session starts
                 if (currentMinutes >= changeTimeMinutes) {
                     const tomHallSessions = tomSessions.filter(s => s.hall === hallName).sort((a,b) => a.time.localeCompare(b.time));
                     const nextMovie = tomHallSessions[0];
 
-                    // Skip alert if there are no sessions tomorrow in this hall
-                    // (e.g. sneak preview that only runs on specific weekdays)
                     if (!nextMovie) return;
 
                     const alert = document.createElement('div');
                     alert.className = 'poster-change-alert';
-                    alert.style.display = 'block';
+                    // removed style.display = 'block' because container handles it
                     
                     alert.innerHTML = `
                         <div class="alert-content">
@@ -800,6 +884,14 @@
                     alertsContainer.appendChild(alert);
                 }
             });
+
+            // Update badge count
+            const count = alertsContainer.children.length;
+            document.getElementById('alert-count-badge').textContent = count;
+            
+            // Hide container if no alerts
+            const container = document.getElementById('poster-alerts-container');
+            container.style.display = count > 0 ? 'block' : 'none';
         }
 
         // Initial load
