@@ -731,11 +731,11 @@
                 const locations = await response.json();
                 const selector = document.getElementById('cinema-selector');
                 
-                Object.keys(locations).forEach(name => {
+                locations.forEach(loc => {
                     const option = document.createElement('option');
-                    option.value = locations[name];
-                    option.textContent = name;
-                    if(locations[name] === currentCity) option.selected = true;
+                    option.value = loc.slug;
+                    option.textContent = loc.name;
+                    if (loc.slug === currentCity) option.selected = true;
                     selector.appendChild(option);
                 });
 
@@ -764,36 +764,29 @@
                 }
 
                 const responseTom = await fetch(`${url}&tomorrow=true`);
-                tomorrowSessions = await responseTom.json();
+                tomorrowSessionsGrouped = await responseTom.json();
+                
+                // Flatten for poster check
+                const tomSessionsFlat = (tomorrowSessionsGrouped || []).flatMap(hall => hall.sessions);
 
-                renderDashboard(sessions);
-                checkPosterChanges(sessions, tomorrowSessions);
+                renderDashboard(sessionsGrouped);
+                checkPosterChanges(sessionsGrouped, tomSessionsFlat);
             } catch (error) {
                 console.error('Fetch error:', error);
                 document.getElementById('dashboard').innerHTML = '<div class="glass" style="padding: 2rem; color: #ff4d4d;">Verbindungsfehler zum Backend.</div>';
             }
         }
 
-        function renderDashboard(sessions) {
+        function renderDashboard(halls) {
             const dashboard = document.getElementById('dashboard');
             dashboard.innerHTML = '';
-
-            const halls = {};
-            sessions.forEach(s => {
-                if (!halls[s.hall]) halls[s.hall] = [];
-                halls[s.hall].push(s);
-            });
-
-            const sortedHalls = Object.keys(halls).sort((a,b) => {
-                const numA = parseInt(a.match(/\d+/)) || 0;
-                const numB = parseInt(b.match(/\d+/)) || 0;
-                return numA - numB;
-            });
 
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-            sortedHalls.forEach(hallName => {
+            halls.forEach(hall => {
+                const hallName = hall.name;
+                const sessions = hall.sessions;
                 const card = document.createElement('div');
                 card.className = 'hall-card glass';
                 
@@ -808,10 +801,13 @@
                     else if(occupancyPct > 60) barClass = 'high';
 
                     // Check if active (current time is between start and end)
-                    const [h, m] = s.time.split(':').map(Number);
-                    const startMin = h * 60 + m;
-                    const endMin = startMin + s.duration;
-                    const isActive = currentMinutes >= startMin && currentMinutes <= endMin;
+                    let isActive = false;
+                    if (s.time && s.time.includes(':')) {
+                        const [h, m] = s.time.split(':').map(Number);
+                        const startMin = h * 60 + m;
+                        const endMin = startMin + s.duration;
+                        isActive = currentMinutes >= startMin && currentMinutes <= endMin;
+                    }
 
                     return `
                         <div class="session-item ${isActive ? 'active' : ''}">
@@ -851,6 +847,7 @@
         }
 
         function calculateEndTime(startTime, duration) {
+            if (!startTime || typeof startTime !== 'string' || !startTime.includes(':')) return '--:--';
             const [h, m] = startTime.split(':').map(Number);
             const totalMinutes = h * 60 + m + duration;
             const endH = Math.floor(totalMinutes / 60) % 24;
@@ -858,21 +855,17 @@
             return `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`;
         }
 
-        function checkPosterChanges(sessions, tomSessions) {
+        function checkPosterChanges(hallsGrouped, tomSessionsFlat) {
             const alertsContainer = document.getElementById('poster-alerts');
             alertsContainer.innerHTML = '';
-
-            const halls = {};
-            sessions.forEach(s => {
-                if (!halls[s.hall]) halls[s.hall] = [];
-                halls[s.hall].push(s);
-            });
 
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-            Object.keys(halls).forEach(hallName => {
-                const hallSessions = halls[hallName].sort((a, b) => a.time.localeCompare(b.time));
+            hallsGrouped.forEach(hall => {
+                const hallName = hall.name;
+                const hallSessions = hall.sessions.filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
+                if (hallSessions.length === 0) return;
                 const lastSession = hallSessions[hallSessions.length - 1];
 
                 const [h, m] = lastSession.time.split(':').map(Number);
