@@ -14,25 +14,30 @@
             --primary-blue: #0078FF;
             --text-main: #F2F2F2;
             --text-muted: #8E8E93;
-            --accent-glow: rgba(0, 120, 255, 0.2);
             --red-glow: rgba(229, 9, 20, 0.2);
+            --bg-dark: #0a0a0c;
+            --card-bg: rgba(20, 20, 25, 0.7);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --accent-glow: rgba(0, 242, 254, 0.15);
         }
 
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
         }
 
         body {
-            background-color: var(--bg-color);
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(0, 120, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(220, 38, 38, 0.05) 0%, transparent 40%);
             color: var(--text-main);
-            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
             min-height: 100vh;
             overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 15% 0%, var(--accent-glow) 0%, transparent 40%),
-                radial-gradient(circle at 85% 100%, var(--red-glow) 0%, transparent 40%);
             background-attachment: fixed;
         }
 
@@ -337,6 +342,31 @@
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+        .alert-icon-small {
+            font-size: 1.4rem;
+            margin-right: 1rem; /* Extra space */
+            display: inline-flex;
+            align-items: center;
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .weather-badge {
+            display: none;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 1.25rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
         .controls {
@@ -817,6 +847,53 @@
 
         /* Responsive - Mobile */
         /* --- Mobile Optimization (Consolidated) --- */
+        /* Date Navigator */
+        .header-main-title {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .date-navigator {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255,255,255,0.05);
+            padding: 0.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+        .date-display {
+            text-align: center;
+            min-width: 120px;
+        }
+        #display-date-text {
+            font-weight: 700;
+            display: block;
+        }
+        .date-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: block;
+        }
+        .nav-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover {
+            background: var(--primary-blue);
+            transform: scale(1.1);
+        }
+
         @media (max-width: 768px) {
             header {
                 padding: 0.75rem 1rem;
@@ -987,10 +1064,68 @@
             cursor: pointer;
         }
 
-        @media (max-width: 768px) {
-            .auslass-disclaimer {
-                display: none;
-            }
+        /* Weather styling */
+        .weather-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Status styling */
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #2ecc71;
+            box-shadow: 0 0 10px #2ecc71;
+        }
+        .status-dot.offline {
+            background: #e74c3c;
+            box-shadow: 0 0 10px #e74c3c;
+        }
+
+        /* Staff Notes styling */
+        .notes-section {
+            margin-bottom: 2rem;
+        }
+        .notes-area {
+            width: 100%;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-main);
+            padding: 1rem;
+            font-size: 0.95rem;
+            resize: vertical;
+            min-height: 100px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .notes-area:focus {
+            border-color: var(--primary-blue);
+        }
+
+        /* Countdown styling */
+        .countdown-timer {
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: 700;
+            background: rgba(0, 242, 254, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 0.25rem;
+            display: inline-block;
         }
     </style>
 </head>
@@ -1003,6 +1138,10 @@
                 </div>
             </div>
             <div class="controls">
+                <div id="weather-widget" class="weather-badge glass" style="display: none;">
+                    <span id="weather-icon"></span>
+                    <span id="weather-temp"></span>
+                </div>
                 <select id="cinema-selector" class="location-select glass"></select>
             </div>
         </div>
@@ -1010,10 +1149,23 @@
 
     <div class="container">
         <div class="dashboard-header">
-            <h2 class="dashboard-title">Live Overview</h2>
+            <div class="header-main-title">
+                <h2 class="dashboard-title">Live Overview</h2>
+                <div class="date-navigator">
+                    <button class="nav-btn glass" onclick="changeDate(-1)">❮</button>
+                    <div class="date-display">
+                        <span id="display-date-text">Heute</span>
+                        <span id="display-date-sub" class="date-sub"></span>
+                    </div>
+                    <button class="nav-btn glass" onclick="changeDate(1)">❯</button>
+                </div>
+            </div>
             <div class="location-badge" id="location-name">Darmstadt: KINOPOLIS</div>
-            <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;" id="current-time-display">
-                Verbinde...
+            <div class="sync-status">
+                <div id="status-indicator" class="status-dot"></div>
+                <span id="current-time-display">Verbinde...</span>
+                <span id="last-update-display" class="last-update"></span>
+                <div id="stale-warning" class="stale-badge" style="display: none;">⚠️ Offline-Modus (Veraltete Daten)</div>
             </div>
         </div>
 
@@ -1031,6 +1183,16 @@
                 </button>
             </div>
             <div id="poster-alerts" class="collapsible-content alerts-list"></div>
+        </div>
+
+        <!-- Staff Notes Section -->
+        <div class="card-container notes-section glass" style="margin-bottom: 2rem; padding: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                <span class="alert-icon-small">📝</span>
+                <h2 style="font-size: 1.25rem;">Schicht-Notizen</h2>
+                <span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic; margin-left: auto;">Local Storage (Nur auf diesem Gerät)</span>
+            </div>
+            <textarea id="staff-notes" class="notes-area" placeholder="Notizen für die aktuelle Schicht hier eintragen..."></textarea>
         </div>
         
         <!-- Auslässe Section -->
@@ -1082,22 +1244,101 @@
         const API_URL = '/api/sessions';
         const LOCATIONS_URL = '/api/locations';
 
+        let lastData = null;
+        let lastUpdateTime = null;
         let tomorrowSessions = [];
         let completedAuslaesse = new Set();
         let currentCity = 'kp';
+        let displayDate = new Date();
 
-        // Update clock continuously
+        // Init notes
+        const notesArea = document.getElementById('staff-notes');
+        notesArea.value = localStorage.getItem('staff_notes') || '';
+        notesArea.addEventListener('input', (e) => {
+            localStorage.setItem('staff_notes', e.target.value);
+        });
+
+        // Update clock and countdowns
         setInterval(() => {
             const now = new Date();
             document.getElementById('current-time-display').innerText = 
-                now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+                now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' Uhr';
+            
+            if (lastUpdateTime) {
+                const diffSec = Math.floor((now - lastUpdateTime) / 1000);
+                document.getElementById('last-update-display').innerText = `Vor ${diffSec}s aktualisiert`;
+            }
+            
+            updateCountdowns();
         }, 1000);
 
+        function updateCountdowns() {
+            const isToday = displayDate.toDateString() === new Date().toDateString();
+            const timers = document.querySelectorAll('.countdown-timer');
+            if (!isToday) {
+                timers.forEach(t => t.style.display = 'none');
+                return;
+            }
+            
+            const now = new Date();
+            const currentMin = now.getHours() * 60 + now.getMinutes();
+
+            timers.forEach(timer => {
+                const startMin = parseInt(timer.dataset.start);
+                const endMin = parseInt(timer.dataset.end);
+                
+                if (currentMin < startMin) {
+                    const diff = startMin - currentMin;
+                    timer.innerText = `Beginnt in ${diff} Min.`;
+                } else if (currentMin < endMin) {
+                    const diff = endMin - currentMin;
+                    timer.innerText = `Läuft - noch ${diff} Min.`;
+                } else {
+                    timer.innerText = `Beendet`;
+                    timer.parentElement.closest('.session-item').style.opacity = '0.4';
+                }
+            });
+        }
         function toggleAlerts() {
             const content = document.getElementById('poster-alerts');
             const btn = document.getElementById('alerts-toggle-btn');
             content.classList.toggle('collapsed');
             btn.classList.toggle('collapsed');
+        }
+
+        function changeDate(days) {
+            displayDate.setDate(displayDate.getDate() + days);
+            updateDateUI();
+            fetchSessions();
+        }
+
+
+        function changeDate(days) {
+            displayDate.setDate(displayDate.getDate() + days);
+            updateDateUI();
+            fetchSessions();
+        }
+
+        function updateDateUI() {
+            const today = new Date();
+            const textEl = document.getElementById('display-date-text');
+            const subEl = document.getElementById('display-date-sub');
+            if(!textEl || !subEl) return;
+            
+            const isToday = displayDate.toDateString() === today.toDateString();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            const isTomorrow = displayDate.toDateString() === tomorrow.toDateString();
+            const yesterday = new Date(today);
+            yesterday.setDate(today.getDate() - 1);
+            const isYesterday = displayDate.toDateString() === yesterday.toDateString();
+
+            if (isToday) textEl.innerText = 'Heute';
+            else if (isTomorrow) textEl.innerText = 'Morgen';
+            else if (isYesterday) textEl.innerText = 'Gestern';
+            else textEl.innerText = displayDate.toLocaleDateString('de-DE', { weekday: 'long' });
+
+            subEl.innerText = displayDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
         }
 
         async function init() {
@@ -1112,8 +1353,60 @@
             });
 
             await fetchLocations();
+            updateDateUI();
+            await fetchWeather();
             await fetchSessions();
-            setInterval(fetchSessions, 60000);
+            
+            // Refresh every 60 seconds
+            setInterval(() => {
+                fetchSessions();
+                fetchWeather();
+            }, 60000);
+        }
+
+        async function fetchWeather() {
+            const cityCoords = {
+                'ab': { lat: 49.97, lon: 9.14 }, // Aschaffenburg
+                'bn': { lat: 50.68, lon: 7.15 }, // Bad Godesberg
+                'bh': { lat: 50.22, lon: 8.61 }, // Bad Homburg (updated from 50.23, 8.62)
+                'kp': { lat: 49.87, lon: 8.65 }, // Darmstadt
+                'cd': { lat: 49.87, lon: 8.65 }, // Darmstadt
+                'rx': { lat: 49.87, lon: 8.65 }, // Darmstadt
+                'fr': { lat: 50.91, lon: 13.34 }, // Freiberg
+                'gi': { lat: 50.58, lon: 8.67 }, // Gießen
+                'kg': { lat: 50.58, lon: 8.67 }, // Gießen
+                'hh': { lat: 53.54, lon: 9.99 }, // Hamburg
+                'hu': { lat: 50.13, lon: 8.92 }, // Hanau
+                'ka': { lat: 49.00, lon: 8.40 }, // Karlsruhe
+                'ko': { lat: 50.36, lon: 7.59 }, // Koblenz
+                'lh': { lat: 48.53, lon: 12.15 }, // Landshut
+                'ro': { lat: 47.85, lon: 12.12 }, // Rosenheim
+                'su': { lat: 50.11, lon: 8.52 }, // Sulzbach
+                'vi': { lat: 49.54, lon: 8.58 }  // Viernheim
+            };
+            const coords = cityCoords[currentCity] || cityCoords['kp'];
+            try {
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current_weather=true`);
+                const data = await res.json();
+                if (data.current_weather) {
+                    const temp = Math.round(data.current_weather.temperature);
+                    const code = data.current_weather.weathercode;
+                    document.getElementById('weather-temp').innerText = `${temp}°C`;
+                    document.getElementById('weather-icon').innerText = getWeatherEmoji(code);
+                    document.getElementById('weather-widget').style.display = 'flex';
+                }
+            } catch (err) { console.error('Weather error', err); }
+        }
+
+        function getWeatherEmoji(code) {
+            if (code === 0) return '☀️';
+            if (code <= 3) return '🌤️';
+            if (code <= 48) return '☁️';
+            if (code <= 67) return '🌧️';
+            if (code <= 77) return '❄️';
+            if (code <= 82) return '🌧️';
+            if (code <= 99) return '⛈️';
+            return '🌡️';
         }
 
         async function fetchLocations() {
@@ -1137,6 +1430,7 @@
                     document.getElementById('dashboard').innerHTML = '<div class="loading-state"><div class="spinner"></div><div class="loading-text">Aktualisiere Daten...</div></div>';
                     completedAuslaesse.clear();
                     fetchSessions();
+                    fetchWeather();
                 });
             } catch (err) {
                 console.error('Failed to load locations', err);
@@ -1145,7 +1439,13 @@
 
         async function fetchSessions() {
             try {
-                const url = `${API_URL}?location=${currentCity}&v=${Date.now()}`;
+                const year = displayDate.getFullYear();
+                const month = String(displayDate.getMonth() + 1).padStart(2, '0');
+                const day = String(displayDate.getDate()).padStart(2, '0');
+                const dateStr = `${year}-${month}-${day}`;
+                
+                const url = `${API_URL}?location=${currentCity}&date=${dateStr}&v=${Date.now()}`;
+                console.log('Fetching sessions for:', dateStr, url);
                 const response = await fetch(url);
                 
                 // Check if response is JSON
@@ -1157,35 +1457,37 @@
                 }
 
                 const sessions = await response.json();
+                lastData = sessions;
+                lastUpdateTime = new Date();
                 
+                document.getElementById('status-indicator').classList.remove('offline');
+                document.getElementById('stale-warning').style.display = 'none';
+
                 if(!sessions || (Array.isArray(sessions) && sessions.length === 0)) {
-                     document.getElementById('dashboard').innerHTML = '<div class="glass" style="padding: 3rem; text-align: center; grid-column: 1/-1;"><h3>Keine Vorstellungen gefunden</h3><p style="color: var(--text-muted); margin-top: 1rem;">Möglicherweise ist das Kino heute geschlossen oder die Daten sind nicht verfügbar.</p></div>';
-                     document.getElementById('poster-alerts').innerHTML = '';
-                     return;
+                      document.getElementById('dashboard').innerHTML = '<div class="glass" style="padding: 3rem; text-align: center; grid-column: 1/-1;"><h3>Keine Vorstellungen gefunden</h3><p style="color: var(--text-muted); margin-top: 1rem;">Möglicherweise ist das Kino heute geschlossen oder die Daten sind nicht verfügbar.</p></div>';
+                      document.getElementById('poster-alerts').innerHTML = '';
+                      return;
                 }
 
-                // If the worker returned an error object
-                if (sessions.error) {
-                    throw new Error(sessions.message || sessions.error);
-                }
 
-                const responseTom = await fetch(`${url}&tomorrow=true`);
-                const tomorrowSessionsGrouped = await responseTom.json();
-                
-                // Flatten for poster check
-                const tomSessionsFlat = (tomorrowSessionsGrouped || []).flatMap(hall => hall.sessions || []);
-
-                renderDashboard(sessions);
+                renderDashboard(sessions); 
                 renderAuslaesse(sessions);
-                updateAlerts(sessions, tomSessionsFlat);
+                updateAlerts(sessions, []); 
                 renderStats(sessions);
             } catch (error) {
                 console.error('Fetch error:', error);
-                document.getElementById('dashboard').innerHTML = `<div class="glass" style="padding: 2rem; color: #ff4d4d; border: 1px solid rgba(255, 77, 77, 0.3);">
-                    <h3 style="margin-bottom: 0.5rem;">Verbindungsfehler</h3>
-                    <p style="font-size: 0.9rem; opacity: 0.9;">${error.message}</p>
-                    <button onclick="fetchSessions()" style="margin-top: 1.5rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer;">Erneut versuchen</button>
-                </div>`;
+                document.getElementById('status-indicator').classList.add('offline');
+                
+                if (lastData) {
+                    document.getElementById('stale-warning').style.display = 'block';
+                    // We keep current UI but show warning
+                } else {
+                    document.getElementById('dashboard').innerHTML = `<div class="glass" style="padding: 2rem; color: #ff4d4d; border: 1px solid rgba(255, 77, 77, 0.3);">
+                        <h3 style="margin-bottom: 0.5rem;">Verbindungsfehler</h3>
+                        <p style="font-size: 0.9rem; opacity: 0.9;">${error.message}</p>
+                        <button onclick="fetchSessions()" style="margin-top: 1.5rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer;">Erneut versuchen</button>
+                    </div>`;
+                }
             }
         }
 
@@ -1214,10 +1516,11 @@
 
                     // Check if active (current time is between start and end)
                     let isActive = false;
+                    let startMin, endMin;
                     if (s.time && s.time.includes(':')) {
                         const [h, m] = s.time.split(':').map(Number);
-                        const startMin = h * 60 + m;
-                        const endMin = startMin + s.duration;
+                        startMin = h * 60 + m;
+                        endMin = startMin + s.duration;
                         isActive = currentMinutes >= startMin && currentMinutes <= endMin;
                     }
 
@@ -1233,6 +1536,7 @@
                                     <span class="tag">${s.duration} Min</span>
                                     ${s.date ? `<span class="session-date-badge">${s.date}</span>` : ''}
                                 </div>
+                                <div class="countdown-timer" data-start="${startMin}" data-end="${endMin}"></div>
                                 <div class="occupancy-wrapper">
                                     <div class="occupancy-header">
                                         <span>Auslastung</span>
