@@ -1,9 +1,20 @@
 import { Hono } from 'hono';
 import * as cheerio from 'cheerio';
 
-const app = new Hono().basePath('/api');
+const app = new Hono();
 
-app.get('/locations', (c) => {
+// Helper for consistent Kinopolis requests
+async function fetchKinopolis(url) {
+    return await fetch(url, {
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+            'Accept-Language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7'
+        }
+    });
+}
+
+app.get('/api/locations', (c) => {
     const locations = [
         { name: 'Aschaffenburg: KINOPOLIS', slug: 'ab' },
         { name: 'Bad Godesberg: KINOPOLIS', slug: 'bn' },
@@ -26,13 +37,20 @@ app.get('/locations', (c) => {
     return c.json(locations);
 });
 
-app.get('/sessions', async (c) => {
+app.get('/api/sessions', async (c) => {
     const location = c.req.query('location') || 'kp';
     const dateStr = c.req.query('date') || new Date().toISOString().split('T')[0];
     const targetUrl = `https://www.kinopolis.de/${location}/programm?date=${dateStr}`;
     
+    console.log(`Fetching sessions for ${location} on ${dateStr}`);
+    
     try {
-        const response = await fetch(targetUrl);
+        const response = await fetchKinopolis(targetUrl);
+        if (!response.ok) {
+            console.error(`Kinopolis returned status ${response.status}`);
+            return c.json({ error: `Kinopolis error: ${response.status}` }, response.status);
+        }
+        
         const html = await response.text();
         const $ = cheerio.load(html);
         const sessions = [];
@@ -113,6 +131,16 @@ app.get('/sessions', async (c) => {
                 }
                 const isBookable = !occupancyText.includes('nicht mehr buchbar') && !occupancyText.includes('ausverkauft');
 
+                const seatingAttr = $(sessionEl).find('[data-seating]').attr('data-seating');
+                if (capacity === 0 && seatingAttr) {
+                    try {
+                        const parsed = JSON.parse(seatingAttr);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            capacity = parsed[0];
+                        }
+                    } catch(e) {}
+                }
+
                 sessions.push({ title, poster: poster ? (poster.startsWith('http') ? poster : `https://www.kinopolis.de${poster}`) : null, 
                               time, hall, duration, capacity, freePercent, sold, isBookable, performanceId: perfId, date: dateStr });
             });
@@ -123,17 +151,24 @@ app.get('/sessions', async (c) => {
         const sortedHalls = Object.keys(halls).sort().map(name => ({ name, sessions: halls[name].sort((a, b) => a.time.localeCompare(b.time)) }));
         return c.json(sortedHalls);
     } catch (error) {
-        return c.json({ error: 'Failed' }, 500);
+        console.error('Worker error:', error);
+        return c.json({ error: 'Internal Server Error', message: error.message }, 500);
     }
+});
+
+// JSON fallback for 404
+app.notFound((c) => {
+    return c.json({ error: 'Not Found', path: c.req.path }, 404);
 });
 
 export default {
     async fetch(request, env, ctx) {
         const url = new URL(request.url);
+        // If it's an API request, let Hono handle it
         if (url.pathname.startsWith('/api/')) {
             return app.fetch(request, env, ctx);
         }
-        // Serve static assets from the root by default in Pages
+        // Otherwise serve static assets
         return env.ASSETS.fetch(request);
     }
 };

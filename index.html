@@ -1147,19 +1147,33 @@
             try {
                 const url = `${API_URL}?location=${currentCity}&v=${Date.now()}`;
                 const response = await fetch(url);
+                
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('Non-JSON response received:', text);
+                    throw new Error(`Ungültiges Datenformat vom Server (Status ${response.status}). Bitte lade die Seite neu.`);
+                }
+
                 const sessions = await response.json();
                 
-                if(!sessions || sessions.length === 0) {
+                if(!sessions || (Array.isArray(sessions) && sessions.length === 0)) {
                      document.getElementById('dashboard').innerHTML = '<div class="glass" style="padding: 3rem; text-align: center; grid-column: 1/-1;"><h3>Keine Vorstellungen gefunden</h3><p style="color: var(--text-muted); margin-top: 1rem;">Möglicherweise ist das Kino heute geschlossen oder die Daten sind nicht verfügbar.</p></div>';
                      document.getElementById('poster-alerts').innerHTML = '';
                      return;
+                }
+
+                // If the worker returned an error object
+                if (sessions.error) {
+                    throw new Error(sessions.message || sessions.error);
                 }
 
                 const responseTom = await fetch(`${url}&tomorrow=true`);
                 const tomorrowSessionsGrouped = await responseTom.json();
                 
                 // Flatten for poster check
-                const tomSessionsFlat = (tomorrowSessionsGrouped || []).flatMap(hall => hall.sessions);
+                const tomSessionsFlat = (tomorrowSessionsGrouped || []).flatMap(hall => hall.sessions || []);
 
                 renderDashboard(sessions);
                 renderAuslaesse(sessions);
@@ -1167,7 +1181,11 @@
                 renderStats(sessions);
             } catch (error) {
                 console.error('Fetch error:', error);
-                document.getElementById('dashboard').innerHTML = `<div class="glass" style="padding: 2rem; color: #ff4d4d;">Verbindungsfehler: ${error.message}</div>`;
+                document.getElementById('dashboard').innerHTML = `<div class="glass" style="padding: 2rem; color: #ff4d4d; border: 1px solid rgba(255, 77, 77, 0.3);">
+                    <h3 style="margin-bottom: 0.5rem;">Verbindungsfehler</h3>
+                    <p style="font-size: 0.9rem; opacity: 0.9;">${error.message}</p>
+                    <button onclick="fetchSessions()" style="margin-top: 1.5rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer;">Erneut versuchen</button>
+                </div>`;
             }
         }
 
