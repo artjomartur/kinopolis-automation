@@ -5,9 +5,23 @@ const app = new Hono().basePath('/api');
 
 app.get('/locations', (c) => {
     const locations = [
+        { name: 'Aschaffenburg: KINOPOLIS', slug: 'ab' },
+        { name: 'Bad Godesberg: KINOPOLIS', slug: 'bn' },
+        { name: 'Bad Homburg: KINOPOLIS', slug: 'bh' },
         { name: 'Darmstadt: KINOPOLIS', slug: 'kp' },
-        { name: 'Darmstadt: Citydome', slug: 'ca' },
-        { name: 'Darmstadt: Rex', slug: 'rx' }
+        { name: 'Darmstadt: Citydome', slug: 'cd' },
+        { name: 'Darmstadt: Rex', slug: 'rx' },
+        { name: 'Freiberg: KINOPOLIS', slug: 'fr' },
+        { name: 'Gießen: Kinocenter', slug: 'gi' },
+        { name: 'Gießen: KINOPOLIS', slug: 'kg' },
+        { name: 'Hamburg HafenCity: KINOPOLIS', slug: 'hh' },
+        { name: 'Hanau: KINOPOLIS', slug: 'hu' },
+        { name: 'Karlsruhe: Universum-City', slug: 'ka' },
+        { name: 'Koblenz: KINOPOLIS', slug: 'ko' },
+        { name: 'Landshut: KINOPOLIS', slug: 'lh' },
+        { name: 'Rosenheim: KINOPOLIS', slug: 'ro' },
+        { name: 'Sulzbach / MTZ: KINOPOLIS', slug: 'su' },
+        { name: 'Viernheim / RNZ: KINOPOLIS', slug: 'vi' }
     ];
     return c.json(locations);
 });

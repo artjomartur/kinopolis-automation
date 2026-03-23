@@ -46,31 +46,239 @@
         }
 
         header {
-            padding: 1.5rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 1rem 2rem;
             border-bottom: 1px solid var(--surface-border);
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
             background: rgba(10, 10, 13, 0.8);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(24px);
             position: sticky;
             top: 0;
             z-index: 100;
         }
 
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
         .brand {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .logo-container {
+            background: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .logo-container:hover {
+            transform: scale(1.05);
         }
 
         .logo {
             height: 48px;
-            width: 48px;
+            width: auto;
+            display: block;
+        }
+
+        /* Feedback Tab */
+        .feedback-tab {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+            transform-origin: right bottom;
+            background: var(--primary-red);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            z-index: 1000;
+            border-radius: 12px 12px 0 0;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            box-shadow: -2px 0 15px rgba(229, 9, 20, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .feedback-tab:hover {
+            padding-right: 2rem;
+            background: #ff1f2a;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            width: 90%;
+            max-width: 500px;
+            padding: 2.5rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 1rem;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .modal-content textarea {
+            width: 100%;
+            height: 150px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-            background: rgba(255,255,255,0.05); /* Placeholder if image fails */
+            color: white;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            font-family: inherit;
+            resize: none;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        /* Statistics Section */
+        .stats-section {
+            margin-top: 4rem;
+            padding: 3rem;
+            border-radius: 32px;
+            background: rgba(20, 20, 25, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 2rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            color: white;
+            display: block;
+        }
+
+        .stat-subtext {
+            color: var(--primary-red);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .chart-container {
+            margin-top: 4rem;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 2rem;
+            border-radius: 24px;
+        }
+
+        .hour-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 1rem;
+            height: 200px;
+            margin-top: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .hour-bar-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            height: 100%;
+            justify-content: flex-end;
+        }
+
+        .hour-bar {
+            width: 100%;
+            background: linear-gradient(to top, var(--primary-red), #ff4d4d);
+            border-radius: 6px 6px 0 0;
+            min-height: 2px;
+            transition: height 1s ease-out;
+            position: relative;
+        }
+
+        .hour-bar:hover::after {
+            content: attr(data-value);
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .hour-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
         }
 
         h1 {
@@ -115,23 +323,29 @@
         }
 
         .container {
-            max-width: 1600px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0 2rem 2rem;
+            padding: 0 2rem 4rem;
         }
 
         .dashboard-header {
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
             display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 1.5rem;
         }
 
         .dashboard-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 2.5rem;
+            font-size: 3.5rem;
             font-weight: 800;
             margin-bottom: 0.5rem;
+            background: linear-gradient(180deg, #fff, #b3b3b3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .location-badge {
@@ -172,6 +386,32 @@
             align-items: center;
             padding-bottom: 1rem;
             border-bottom: 1px solid var(--surface-border);
+            cursor: pointer;
+        }
+
+        .hall-header.collapsed {
+            border-bottom: none;
+            padding-bottom: 0.5rem;
+        }
+
+        .hall-sessions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .hall-sessions-list.collapsed {
+            display: none;
+        }
+
+        .toggle-icon {
+            transition: transform 0.3s ease;
+            color: var(--text-muted);
+        }
+
+        .hall-header.collapsed .toggle-icon {
+            transform: rotate(-180deg);
         }
 
         .hall-name {
@@ -391,8 +631,7 @@
         }
 
         .collapsible-content.collapsed {
-            max-height: 0;
-            margin-top: 0;
+            display: none;
         }
 
         .alerts-list {
@@ -649,27 +888,121 @@
             }
         }
 
+        /* Auslässe styles */
+        .auslaesse-container {
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(20, 20, 25, 0.4);
+        }
+        
+        .auslass-header-small {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .auslass-disclaimer {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-left: auto;
+            margin-right: 1.5rem;
+            font-style: italic;
+        }
+        
+        .auslass-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem;
+        }
+        
+        .auslass-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .auslass-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+        }
+        
+        .auslass-hall {
+            background: var(--primary);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        .auslass-time-range {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            color: var(--accent);
+            font-weight: 700;
+        }
+        
+        .auslass-movie {
+            flex: 1;
+            font-size: 0.95rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .auslass-item.active {
+            border-color: var(--accent);
+            background: rgba(0, 242, 254, 0.05);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.1);
+        }
+
+        .auslass-item.done {
+            opacity: 0.3;
+            text-decoration: line-through;
+            filter: grayscale(1);
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        .auslass-item:not(.done) {
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .auslass-disclaimer {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
     <header>
-        <div class="brand">
-            <!-- Ensure correct absolute path for logo -->
-            <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" alt="Kinopolis" class="logo" id="brand-logo" onerror="this.style.display='none'">
-            <h1>Kinopolis Automation</h1>
-        </div>
-        <div class="controls">
-            <select id="cinema-selector" class="location-select glass"></select>
+        <div class="header-inner">
+            <div class="brand">
+                <div class="logo-container">
+                    <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png?20260323" alt="Kinopolis" class="logo" id="brand-logo">
+                </div>
+            </div>
+            <div class="controls">
+                <select id="cinema-selector" class="location-select glass"></select>
+            </div>
         </div>
     </header>
 
     <div class="container">
         <div class="dashboard-header">
-            <div>
-                <h2 class="dashboard-title">Live Overview</h2>
-                <div class="location-badge" id="location-name">Darmstadt: KINOPOLIS</div>
-            </div>
-            <div style="color: var(--text-muted); font-size: 0.9rem;" id="current-time-display">
+            <h2 class="dashboard-title">Live Overview</h2>
+            <div class="location-badge" id="location-name">Darmstadt: KINOPOLIS</div>
+            <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;" id="current-time-display">
                 Verbinde...
             </div>
         </div>
@@ -678,7 +1011,7 @@
             <div class="alerts-header glass" onclick="toggleAlerts()">
                 <div class="alerts-title">
                     <span class="alert-icon-small">⚠️</span>
-                    <h2>Dringende Plakatwechsel</h2>
+                    <h2>Dringende Hinweise</h2>
                     <span id="alert-count-badge" class="badge">0</span>
                 </div>
                 <button class="toggle-btn" id="alerts-toggle-btn">
@@ -690,12 +1023,49 @@
             <div id="poster-alerts" class="collapsible-content alerts-list"></div>
         </div>
         
+        <!-- Auslässe Section -->
+        <div id="auslaesse-section-container" class="card-container auslaesse-container glass" style="display: none;">
+            <div class="card-header">
+                <div class="header-left auslass-header-small">
+                    <span class="alert-icon-small">🚪</span>
+                    <h2>Voraussichtliche Auslässe</h2>
+                    <span id="auslass-count-badge" class="badge">0</span>
+                    <span class="auslass-disclaimer">Planungs-Hilfe: Ca. Ende + 30 Min Werbung</span>
+                </div>
+                <button class="toggle-btn" id="auslaesse-toggle-btn">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
+                    </svg>
+                </button>
+            </div>
+            <div id="auslaesse-list" class="collapsible-content auslass-grid"></div>
+        </div>
+
         <div id="dashboard" class="dashboard-grid">
             <div id="loading" class="loading-state">
                 <div class="spinner"></div>
                 <div class="loading-text">Abrufen der Live-Daten...</div>
             </div>
         </div>
+
+        <!-- Statistics Section -->
+        <section id="stats-section-container" class="stats-section" style="display: none; margin-bottom: 4rem;">
+            <div class="section-header">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span class="alert-icon-small">📊</span>
+                    <h2>Tages-Statistiken</h2>
+                </div>
+            </div>
+            <div id="stats-grid" class="stats-grid">
+                <!-- Stat cards will be injected here -->
+            </div>
+            <div class="chart-container">
+                <span class="stat-label">Besucher pro Stunde (Heute)</span>
+                <div id="hour-chart" class="hour-bars">
+                    <!-- Bars will be injected here -->
+                </div>
+            </div>
+        </section>
     </div>
 
     <script>
@@ -703,6 +1073,7 @@
         const LOCATIONS_URL = '/api/locations';
 
         let tomorrowSessions = [];
+        let completedAuslaesse = new Set();
         let currentCity = 'kp';
 
         // Update clock continuously
@@ -721,6 +1092,15 @@
 
         async function init() {
             console.log('Kinopolis Dashboard v1.1 - Unified Worker Mode');
+            
+            // Setup toggle for Auslässe
+            document.getElementById('auslaesse-toggle-btn').addEventListener('click', () => {
+                const content = document.getElementById('auslaesse-list');
+                const btn = document.getElementById('auslaesse-toggle-btn');
+                content.classList.toggle('collapsed');
+                btn.classList.toggle('collapsed');
+            });
+
             await fetchLocations();
             await fetchSessions();
             setInterval(fetchSessions, 60000);
@@ -745,6 +1125,7 @@
                     const cityName = e.target.options[e.target.selectedIndex].text;
                     document.getElementById('location-name').innerText = cityName;
                     document.getElementById('dashboard').innerHTML = '<div class="loading-state"><div class="spinner"></div><div class="loading-text">Aktualisiere Daten...</div></div>';
+                    completedAuslaesse.clear();
                     fetchSessions();
                 });
             } catch (err) {
@@ -771,7 +1152,9 @@
                 const tomSessionsFlat = (tomorrowSessionsGrouped || []).flatMap(hall => hall.sessions);
 
                 renderDashboard(sessions);
-                checkPosterChanges(sessions, tomSessionsFlat);
+                renderAuslaesse(sessions);
+                updateAlerts(sessions, tomSessionsFlat);
+                renderStats(sessions);
             } catch (error) {
                 console.error('Fetch error:', error);
                 document.getElementById('dashboard').innerHTML = `<div class="glass" style="padding: 2rem; color: #ff4d4d;">Verbindungsfehler: ${error.message}</div>`;
@@ -837,13 +1220,231 @@
                 }).join('');
 
                 card.innerHTML = `
-                    <div class="hall-header">
-                        <span class="hall-name">${hallName}</span>
-                        <span class="session-count">${sessions.length} Vorstellungen</span>
+                    <div class="hall-header" onclick="toggleHall(this)">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span class="hall-name">${hallName}</span>
+                            <span class="session-count">${sessions.length} Vorstellungen</span>
+                        </div>
+                        <svg class="toggle-icon" viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
+                        </svg>
                     </div>
-                    ${sessionsHtml}
+                    <div class="hall-sessions-list">
+                        ${sessionsHtml}
+                    </div>
                 `;
                 dashboard.appendChild(card);
+            });
+        }
+
+        function renderAuslaesse(hallsGrouped) {
+            const container = document.getElementById('auslaesse-section-container');
+            const list = document.getElementById('auslaesse-list');
+            const badge = document.getElementById('auslass-count-badge');
+            list.innerHTML = '';
+
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+            let totalAuslaesse = 0;
+
+            hallsGrouped.forEach(hall => {
+                const sessions = hall.sessions.filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
+                
+                // All sessions except the last one
+                const auslassSessions = sessions.slice(0, -1);
+                
+                auslassSessions.forEach(s => {
+                    const [h, m] = s.time.split(':').map(Number);
+                    const startMin = h * 60 + m;
+                    const endMinBase = startMin + s.duration;
+                    const endMinMax = endMinBase + 30; // 30 min buffer for ads/cleaning
+                    
+                    const timeStart = formatMinutes(endMinBase);
+                    const timeEnd = formatMinutes(endMinMax);
+                    
+                    const isActive = currentMinutes >= endMinBase && currentMinutes <= endMinMax;
+                    totalAuslaesse++;
+
+                    const item = document.createElement('div');
+                    const auslassId = `${hall.name}-${s.title}-${s.time}`;
+                    const isDone = completedAuslaesse.has(auslassId);
+                    
+                    item.className = `auslass-item ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}`;
+                    item.innerHTML = `
+                        <div class="auslass-hall">${hall.name}</div>
+                        <div class="auslass-movie" title="${s.title}">${s.title}</div>
+                        <div class="auslass-time-range">${timeStart} - ${timeEnd}</div>
+                    `;
+                    
+                    item.addEventListener('click', () => {
+                        if (completedAuslaesse.has(auslassId)) {
+                            completedAuslaesse.delete(auslassId);
+                            item.classList.remove('done');
+                        } else {
+                            completedAuslaesse.add(auslassId);
+                            item.classList.add('done');
+                        }
+                    });
+                    
+                    list.appendChild(item);
+                });
+            });
+
+            badge.textContent = totalAuslaesse;
+            container.style.display = totalAuslaesse > 0 ? 'block' : 'none';
+
+            // Custom logic for Kinopolis Darmstadt (kp) - Dismantle Stations
+            if (currentCity === 'kp') {
+                renderKpStationAlerts(hallsGrouped);
+            }
+        }
+
+        function renderKpStationAlerts(hallsGrouped) {
+            const list = document.getElementById('auslaesse-list');
+            const groups = [
+                { name: 'Station 1/2', halls: ['Kino 1', 'Kino 2'] },
+                { name: 'Station 3/4', halls: ['Kino 3', 'Kino 4'] },
+                { name: 'Station 5/6', halls: ['Kino 5', 'Kino 6'] },
+                { name: 'Station 7/8', halls: ['Kino 7', 'Kino 8'] }
+            ];
+
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+            groups.forEach(group => {
+                let hasUpcomingAuslass = false;
+                
+                group.halls.forEach(hallName => {
+                    const hall = hallsGrouped.find(h => h.name === hallName);
+                    if (!hall) return;
+
+                    const sessions = hall.sessions.filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
+                    const auslassSessions = sessions.slice(0, -1); // All except last
+
+                    auslassSessions.forEach(s => {
+                        const [h, m] = s.time.split(':').map(Number);
+                        const endMinMax = (h * 60 + m) + s.duration + 30;
+                        if (endMinMax > currentMinutes) {
+                            hasUpcomingAuslass = true;
+                        }
+                    });
+                });
+
+                if (!hasUpcomingAuslass) {
+                    const item = document.createElement('div');
+                    item.className = 'auslass-item active';
+                    item.style.background = 'linear-gradient(90deg, #2ecc71, #27ae60)';
+                    item.style.borderColor = '#2ecc71';
+                    item.style.color = 'white';
+                    item.innerHTML = `
+                        <div class="auslass-hall">ABBAU</div>
+                        <div class="auslass-movie"><strong>${group.name}</strong> - Keine Auslässe mehr</div>
+                        <div class="auslass-time-range">Fertig</div>
+                    `;
+                    list.appendChild(item);
+                }
+            });
+        }
+
+        function formatMinutes(totalMinutes) {
+            const h = Math.floor(totalMinutes / 60) % 24;
+            const m = totalMinutes % 60;
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        }
+
+        function renderStats(hallsGrouped) {
+            const container = document.getElementById('stats-section-container');
+            const grid = document.getElementById('stats-grid');
+            const chart = document.getElementById('hour-chart');
+            
+            const allSessions = hallsGrouped.flatMap(h => h.sessions);
+            if (allSessions.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            container.style.display = 'block';
+
+            // Metrics
+            const hourStats = {}; // { hour: sold }
+            const movieStats = {}; // { title: { sold, poster } }
+            let totalSold = 0;
+            let topSession = { sold: -1, capacity: 1, title: '', hall: '', poster: null };
+
+            allSessions.forEach(s => {
+                if (!s.time || !s.time.includes(':')) return;
+                const hour = s.time.split(':')[0] + ':00';
+                hourStats[hour] = (hourStats[hour] || 0) + s.sold;
+                
+                if (!movieStats[s.title]) movieStats[s.title] = { sold: 0, poster: s.poster };
+                movieStats[s.title].sold += s.sold;
+                
+                totalSold += s.sold;
+
+                const occupancy = s.capacity > 0 ? s.sold / s.capacity : 0;
+                const currentTopOcc = topSession.capacity > 0 ? topSession.sold / topSession.capacity : 0;
+                if (occupancy > currentTopOcc) {
+                    topSession = s;
+                }
+            });
+
+            // Top Film
+            let topMovie = { title: 'Keine Daten', sold: 0, poster: null };
+            for (const [title, stats] of Object.entries(movieStats)) {
+                if (stats.sold > topMovie.sold) topMovie = { title, sold: stats.sold, poster: stats.poster };
+            }
+
+            // Peak Hour
+            let peakHour = { time: '--:--', sold: 0 };
+            for (const [time, sold] of Object.entries(hourStats)) {
+                if (sold > peakHour.sold) peakHour = { time, sold };
+            }
+
+            // Render Cards
+            grid.innerHTML = `
+                <div class="stat-card">
+                    <span class="stat-label">Gesamtbesucher</span>
+                    <span class="stat-value">${totalSold}</span>
+                    <div class="stat-subtext">Tickets heute</div>
+                </div>
+                <div class="stat-card" style="display: flex; gap: 1.5rem; align-items: center;">
+                    ${topMovie.poster ? `<img src="${topMovie.poster}" style="width: 70px; height: 100px; border-radius: 8px; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">` : ''}
+                    <div style="flex: 1;">
+                        <span class="stat-label">Top Film</span>
+                        <span class="stat-value" style="font-size: 1.3rem; line-height: 1.2;">${topMovie.title}</span>
+                        <div class="stat-subtext">${topMovie.sold} Besucher</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Peak Time</span>
+                    <span class="stat-value">${peakHour.time}</span>
+                    <div class="stat-subtext">${peakHour.sold} Besucher gleichzeitig</div>
+                </div>
+                <div class="stat-card" style="display: flex; gap: 1.5rem; align-items: center;">
+                    ${topSession.poster ? `<img src="${topSession.poster}" style="width: 70px; height: 100px; border-radius: 8px; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">` : ''}
+                    <div style="flex: 1;">
+                        <span class="stat-label">Bestausgelastet</span>
+                        <span class="stat-value" style="font-size: 1.3rem;">${topSession.sold} / ${topSession.capacity}</span>
+                        <div class="stat-subtext">${topSession.title} (${topSession.hall})</div>
+                    </div>
+                </div>
+            `;
+
+            // Render Chart
+            chart.innerHTML = '';
+            const sortedHours = Object.keys(hourStats).sort();
+            const maxHourSold = Math.max(...Object.values(hourStats), 1);
+
+            sortedHours.forEach(hour => {
+                const sold = hourStats[hour];
+                const heightPct = (sold / maxHourSold) * 100;
+                
+                const barWrapper = document.createElement('div');
+                barWrapper.className = 'hour-bar-wrapper';
+                barWrapper.innerHTML = `
+                    <div class="hour-bar" style="height: ${heightPct}%" data-value="${sold}"></div>
+                    <span class="hour-label">${hour}</span>
+                `;
+                chart.appendChild(barWrapper);
             });
         }
 
@@ -856,10 +1457,29 @@
             return `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`;
         }
 
-        function checkPosterChanges(hallsGrouped, tomSessionsFlat) {
+        function toggleHall(header) {
+            const sessionsList = header.nextElementSibling;
+            const isCollapsed = header.classList.toggle('collapsed');
+            sessionsList.classList.toggle('collapsed');
+        }
+
+        function updateAlerts(hallsGrouped, tomSessionsFlat) {
             const alertsContainer = document.getElementById('poster-alerts');
             alertsContainer.innerHTML = '';
 
+            addPosterAlerts(hallsGrouped, tomSessionsFlat, alertsContainer);
+            addOccupancyAlerts(hallsGrouped, alertsContainer);
+
+            // Update badge count
+            const count = alertsContainer.children.length;
+            document.getElementById('alert-count-badge').textContent = count;
+            
+            // Hide container if no alerts
+            const container = document.getElementById('poster-alerts-container');
+            container.style.display = count > 0 ? 'block' : 'none';
+        }
+
+        function addPosterAlerts(hallsGrouped, tomSessionsFlat, container) {
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
@@ -874,20 +1494,16 @@
                 const changeTimeMinutes = startTimeMinutes + 30;
 
                 if (currentMinutes >= changeTimeMinutes) {
-                    const tomHallSessions = tomSessions.filter(s => s.hall === hallName).sort((a,b) => a.time.localeCompare(b.time));
-                    const nextMovie = tomHallSessions[0];
-
+                    const nextMovie = tomSessionsFlat.filter(s => s.hall === hallName).sort((a,b) => a.time.localeCompare(b.time))[0];
                     if (!nextMovie) return;
 
                     const alert = document.createElement('div');
                     alert.className = 'poster-change-alert';
-                    // removed style.display = 'block' because container handles it
-                    
                     alert.innerHTML = `
                         <div class="alert-content">
-                            <div class="alert-icon">⚠️</div>
+                            <div class="alert-icon">🖼️</div>
                             <div class="alert-text" style="flex: 1">
-                                <h2>Plakatwechsel in <span style="white-space: nowrap">${hallName}</span> <span class="alert-date-label">(${lastSession.date || 'Heute'})</span></h2>
+                                <h2>Plakatwechsel in <span style="white-space: nowrap">${hallName}</span></h2>
                                 <p>Die <strong>letzte Vorstellung</strong> des Tages hat begonnen. Das Plakat kann für morgen gewechselt werden.</p>
                             </div>
                             <div class="next-movie-preview">
@@ -900,17 +1516,70 @@
                             </div>
                         </div>
                     `;
-                    alertsContainer.appendChild(alert);
+                    container.appendChild(alert);
                 }
             });
+        }
 
-            // Update badge count
-            const count = alertsContainer.children.length;
-            document.getElementById('alert-count-badge').textContent = count;
+        function addOccupancyAlerts(hallsGrouped, container) {
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+            hallsGrouped.forEach(hall => {
+                const hallName = hall.name;
+                const sessions = hall.sessions.filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
+
+                sessions.forEach((s, index) => {
+                    const [h, m] = s.time.split(':').map(Number);
+                    const startMin = h * 60 + m;
+                    const diff = startMin - currentMinutes;
+
+                    // Trigger 15 min before start if > 50 people
+                    if (diff > 0 && diff <= 15 && s.sold > 50) {
+                        const prevSession = index > 0 ? sessions[index - 1] : null;
+                        const isZENeeded = !prevSession || prevSession.sold <= 50;
+
+                        const alert = document.createElement('div');
+                        alert.className = 'poster-change-alert';
+                        if (isZENeeded) {
+                            alert.style.background = 'linear-gradient(135deg, rgba(0, 120, 255, 0.2) 0%, rgba(20, 20, 25, 0.8) 100%)';
+                            alert.style.borderColor = 'rgba(0, 120, 255, 0.4)';
+                        }
+
+                        alert.innerHTML = `
+                            <div class="alert-content">
+                                <div class="alert-icon">${isZENeeded ? '🛂' : '🎟️'}</div>
+                                <div class="alert-text" style="flex: 1">
+                                    <h2>${isZENeeded ? 'Zutrittskontrolle (ZE) nötig!' : 'Saal fast voll!'}</h2>
+                                    <p>Der Film <strong>${s.title}</strong> in <strong>${hallName}</strong> beginnt in ${diff} Min. (${s.sold} Plätze belegt).</p>
+                                    ${isZENeeded ? '<p style="color: var(--primary-blue); margin-top: 0.5rem; font-weight: 600;">⚠️ Da der Vorfilm nicht voll war, sollte hier ZE gemacht werden!</p>' : ''}
+                                </div>
+                            </div>
+                        `;
+                        container.insertBefore(alert, container.firstChild); // Show these at the top
+                    }
+                });
+            });
+        }
+
+        function openFeedback() {
+            document.getElementById('feedback-modal').classList.add('active');
+        }
+
+        function closeFeedback() {
+            document.getElementById('feedback-modal').classList.remove('active');
+        }
+
+        function sendFeedback() {
+            const text = document.getElementById('feedback-text').value;
+            if (!text.trim()) return alert('Bitte gib ein Feedback ein.');
             
-            // Hide container if no alerts
-            const container = document.getElementById('poster-alerts-container');
-            container.style.display = count > 0 ? 'block' : 'none';
+            const subject = encodeURIComponent('Kinopolis Feedback');
+            const body = encodeURIComponent(text);
+            window.location.href = `mailto:hi@artjombecker.com?subject=${subject}&body=${body}`;
+            
+            closeFeedback();
+            document.getElementById('feedback-text').value = '';
         }
 
         // Initial load
@@ -922,5 +1591,22 @@
             this.style.background = 'transparent';
         };
     </script>
+
+    <!-- Feedback UI -->
+    <div class="feedback-tab" onclick="openFeedback()">
+        Feedback
+    </div>
+
+    <div id="feedback-modal" class="modal">
+        <div class="modal-content glass">
+            <h2>Feedback senden</h2>
+            <p style="color: var(--text-muted);">Dein Feedback hilft uns, das Dashboard zu verbessern. Es wird anonym via E-Mail verschickt.</p>
+            <textarea id="feedback-text" placeholder="Was können wir verbessern?"></textarea>
+            <div class="modal-actions">
+                <button onclick="closeFeedback()" class="btn-secondary">Abbrechen</button>
+                <button onclick="sendFeedback()" class="btn-primary">Senden</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
