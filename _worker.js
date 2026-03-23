@@ -74,6 +74,9 @@ app.get('/api/sessions', async (c) => {
             }
         });
 
+        const seenSessions = new Set();
+        const seenPerfIds = new Set();
+
         $('section.movie, .prog2__movie').each((i, movieEl) => {
             const title = $(movieEl).find('.hl-link, .prog2__movie-title').first().text().trim();
             if (!title) return;
@@ -81,7 +84,6 @@ app.get('/api/sessions', async (c) => {
             const durationText = $(movieEl).find('.movie__specs-el, .prog2__movie-info-item, .prog2__infos').text().trim();
             const durationMatch = durationText.match(/Dauer:\s*(\d+)\s*Minuten/i) || durationText.match(/(\d+)\s*Min\.?/i);
             const duration = durationMatch ? parseInt(durationMatch[1]) : 0;
-            const seenSessions = new Set();
 
             $(movieEl).find('.prog2__cont, .prog2__movie-session').each((j, sessionEl) => {
                 const perfId = $(sessionEl).attr('data-performance-id');
@@ -91,15 +93,20 @@ app.get('/api/sessions', async (c) => {
                 if (!hallTextContent) hallTextContent = $(sessionEl).find('.prog2__hall-num').text().replace(/i$/, '').trim();
                 const hall = hallTextContent;
                 if (!time) return;
+
+                // Deduplicate sessions globally per request
+                const sessionKey = `${time}-${hall}`;
+                if (perfId && seenPerfIds.has(perfId)) return;
+                if (!perfId && seenSessions.has(sessionKey)) return;
+                if (perfId) seenPerfIds.add(perfId);
+                seenSessions.add(sessionKey);
+
                 if (location === 'kp') {
                     const isCitydomeOrRexEvent = hall.includes('Helia') || hall.includes('Pali') || 
                                            hall.includes('Rex') || hall.includes('Classic') || 
                                            hall.includes('Broadway') || hall.includes('Bambi') || hall.includes('Festival');
                     if (isCitydomeOrRexEvent) return;
                 }
-                const sessionKey = `${time}-${hall}`;
-                if (seenSessions.has(sessionKey)) return;
-                seenSessions.add(sessionKey);
 
                 const occupancyText = $(sessionEl).text().trim();
                 let capacity = 0;
@@ -136,7 +143,10 @@ app.get('/api/sessions', async (c) => {
                     try {
                         const parsed = JSON.parse(seatingAttr);
                         if (Array.isArray(parsed) && parsed.length > 0) {
-                            capacity = parsed[0];
+                            // Only use if it looks like a seat count (usually data-seating is just [1] or [0] for categories)
+                            if (parsed[0] > 10) {
+                                capacity = parsed[0];
+                            }
                         }
                     } catch(e) {}
                 }
