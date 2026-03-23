@@ -73,24 +73,49 @@
         }
 
         .logo-container {
-            background: #fff;
+            background: rgba(255, 255, 255, 0.05);
             padding: 0.5rem 1rem;
-            border-radius: 8px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .logo-container:hover {
-            transform: scale(1.05);
+            transform: scale(1.02);
+            background: rgba(255,255,255,0.1);
         }
 
         .logo {
-            height: 48px;
+            height: 44px;
             width: auto;
             display: block;
+            filter: drop-shadow(0 0 8px rgba(255,255,255,0.2));
+        }
+
+        .location-select {
+            appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.6rem 2.5rem 0.6rem 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.5rem;
+        }
+
+        .location-select:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
         }
 
         /* Feedback Tab */
@@ -278,11 +303,12 @@
 
         .hour-bar {
             width: 100%;
-            background: linear-gradient(to top, var(--primary-red), #ff4d4d);
+            background: linear-gradient(180deg, #00f2fe 0%, #4facfe 100%);
             border-radius: 6px 6px 0 0;
             min-height: 2px;
-            transition: height 1s ease-out;
+            transition: all 0.5s ease;
             position: relative;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
         }
 
         .hour-bar:hover::after {
@@ -797,77 +823,63 @@
                 margin-bottom: 2rem;
             }
             .header-inner {
-                gap: 0.5rem;
+                flex-direction: column !important;
+                gap: 1rem !important;
+                align-items: center !important;
             }
-            .logo-container {
-                padding: 0.4rem 0.8rem;
+            .brand {
+                width: 100%;
+                justify-content: center;
             }
-            .logo {
-                height: 32px;
+            .controls {
+                width: 100%;
             }
-            .brand h1 {
-                display: none;
+            .location-select {
+                width: 100%;
+                text-align: center;
             }
             .container {
-                padding: 0 1rem 3rem;
+                padding: 0 0.75rem 3rem !important;
             }
             .dashboard-title {
-                font-size: 2.5rem;
-            }
-            .location-badge {
-                font-size: 0.8rem;
-                padding: 0.3rem 0.8rem;
-            }
-            .feedback-tab {
-                display: none; /* Hide feedback tab on mobile */
-            }
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
+                font-size: 2rem !important;
+                margin-top: 1rem !important;
             }
             .hall-card {
-                padding: 1.25rem;
-                border-radius: 16px;
+                padding: 1rem !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
+            }
+            .hall-header {
+                padding-bottom: 0.75rem !important;
             }
             .hall-name {
-                font-size: 1.2rem;
+                font-size: 1.1rem !important;
             }
-            /* Allow long titles to wrap on mobile */
-            .movie-title, .auslass-movie {
-                white-space: normal !important;
-                overflow: visible !important;
-                text-overflow: clip !important;
-                line-height: 1.3;
-                font-size: 0.95rem;
+            .session-item {
+                padding: 1rem 0.5rem !important;
+                border-bottom: 1px solid rgba(255,255,255,0.05) !important;
             }
-            .auslass-item {
-                padding: 0.75rem;
-                gap: 0.75rem;
+            .session-title {
+                font-size: 1rem !important;
+                font-weight: 600 !important;
             }
-            .auslass-grid {
-                grid-template-columns: 1fr;
-                padding: 1rem;
-            }
-            .auslass-time-range {
-                font-size: 1rem;
+            .stat-card {
+                padding: 1.25rem !important;
+                border-radius: 16px !important;
             }
             .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
+                grid-template-columns: 1fr !important;
+                gap: 1rem !important;
             }
-            /* Stack Top Film and Best Occupied with image on top */
             .stat-card.poster-card {
                 flex-direction: column !important;
                 align-items: flex-start !important;
                 gap: 1rem !important;
             }
-            .stat-card.poster-card img {
+            .stat-poster {
                 width: 100% !important;
                 height: 150px !important;
-                object-fit: cover;
-            }
-            .stat-value {
-                font-size: 1.5rem !important;
             }
         }
 
@@ -1243,53 +1255,67 @@
 
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
-            let totalAuslaesse = 0;
-
+            
+            // 1. Collect all auslass sessions globally
+            const allAuslaesse = [];
             hallsGrouped.forEach(hall => {
                 const sessions = hall.sessions.filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
                 
-                // All sessions except the last one
-                const auslassSessions = sessions.slice(0, -1);
+                // All sessions except the last one of the day per hall
+                const upcomingAuslassSessions = sessions.slice(0, -1);
                 
-                auslassSessions.forEach(s => {
+                upcomingAuslassSessions.forEach(s => {
                     const [h, m] = s.time.split(':').map(Number);
                     const startMin = h * 60 + m;
                     const endMinBase = startMin + s.duration;
-                    const endMinMax = endMinBase + 30; // 30 min buffer for ads/cleaning
+                    const endMinMax = endMinBase + 30; // 30 min buffer
                     
-                    const timeStart = formatMinutes(endMinBase);
-                    const timeEnd = formatMinutes(endMinMax);
-                    
-                    const isActive = currentMinutes >= endMinBase && currentMinutes <= endMinMax;
-                    totalAuslaesse++;
-
-                    const item = document.createElement('div');
-                    const auslassId = `${hall.name}-${s.title}-${s.time}`;
-                    const isDone = completedAuslaesse.has(auslassId);
-                    
-                    item.className = `auslass-item ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}`;
-                    item.innerHTML = `
-                        <div class="auslass-hall">${hall.name}</div>
-                        <div class="auslass-movie" title="${s.title}">${s.title}</div>
-                        <div class="auslass-time-range">${timeStart} - ${timeEnd}</div>
-                    `;
-                    
-                    item.addEventListener('click', () => {
-                        if (completedAuslaesse.has(auslassId)) {
-                            completedAuslaesse.delete(auslassId);
-                            item.classList.remove('done');
-                        } else {
-                            completedAuslaesse.add(auslassId);
-                            item.classList.add('done');
-                        }
+                    allAuslaesse.push({
+                        hall: hall.name,
+                        title: s.title,
+                        time: s.time,
+                        endMinBase,
+                        endMinMax,
+                        timeStart: formatMinutes(endMinBase),
+                        timeEnd: formatMinutes(endMinMax),
+                        auslassId: `${hall.name}-${s.title}-${s.time}`
                     });
-                    
-                    list.appendChild(item);
                 });
             });
 
-            badge.textContent = totalAuslaesse;
-            container.style.display = totalAuslaesse > 0 ? 'block' : 'none';
+            // 2. Sort by time (endMinBase)
+            allAuslaesse.sort((a, b) => a.endMinBase - b.endMinBase);
+
+            // 3. Render unified list
+            allAuslaesse.forEach(a => {
+                const isActive = currentMinutes >= a.endMinBase && currentMinutes <= a.endMinMax;
+                const isDone = completedAuslaesse.has(a.auslassId);
+                
+                const item = document.createElement('div');
+                item.className = `auslass-item ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}`;
+                item.innerHTML = `
+                    <div class="auslass-hall">${a.hall}</div>
+                    <div class="auslass-movie" title="${a.title}">${a.title}</div>
+                    <div class="auslass-time-range">${a.timeStart} - ${a.timeEnd}</div>
+                `;
+                
+                item.addEventListener('click', () => {
+                    const id = a.auslassId;
+                    if (completedAuslaesse.has(id)) {
+                        completedAuslaesse.delete(id);
+                        item.classList.remove('done');
+                    } else {
+                        completedAuslaesse.add(id);
+                        item.classList.add('done');
+                    }
+                });
+                
+                list.appendChild(item);
+            });
+
+            const total = allAuslaesse.length;
+            badge.textContent = total;
+            container.style.display = total > 0 || (currentCity === 'kp') ? 'block' : 'none';
 
             // Custom logic for Kinopolis Darmstadt (kp) - Dismantle Stations
             if (currentCity === 'kp') {
