@@ -720,6 +720,7 @@
         }
 
         async function init() {
+            console.log('Kinopolis Dashboard v1.1 - Unified Worker Mode');
             await fetchLocations();
             await fetchSessions();
             setInterval(fetchSessions, 60000);
@@ -727,7 +728,7 @@
 
         async function fetchLocations() {
             try {
-                const response = await fetch(LOCATIONS_URL);
+                const response = await fetch(`${LOCATIONS_URL}?v=${Date.now()}`);
                 const locations = await response.json();
                 const selector = document.getElementById('cinema-selector');
                 
@@ -753,7 +754,7 @@
 
         async function fetchSessions() {
             try {
-                const url = `${API_URL}?location=${currentCity}`;
+                const url = `${API_URL}?location=${currentCity}&v=${Date.now()}`;
                 const response = await fetch(url);
                 const sessions = await response.json();
                 
@@ -764,16 +765,16 @@
                 }
 
                 const responseTom = await fetch(`${url}&tomorrow=true`);
-                tomorrowSessionsGrouped = await responseTom.json();
+                const tomorrowSessionsGrouped = await responseTom.json();
                 
                 // Flatten for poster check
                 const tomSessionsFlat = (tomorrowSessionsGrouped || []).flatMap(hall => hall.sessions);
 
-                renderDashboard(sessionsGrouped);
-                checkPosterChanges(sessionsGrouped, tomSessionsFlat);
+                renderDashboard(sessions);
+                checkPosterChanges(sessions, tomSessionsFlat);
             } catch (error) {
                 console.error('Fetch error:', error);
-                document.getElementById('dashboard').innerHTML = '<div class="glass" style="padding: 2rem; color: #ff4d4d;">Verbindungsfehler zum Backend.</div>';
+                document.getElementById('dashboard').innerHTML = `<div class="glass" style="padding: 2rem; color: #ff4d4d;">Verbindungsfehler: ${error.message}</div>`;
             }
         }
 
@@ -790,7 +791,7 @@
                 const card = document.createElement('div');
                 card.className = 'hall-card glass';
                 
-                let sessionsHtml = halls[hallName].map(s => {
+                let sessionsHtml = sessions.map(s => {
                     const capacity = s.capacity || 1; // Prevent division by zero
                     const occupancyPct = Math.min(100, Math.round((s.sold / capacity) * 100)) || 0;
                     const endTime = calculateEndTime(s.time, s.duration);
@@ -838,7 +839,7 @@
                 card.innerHTML = `
                     <div class="hall-header">
                         <span class="hall-name">${hallName}</span>
-                        <span class="session-count">${halls[hallName].length} Vorstellungen</span>
+                        <span class="session-count">${sessions.length} Vorstellungen</span>
                     </div>
                     ${sessionsHtml}
                 `;
