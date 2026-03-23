@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "concurrently \"node server.js\" \"vite\"",
+    "dev": "wrangler pages dev .",
+    "dev:node": "concurrently \"node server.js\" \"vite\"",
+    "build": "vite build",
     "start": "node server.js"
   },
   "keywords": [],
@@ -16,10 +18,12 @@
     "cheerio": "^1.2.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "hono": "^4.7.4",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
-    "vite": "^8.0.1"
+    "vite": "^8.0.1",
+    "wrangler": "^4.76.0"
   }
 }

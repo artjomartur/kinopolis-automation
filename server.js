@@ -30,12 +30,34 @@ app.get('/api/sessions', async (req, res) => {
 
         const sessions = [];
 
+        // 1. Pre-fetch all allowed performance IDs for the requested date from navigation items
+        // Kinopolis might have multiple .prog-nav__item for the same day (e.g., in different sliders)
+        const d = new Date(dateStr);
+        const dayNum = d.getDate();
+        const monthNum = d.getMonth() + 1;
+        const shortDateStr = `${dayNum < 10 ? '0' : ''}${dayNum}.${monthNum < 10 ? '0' : ''}${monthNum}.`;
+        
+        let allowedPerformanceIds = new Set();
+        $('.prog-nav__item').each((_, navEl) => {
+            const navText = $(navEl).text().trim();
+            // Check for "Heute" or the specific date string
+            if (navText.includes('Heute') || navText.includes(shortDateStr)) {
+                const idsAttr = $(navEl).attr('data-performance-ids');
+                if (idsAttr) {
+                    // IDs are in format [ID1,ID2,ID3]
+                    idsAttr.replace(/[\[\]]/g, '').split(',').forEach(id => {
+                        const trimmed = id.trim();
+                        if (trimmed) allowedPerformanceIds.add(trimmed);
+                    });
+                }
+            }
+        });
+
         // Support both older and newer layout selectors
         $('section.movie, .prog2__movie').each((i, movieEl) => {
             const title = $(movieEl).find('.hl-link, .prog2__movie-title').first().text().trim();
             if (!title) return;
             
-            console.log(`Processing movie: ${title}`);
             const poster = $(movieEl).find('.prog2__movie-img img, img.img-fluid').first().attr('src');
             const durationText = $(movieEl).find('.movie__specs-el, .prog2__movie-info-item, .prog2__infos').text().trim();
             // Match "Dauer: 157 Minuten" or "157 Min." specifically to avoid matching FSK age rating
@@ -46,6 +68,14 @@ app.get('/api/sessions', async (req, res) => {
             const seenSessions = new Set(); // To deduplicate sessions for this movie
 
             $(movieEl).find('.prog2__cont, .prog2__movie-session').each((j, sessionEl) => {
+                const perfId = $(sessionEl).attr('data-performance-id');
+                
+                // If we found date-specific allowed performance IDs, use them to filter
+                // CRITICAL: Kinopolis sometimes includes future days in the HTML, we must filter them out
+                if (allowedPerformanceIds.size > 0 && perfId && !allowedPerformanceIds.has(perfId)) {
+                    return; // Skip session from another day
+                }
+
                 const time = $(sessionEl).find('.prog2__time').first().text().trim();
                 
                 // Clean hall name: take first div or remove trailing 'i'
@@ -70,31 +100,59 @@ app.get('/api/sessions', async (req, res) => {
                 if (seenSessions.has(sessionKey)) return;
                 seenSessions.add(sessionKey);
 
-                console.log(`  Session: ${time} in ${hall}`);
-
                 // Occupancy logic – try multiple patterns from the Kinopolis DOM
-                const buyEl = $(sessionEl).find('.buy__text, [class*="buy"], .prog2__seats, [class*="seats"], [class*="frei"]').first();
                 const occupancyText = $(sessionEl).text().trim();
                 
-                // Try: "X Plätze frei" or "X% frei" or data-attributes
-                const capacityMatch = occupancyText.match(/(\d+)\s+Pl[äa]tze/);
+                // 1. Try specific selectors first (more reliable for newer layout)
+                let capacity = 0;
+                let freePercent = 95; // default
+                
+                const seatsEl = $(sessionEl).find('.prog2__seats');
+                if (seatsEl.length) {
+                    capacity = parseInt(seatsEl.text().replace(/\D/g, '')) || 0;
+                }
+                
+                const scaleEl = $(sessionEl).find('.prog2__scale');
+                if (scaleEl.length) {
+                    const scaleText = scaleEl.text().trim();
+                    const percentMatch = scaleText.match(/(\d+)%/);
+                    if (percentMatch) {
+                        freePercent = parseInt(percentMatch[1]);
+                    }
+                }
+
+                // 2. Fallback to regex if selectors failed or returned suspicious values (like 1)
+                if (capacity <= 1) {
+                    const combinedMatch = occupancyText.match(/(\d+)\s+(\d+)%\s+frei/);
+                    if (combinedMatch) {
+                        capacity = parseInt(combinedMatch[1]);
+                        freePercent = parseInt(combinedMatch[2]);
+                    } else {
+                        const capacityMatch = occupancyText.match(/(\d+)\s+Pl[äa]tze/);
+                        if (capacityMatch) capacity = parseInt(capacityMatch[1]);
+                    }
+                }
+                
                 const freeCountMatch = occupancyText.match(/(\d+)\s+(?:Pl[äa]tze\s+)?frei/);
                 const freePercentMatch = occupancyText.match(/(\d+)%\s+frei/);
-                const seatingAttr = $(sessionEl).find('[data-seating]').attr('data-seating');
                 
-                let capacity = capacityMatch ? parseInt(capacityMatch[1]) : 0;
-                let freePercent = 95; // default unknown
-                let sold = 0;
-                
-                if (freePercentMatch) {
+                if (freePercentMatch && (!scaleEl.length || freePercent === 95)) {
                     freePercent = parseInt(freePercentMatch[1]);
-                    sold = capacity ? Math.round(capacity * (1 - freePercent / 100)) : 0;
-                } else if (freeCountMatch && capacity) {
-                    const freeCount = parseInt(freeCountMatch[1]);
-                    freePercent = Math.round((freeCount / capacity) * 100);
-                    sold = capacity - freeCount;
-                } else if (seatingAttr) {
-                    // data-seating might contain count like [120] or percentage
+                }
+
+                
+                let sold = 0;
+                if (capacity > 0) {
+                    sold = Math.round(capacity * (1 - freePercent / 100));
+                    // If we have freeCountMatch, we can be even more precise
+                    if (freeCountMatch) {
+                        const freeCount = parseInt(freeCountMatch[1]);
+                        sold = capacity - freeCount;
+                    }
+                }
+                
+                const seatingAttr = $(sessionEl).find('[data-seating]').attr('data-seating');
+                if (capacity === 0 && seatingAttr) {
                     try {
                         const parsed = JSON.parse(seatingAttr);
                         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -105,6 +163,7 @@ app.get('/api/sessions', async (req, res) => {
                 
                 const isBookable = !occupancyText.includes('nicht mehr buchbar') && !occupancyText.includes('ausverkauft');
 
+
                 sessions.push({
                     title,
                     poster: poster ? (poster.startsWith('http') ? poster : `https://www.kinopolis.de${poster}`) : null,
@@ -114,7 +173,9 @@ app.get('/api/sessions', async (req, res) => {
                     capacity,
                     freePercent,
                     sold,
-                    isBookable
+                    isBookable,
+                    performanceId: perfId,
+                    date: dateStr
                 });
             });
         });
