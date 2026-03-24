@@ -4,5 +4,21 @@
   "main": "_worker.js",
   "assets": {
     "directory": "."
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "kinopolis-db",
+      "database_id": "REPLACE_WITH_D1_ID"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "R2_BUCKET",
+      "bucket_name": "kinopolis-images"
+    }
+  ],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
 }

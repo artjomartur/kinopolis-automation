@@ -1150,6 +1150,80 @@
             50% { opacity: 0.6; transform: scale(0.98); }
             100% { opacity: 1; transform: scale(1); }
         }
+        /* News Section styling */
+        .news-section {
+            margin-bottom: 2rem;
+        }
+        .news-card {
+            background: linear-gradient(135deg, rgba(0, 120, 255, 0.1) 0%, rgba(20, 20, 25, 0.8) 100%);
+            border: 1px solid rgba(0, 120, 255, 0.2);
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .news-gallery {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+        .news-image {
+            width: 140px;
+            height: 180px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 1px solid rgba(255,255,255,0.1);
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .news-image:hover {
+            transform: scale(1.05);
+            border-color: var(--primary-blue);
+        }
+        .news-gallery::-webkit-scrollbar {
+            height: 4px;
+        }
+        .news-gallery::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+        .news-content {
+            flex: 1;
+        }
+        .news-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .news-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+        }
+        .news-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .news-text {
+            color: var(--text-main);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            white-space: pre-line;
+        }
     </style>
 </head>
 <body>
@@ -1192,6 +1266,16 @@
             </div>
         </div>
 
+        <div id="internal-news-container" class="news-section" style="display: none;">
+            <div class="card-header glass" style="margin-bottom: 1rem; border-radius: 20px;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; width: 100%;">
+                    <span class="alert-icon-small">📢</span>
+                    <h2 style="font-size: 1.2rem;">Interne Mitteilungen</h2>
+                </div>
+            </div>
+            <div id="news-list"></div>
+        </div>
+
         <div id="poster-alerts-container">
             <div class="alerts-header glass" onclick="toggleAlerts()">
                 <div class="alerts-title">
@@ -1216,16 +1300,14 @@
                 <span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic; margin-left: auto;">Local Storage (Nur auf diesem Gerät)</span>
             </div>
             <textarea id="staff-notes" class="notes-area" placeholder="Notizen für die aktuelle Schicht hier eintragen..."></textarea>
-        </div>
-        
-        <!-- Auslässe Section -->
+           <!-- Tasks Section (Auslässe & Posterwechsel) -->
         <div id="auslaesse-section-container" class="card-container auslaesse-container glass" style="display: none;">
             <div class="card-header">
                 <div class="header-left auslass-header-small">
-                    <span class="alert-icon-small">🚪</span>
-                    <h2>Voraussichtliche Auslässe</h2>
+                    <span class="alert-icon-small">📋</span>
+                    <h2 id="tasks-title">Tages-Aufgaben</h2>
                     <span id="auslass-count-badge" class="badge">0</span>
-                    <span class="auslass-disclaimer">Planungs-Hilfe: Ca. Ende + 30 Min Werbung</span>
+                    <span class="auslass-disclaimer">Auslässe: Ca. Ende + 30m | Poster: 30m nach Start</span>
                 </div>
                 <button class="toggle-btn" id="auslaesse-toggle-btn">
                     <svg viewBox="0 0 24 24" width="24" height="24">
@@ -1270,9 +1352,21 @@
         let lastData = null;
         let lastUpdateTime = null;
         let tomorrowSessions = [];
-        let completedAuslaesse = new Set();
+        let completedAuslaesse = new Set(JSON.parse(localStorage.getItem('completed_auslaesse') || '[]'));
+        let completedPosters = new Set(JSON.parse(localStorage.getItem('completed_posters') || '[]'));
+        let completedCleaning = new Set(JSON.parse(localStorage.getItem('completed_cleaning') || '[]'));
         let currentCity = 'kp';
         let displayDate = new Date();
+
+        const CLEANING_TASKS = {
+            1: ["Tagesaufgabe 1: MONTAG"],
+            2: ["Tagesaufgabe 1: DIENSTAG"],
+            3: ["Tagesaufgabe 1: MITTWOCH"],
+            4: ["Tagesaufgabe 1: DONNERSTAG"],
+            5: ["Tagesaufgabe 1: FREITAG"],
+            6: ["Tagesaufgabe 1: SAMSTAG"],
+            0: ["Tagesaufgabe 1: SONNTAG"]
+        };
 
         // Init notes
         const notesArea = document.getElementById('staff-notes');
@@ -1377,12 +1471,56 @@
             updateDateUI();
             await fetchWeather();
             await fetchSessions();
+            await fetchNews();
             
             // Refresh every 60 seconds
             setInterval(() => {
                 fetchSessions();
                 fetchWeather();
+                fetchNews();
             }, 60000);
+        }
+
+        // --- News Logic ---
+        async function fetchNews() {
+            try {
+                const res = await fetch('/api/messages?v=' + Date.now());
+                const news = await res.json();
+                renderNews(news);
+            } catch (err) {
+                console.error('News fetch error', err);
+            }
+        }
+
+        function renderNews(news) {
+            const container = document.getElementById('internal-news-container');
+            const list = document.getElementById('news-list');
+            
+            if (!news || news.length === 0) {
+                container.style.display = 'none';
+                list.innerHTML = '';
+                return;
+            }
+
+            container.style.display = 'block';
+            list.innerHTML = news.map(item => {
+                const images = item.images || (item.image_url ? [item.image_url] : []);
+                return `
+                <div class="news-card">
+                    <div class="news-content">
+                        <div class="news-header">
+                            <span class="news-title">${item.title}</span>
+                            <span class="news-meta">${new Date(item.created_at).toLocaleString('de-DE')} von ${item.author}</span>
+                        </div>
+                        ${images.length > 0 ? `
+                        <div class="news-gallery">
+                            ${images.map(img => `<img src="${img}" class="news-image" onclick="window.open(this.src)">`).join('')}
+                        </div>
+                        ` : ''}
+                        <div class="news-text">${item.content}</div>
+                    </div>
+                </div>
+            `}).join('');
         }
 
         async function fetchWeather() {
@@ -1481,6 +1619,16 @@
                 lastData = sessions;
                 lastUpdateTime = new Date();
                 
+                // Clear state if date changed (optional, but good for cleanliness)
+                const todayStr = new Date().toISOString().split('T')[0];
+                if (localStorage.getItem('last_task_date') !== todayStr) {
+                    completedAuslaesse.clear();
+                    completedPosters.clear();
+                    completedCleaning.clear();
+                    localStorage.setItem('last_task_date', todayStr);
+                    saveTaskState();
+                }
+
                 document.getElementById('status-indicator').classList.remove('offline');
                 document.getElementById('stale-warning').style.display = 'none';
 
@@ -1499,7 +1647,7 @@
 
 
                 renderDashboard(sessions); 
-                renderAuslaesse(sessions);
+                renderTasks(sessions);
                 updateAlerts(sessions, []); 
                 renderStats(sessions);
             } catch (error) {
@@ -1597,7 +1745,13 @@
             });
         }
 
-        function renderAuslaesse(hallsGrouped) {
+        function saveTaskState() {
+            localStorage.setItem('completed_auslaesse', JSON.stringify(Array.from(completedAuslaesse)));
+            localStorage.setItem('completed_posters', JSON.stringify(Array.from(completedPosters)));
+            localStorage.setItem('completed_cleaning', JSON.stringify(Array.from(completedCleaning)));
+        }
+
+        function renderTasks(hallsGrouped) {
             const container = document.getElementById('auslaesse-section-container');
             const list = document.getElementById('auslaesse-list');
             const badge = document.getElementById('auslass-count-badge');
@@ -1606,68 +1760,109 @@
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
             
-            // 1. Collect all auslass sessions globally
-            const allAuslaesse = [];
+            const allTasks = [];
+
             hallsGrouped.forEach(hall => {
                 const sessions = hall.sessions.filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
                 
-                // All sessions except the last one of the day per hall
-                const upcomingAuslassSessions = sessions.slice(0, -1);
-                
-                upcomingAuslassSessions.forEach(s => {
+                sessions.forEach((s, idx) => {
                     const [h, m] = s.time.split(':').map(Number);
                     const startMin = h * 60 + m;
-                    const endMinBase = startMin + s.duration;
-                    const endMinMax = endMinBase + 30; // 30 min buffer
-                    
-                    allAuslaesse.push({
-                        hall: hall.name,
-                        title: s.title,
-                        time: s.time,
-                        endMinBase,
-                        endMinMax,
-                        timeStart: formatMinutes(endMinBase),
-                        timeEnd: formatMinutes(endMinMax),
-                        auslassId: `${hall.name}-${s.title}-${s.time}`
-                    });
+                    const running30Min = startMin + 30;
+                    const durationBase = startMin + s.duration;
+                    const durationMax = durationBase + 30;
+
+                    // 1. Poster Change Task (Logic moved to updateAlerts/addPosterAlerts)
+                    // ...
+
+                    // 2. Auslass Task (All except last)
+                    if (idx < sessions.length - 1) {
+                        allTasks.push({
+                            type: 'auslass',
+                            hall: hall.name,
+                            title: `Auslass: ${s.title}`,
+                            time: durationBase,
+                            timeDisplay: `${formatMinutes(durationBase)} - ${formatMinutes(durationMax)}`,
+                            triggerMin: durationBase,
+                            triggerMax: durationMax,
+                            id: `auslass-${hall.name}-${s.title}-${s.time}`
+                        });
+                    }
                 });
             });
 
-            // 2. Sort by time (endMinBase)
-            allAuslaesse.sort((a, b) => a.endMinBase - b.endMinBase);
+            // 3. Add General Cleaning Tasks for the current day
+            const dayOfWeek = now.getDay();
+            const dailyTasks = CLEANING_TASKS[dayOfWeek] || [];
+            dailyTasks.forEach((task, idx) => {
+                allTasks.push({ // Using push then sort, or unshift if needed
+                    type: 'cleaning',
+                    hall: 'ALLGEMEIN',
+                    title: task,
+                    time: -1, // Top priority for sorting
+                    timeDisplay: 'Heute fällig',
+                    triggerMin: 0,
+                    id: `cleaning-${dayOfWeek}-${idx}`
+                });
+            });
 
-            // 3. Render unified list
-            allAuslaesse.forEach(a => {
-                const isActive = currentMinutes >= a.endMinBase && currentMinutes <= a.endMinMax;
-                const isDone = completedAuslaesse.has(a.auslassId);
+            // Filter for tasks:
+            // - Auslaesse: ALWAYS show all for the day
+            // - Cleaning: ALWAYS show
+            // - Posters: Only if done (historical view), but they are primarily in alerts
+            const liveTasks = allTasks.filter(t => t.type === 'auslass' || t.type === 'cleaning' || (t.type === 'poster' && completedPosters.has(t.id)));
+
+            // Sort by time (Cleaning -1 first, then by time)
+            liveTasks.sort((a, b) => a.time - b.time);
+
+            liveTasks.forEach(t => {
+                const isAuslass = t.type === 'auslass';
+                const isCleaning = t.type === 'cleaning';
+                const set = isCleaning ? completedCleaning : (isAuslass ? completedAuslaesse : completedPosters);
+                const isDone = set.has(t.id);
+                const isActive = !isDone && isAuslass && currentMinutes >= t.triggerMin && currentMinutes <= t.triggerMax;
                 
                 const item = document.createElement('div');
-                item.className = `auslass-item ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}`;
+                item.className = `auslass-item ${isDone ? 'done' : ''} ${isActive ? 'active' : ''}`;
+
+                let badgeColor = 'rgba(229, 9, 20, 0.3)';
+                let icon = '🚪';
+                if (isCleaning) {
+                    badgeColor = 'var(--accent-gold, #f1c40f)';
+                    icon = '🧹';
+                } else if (!isAuslass) {
+                    badgeColor = 'var(--primary-blue)';
+                    icon = '🖼️';
+                }
+
                 item.innerHTML = `
-                    <div class="auslass-hall">${a.hall}</div>
-                    <div class="auslass-movie" title="${a.title}">${a.title}</div>
-                    <div class="auslass-time-range">${a.timeStart} - ${a.timeEnd}</div>
+                    <div class="auslass-hall" style="background: ${isActive ? 'var(--primary-red)' : badgeColor}">${icon} ${t.hall}</div>
+                    <div class="auslass-movie" title="${t.title}">${t.title}</div>
+                    <div class="auslass-time-range">${t.timeDisplay}</div>
                 `;
                 
                 item.addEventListener('click', () => {
-                    const id = a.auslassId;
-                    if (completedAuslaesse.has(id)) {
-                        completedAuslaesse.delete(id);
+                    if (set.has(t.id)) {
+                        set.delete(t.id);
                         item.classList.remove('done');
                     } else {
-                        completedAuslaesse.add(id);
+                        set.add(t.id);
                         item.classList.add('done');
                     }
+                    saveTaskState();
                 });
                 
                 list.appendChild(item);
             });
 
-            const total = allAuslaesse.length;
-            badge.textContent = total;
-            container.style.display = total > 0 || (currentCity === 'kp') ? 'block' : 'none';
+            const totalActive = liveTasks.filter(t => {
+                const set = t.type === 'cleaning' ? completedCleaning : (t.type === 'auslass' ? completedAuslaesse : completedPosters);
+                return !set.has(t.id);
+            }).length;
 
-            // Custom logic for Kinopolis Darmstadt (kp) - Dismantle Stations
+            badge.textContent = totalActive;
+            container.style.display = liveTasks.length > 0 ? 'block' : 'none';
+
             if (currentCity === 'kp') {
                 renderKpStationAlerts(hallsGrouped);
             }
@@ -1860,38 +2055,71 @@
                 const hallName = hall.name;
                 const hallSessions = hall.sessions.filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
                 if (hallSessions.length === 0) return;
-                const lastSession = hallSessions[hallSessions.length - 1];
 
-                const [h, m] = lastSession.time.split(':').map(Number);
-                const startTimeMinutes = h * 60 + m;
-                const changeTimeMinutes = startTimeMinutes + 30;
+                // 1. Day-time poster changes (30 min after start to next movie)
+                hallSessions.forEach((s, idx) => {
+                    if (idx < hallSessions.length - 1) { // Normal change during day
+                        const [sh, sm] = s.time.split(':').map(Number);
+                        const changeMin = (sh * 60 + sm) + 30;
+                        
+                        if (currentMinutes >= changeMin) {
+                            const nextMovie = hallSessions[idx + 1];
+                            const alertId = `poster-${hallName}-${nextMovie.title}-${nextMovie.time}`;
+                            
+                            if (completedPosters.has(alertId)) return; // Skip if done
 
-                if (currentMinutes >= changeTimeMinutes) {
-                    const nextMovie = tomSessionsFlat.filter(s => s.hall === hallName).sort((a,b) => a.time.localeCompare(b.time))[0];
-                    if (!nextMovie) return;
+                            const alert = createPosterAlertElement(hallName, nextMovie, false, alertId);
+                            container.appendChild(alert);
+                        }
+                    } else { // 2. Last session of the day -> Tomorrow's first
+                        const [sh, sm] = s.time.split(':').map(Number);
+                        const changeMin = (sh * 60 + sm) + 30;
 
-                    const alert = document.createElement('div');
-                    alert.className = 'poster-change-alert';
-                    alert.innerHTML = `
-                        <div class="alert-content">
-                            <div class="alert-icon">🖼️</div>
-                            <div class="alert-text" style="flex: 1">
-                                <h2>Plakatwechsel in <span style="white-space: nowrap">${hallName}</span></h2>
-                                <p>Die <strong>letzte Vorstellung</strong> des Tages hat begonnen. Das Plakat kann für morgen gewechselt werden.</p>
-                            </div>
-                            <div class="next-movie-preview">
-                                ${nextMovie.poster ? `<img src="${nextMovie.poster}" class="poster-img" alt="Poster">` : ''}
-                                <div class="next-movie-info">
-                                    <h4>Erster Film Morgen</h4>
-                                    <h3>${nextMovie.title}</h3>
-                                    <div class="time">Start: ${nextMovie.time} Uhr</div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    container.appendChild(alert);
-                }
+                        if (currentMinutes >= changeMin) {
+                            const nextMovie = (tomSessionsFlat || []).filter(ts => ts.hall === hallName).sort((a,b) => a.time.localeCompare(b.time))[0];
+                            if (!nextMovie) return;
+
+                            const alertId = `poster-last-${hallName}-${nextMovie.title}`;
+                            if (completedPosters.has(alertId)) return; // Skip if done
+
+                            const alert = createPosterAlertElement(hallName, nextMovie, true, alertId);
+                            container.appendChild(alert);
+                        }
+                    }
+                });
             });
+        }
+
+        function createPosterAlertElement(hallName, nextMovie, isEndDay, alertId) {
+            const alert = document.createElement('div');
+            alert.className = 'poster-change-alert';
+            alert.innerHTML = `
+                <div class="alert-content">
+                    <div class="alert-icon">🖼️</div>
+                    <div class="alert-text" style="flex: 1">
+                        <h2>Plakatwechsel in <span style="white-space: nowrap">${hallName}</span></h2>
+                        <p>${isEndDay ? 'Die <strong>letzte Vorstellung</strong> des Tages hat begonnen.' : 'Der Film läuft seit 30 Min.'} Das Plakat kann gewechselt werden.</p>
+                    </div>
+                    <div class="next-movie-preview">
+                        ${nextMovie.poster ? `<img src="${nextMovie.poster}" class="poster-img" alt="Poster">` : ''}
+                        <div class="next-movie-info">
+                            <h4>Nächster Film</h4>
+                            <h3>${nextMovie.title}</h3>
+                            <div class="time">Start: ${nextMovie.time} ${isEndDay ? 'Uhr (Morgen)' : 'Uhr'}</div>
+                        </div>
+                    </div>
+                    <button class="alert-done-btn" onclick="markPosterDone('${alertId}')" title="Als erledigt markieren">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" /></svg>
+                    </button>
+                </div>
+            `;
+            return alert;
+        }
+
+        function markPosterDone(id) {
+            completedPosters.add(id);
+            saveTaskState();
+            fetchSessions(); // Refresh UI
         }
 
         function addOccupancyAlerts(hallsGrouped, container) {
