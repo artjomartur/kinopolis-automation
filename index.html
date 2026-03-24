@@ -1198,6 +1198,40 @@
             transition: all 0.3s ease;
         }
 
+        .countdown-timer {
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: 700;
+            background: rgba(0, 242, 254, 0.1);
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-top: 0.25rem;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .status-upcoming {
+            color: #2ecc71 !important;
+            background: rgba(46, 204, 113, 0.15) !important;
+        }
+
+        .status-running {
+            color: #ff4d4d !important;
+            background: rgba(255, 77, 77, 0.15) !important;
+            animation: status-blink 1.5s ease-in-out infinite;
+        }
+
+        .status-finished {
+            color: var(--text-muted) !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        @keyframes status-blink {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.98); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
         /* News Section styling */
         .news-section {
             margin-bottom: 2rem;
