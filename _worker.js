@@ -188,6 +188,33 @@ app.get('/api/sessions', async (c) => {
     }
 });
 
+// Internal Messages API (Simplified: Static for now)
+const STATIC_MESSAGES = [
+    {
+        id: 1,
+        title: "Mario Menü & Merch Verkauf",
+        content: "Hallo zusammen,\n\nmit dem Start des neuen Mario Films gehen wir mit mehreren Menüs und Merch-Artikeln in den Verkauf.\n\nWICHTIG: Der 'Yoshi-Eimer' darf von Mitarbeitenden nicht gekauft werden. (Kein Mitarbeiterinnengeschenk, kein Einkaufspreis und auch nicht als Vollpreis).\n\nGrund dafür ist die schon jetzt sehr hohe Nachfrage von Gästen gepaart mit der Tatsache, dass wir nur sehr wenige zugesendet bekommen haben.\n\nAlles ist, wie immer, buchbar über etwaige Barcodes auf den Produkten oder über das Touchscreen unter 'Packages' oder 'Merch'.",
+        author: "Betriebsleitung",
+        created_at: "2026-03-24T16:30:00Z",
+        images: [
+            "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?auto=format&fit=crop&q=80&w=600"
+        ]
+    }
+];
+
+app.get('/api/messages', async (c) => {
+    return c.json(STATIC_MESSAGES);
+});
+
+// Post and Delete disabled for now as per user request
+app.post('/api/messages', (c) => c.json({ error: 'Disabled' }, 403));
+app.delete('/api/messages/:id', (c) => c.json({ error: 'Disabled' }, 403));
+
+// R2 Image Proxy (Fallback)
+app.get('/api/images/:key', async (c) => {
+    return c.json({ error: 'Not Found' }, 404);
+});
+
 // JSON fallback for 404
 app.notFound((c) => {
     return c.json({ error: 'Not Found', path: c.req.path }, 404);
