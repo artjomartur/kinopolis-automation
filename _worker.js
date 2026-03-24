@@ -57,26 +57,15 @@ app.get('/api/sessions', async (c) => {
         const d = new Date(dateStr);
         const dayNum = d.getDate();
         const monthNum = d.getMonth() + 1;
-        const shortDateStr = `${dayNum < 10 ? '0' : ''}${dayNum}.${monthNum < 10 ? '0' : ''}${monthNum}.`;
-        const navDateMap = new Map(); // navIndex -> YYYY-MM-DD
         const today = new Date();
         const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
         const todayISO = today.toISOString().split('T')[0];
         const tomorrowISO = tomorrow.toISOString().split('T')[0];
-
-        $('.prog-nav__item').each((i, navEl) => {
-            const navText = $(navEl).text().trim().toLowerCase();
-            const dateMatch = navText.match(/(\d{2})\.(\d{2})\./); // Matches DD.MM.
-            
-            let navDate = '';
-            if (navText.includes('heute')) navDate = todayISO;
-            else if (navText.includes('morgen')) navDate = tomorrowISO;
-            else if (dateMatch) {
-                const year = today.getFullYear() + (parseInt(dateMatch[2]) < today.getMonth() + 1 ? 1 : 0);
-                navDate = `${year}-${dateMatch[2]}-${dateMatch[1]}`;
-            }
-            if (navDate) navDateMap.set(i, navDate);
-        });
+        
+        const navDateMap = new Map(); // Global map for back-compatibility if needed elsewhere, but we now use per-movie map
+        
+        // Note: Global navDateMap is now less critical as we parse dates per-movie below.
+        // We still keep the mapping here if we ever need a site-wide date reference.
 
         const sessionMap = new Map(); // Key: date-perfId or date-time-hall-title, Value: session object
         
@@ -88,8 +77,24 @@ app.get('/api/sessions', async (c) => {
             const durationMatch = durationText.match(/Dauer:\s*(\d+)\s*Minuten/i) || durationText.match(/(\d+)\s*Min\.?/i);
             const duration = durationMatch ? parseInt(durationMatch[1]) : 0;
 
+            // Build movie-specific date map
+            const movieNavDateMap = new Map();
+            $(movieEl).find('.prog-nav__item').each((navIdx, navEl) => {
+                const navText = $(navEl).text().trim().toLowerCase();
+                const dateMatch = navText.match(/(\d{2})\.(\d{2})\./);
+                
+                let navDate = '';
+                if (navText.includes('heute')) navDate = todayISO;
+                else if (navText.includes('morgen')) navDate = tomorrowISO;
+                else if (dateMatch) {
+                    const year = today.getFullYear() + (parseInt(dateMatch[2]) < today.getMonth() + 1 ? 1 : 0);
+                    navDate = `${year}-${dateMatch[2]}-${dateMatch[1]}`;
+                }
+                if (navDate) movieNavDateMap.set(navIdx, navDate);
+            });
+
             $(movieEl).find('.prog-day__wrapper').each((dayIndex, wrapper) => {
-                const actualDate = navDateMap.get(dayIndex);
+                const actualDate = movieNavDateMap.get(dayIndex);
                 if (!actualDate) return;
 
                 $(wrapper).find('.prog2__cont, .prog2__movie-session').each((j, sessionEl) => {
@@ -100,6 +105,7 @@ app.get('/api/sessions', async (c) => {
                     let hallTextContent = $(sessionEl).find('.prog2__hall-num > div:first-child').text().trim();
                     if (!hallTextContent) hallTextContent = $(sessionEl).find('.prog2__hall-num').text().replace(/i$/, '').trim();
                     const hall = hallTextContent;
+// ... (rest of the session parsing remains similar but now uses actualDate correctly)
 
                     const occupancyText = $(sessionEl).text().trim();
                     let capacity = 0;

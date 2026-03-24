@@ -1122,10 +1122,33 @@
             color: var(--accent);
             font-weight: 700;
             background: rgba(0, 242, 254, 0.1);
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: 2px 8px;
+            border-radius: 6px;
             margin-top: 0.25rem;
             display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .status-upcoming {
+            color: #2ecc71 !important;
+            background: rgba(46, 204, 113, 0.15) !important;
+        }
+
+        .status-running {
+            color: #ff4d4d !important;
+            background: rgba(255, 77, 77, 0.15) !important;
+            animation: status-blink 1.5s ease-in-out infinite;
+        }
+
+        .status-finished {
+            color: var(--text-muted) !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        @keyframes status-blink {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.98); }
+            100% { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
@@ -1290,11 +1313,14 @@
                 if (currentMin < startMin) {
                     const diff = startMin - currentMin;
                     timer.innerText = `Beginnt in ${diff} Min.`;
+                    timer.className = 'countdown-timer status-upcoming';
                 } else if (currentMin < endMin) {
                     const diff = endMin - currentMin;
                     timer.innerText = `Läuft - noch ${diff} Min.`;
+                    timer.className = 'countdown-timer status-running';
                 } else {
                     timer.innerText = `Beendet`;
+                    timer.className = 'countdown-timer status-finished';
                     timer.parentElement.closest('.session-item').style.opacity = '0.4';
                 }
             });
@@ -1313,11 +1339,6 @@
         }
 
 
-        function changeDate(days) {
-            displayDate.setDate(displayDate.getDate() + days);
-            updateDateUI();
-            fetchSessions();
-        }
 
         function updateDateUI() {
             const today = new Date();
@@ -1464,8 +1485,15 @@
                 document.getElementById('stale-warning').style.display = 'none';
 
                 if(!sessions || (Array.isArray(sessions) && sessions.length === 0)) {
-                      document.getElementById('dashboard').innerHTML = '<div class="glass" style="padding: 3rem; text-align: center; grid-column: 1/-1;"><h3>Keine Vorstellungen gefunden</h3><p style="color: var(--text-muted); margin-top: 1rem;">Möglicherweise ist das Kino heute geschlossen oder die Daten sind nicht verfügbar.</p></div>';
+                      const dateStrDisplay = displayDate.toLocaleDateString('de-DE');
+                      document.getElementById('dashboard').innerHTML = `<div class="glass" style="padding: 3rem; text-align: center; grid-column: 1/-1;">
+                          <h3>Keine Vorstellungen gefunden</h3>
+                          <p style="color: var(--text-muted); margin-top: 1rem;">Möglicherweise ist das Kino am ${dateStrDisplay} geschlossen oder die Daten sind nicht verfügbar.</p>
+                      </div>`;
                       document.getElementById('poster-alerts').innerHTML = '';
+                      document.getElementById('auslaesse-list').innerHTML = '';
+                      document.getElementById('auslaesse-section-container').style.display = 'none';
+                      document.getElementById('stats-section-container').style.display = 'none';
                       return;
                 }
 

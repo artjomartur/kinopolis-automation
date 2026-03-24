@@ -29,9 +29,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// .wrangler/tmp/bundle-areoTO/checked-fetch.js
+// .wrangler/tmp/bundle-1hID25/checked-fetch.js
 var require_checked_fetch = __commonJS({
-  ".wrangler/tmp/bundle-areoTO/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-1hID25/checked-fetch.js"() {
     var urls = /* @__PURE__ */ new Set();
     function checkURL(request, init) {
       const url = request instanceof URL ? request : new URL(
@@ -74,10 +74,10 @@ var require_boolbase = __commonJS({
   }
 });
 
-// .wrangler/tmp/bundle-areoTO/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-1hID25/middleware-loader.entry.ts
 var import_checked_fetch114 = __toESM(require_checked_fetch());
 
-// .wrangler/tmp/bundle-areoTO/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-1hID25/middleware-insertion-facade.js
 var import_checked_fetch112 = __toESM(require_checked_fetch());
 
 // _worker.js
@@ -17587,25 +17587,12 @@ app.get("/api/sessions", async (c) => {
     const d = new Date(dateStr);
     const dayNum = d.getDate();
     const monthNum = d.getMonth() + 1;
-    const shortDateStr = `${dayNum < 10 ? "0" : ""}${dayNum}.${monthNum < 10 ? "0" : ""}${monthNum}.`;
-    const navDateMap = /* @__PURE__ */ new Map();
     const today = /* @__PURE__ */ new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
     const todayISO = today.toISOString().split("T")[0];
     const tomorrowISO = tomorrow.toISOString().split("T")[0];
-    $2(".prog-nav__item").each((i, navEl) => {
-      const navText = $2(navEl).text().trim().toLowerCase();
-      const dateMatch = navText.match(/(\d{2})\.(\d{2})\./);
-      let navDate = "";
-      if (navText.includes("heute")) navDate = todayISO;
-      else if (navText.includes("morgen")) navDate = tomorrowISO;
-      else if (dateMatch) {
-        const year = today.getFullYear() + (parseInt(dateMatch[2]) < today.getMonth() + 1 ? 1 : 0);
-        navDate = `${year}-${dateMatch[2]}-${dateMatch[1]}`;
-      }
-      if (navDate) navDateMap.set(i, navDate);
-    });
+    const navDateMap = /* @__PURE__ */ new Map();
     const sessionMap = /* @__PURE__ */ new Map();
     $2("section.movie, .prog2__movie").each((i, movieEl) => {
       const title = $2(movieEl).find(".hl-link, .prog2__movie-title").first().text().trim();
@@ -17614,8 +17601,21 @@ app.get("/api/sessions", async (c) => {
       const durationText = $2(movieEl).find(".movie__specs-el, .prog2__movie-info-item, .prog2__infos").text().trim();
       const durationMatch = durationText.match(/Dauer:\s*(\d+)\s*Minuten/i) || durationText.match(/(\d+)\s*Min\.?/i);
       const duration = durationMatch ? parseInt(durationMatch[1]) : 0;
+      const movieNavDateMap = /* @__PURE__ */ new Map();
+      $2(movieEl).find(".prog-nav__item").each((navIdx, navEl) => {
+        const navText = $2(navEl).text().trim().toLowerCase();
+        const dateMatch = navText.match(/(\d{2})\.(\d{2})\./);
+        let navDate = "";
+        if (navText.includes("heute")) navDate = todayISO;
+        else if (navText.includes("morgen")) navDate = tomorrowISO;
+        else if (dateMatch) {
+          const year = today.getFullYear() + (parseInt(dateMatch[2]) < today.getMonth() + 1 ? 1 : 0);
+          navDate = `${year}-${dateMatch[2]}-${dateMatch[1]}`;
+        }
+        if (navDate) movieNavDateMap.set(navIdx, navDate);
+      });
       $2(movieEl).find(".prog-day__wrapper").each((dayIndex, wrapper) => {
-        const actualDate = navDateMap.get(dayIndex);
+        const actualDate = movieNavDateMap.get(dayIndex);
         if (!actualDate) return;
         $2(wrapper).find(".prog2__cont, .prog2__movie-session").each((j, sessionEl) => {
           const perfId = $2(sessionEl).attr("data-performance-id");
@@ -17757,7 +17757,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-areoTO/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-1hID25/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -17790,7 +17790,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-areoTO/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-1hID25/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
@@ -17890,4 +17890,4 @@ export {
   __INTERNAL_WRANGLER_MIDDLEWARE__,
   middleware_loader_entry_default as default
 };
-//# sourceMappingURL=bundledWorker-0.01118378782620666.mjs.map
+//# sourceMappingURL=bundledWorker-0.6618965234346263.mjs.map
