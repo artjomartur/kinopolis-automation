@@ -722,8 +722,8 @@
             background: linear-gradient(135deg, rgba(229, 9, 20, 0.15) 0%, rgba(20, 20, 25, 0.8) 100%);
             border: 1px solid rgba(229, 9, 20, 0.3);
             border-radius: 24px;
-            padding: 2rem;
-            margin-bottom: 1rem;
+            padding: 1.25rem; /* Reduced from 2rem */
+            margin-bottom: 0.75rem; /* Reduced from 1rem */
             backdrop-filter: blur(20px);
             box-shadow: 0 10px 40px rgba(229, 9, 20, 0.1);
             position: relative;
@@ -741,21 +741,21 @@
         .alert-content {
             display: flex;
             align-items: center;
-            gap: 2.5rem;
+            gap: 1.25rem; /* Reduced from 2.5rem */
             position: relative;
             z-index: 1;
         }
 
         .alert-icon {
-            font-size: 3rem;
+            font-size: 2.2rem; /* Reduced from 3rem */
             text-shadow: 0 0 20px rgba(229, 9, 20, 0.5);
         }
 
         .alert-text h2 {
             color: #fff;
             font-family: 'Outfit', sans-serif;
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
+            font-size: 1.2rem; /* Reduced from 1.5rem */
+            margin-bottom: 0.3rem; /* Reduced from 0.5rem */
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -767,8 +767,8 @@
 
         .alert-text p {
             color: var(--text-muted);
-            font-size: 0.95rem;
-            line-height: 1.5;
+            font-size: 0.9rem; /* Reduced from 0.95rem */
+            line-height: 1.4;
         }
 
         .next-movie-preview {
@@ -807,6 +807,58 @@
         .next-movie-info .time {
             font-size: 0.9rem;
             color: var(--text-muted);
+        }
+
+        /* Beautiful Checkmark Button */
+        .alert-done-btn {
+            background: rgba(46, 204, 113, 0.2);
+            border: 1px solid rgba(46, 204, 113, 0.4);
+            color: #2ecc71;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.1);
+        }
+
+        .alert-done-btn:hover {
+            background: #2ecc71;
+            color: white;
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.4);
+        }
+
+        .alert-done-btn svg {
+            filter: drop-shadow(0 0 5px rgba(0,0,0,0.2));
+        }
+
+        /* Mobile specific adjustments inside alerts */
+        @media (max-width: 600px) {
+            .alert-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .alert-icon {
+                font-size: 2rem;
+            }
+            .next-movie-preview {
+                width: 100%;
+                padding: 0.75rem;
+            }
+            .alert-done-btn {
+                align-self: flex-end;
+                margin-top: -10px;
+            }
+            .poster-change-alert {
+                padding: 1rem;
+            }
         }
 
         .loading-state {
@@ -894,71 +946,88 @@
             transform: scale(1.1);
         }
 
-        @media (max-width: 768px) {
-            header {
-                padding: 0.75rem 1rem;
-                margin-bottom: 2rem;
+            /* Mobile Optimization */
+            @media (max-width: 768px) {
+                header {
+                    padding: 0.75rem 1rem;
+                    margin-bottom: 2rem;
+                }
+                .header-inner {
+                    flex-direction: column !important;
+                    gap: 1rem !important;
+                    align-items: center !important;
+                }
+                .brand {
+                    width: 100%;
+                    justify-content: center;
+                }
+                .controls {
+                    width: 100%;
+                }
+                .location-select {
+                    width: 100%;
+                    text-align: center;
+                }
+                .container {
+                    padding: 0 0.75rem 3rem !important;
+                }
+                .dashboard-title {
+                    font-size: 2.2rem !important;
+                    margin-top: 1rem !important;
+                }
+                .header-main-title {
+                    flex-direction: column;
+                    gap: 1rem;
+                    align-items: stretch;
+                }
+                .date-navigator {
+                    justify-content: space-between;
+                    width: 100%;
+                }
+                .dashboard-grid {
+                    grid-template-columns: 1fr;
+                    gap: 1.25rem;
+                }
+                .hall-card {
+                    padding: 1rem !important;
+                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
+                }
+                .hall-header {
+                    padding-bottom: 0.75rem !important;
+                }
+                .hall-name {
+                    font-size: 1.1rem !important;
+                }
+                .session-item {
+                    padding: 1rem 0.5rem !important;
+                    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+                }
+                .stat-card {
+                    padding: 1.25rem !important;
+                    border-radius: 16px !important;
+                }
+                .auslass-grid {
+                    grid-template-columns: 1fr;
+                    padding: 1rem;
+                }
+                .auslass-item {
+                    padding: 0.75rem;
+                    gap: 0.75rem;
+                }
+                .auslass-time-range {
+                    font-size: 0.95rem;
+                }
+                .news-card {
+                    flex-direction: column;
+                    padding: 1rem;
+                    gap: 1rem;
+                }
+                .news-image {
+                    width: 100%;
+                    height: 200px;
+                }
             }
-            .header-inner {
-                flex-direction: column !important;
-                gap: 1rem !important;
-                align-items: center !important;
-            }
-            .brand {
-                width: 100%;
-                justify-content: center;
-            }
-            .controls {
-                width: 100%;
-            }
-            .location-select {
-                width: 100%;
-                text-align: center;
-            }
-            .container {
-                padding: 0 0.75rem 3rem !important;
-            }
-            .dashboard-title {
-                font-size: 2rem !important;
-                margin-top: 1rem !important;
-            }
-            .hall-card {
-                padding: 1rem !important;
-                border: 1px solid rgba(255, 255, 255, 0.1) !important;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
-            }
-            .hall-header {
-                padding-bottom: 0.75rem !important;
-            }
-            .hall-name {
-                font-size: 1.1rem !important;
-            }
-            .session-item {
-                padding: 1rem 0.5rem !important;
-                border-bottom: 1px solid rgba(255,255,255,0.05) !important;
-            }
-            .session-title {
-                font-size: 1rem !important;
-                font-weight: 600 !important;
-            }
-            .stat-card {
-                padding: 1.25rem !important;
-                border-radius: 16px !important;
-            }
-            .stats-grid {
-                grid-template-columns: 1fr !important;
-                gap: 1rem !important;
-            }
-            .stat-card.poster-card {
-                flex-direction: column !important;
-                align-items: flex-start !important;
-                gap: 1rem !important;
-            }
-            .stat-poster {
-                width: 100% !important;
-                height: 150px !important;
-            }
-        }
 
         /* Very small screens */
         @media (max-width: 420px) {
@@ -1129,30 +1198,19 @@
             transition: all 0.3s ease;
         }
 
-        .status-upcoming {
-            color: #2ecc71 !important;
-            background: rgba(46, 204, 113, 0.15) !important;
-        }
-
-        .status-running {
-            color: #ff4d4d !important;
-            background: rgba(255, 77, 77, 0.15) !important;
-            animation: status-blink 1.5s ease-in-out infinite;
-        }
-
-        .status-finished {
-            color: var(--text-muted) !important;
-            background: rgba(255, 255, 255, 0.05) !important;
-        }
-
-        @keyframes status-blink {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(0.98); }
-            100% { opacity: 1; transform: scale(1); }
-        }
         /* News Section styling */
         .news-section {
             margin-bottom: 2rem;
+        }
+        .news-section .card-header {
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .news-section .card-header:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        #news-list.collapsed {
+            display: none !important;
         }
         .news-card {
             background: linear-gradient(135deg, rgba(0, 120, 255, 0.1) 0%, rgba(20, 20, 25, 0.8) 100%);
@@ -1267,10 +1325,15 @@
         </div>
 
         <div id="internal-news-container" class="news-section" style="display: none;">
-            <div class="card-header glass" style="margin-bottom: 1rem; border-radius: 20px;">
+            <div class="card-header glass" style="margin-bottom: 1rem; border-radius: 20px;" onclick="toggleNews()">
                 <div style="display: flex; align-items: center; gap: 0.75rem; width: 100%;">
                     <span class="alert-icon-small">📢</span>
-                    <h2 style="font-size: 1.2rem;">Interne Mitteilungen</h2>
+                    <h2 style="font-size: 1.2rem; flex: 1;">Interne Mitteilungen</h2>
+                    <button class="toggle-btn" id="news-toggle-btn">
+                        <svg viewBox="0 0 24 24" width="24" height="24">
+                            <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
+                        </svg>
+                    </button>
                 </div>
             </div>
             <div id="news-list"></div>
@@ -1479,6 +1542,13 @@
                 fetchWeather();
                 fetchNews();
             }, 60000);
+        }
+
+        function toggleNews() {
+            const list = document.getElementById('news-list');
+            const btn = document.getElementById('news-toggle-btn');
+            list.classList.toggle('collapsed');
+            btn.classList.toggle('collapsed');
         }
 
         // --- News Logic ---
@@ -1795,16 +1865,22 @@
             const dayOfWeek = now.getDay();
             const dailyTasks = CLEANING_TASKS[dayOfWeek] || [];
             dailyTasks.forEach((task, idx) => {
-                allTasks.push({ // Using push then sort, or unshift if needed
+                allTasks.push({
                     type: 'cleaning',
                     hall: 'ALLGEMEIN',
                     title: task,
-                    time: -1, // Top priority for sorting
+                    time: -100, // Even higher priority than -1
                     timeDisplay: 'Heute fällig',
                     triggerMin: 0,
                     id: `cleaning-${dayOfWeek}-${idx}`
                 });
             });
+
+            // 4. Add Station Abbau Alerts
+            if (currentCity === 'kp') {
+                const abbauTasks = getKpStationTasks(hallsGrouped);
+                allTasks.push(...abbauTasks);
+            }
 
             // Filter for tasks:
             // - Auslaesse: ALWAYS show all for the day
@@ -1862,14 +1938,10 @@
 
             badge.textContent = totalActive;
             container.style.display = liveTasks.length > 0 ? 'block' : 'none';
-
-            if (currentCity === 'kp') {
-                renderKpStationAlerts(hallsGrouped);
-            }
         }
 
-        function renderKpStationAlerts(hallsGrouped) {
-            const list = document.getElementById('auslaesse-list');
+        function getKpStationTasks(hallsGrouped) {
+            const tasks = [];
             const groups = [
                 { name: 'Station 1/2', halls: ['Kino 1', 'Kino 2'] },
                 { name: 'Station 3/4', halls: ['Kino 3', 'Kino 4'] },
@@ -1882,6 +1954,7 @@
 
             groups.forEach(group => {
                 let hasUpcomingAuslass = false;
+                let lastEndMin = 0;
                 
                 group.halls.forEach(hallName => {
                     const hall = hallsGrouped.find(h => h.name === hallName);
@@ -1896,24 +1969,32 @@
                         if (endMinMax > currentMinutes) {
                             hasUpcomingAuslass = true;
                         }
+                        lastEndMin = Math.max(lastEndMin, endMinMax);
                     });
+                    
+                    // Also check the last session's end time for "ABBAU"
+                    if (sessions.length > 0) {
+                        const lastS = sessions[sessions.length - 1];
+                        const [h, m] = lastS.time.split(':').map(Number);
+                        lastEndMin = Math.max(lastEndMin, (h * 60 + m) + lastS.duration);
+                    }
                 });
 
                 if (!hasUpcomingAuslass) {
-                    const item = document.createElement('div');
-                    item.className = 'auslass-item active';
-                    item.style.background = 'linear-gradient(90deg, #2ecc71, #27ae60)';
-                    item.style.borderColor = '#2ecc71';
-                    item.style.color = 'white';
-                    item.innerHTML = `
-                        <div class="auslass-hall">ABBAU</div>
-                        <div class="auslass-movie"><strong>${group.name}</strong> - Keine Auslässe mehr</div>
-                        <div class="auslass-time-range">Fertig</div>
-                    `;
-                    list.appendChild(item);
+                    tasks.push({
+                        type: 'abbau',
+                        hall: 'ABBAU',
+                        title: `${group.name} - Fertig`,
+                        time: lastEndMin,
+                        timeDisplay: 'Fertig',
+                        triggerMin: lastEndMin,
+                        id: `abbau-${group.name}`
+                    });
                 }
             });
+            return tasks;
         }
+
 
         function formatMinutes(totalMinutes) {
             const h = Math.floor(totalMinutes / 60) % 24;
@@ -2050,43 +2131,56 @@
         function addPosterAlerts(hallsGrouped, tomSessionsFlat, container) {
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
+            const allAlerts = [];
 
             hallsGrouped.forEach(hall => {
                 const hallName = hall.name;
                 const hallSessions = hall.sessions.filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
                 if (hallSessions.length === 0) return;
 
-                // 1. Day-time poster changes (30 min after start to next movie)
                 hallSessions.forEach((s, idx) => {
-                    if (idx < hallSessions.length - 1) { // Normal change during day
-                        const [sh, sm] = s.time.split(':').map(Number);
-                        const changeMin = (sh * 60 + sm) + 30;
-                        
-                        if (currentMinutes >= changeMin) {
+                    const [sh, sm] = s.time.split(':').map(Number);
+                    const changeMin = (sh * 60 + sm) + 30;
+                    
+                    if (currentMinutes >= changeMin) {
+                        if (idx < hallSessions.length - 1) { // Normal change
                             const nextMovie = hallSessions[idx + 1];
                             const alertId = `poster-${hallName}-${nextMovie.title}-${nextMovie.time}`;
-                            
-                            if (completedPosters.has(alertId)) return; // Skip if done
-
-                            const alert = createPosterAlertElement(hallName, nextMovie, false, alertId);
-                            container.appendChild(alert);
-                        }
-                    } else { // 2. Last session of the day -> Tomorrow's first
-                        const [sh, sm] = s.time.split(':').map(Number);
-                        const changeMin = (sh * 60 + sm) + 30;
-
-                        if (currentMinutes >= changeMin) {
+                            if (!completedPosters.has(alertId)) {
+                                allAlerts.push({
+                                    hallName,
+                                    nextMovie,
+                                    isEndDay: false,
+                                    alertId,
+                                    time: changeMin
+                                });
+                            }
+                        } else { // Last session
                             const nextMovie = (tomSessionsFlat || []).filter(ts => ts.hall === hallName).sort((a,b) => a.time.localeCompare(b.time))[0];
-                            if (!nextMovie) return;
-
-                            const alertId = `poster-last-${hallName}-${nextMovie.title}`;
-                            if (completedPosters.has(alertId)) return; // Skip if done
-
-                            const alert = createPosterAlertElement(hallName, nextMovie, true, alertId);
-                            container.appendChild(alert);
+                            if (nextMovie) {
+                                const alertId = `poster-last-${hallName}-${nextMovie.title}`;
+                                if (!completedPosters.has(alertId)) {
+                                    allAlerts.push({
+                                        hallName,
+                                        nextMovie,
+                                        isEndDay: true,
+                                        alertId,
+                                        time: changeMin
+                                    });
+                                }
+                            }
                         }
                     }
                 });
+            });
+
+            // Sort by time
+            allAlerts.sort((a, b) => a.time - b.time);
+
+            // Render
+            allAlerts.forEach(a => {
+                const alert = createPosterAlertElement(a.hallName, a.nextMovie, a.isEndDay, a.alertId);
+                container.appendChild(alert);
             });
         }
 
