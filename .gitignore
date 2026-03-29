@@ -36,3 +36,5 @@ find_dates.js
 find_dates2.js
 test_occupancy.js
 parse_test*.js
+.env
+.dev.vars

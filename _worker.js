@@ -232,6 +232,26 @@ app.post('/api/feedback', async (c) => {
             console.log(`[WORKER] Mock feedback stored: ${text}`);
         }
         
+        // --- RESEND EMAIL INTEGRATION ---
+        // Best practice via Cloudflare Env: const key = c.env.RESEND_API_KEY
+        const key = c.env && c.env.RESEND_API_KEY;
+
+        if (key) {
+            await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${key}`
+                },
+                body: JSON.stringify({
+                    from: 'onboarding@resend.dev',
+                    to: 'hi@artjombecker.com',
+                    subject: '[Kinopolis Dashbord] Feedback',
+                    html: `<p>Du hast ein neues Feedback für das Dashboard erhalten:</p><blockquote style="border-left: 4px solid #ff4d4d; padding-left: 15px; margin-top: 15px; color: #333;">${text}</blockquote>`
+                })
+            }).catch(e => console.error('Resend Worker Error:', e));
+        }
+
         return c.json({ success: true });
     } catch (e) {
         console.error('Feedback error:', e);

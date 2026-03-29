@@ -1124,9 +1124,9 @@
         }
         
         .auslass-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
             padding: 1.5rem;
         }
         
@@ -1903,6 +1903,7 @@
                                 <div class="movie-title" title="${s.title}">${s.title}</div>
                                 <div class="meta-tags">
                                     <span class="tag">${s.duration} Min</span>
+                                    ${getFskTagsHtml(s)}
                                     ${s.date ? `<span class="session-date-badge">${s.date}</span>` : ''}
                                 </div>
                                 <div class="countdown-timer" data-start="${startMin}" data-end="${endMin}"></div>
@@ -2229,6 +2230,44 @@
             return `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`;
         }
 
+        function getFskTagsHtml(s) {
+            if (!s.fsk || s.fsk === 'FSK ?') return '';
+            
+            let endTotalMin = 0;
+            if (s.time && s.time.includes(':')) {
+                const [h, m] = s.time.split(':').map(Number);
+                const startMin = h * 60 + m;
+                let endH = Math.floor((startMin + s.duration) / 60);
+                const endM = (startMin + s.duration) % 60;
+                if (h >= 0 && h < 6) { endH += 24; }
+                else if (endH < 6) { endH += 24; }
+                else if (endH < h) { endH += 24; }
+                endTotalMin = endH * 60 + endM;
+            }
+
+            let bgColor = 'var(--glass-border)'; let color = '#fff'; let fskAge = 0;
+            const ageMatch = s.fsk.match(/(\d+)/);
+            if (ageMatch) fskAge = parseInt(ageMatch[1]);
+            
+            if (s.fsk === 'FSK 0') { bgColor = '#f8f9fa'; color = '#000'; }
+            else if (s.fsk === 'FSK 6') { bgColor = '#f1c40f'; color = '#000'; }
+            else if (s.fsk === 'FSK 12') { bgColor = '#2ecc71'; color = '#000'; }
+            else if (s.fsk === 'FSK 16') { bgColor = '#3498db'; color = '#fff'; }
+            else if (s.fsk === 'FSK 18') { bgColor = '#e74c3c'; color = '#fff'; }
+
+            let html = `<span class="tag" style="background: ${bgColor}; color: ${color}; border: 1px solid rgba(0,0,0,0.1); font-weight: bold; width: fit-content; text-shadow: 0px 1px 2px rgba(0,0,0,0.1); box-shadow: 0 2px 4px rgba(0,0,0,0.2);">${s.fsk}</span>`;
+            
+            let juschgAge = 0;
+            if (endTotalMin > 24 * 60) juschgAge = 18;
+            else if (endTotalMin > 22 * 60) juschgAge = 16;
+            else if (endTotalMin > 20 * 60) juschgAge = 14;
+            
+            if (juschgAge > fskAge && fskAge !== 18) {
+                html += `<span class="tag" style="background: rgba(0,0,0,0.5); color: #ffeb3b; border: 1px dashed #ffeb3b; font-weight: bold; margin-left: 0.25rem;">⏰ ab ${juschgAge} (JuSchG)</span>`;
+            }
+            return html;
+        }
+
         function toggleHall(header) {
             const sessionsList = header.nextElementSibling;
             const isCollapsed = header.classList.toggle('collapsed');
@@ -2368,9 +2407,9 @@
                             <div class="alert-content">
                                 <div class="alert-icon">${isZENeeded ? '🛂' : '🎟️'}</div>
                                 <div class="alert-text" style="flex: 1">
-                                    <h2 style="display: flex; align-items: center; gap: 0.5rem;">
-                                        ${isZENeeded ? 'Zutrittskontrolle (ZE) nötig!' : 'Saal fast voll!'}
-                                        ${isZENeeded && s.fsk ? `<span style="background: var(--primary-red); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">${s.fsk}</span>` : ''}
+                                    <h2 style="display: flex; align-items: flex-start; gap: 0.5rem; flex-wrap: wrap;">
+                                        <span>${isZENeeded ? 'Zutrittskontrolle (ZE) nötig!' : 'Saal fast voll!'}</span>
+                                        ${isZENeeded ? getFskTagsHtml(s) : ''}
                                     </h2>
                                     <p>Der Film <strong>${s.title}</strong> in <strong>${hallName}</strong> beginnt in ${diff} Min. (${s.sold} Plätze belegt).</p>
                                     ${isZENeeded ? '<p style="color: var(--primary-blue); margin-top: 0.5rem; font-weight: 600;">⚠️ Bitte kontrolliere die Ausweise basierend auf der Uhrzeit und der FSK.</p>' : ''}
@@ -2444,9 +2483,10 @@
                 
                 <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.5rem;">✅ Was die Seite kann:</h3>
                 <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.5;">
-                    <li>Live-Übersicht aller anstehenden Vorstellungen und Säle.</li>
-                    <li>Schnelle Warnungen für Zutrittskontrollen (ZE) und voll ausgelastete Säle.</li>
-                    <li>Interne Notizen verwalten (nur lokal auf diesem Gerät gespeichert).</li>
+                    <li><strong>Live-Übersicht</strong> aller anstehenden Vorstellungen und Säle.</li>
+                    <li><strong>Warnmeldungen:</strong> Automatische Erinnerungen für Zutrittskontrollen (ZE), voll ausgelastete Säle, und Plakatwechsel (Poster-Erinnerungen).</li>
+                    <li><strong>FSK & Jugendschutz (JuSchG):</strong> Zeigt die FSK (farblich passend weiß, gelb, grün, blau, rot) und zusätzlich eine Warnung an, falls der Film eine höhere Altersgrenze wegen der Uhrzeit erfordert (z.B. nach 22/24 Uhr).</li>
+                    <li><strong>Interne Notizen</strong> verwalten (nur lokal auf diesem Gerät gespeichert).</li>
                 </ul>
 
                 <h3 style="color: var(--primary-red); font-size: 1.1rem; margin-bottom: 0.5rem;">⚠️ Was die Seite (noch) nicht kann:</h3>
