@@ -949,35 +949,42 @@
             /* Mobile Optimization */
             @media (max-width: 768px) {
                 header {
-                    padding: 0.75rem 1rem;
-                    margin-bottom: 2rem;
+                    padding: 0.5rem 0.75rem;
+                    margin-bottom: 1.5rem;
                 }
                 .header-inner {
                     flex-direction: column !important;
-                    gap: 1rem !important;
+                    gap: 0.75rem !important;
                     align-items: center !important;
                 }
                 .brand {
                     width: 100%;
                     justify-content: center;
                 }
+                .logo-container {
+                    padding: 0.4rem 0.75rem;
+                }
                 .controls {
                     width: 100%;
+                    justify-content: center;
                 }
                 .location-select {
                     width: 100%;
-                    text-align: center;
+                    max-width: 300px;
+                    text-align: left;
+                    font-size: 0.9rem;
+                    background-position: right 0.75rem center;
                 }
                 .container {
-                    padding: 0 0.75rem 3rem !important;
+                    padding: 0 1rem 3rem !important;
                 }
                 .dashboard-title {
-                    font-size: 2.2rem !important;
-                    margin-top: 1rem !important;
+                    font-size: 1.8rem !important;
+                    margin-top: 0.5rem !important;
                 }
                 .header-main-title {
                     flex-direction: column;
-                    gap: 1rem;
+                    gap: 0.75rem;
                     align-items: stretch;
                 }
                 .date-navigator {
@@ -986,7 +993,7 @@
                 }
                 .dashboard-grid {
                     grid-template-columns: 1fr;
-                    gap: 1.25rem;
+                    gap: 1rem;
                 }
                 .hall-card {
                     padding: 1rem !important;
@@ -1002,14 +1009,22 @@
                 .session-item {
                     padding: 1rem 0.5rem !important;
                     border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+                    grid-template-columns: 50px 1fr !important;
+                    gap: 0.75rem !important;
+                }
+                .time-start {
+                    font-size: 1rem;
+                }
+                .movie-title {
+                    white-space: normal !important;
                 }
                 .stat-card {
-                    padding: 1.25rem !important;
+                    padding: 1rem !important;
                     border-radius: 16px !important;
                 }
                 .auslass-grid {
                     grid-template-columns: 1fr;
-                    padding: 1rem;
+                    padding: 0.75rem;
                 }
                 .auslass-item {
                     padding: 0.75rem;
@@ -1026,6 +1041,49 @@
                 .news-image {
                     width: 100%;
                     height: 200px;
+                }
+                
+                /* New mobile fixes */
+                .feedback-tab {
+                    top: auto !important;
+                    bottom: 20px !important;
+                    right: 20px !important;
+                    transform: none !important;
+                    padding: 0 !important;
+                    width: 50px !important;
+                    height: 50px !important;
+                    border-radius: 50% !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    font-size: 0 !important;
+                    box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4) !important;
+                }
+                .feedback-tab::after {
+                    content: '✨' !important;
+                    font-size: 1.5rem !important;
+                    line-height: 1 !important;
+                }
+                .feedback-tab:hover {
+                    padding-right: 0 !important;
+                    width: 55px !important;
+                    height: 55px !important;
+                    right: 17.5px !important;
+                    bottom: 17.5px !important;
+                    background: #ff1f2a !important;
+                }
+                .alerts-title h2 {
+                    font-size: 1rem !important;
+                }
+                .alert-icon {
+                    font-size: 1.8rem !important;
+                }
+                .stat-value {
+                    font-size: 2rem !important;
+                }
+                .stats-grid {
+                    grid-template-columns: 1fr !important;
+                    gap: 1rem !important;
                 }
             }
 
@@ -1390,14 +1448,24 @@
         </div>
 
         <!-- Staff Notes Section -->
-        <div class="card-container notes-section glass" style="margin-bottom: 2rem; padding: 1.5rem;">
-            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                <span class="alert-icon-small">📝</span>
-                <h2 style="font-size: 1.25rem;">Schicht-Notizen</h2>
-                <span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic; margin-left: auto;">Local Storage (Nur auf diesem Gerät)</span>
+        <div class="card-container notes-section glass" style="margin-bottom: 2rem;">
+            <div class="card-header" onclick="toggleSection('staff-notes-content', 'notes-toggle-btn')" style="cursor: pointer; padding: 1.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
+                    <span class="alert-icon-small">📝</span>
+                    <h2 style="font-size: 1.25rem;">Schicht-Notizen</h2>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic; margin-left: auto;">Local Storage</span>
+                </div>
+                <button class="toggle-btn" id="notes-toggle-btn" style="pointer-events: none;">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
+                    </svg>
+                </button>
             </div>
-            <textarea id="staff-notes" class="notes-area" placeholder="Notizen für die aktuelle Schicht hier eintragen..."></textarea>
-           <!-- Tasks Section (Auslässe & Posterwechsel) -->
+            <div id="staff-notes-content" class="collapsible-content" style="padding: 0 1.5rem 1.5rem;">
+                <textarea id="staff-notes" class="notes-area" placeholder="Notizen für die aktuelle Schicht hier eintragen..."></textarea>
+            </div>
+        </div>
+        <!-- Tasks Section (Auslässe & Posterwechsel) -->
         <div id="auslaesse-section-container" class="card-container auslaesse-container glass" style="display: none;">
             <div class="card-header">
                 <div class="header-left auslass-header-small">
@@ -1423,20 +1491,27 @@
         </div>
 
         <!-- Statistics Section -->
-        <section id="stats-section-container" class="stats-section" style="display: none; margin-bottom: 4rem;">
-            <div class="section-header">
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <section id="stats-section-container" class="stats-section" style="display: none; margin-bottom: 4rem; padding: 0;">
+            <div class="section-header card-header" onclick="toggleSection('stats-content', 'stats-toggle-btn')" style="cursor: pointer; padding: 1.5rem 3rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;">
                     <span class="alert-icon-small">📊</span>
                     <h2>Tages-Statistiken</h2>
                 </div>
+                <button class="toggle-btn" id="stats-toggle-btn" style="pointer-events: none;">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
+                    </svg>
+                </button>
             </div>
-            <div id="stats-grid" class="stats-grid">
-                <!-- Stat cards will be injected here -->
-            </div>
-            <div class="chart-container">
-                <span class="stat-label">Besucher pro Stunde (Heute)</span>
-                <div id="hour-chart" class="hour-bars">
-                    <!-- Bars will be injected here -->
+            <div id="stats-content" class="collapsible-content" style="padding: 0 3rem 3rem;">
+                <div id="stats-grid" class="stats-grid">
+                    <!-- Stat cards will be injected here -->
+                </div>
+                <div class="chart-container">
+                    <span class="stat-label">Besucher pro Stunde (Heute)</span>
+                    <div id="hour-chart" class="hour-bars">
+                        <!-- Bars will be injected here -->
+                    </div>
                 </div>
             </div>
         </section>
@@ -1516,11 +1591,15 @@
                 }
             });
         }
+        function toggleSection(contentId, btnId) {
+            const content = document.getElementById(contentId);
+            const btn = document.getElementById(btnId);
+            if(content) content.classList.toggle('collapsed');
+            if(btn) btn.classList.toggle('collapsed');
+        }
+
         function toggleAlerts() {
-            const content = document.getElementById('poster-alerts');
-            const btn = document.getElementById('alerts-toggle-btn');
-            content.classList.toggle('collapsed');
-            btn.classList.toggle('collapsed');
+            toggleSection('poster-alerts', 'alerts-toggle-btn');
         }
 
         function changeDate(days) {
@@ -1553,8 +1632,18 @@
             subEl.innerText = displayDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
         }
 
+        function closeWelcomeModal() {
+            document.getElementById('welcome-modal').classList.remove('active');
+            localStorage.setItem('welcome_seen_beta', 'true');
+        }
+
         async function init() {
             console.log('Kinopolis Dashboard v1.1 - Unified Worker Mode');
+            
+            if (!localStorage.getItem('welcome_seen_beta')) {
+                const modal = document.getElementById('welcome-modal');
+                if (modal) modal.classList.add('active');
+            }
             
             // Setup toggle for Auslässe
             document.getElementById('auslaesse-toggle-btn').addEventListener('click', () => {
@@ -2279,9 +2368,12 @@
                             <div class="alert-content">
                                 <div class="alert-icon">${isZENeeded ? '🛂' : '🎟️'}</div>
                                 <div class="alert-text" style="flex: 1">
-                                    <h2>${isZENeeded ? 'Zutrittskontrolle (ZE) nötig!' : 'Saal fast voll!'}</h2>
+                                    <h2 style="display: flex; align-items: center; gap: 0.5rem;">
+                                        ${isZENeeded ? 'Zutrittskontrolle (ZE) nötig!' : 'Saal fast voll!'}
+                                        ${isZENeeded && s.fsk ? `<span style="background: var(--primary-red); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">${s.fsk}</span>` : ''}
+                                    </h2>
                                     <p>Der Film <strong>${s.title}</strong> in <strong>${hallName}</strong> beginnt in ${diff} Min. (${s.sold} Plätze belegt).</p>
-                                    ${isZENeeded ? '<p style="color: var(--primary-blue); margin-top: 0.5rem; font-weight: 600;">⚠️ Da der Vorfilm nicht voll war, sollte hier ZE gemacht werden!</p>' : ''}
+                                    ${isZENeeded ? '<p style="color: var(--primary-blue); margin-top: 0.5rem; font-weight: 600;">⚠️ Bitte kontrolliere die Ausweise basierend auf der Uhrzeit und der FSK.</p>' : ''}
                                 </div>
                             </div>
                         `;
@@ -2299,20 +2391,43 @@
             document.getElementById('feedback-modal').classList.remove('active');
         }
 
-        function sendFeedback() {
+        async function sendFeedback() {
             const text = document.getElementById('feedback-text').value;
             if (!text.trim()) return alert('Bitte gib ein Feedback ein.');
             
-            const subject = encodeURIComponent('Kinopolis Feedback');
-            const body = encodeURIComponent(text);
-            window.location.href = `mailto:hi@artjombecker.com?subject=${subject}&body=${body}`;
-            
-            closeFeedback();
-            document.getElementById('feedback-text').value = '';
+            const btn = document.querySelector('#feedback-modal .btn-primary');
+            btn.innerText = 'Wird gesendet...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+
+                if(res.ok) {
+                    alert('Feedback erfolgreich gesendet! Danke.');
+                    closeFeedback();
+                    document.getElementById('feedback-text').value = '';
+                } else {
+                    alert('Fehler beim Senden. Bitte Server-Logs prüfen.');
+                }
+            } catch (e) {
+                console.error('Feedback error:', e);
+                alert('Netzwerkfehler beim Senden.');
+            } finally {
+                btn.innerText = 'Senden';
+                btn.disabled = false;
+            }
         }
 
         // Initial load
-        init();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
         
         // Ensure image visibility fallback
         document.getElementById('brand-logo').onload = function() {
@@ -2320,6 +2435,42 @@
             this.style.background = 'transparent';
         };
     </script>
+    <!-- Welcome Modal -->
+    <div id="welcome-modal" class="modal">
+        <div class="modal-content glass" style="max-height: 90vh; overflow-y: auto;">
+            <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Willkommen beim Kinopolis Dashboard 👋</h2>
+            <div style="margin-bottom: 2rem; color: var(--text-main); font-size: 0.95rem;">
+                <p style="margin-bottom: 1.5rem; line-height: 1.5;">Dieses Dashboard befindet sich noch in der <strong>Testphase (Beta)</strong> und wurde noch nicht vollständig für den Vollbetrieb validiert.</p>
+                
+                <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.5rem;">✅ Was die Seite kann:</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.5;">
+                    <li>Live-Übersicht aller anstehenden Vorstellungen und Säle.</li>
+                    <li>Schnelle Warnungen für Zutrittskontrollen (ZE) und voll ausgelastete Säle.</li>
+                    <li>Interne Notizen verwalten (nur lokal auf diesem Gerät gespeichert).</li>
+                </ul>
+
+                <h3 style="color: var(--primary-red); font-size: 1.1rem; margin-bottom: 0.5rem;">⚠️ Was die Seite (noch) nicht kann:</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.5;">
+                    <li><strong>Auslasszeiten:</strong> Diese sind im System aktuell <em>nur sehr grob geschätzt</em> (Startzeit + Dauer + 30 Minuten Puffer). Sie sind nicht zu 100% verlässlich!</li>
+                    <li>Das Programm ist <strong>noch nicht vollständig getestet</strong>. Technische Fehler, Ausfälle oder stellenweise falsche Daten können vereinzelt auftreten.</li>
+                </ul>
+                
+                <h3 style="color: var(--warning-yellow); font-size: 1.1rem; margin-bottom: 0.5rem;">💡 Mögliche Optionale Add-Ons (Zukunft):</h3>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.5;">
+                    <li>Erinnerungs-Alarme (Push-Benachrichtigungen) aufs Handy.</li>
+                    <li>Synchronisation der Schicht-Notizen für alle Mitarbeiter.</li>
+                    <li>Erfassung von tatsächlichen Auslasszeiten zur besseren Zeitschätzung.</li>
+                </ul>
+                
+                <div style="background: rgba(255, 31, 42, 0.1); border: 1px solid rgba(255, 31, 42, 0.2); padding: 1rem; border-radius: 12px;">
+                    <p style="line-height: 1.5; margin: 0;">Daher ist dein <strong>Feedback enorm wichtig!</strong> Bitte nutze den <span style="font-weight: bold; color: #ff4d4d;">roten Feedback-Button (✨)</span> unten rechts, wenn dir Fehler auffallen, Daten fehlen oder du gute Ideen zur Verbesserung hast.</p>
+                </div>
+            </div>
+            <div class="modal-actions" style="justify-content: center;">
+                <button onclick="closeWelcomeModal()" class="btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem; border-radius: 12px; font-weight: bold;">Alles klar, verstanden!</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Feedback UI -->
     <div class="feedback-tab" onclick="openFeedback()">

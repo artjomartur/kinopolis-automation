@@ -77,6 +77,15 @@ app.get('/api/sessions', async (c) => {
             const durationMatch = durationText.match(/Dauer:\s*(\d+)\s*Minuten/i) || durationText.match(/(\d+)\s*Min\.?/i);
             const duration = durationMatch ? parseInt(durationMatch[1]) : 0;
 
+            let fsk = "FSK ?";
+            const fskImg = $(movieEl).find('img[src*="FSK"]').first().attr('alt');
+            if (fskImg && fskImg.includes('FSK')) {
+                fsk = fskImg;
+            } else {
+                const fskMatch = durationText.match(/ab\s*(\d+)\s*Jahre/i) || durationText.match(/FSK\s*(\d+)/i);
+                if (fskMatch) fsk = `FSK ${fskMatch[1]}`;
+            }
+
             // Build movie-specific date map
             const movieNavDateMap = new Map();
             $(movieEl).find('.prog-nav__item').each((navIdx, navEl) => {
@@ -153,7 +162,7 @@ app.get('/api/sessions', async (c) => {
                                       !occupancyText.includes('ausverkauft');
 
                     const sessionObj = { title, poster: poster ? (poster.startsWith('http') ? poster : `https://www.kinopolis.de${poster}`) : null, 
-                                       time, hall, duration, capacity, freePercent, sold, isBookable, performanceId: perfId, date: actualDate };
+                                       time, hall, duration, capacity, freePercent, sold, isBookable, performanceId: perfId, date: actualDate, fsk };
 
                     const key = `${actualDate}-${perfId || (time + '-' + hall + '-' + title)}`;
                     const existing = sessionMap.get(key);
@@ -209,6 +218,26 @@ app.get('/api/messages', async (c) => {
 // Post and Delete disabled for now as per user request
 app.post('/api/messages', (c) => c.json({ error: 'Disabled' }, 403));
 app.delete('/api/messages/:id', (c) => c.json({ error: 'Disabled' }, 403));
+
+// Handle Feedback submission
+app.post('/api/feedback', async (c) => {
+    try {
+        const body = await c.req.json();
+        const { text } = body;
+        if (!text) return c.json({ error: 'Text is required' }, 400);
+
+        if (c.env && c.env.DB) {
+            await c.env.DB.prepare('INSERT INTO feedback (content) VALUES (?)').bind(text).run();
+        } else {
+            console.log(`[WORKER] Mock feedback stored: ${text}`);
+        }
+        
+        return c.json({ success: true });
+    } catch (e) {
+        console.error('Feedback error:', e);
+        return c.json({ error: 'Internal Server Error' }, 500);
+    }
+});
 
 // R2 Image Proxy (Fallback)
 app.get('/api/images/:key', async (c) => {

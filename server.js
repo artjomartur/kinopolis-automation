@@ -6,7 +6,7 @@ const app = express();
 const port = 3001;
 
 app.use(cors());
-
+app.use(express.json());
 // Fetch Kinopolis program for a specific location and date
 app.get('/api/sessions', async (req, res) => {
     const location = req.query.location || 'su'; // Default to Sulzbach (su)
@@ -64,6 +64,15 @@ app.get('/api/sessions', async (req, res) => {
             const durationMatch = durationText.match(/Dauer:\s*(\d+)\s*Minuten/i) 
                                || durationText.match(/(\d+)\s*Min\.?/i);
             const duration = durationMatch ? parseInt(durationMatch[1]) : 0;
+
+            let fsk = "FSK ?";
+            const fskImg = $(movieEl).find('img[src*="FSK"]').first().attr('alt');
+            if (fskImg && fskImg.includes('FSK')) {
+                fsk = fskImg;
+            } else {
+                const fskMatch = durationText.match(/ab\s*(\d+)\s*Jahre/i) || durationText.match(/FSK\s*(\d+)/i);
+                if (fskMatch) fsk = `FSK ${fskMatch[1]}`;
+            }
 
             const seenSessions = new Set(); // To deduplicate sessions for this movie
 
@@ -175,13 +184,18 @@ app.get('/api/sessions', async (req, res) => {
                     sold,
                     isBookable,
                     performanceId: perfId,
-                    date: dateStr
+                    date: dateStr,
+                    fsk
                 });
             });
         });
 
         console.log(`Found ${sessions.length} sessions for ${location}`);
-        res.json(sessions);
+        const halls = {};
+        sessions.forEach(s => { if (!halls[s.hall]) halls[s.hall] = []; halls[s.hall].push(s); });
+        const sortedHalls = Object.keys(halls).sort().map(name => ({ name, sessions: halls[name].sort((a, b) => a.time.localeCompare(b.time)) }));
+        
+        res.json(sortedHalls);
     } catch (error) {
         console.error('Scraping error:', error);
         res.status(500).json({ error: 'Failed to fetch program' });
@@ -204,24 +218,46 @@ app.get('/api/debug', async (req, res) => {
     }
 });
 
-const locations = {
-    "Sulzbach / Main-Taunus": "su",
-    "Bonn": "bn",
-    "Aschaffenburg": "as",
-    "Bad Homburg": "bh",
-    "Darmstadt: KINOPOLIS": "kp",
-    "Darmstadt: Citydome": "cd",
-    "Darmstadt: Rex": "rx",
-    "Freiberg": "fr",
-    "Gießen": "gi",
-    "Hanau": "han",
-    "Koblenz": "ko",
-    "Landshut": "land",
-    "Rhein-Neckar / Viernheim": "rn",
-    "Mönchengladbach": "mg",
-    "Karlsruhe": "ka",
-    "Rosenheim": "ro"
-};
+// Mock feedback endpoint for local testing
+app.post('/api/feedback', (req, res) => {
+    const { text } = req.body;
+    if (!text) {
+        return res.status(400).json({ error: 'Text is required' });
+    }
+    console.log(`[LOCAL DEV] Feedback received: ${text}`);
+    res.json({ success: true });
+});
+
+app.get('/api/messages', (req, res) => {
+    res.json([
+        {
+            id: 1,
+            title: "Mario Menü & Merch Verkauf",
+            content: "Hallo zusammen,\n\nmit dem Start des neuen Mario Films gehen wir mit mehreren Menüs und Merch-Artikeln in den Verkauf.",
+            author: "Betriebsleitung",
+            created_at: "2026-03-24T16:30:00Z"
+        }
+    ]);
+});
+
+const locations = [
+    { name: "Sulzbach / Main-Taunus", slug: "su" },
+    { name: "Bonn", slug: "bn" },
+    { name: "Aschaffenburg", slug: "as" },
+    { name: "Bad Homburg", slug: "bh" },
+    { name: "Darmstadt: KINOPOLIS", slug: "kp" },
+    { name: "Darmstadt: Citydome", slug: "cd" },
+    { name: "Darmstadt: Rex", slug: "rx" },
+    { name: "Freiberg", slug: "fr" },
+    { name: "Gießen", slug: "gi" },
+    { name: "Hanau", slug: "han" },
+    { name: "Koblenz", slug: "ko" },
+    { name: "Landshut", slug: "land" },
+    { name: "Rhein-Neckar / Viernheim", slug: "rn" },
+    { name: "Mönchengladbach", slug: "mg" },
+    { name: "Karlsruhe", slug: "ka" },
+    { name: "Rosenheim", slug: "ro" }
+];
 
 app.get('/api/locations', (req, res) => {
     res.json(locations);
