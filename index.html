@@ -2258,12 +2258,16 @@
             let html = `<span class="tag" style="background: ${bgColor}; color: ${color}; border: 1px solid rgba(0,0,0,0.1); font-weight: bold; width: fit-content; text-shadow: 0px 1px 2px rgba(0,0,0,0.1); box-shadow: 0 2px 4px rgba(0,0,0,0.2);">${s.fsk}</span>`;
             
             let juschgAge = 0;
-            if (endTotalMin > 24 * 60) juschgAge = 18;
-            else if (endTotalMin > 22 * 60) juschgAge = 16;
-            else if (endTotalMin > 20 * 60) juschgAge = 14;
+            let timeReason = '';
+            // §11 JuSchG: Jugendliche ab 16 Jahren, wenn die Vorführung nach 24 Uhr beendet ist. -> ab 18
+            if (endTotalMin > 24 * 60) { juschgAge = 18; timeReason = '> 24 Uhr'; }
+            // §11 JuSchG: Jugendliche unter 16 Jahren, wenn die Vorführung nach 22 Uhr beendet ist. -> ab 16
+            else if (endTotalMin > 22 * 60) { juschgAge = 16; timeReason = '> 22 Uhr'; }
+            // §11 JuSchG: Kindern ab sechs Jahren, wenn die Vorführung nach 20 Uhr beendet ist. -> ab 14
+            else if (endTotalMin > 20 * 60) { juschgAge = 14; timeReason = '> 20 Uhr'; }
             
             if (juschgAge > fskAge && fskAge !== 18) {
-                html += `<span class="tag" style="background: rgba(0,0,0,0.5); color: #ffeb3b; border: 1px dashed #ffeb3b; font-weight: bold; margin-left: 0.25rem;">⏰ ab ${juschgAge} (JuSchG)</span>`;
+                html += `<span class="tag" style="background: rgba(0,0,0,0.5); color: #ffeb3b; border: 1px dashed #ffeb3b; font-weight: bold; margin-left: 0.25rem;" title="Jugendschutz: Ende ${timeReason}">⏰ ab ${juschgAge} (Ende ${timeReason})</span>`;
             }
             return html;
         }
