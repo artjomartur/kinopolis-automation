@@ -260,7 +260,10 @@ app.get('/api/messages', (req, res) => {
             title: "Mario Menü & Merch Verkauf",
             content: "Hallo zusammen,\n\nmit dem Start des neuen Mario Films gehen wir mit mehreren Menüs und Merch-Artikeln in den Verkauf.",
             author: "Betriebsleitung",
-            created_at: "2026-03-24T16:30:00Z"
+            created_at: "2026-03-24T16:30:00Z",
+            images: [
+                "./yoshi.png"
+            ]
         }
     ]);
 });

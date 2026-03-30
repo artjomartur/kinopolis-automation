@@ -206,7 +206,7 @@ const STATIC_MESSAGES = [
         author: "Betriebsleitung",
         created_at: "2026-03-24T16:30:00Z",
         images: [
-            "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?auto=format&fit=crop&q=80&w=600"
+            "./yoshi.png"
         ]
     }
 ];

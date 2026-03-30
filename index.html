@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kinopolis Automation Dashboard</title>
     <!-- Favicon: Kinopolis Logo -->
-    <link rel="icon" href="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" type="image/png">
-    <link rel="apple-touch-icon" href="https://trailer.kinopolis.de/media/img/logos/kinopolis.png">
+    <link rel="icon" href="./icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="./icon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -1498,6 +1498,59 @@
             <div id="auslaesse-list" class="collapsible-content auslass-grid"></div>
         </div>
 
+        <!-- Lost & Found Section -->
+        <div class="card-container glass" style="margin-bottom: 2rem;">
+            <div class="card-header" onclick="toggleSection('lost-found-content', 'lf-toggle-btn')" style="cursor: pointer; padding: 1.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
+                    <span class="alert-icon-small">🧸</span>
+                    <h2 style="font-size: 1.25rem;">Verlorene Gegenstände</h2>
+                    <span id="lf-count-badge" class="badge" style="margin-left: 0.5rem; background: var(--primary-blue);">0</span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic; margin-left: auto;">Local Storage Test</span>
+                </div>
+                <button class="toggle-btn" id="lf-toggle-btn" style="pointer-events: none;">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" /></svg>
+                </button>
+            </div>
+            <div id="lost-found-content" class="collapsible-content" style="padding: 0 1.5rem 1.5rem;">
+                <div id="lf-items-list" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem;"></div>
+                <button class="btn-primary" onclick="openLfModal()" style="width: 100%; border-radius: 8px; font-weight: bold; font-size: 1rem;"><span class="icon">➕</span> Gefundenen Gegenstand eintragen</button>
+            </div>
+        </div>
+
+        </div>
+
+        <!-- Shift Checklist Section -->
+        <div class="card-container glass" style="margin-bottom: 2rem;">
+            <div class="card-header" onclick="toggleSection('shift-check-content', 'shift-toggle-btn')" style="cursor: pointer; padding: 1.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
+                    <span class="alert-icon-small">🧹</span>
+                    <h2 style="font-size: 1.25rem;">Schicht-Übergabe</h2>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic; margin-left: auto;">Local Storage</span>
+                </div>
+                <button class="toggle-btn" id="shift-toggle-btn" style="pointer-events: none;">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" /></svg>
+                </button>
+            </div>
+            <div id="shift-check-content" class="collapsible-content" style="padding: 0 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;">
+                
+                <div class="checklist-group">
+                    <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--surface-border); padding-bottom: 0.5rem;">🍿 Theke</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;" id="checklist-theke">
+                        <!-- Items injected by JS -->
+                    </div>
+                </div>
+
+                <div class="checklist-group">
+                    <h3 style="color: var(--warning-yellow); font-size: 1.1rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--surface-border); padding-bottom: 0.5rem;">🎟️ Einlass</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;" id="checklist-einlass">
+                        <!-- Items injected by JS -->
+                    </div>
+                </div>
+
+                <button class="btn-secondary" onclick="resetChecklist()" style="margin-top: 0.5rem; font-size: 0.85rem;"><span class="icon">🔄</span> Alle Häkchen für neue Schicht zurücksetzen</button>
+            </div>
+        </div>
+
         <div id="dashboard" class="dashboard-grid">
             <div id="loading" class="loading-state">
                 <div class="spinner"></div>
@@ -1652,8 +1705,82 @@
             localStorage.setItem('welcome_seen_beta', 'true');
         }
 
+        function openLfModal() {
+            document.getElementById('lf-modal').classList.add('active');
+        }
+        function closeLfModal() {
+            document.getElementById('lf-modal').classList.remove('active');
+            document.getElementById('lf-what').value = '';
+            document.getElementById('lf-category').value = '';
+            document.getElementById('lf-where').value = '';
+            document.getElementById('lf-who').value = '';
+        }
+        function loadLfItems() {
+            const items = JSON.parse(localStorage.getItem('kinopolis_lf_items') || '[]');
+            const list = document.getElementById('lf-items-list');
+            document.getElementById('lf-count-badge').textContent = items.length;
+            list.innerHTML = '';
+            if (items.length === 0) {
+                list.innerHTML = '<div style="color: var(--text-muted); font-size: 0.95rem; text-align: center; padding: 1rem 0;">Bisher nichts gefunden 😊</div>';
+                return;
+            }
+            items.forEach((item, index) => {
+                const el = document.createElement('div');
+                el.className = 'glass';
+                el.style.padding = '1rem';
+                el.style.borderRadius = '8px';
+                el.style.borderLeft = '4px solid var(--primary-blue)';
+                el.style.background = 'rgba(255,255,255,0.02)';
+                el.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <strong style="color: white; font-size: 1.1rem;">${item.what}</strong>
+                        <span style="font-size: 0.8rem; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">${item.category}</span>
+                    </div>
+                    <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem; line-height: 1.5;">
+                        📍 <strong>Wo:</strong> ${item.where}<br>
+                        ⏰ <strong>Wann:</strong> ${item.time}<br>
+                        👤 <strong>Von wem:</strong> ${item.who}
+                    </div>
+                    <div style="text-align: right; margin-top: 0.5rem;">
+                        <button onclick="deleteLfItem(${index})" style="background: rgba(229, 9, 20, 0.1); border: 1px solid rgba(229, 9, 20, 0.3); color: var(--primary-red); cursor: pointer; font-size: 0.85rem; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Als abgeholt entfernen ❌</button>
+                    </div>
+                `;
+                list.appendChild(el);
+            });
+        }
+        function saveLfItem() {
+            const what = document.getElementById('lf-what').value.trim();
+            const category = document.getElementById('lf-category').value;
+            const where = document.getElementById('lf-where').value.trim();
+            const who = document.getElementById('lf-who').value.trim();
+            
+            if (!what || !category || !where || !who) {
+                alert('Bitte fülle alle Felder aus!');
+                return;
+            }
+            
+            const items = JSON.parse(localStorage.getItem('kinopolis_lf_items') || '[]');
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} Uhr (${now.toLocaleDateString('de-DE')})`;
+            
+            items.unshift({ what, category, where, who, time: timeStr });
+            localStorage.setItem('kinopolis_lf_items', JSON.stringify(items));
+            
+            closeLfModal();
+            loadLfItems();
+        }
+        function deleteLfItem(index) {
+            if(!confirm('Gegenstand wirklich als abgeholt markieren / löschen?')) return;
+            const items = JSON.parse(localStorage.getItem('kinopolis_lf_items') || '[]');
+            items.splice(index, 1);
+            localStorage.setItem('kinopolis_lf_items', JSON.stringify(items));
+            loadLfItems();
+        }
+
         async function init() {
             console.log('Kinopolis Dashboard v1.1 - Unified Worker Mode');
+            loadLfItems();
+            loadChecklist();
             
             if (!localStorage.getItem('welcome_seen_beta')) {
                 const modal = document.getElementById('welcome-modal');
@@ -2514,11 +2641,11 @@
                     <li>Das Programm ist <strong>noch nicht vollständig getestet</strong>. Technische Fehler, Ausfälle oder stellenweise falsche Daten können vereinzelt auftreten.</li>
                 </ul>
                 
-                <h3 style="color: var(--warning-yellow); font-size: 1.1rem; margin-bottom: 0.5rem;">💡 Mögliche Optionale Add-Ons (Zukunft):</h3>
+                <h3 style="color: var(--warning-yellow); font-size: 1.1rem; margin-bottom: 0.5rem;">💡 Geplante Add-Ons (Zukunft):</h3>
                 <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.5;">
+                    <li><strong>Als App installieren (PWA):</strong> Demnächst als Vollbild-App auf dem Homescreen speicherbar.</li>
+                    <li><strong>Verlorene Gegenstände (Global):</strong> Ein komplett digitales Fundbuch für das ganze Team (Testversion aktuell schon "Lokal" verfügbar!).</li>
                     <li>Erinnerungs-Alarme (Push-Benachrichtigungen) aufs Handy.</li>
-                    <li>Synchronisation der Schicht-Notizen für alle Mitarbeiter.</li>
-                    <li>Erfassung von tatsächlichen Auslasszeiten zur besseren Zeitschätzung.</li>
                 </ul>
                 
                 <div style="background: rgba(255, 31, 42, 0.1); border: 1px solid rgba(255, 31, 42, 0.2); padding: 1rem; border-radius: 12px;">
@@ -2544,6 +2671,29 @@
             <div class="modal-actions">
                 <button onclick="closeFeedback()" class="btn-secondary">Abbrechen</button>
                 <button onclick="sendFeedback()" class="btn-primary">Senden</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lost & Found Modal -->
+    <div id="lf-modal" class="modal">
+        <div class="modal-content glass">
+            <h2>Gefundenen Gegenstand eintragen</h2>
+            <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
+                <input type="text" id="lf-what" class="input-field" placeholder="Was? (z.B. Schwarzer Schal)" required>
+                <select id="lf-category" class="input-field" required style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--surface-border); padding: 0.75rem; border-radius: 8px; font-size: 1rem;">
+                    <option value="" disabled selected>Kategorie wählen...</option>
+                    <option value="Kleidung">👕 Kleidung</option>
+                    <option value="Wertsachen">💎 Wertsachen (Geldbeutel, Schlüssel)</option>
+                    <option value="Elektronik">📱 Elektronik (Handy, Kopfhörer)</option>
+                    <option value="Sonstiges">📦 Sonstiges</option>
+                </select>
+                <input type="text" id="lf-where" class="input-field" placeholder="Wo genau? (z.B. Kino 4, Platz 8A)" required>
+                <input type="text" id="lf-who" class="input-field" placeholder="Wer hat es gefunden? (Dein Name)" required>
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn-secondary" onclick="closeLfModal()" style="flex: 1;">Abbrechen</button>
+                <button class="btn-primary" onclick="saveLfItem()" style="flex: 1;">Speichern</button>
             </div>
         </div>
     </div>

@@ -97,7 +97,7 @@ var __toESM2 = /* @__PURE__ */ __name((mod, isNodeMode, target) => (target = mod
   mod
 )), "__toESM");
 var require_checked_fetch2 = __commonJS2({
-  ".wrangler/tmp/bundle-H9slrk/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-CwFwSk/checked-fetch.js"() {
     var urls = /* @__PURE__ */ new Set();
     function checkURL(request, init) {
       const url = request instanceof URL ? request : new URL(
@@ -18009,7 +18009,7 @@ var STATIC_MESSAGES = [
     author: "Betriebsleitung",
     created_at: "2026-03-24T16:30:00Z",
     images: [
-      "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?auto=format&fit=crop&q=80&w=600"
+      "./yoshi.png"
     ]
   }
 ];
