@@ -882,8 +882,8 @@
         /* Mobile specific adjustments inside alerts */
         @media (max-width: 600px) {
             .poster-change-alert {
-                margin-bottom: 2.5rem; /* Even more space between alerts */
-                padding: 1.25rem; /* Reduced internal padding to give more room for content */
+                margin-bottom: 2.5rem;
+                padding: 1rem; /* More compact padding to allow larger content */
             }
             .alert-content {
                 flex-direction: column;
@@ -891,28 +891,32 @@
                 gap: 1.25rem;
             }
             .alert-text h2 {
-                font-size: 1.3rem; /* Made larger */
+                font-size: 1.4rem; /* Even larger */
             }
             .alert-icon-svg {
-                width: 44px; /* Made larger */
-                height: 44px;
+                width: 48px;
+                height: 48px;
             }
             .next-movie-preview {
                 width: 100%;
                 padding: 1.25rem;
-                gap: 1.25rem;
+                gap: 1.5rem;
+                align-items: flex-start; /* Align to top */
             }
             .poster-img {
-                width: 80px; /* Made larger */
-                height: 115px; /* Made larger */
+                width: 110px; /* Much larger */
+                height: 160px; /* Much larger */
+                flex-shrink: 0; /* Prevent shrinking! */
+                border-radius: 12px;
             }
             .next-movie-info h3 {
-                font-size: 1.3rem; /* Made larger */
+                font-size: 1.4rem; /* Even larger */
+                white-space: normal; /* Allow wrap */
             }
             .alert-done-btn {
                 width: 100%;
-                height: 54px; /* Made larger for better touch */
-                border-radius: 12px;
+                height: 58px; /* Larger tap target */
+                border-radius: 16px;
                 margin-top: 1.25rem;
                 align-self: stretch;
             }
@@ -1137,6 +1141,11 @@
                 }
                 .stat-value {
                     font-size: 2rem !important;
+                }
+                .stat-poster {
+                    width: 100px !important; /* Larger posters in stats */
+                    height: 145px !important;
+                    flex-shrink: 0;
                 }
                 .stats-grid {
                     grid-template-columns: 1fr !important;
@@ -1478,6 +1487,7 @@
                 <div style="display: flex; align-items: center; gap: 0.75rem; width: 100%;">
                     <span class="alert-icon-small">📢</span>
                     <h2 style="font-size: 1.2rem; flex: 1;">Interne Mitteilungen</h2>
+                    <span id="news-count-badge" class="badge">0</span>
                     <button class="toggle-btn collapsed" id="news-toggle-btn">
                         <svg viewBox="0 0 24 24" width="24" height="24">
                             <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
@@ -2022,6 +2032,8 @@
             }
 
             container.style.display = 'block';
+            const badge = document.getElementById('news-count-badge');
+            if (badge) badge.textContent = news.length;
             list.innerHTML = news.map(item => {
                 const images = item.images || (item.image_url ? [item.image_url] : []);
                 return `
