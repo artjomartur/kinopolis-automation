@@ -755,8 +755,8 @@
             background: linear-gradient(135deg, rgba(229, 9, 20, 0.15) 0%, rgba(20, 20, 25, 0.8) 100%);
             border: 1px solid rgba(229, 9, 20, 0.3);
             border-radius: 24px;
-            padding: 1.25rem; /* Reduced from 2rem */
-            margin-bottom: 0.75rem; /* Reduced from 1rem */
+            padding: 1.5rem; /* Increased for more room */
+            margin-bottom: 1.25rem; /* Increased for better separation */
             backdrop-filter: blur(20px);
             box-shadow: 0 10px 40px rgba(229, 9, 20, 0.1);
             position: relative;
@@ -881,10 +881,14 @@
 
         /* Mobile specific adjustments inside alerts */
         @media (max-width: 600px) {
+            .poster-change-alert {
+                margin-bottom: 2rem; /* Even more space between alerts on mobile */
+                padding: 1.75rem; /* Bonus padding for mobile to feel more spacious */
+            }
             .alert-content {
                 flex-direction: column;
                 align-items: stretch;
-                gap: 1.25rem;
+                gap: 1.5rem; /* Increased gap */
             }
             .alert-text h2 {
                 font-size: 1.1rem;
@@ -895,7 +899,7 @@
             }
             .next-movie-preview {
                 width: 100%;
-                padding: 0.85rem;
+                padding: 1rem;
                 gap: 1rem;
             }
             .poster-img {
@@ -904,9 +908,9 @@
             }
             .alert-done-btn {
                 width: 100%;
-                height: 44px;
+                height: 48px;
                 border-radius: 12px;
-                margin-top: 0.5rem;
+                margin-top: 1rem; /* More space before the button */
                 align-self: stretch;
             }
         }
