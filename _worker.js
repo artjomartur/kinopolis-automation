@@ -223,7 +223,7 @@ app.delete('/api/messages/:id', (c) => c.json({ error: 'Disabled' }, 403));
 app.post('/api/feedback', async (c) => {
     try {
         const body = await c.req.json();
-        const { text } = body;
+        const { text, contact } = body;
         if (!text) return c.json({ error: 'Text is required' }, 400);
 
         if (c.env && c.env.DB) {
@@ -246,8 +246,14 @@ app.post('/api/feedback', async (c) => {
                 body: JSON.stringify({
                     from: 'Kinopolis Dashboard <dashboard@artjombecker.com>',
                     to: 'hi@artjombecker.com',
-                    subject: '[Kinopolis Dashbord] Feedback',
-                    html: `<p>Du hast ein neues Feedback für das Dashboard erhalten:</p><blockquote style="border-left: 4px solid #ff4d4d; padding-left: 15px; margin-top: 15px; color: #333;">${text}</blockquote>`
+                    subject: `[Kinopolis Dashboard] Feedback${contact ? ' von ' + contact : ''}`,
+                    html: `
+                        <p>Du hast ein neues Feedback für das Dashboard erhalten:</p>
+                        <blockquote style="border-left: 4px solid #ff4d4d; padding-left: 15px; margin-top: 15px; color: #333; font-style: italic;">
+                            ${text.replace(/\n/g, '<br>')}
+                        </blockquote>
+                        ${contact ? `<p style="margin-top: 20px; font-size: 0.9rem; color: #666;">Absender / Kontakt: <strong>${contact}</strong></p>` : '<p style="margin-top: 20px; font-size: 0.9rem; color: #666;">Absender: Anonym</p>'}
+                    `
                 })
             }).catch(e => console.error('Resend Worker Error:', e));
         }

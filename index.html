@@ -2740,6 +2740,8 @@
             const text = document.getElementById('feedback-text').value;
             if (!text.trim()) return alert('Bitte gib ein Feedback ein.');
             
+            const contact = document.getElementById('feedback-contact')?.value || '';
+            
             const btn = document.querySelector('#feedback-modal .btn-primary');
             btn.innerText = 'Wird gesendet...';
             btn.disabled = true;
@@ -2748,13 +2750,14 @@
                 const res = await fetch('/api/feedback', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text })
+                    body: JSON.stringify({ text, contact })
                 });
 
                 if(res.ok) {
                     alert('Feedback erfolgreich gesendet! Danke.');
                     closeFeedback();
                     document.getElementById('feedback-text').value = '';
+                    document.getElementById('feedback-contact').value = '';
                 } else {
                     alert('Fehler beim Senden. Bitte Server-Logs prüfen.');
                 }
@@ -2826,11 +2829,20 @@
     <div id="feedback-modal" class="modal">
         <div class="modal-content glass">
             <h2>Feedback senden</h2>
-            <p style="color: var(--text-muted);">Dein Feedback hilft uns, das Dashboard zu verbessern. Es wird anonym via E-Mail verschickt.</p>
-            <textarea id="feedback-text" placeholder="Was können wir verbessern?"></textarea>
-            <div class="modal-actions">
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Dein Feedback hilft uns, das Dashboard zu verbessern.</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <textarea id="feedback-text" placeholder="Was können wir verbessern?" style="margin: 0;"></textarea>
+                <input type="text" id="feedback-contact" class="input-field" placeholder="Deine E-Mail / Name (optional)" style="background: rgba(255,255,255,0.05);">
+            </div>
+
+            <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; color: var(--text-muted);">
+                Support & Website: <a href="https://artjombecker.com" target="_blank" style="color: var(--primary-blue); text-decoration: none; font-weight: 600;">artjombecker.com</a>
+            </div>
+
+            <div class="modal-actions" style="margin-top: 1.5rem;">
                 <button onclick="closeFeedback()" class="btn-secondary">Abbrechen</button>
-                <button onclick="sendFeedback()" class="btn-primary">Senden</button>
+                <button onclick="sendFeedback()" class="btn-primary" style="background: var(--primary-red); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 12px; cursor: pointer; font-weight: 600;">Senden</button>
             </div>
         </div>
     </div>
