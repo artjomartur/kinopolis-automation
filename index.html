@@ -882,35 +882,38 @@
         /* Mobile specific adjustments inside alerts */
         @media (max-width: 600px) {
             .poster-change-alert {
-                margin-bottom: 2rem; /* Even more space between alerts on mobile */
-                padding: 1.75rem; /* Bonus padding for mobile to feel more spacious */
+                margin-bottom: 2.5rem; /* Even more space between alerts */
+                padding: 1.25rem; /* Reduced internal padding to give more room for content */
             }
             .alert-content {
                 flex-direction: column;
                 align-items: stretch;
-                gap: 1.5rem; /* Increased gap */
+                gap: 1.25rem;
             }
             .alert-text h2 {
-                font-size: 1.1rem;
+                font-size: 1.3rem; /* Made larger */
             }
             .alert-icon-svg {
-                width: 36px;
-                height: 36px;
+                width: 44px; /* Made larger */
+                height: 44px;
             }
             .next-movie-preview {
                 width: 100%;
-                padding: 1rem;
-                gap: 1rem;
+                padding: 1.25rem;
+                gap: 1.25rem;
             }
             .poster-img {
-                width: 60px;
-                height: 85px;
+                width: 80px; /* Made larger */
+                height: 115px; /* Made larger */
+            }
+            .next-movie-info h3 {
+                font-size: 1.3rem; /* Made larger */
             }
             .alert-done-btn {
                 width: 100%;
-                height: 48px;
+                height: 54px; /* Made larger for better touch */
                 border-radius: 12px;
-                margin-top: 1rem; /* More space before the button */
+                margin-top: 1.25rem;
                 align-self: stretch;
             }
         }
