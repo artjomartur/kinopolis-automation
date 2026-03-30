@@ -2,8 +2,11 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kinopolis Automation Dashboard</title>
+    <!-- Favicon: Kinopolis Logo -->
+    <link rel="icon" href="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://trailer.kinopolis.de/media/img/logos/kinopolis.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -293,11 +296,23 @@
             gap: 1rem;
             height: 200px;
             margin-top: 2rem;
-            padding-bottom: 2rem;
+            padding-bottom: 1rem;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-behavior: smooth;
+        }
+
+        .hour-bars::-webkit-scrollbar {
+            height: 6px;
+        }
+        .hour-bars::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
         }
 
         .hour-bar-wrapper {
             flex: 1;
+            min-width: 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
