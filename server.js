@@ -239,7 +239,7 @@ app.post('/api/feedback', async (req, res) => {
                     'Authorization': `Bearer ${RESEND_API_KEY}`
                 },
                 body: JSON.stringify({
-                    from: 'onboarding@resend.dev',
+                    from: 'Kinopolis Dashboard <dashboard@artjombecker.com>',
                     to: 'hi@artjombecker.com',
                     subject: '🍿 Neues Kinopolis Dashboard Feedback (Lokal)',
                     html: `<p>Du hast ein neues Feedback vom lokalen Dashboard erhalten:</p><blockquote style="border-left: 4px solid #ff4d4d; padding-left: 15px; margin-top: 15px;">${text}</blockquote>`

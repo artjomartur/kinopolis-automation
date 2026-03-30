@@ -97,7 +97,7 @@ var __toESM2 = /* @__PURE__ */ __name((mod, isNodeMode, target) => (target = mod
   mod
 )), "__toESM");
 var require_checked_fetch2 = __commonJS2({
-  ".wrangler/tmp/bundle-SSSeLp/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-H9slrk/checked-fetch.js"() {
     var urls = /* @__PURE__ */ new Set();
     function checkURL(request, init) {
       const url = request instanceof URL ? request : new URL(
@@ -18037,7 +18037,7 @@ app.post("/api/feedback", async (c) => {
           "Authorization": `Bearer ${key}`
         },
         body: JSON.stringify({
-          from: "onboarding@resend.dev",
+          from: "Kinopolis Dashboard <dashboard@artjombecker.com>",
           to: "hi@artjombecker.com",
           subject: "[Kinopolis Dashbord] Feedback",
           html: `<p>Du hast ein neues Feedback f\xFCr das Dashboard erhalten:</p><blockquote style="border-left: 4px solid #ff4d4d; padding-left: 15px; margin-top: 15px; color: #333;">${text3}</blockquote>`

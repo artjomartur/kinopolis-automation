@@ -29,9 +29,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// .wrangler/tmp/bundle-SSSeLp/checked-fetch.js
+// .wrangler/tmp/bundle-H9slrk/checked-fetch.js
 var require_checked_fetch = __commonJS({
-  ".wrangler/tmp/bundle-SSSeLp/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-H9slrk/checked-fetch.js"() {
     var urls = /* @__PURE__ */ new Set();
     function checkURL(request, init) {
       const url = request instanceof URL ? request : new URL(
@@ -74,10 +74,10 @@ var require_boolbase = __commonJS({
   }
 });
 
-// .wrangler/tmp/bundle-SSSeLp/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-H9slrk/middleware-loader.entry.ts
 var import_checked_fetch114 = __toESM(require_checked_fetch());
 
-// .wrangler/tmp/bundle-SSSeLp/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-H9slrk/middleware-insertion-facade.js
 var import_checked_fetch112 = __toESM(require_checked_fetch());
 
 // _worker.js
@@ -17746,7 +17746,7 @@ app.post("/api/feedback", async (c) => {
           "Authorization": `Bearer ${key}`
         },
         body: JSON.stringify({
-          from: "onboarding@resend.dev",
+          from: "Kinopolis Dashboard <dashboard@artjombecker.com>",
           to: "hi@artjombecker.com",
           subject: "[Kinopolis Dashbord] Feedback",
           html: `<p>Du hast ein neues Feedback f\xFCr das Dashboard erhalten:</p><blockquote style="border-left: 4px solid #ff4d4d; padding-left: 15px; margin-top: 15px; color: #333;">${text3}</blockquote>`
@@ -17818,7 +17818,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-SSSeLp/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-H9slrk/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -17851,7 +17851,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-SSSeLp/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-H9slrk/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
