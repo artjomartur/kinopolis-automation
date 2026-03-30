@@ -882,43 +882,67 @@
         /* Mobile specific adjustments inside alerts */
         @media (max-width: 600px) {
             .poster-change-alert {
-                margin-bottom: 2.5rem;
-                padding: 1rem; /* More compact padding to allow larger content */
+                margin-bottom: 2rem; /* Reasonable distance */
+                padding: 1.25rem;
+                background: linear-gradient(135deg, rgba(229, 9, 20, 0.12) 0%, rgba(20, 20, 25, 0.9) 100%);
             }
             .alert-content {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 1.25rem;
-            }
-            .alert-text h2 {
-                font-size: 1.4rem; /* Even larger */
+                display: grid;
+                grid-template-columns: 48px 1fr;
+                gap: 1rem;
+                align-items: center;
             }
             .alert-icon-svg {
-                width: 48px;
-                height: 48px;
+                width: 44px;
+                height: 44px;
+                grid-column: 1;
+            }
+            .alert-text {
+                grid-column: 2;
+            }
+            .alert-text h2 {
+                font-size: 1.15rem;
+                margin-bottom: 0.1rem;
+            }
+            .alert-text p {
+                font-size: 0.85rem;
+                line-height: 1.3;
             }
             .next-movie-preview {
+                grid-column: 1 / -1; /* Full width row */
                 width: 100%;
-                padding: 1.25rem;
-                gap: 1.5rem;
-                align-items: flex-start; /* Align to top */
+                padding: 1rem;
+                gap: 1.25rem;
+                background: rgba(0,0,0,0.4);
+                margin: 0.5rem 0;
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center;
             }
             .poster-img {
-                width: 110px; /* Much larger */
-                height: 160px; /* Much larger */
-                flex-shrink: 0; /* Prevent shrinking! */
-                border-radius: 12px;
+                width: 75px; 
+                height: 110px;
+                flex-shrink: 0;
+                border-radius: 8px;
+            }
+            .next-movie-info h4 {
+                font-size: 0.75rem;
+                margin-bottom: 0.1rem;
             }
             .next-movie-info h3 {
-                font-size: 1.4rem; /* Even larger */
-                white-space: normal; /* Allow wrap */
+                font-size: 1.1rem;
+                margin-bottom: 0.1rem;
+                line-height: 1.2;
             }
             .alert-done-btn {
+                grid-column: 1 / -1; /* Full width row */
                 width: 100%;
-                height: 58px; /* Larger tap target */
-                border-radius: 16px;
-                margin-top: 1.25rem;
-                align-self: stretch;
+                height: 52px;
+                margin-top: 0.5rem;
+                border-radius: 12px;
+                display: flex !important;
+                justify-content: center;
+                align-items: center;
             }
         }
 
