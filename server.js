@@ -262,7 +262,7 @@ app.get('/api/messages', (req, res) => {
             author: "Betriebsleitung",
             created_at: "2026-03-24T16:30:00Z",
             images: [
-                "./yoshi.png"
+                "./mario-poster.jpg"
             ]
         }
     ]);
