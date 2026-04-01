@@ -1468,6 +1468,50 @@
             line-height: 1.5;
             white-space: pre-line;
         }
+        /* Tab Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 0.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--surface-border);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn.active {
+            color: white;
+            background: linear-gradient(135deg, var(--primary-blue), #00d2ff);
+            box-shadow: 0 4px 15px rgba(0, 120, 255, 0.3);
+        }
+        /* Tab Navigation */
+        .nav-tabs { display: flex; gap: 1rem; margin-bottom: 2rem; background: rgba(255, 255, 255, 0.02); padding: 0.5rem; border-radius: 16px; border: 1px solid var(--surface-border); overflow-x: auto; }
+        .tab-btn { background: transparent; border: none; color: var(--text-muted); padding: 0.75rem 1.5rem; border-radius: 12px; font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; }
+        .tab-btn:hover { color: white; background: rgba(255, 255, 255, 0.05); }
+        .tab-btn.active { color: white; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); box-shadow: 0 4px 15px rgba(0, 120, 255, 0.3); }
+        
+        .tools-section { display: none !important; }
+        body.tools-active .tools-section { display: block !important; }
+        body.tools-active .live-section { display: none !important; }
     </style>
 </head>
 <body>
@@ -1510,7 +1554,12 @@
             </div>
         </div>
 
-        <div id="internal-news-container" class="news-section" style="display: none;">
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('live', this)">🎬 Live Programm</button>
+            <button class="tab-btn" onclick="switchTab('tools', this)">🛠️ Intern & Tools</button>
+        </div>
+
+        <div id="internal-news-container" class="news-section live-section" style="display: none;">
             <div class="card-header glass" style="margin-bottom: 1rem; border-radius: 20px;" onclick="toggleNews()">
                 <div style="display: flex; align-items: center; gap: 0.75rem; width: 100%;">
                     <span class="alert-icon-small">📢</span>
@@ -1526,7 +1575,7 @@
             <div id="news-list" class="collapsed"></div>
         </div>
 
-        <div id="poster-alerts-container">
+        <div id="poster-alerts-container" class="live-section">
             <div class="alerts-header glass" onclick="toggleAlerts()">
                 <div class="alerts-title">
                     <span class="alert-icon-small">⚠️</span>
@@ -1543,7 +1592,7 @@
         </div>
 
         <!-- Staff Notes Section -->
-        <div class="card-container notes-section glass" style="margin-bottom: 2rem;">
+        <div class="card-container notes-section glass tools-section" style="margin-bottom: 2rem;">
             <div class="card-header" onclick="toggleSection('staff-notes-content', 'notes-toggle-btn')" style="cursor: pointer; padding: 1.5rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
                     <span class="alert-icon-small">📝</span>
@@ -1561,7 +1610,7 @@
             </div>
         </div>
         <!-- Tasks Section (Auslässe & Posterwechsel) -->
-        <div id="auslaesse-section-container" class="card-container auslaesse-container glass" style="display: none;">
+        <div id="auslaesse-section-container" class="card-container auslaesse-container glass live-section" style="display: none;">
             <div class="card-header">
                 <div class="header-left auslass-header-small">
                     <span class="alert-icon-small">📋</span>
@@ -1579,7 +1628,7 @@
         </div>
 
         <!-- Unified Workstation Panel -->
-        <div class="card-container glass" style="margin-bottom: 2rem;">
+        <div class="card-container glass tools-section" style="margin-bottom: 2rem;">
             <div class="card-header" onclick="toggleSection('workstation-content', 'ws-toggle-btn')" style="cursor: pointer; padding: 1.5rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
                     <span class="alert-icon-small">🛠️</span>
@@ -1645,7 +1694,72 @@
             </div>
         </div>
 
-        <div id="dashboard" class="dashboard-grid">
+        <!-- Externe Links & Handbücher -->
+        <div class="card-container glass tools-section" style="margin-bottom: 2rem;">
+            <div class="card-header" onclick="toggleSection('links-content', 'links-toggle-btn')" style="cursor: pointer; padding: 1.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
+                    <span class="alert-icon-small">🔗</span>
+                    <h2 style="font-size: 1.25rem;">Links & Handbücher</h2>
+                </div>
+                <button class="toggle-btn collapsed" id="links-toggle-btn" style="pointer-events: none;">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
+                    </svg>
+                </button>
+            </div>
+            <div id="links-content" class="collapsible-content collapsed" style="padding: 0 1.5rem 1.5rem;">
+                <!-- External Links -->
+                <div style="margin-bottom: 1rem;">
+                    <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.75rem;">Externe Links</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <a href="https://kinopolis.net" target="_blank" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;">
+                            <span style="font-size: 2rem;">🌐</span>
+                            <div>
+                                <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Kinopolis.net</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">(Tagesabschlusszählung)</div>
+                            </div>
+                        </a>
+                        <a href="https://eu.atoss.com" target="_blank" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;">
+                            <span style="font-size: 2rem;">📅</span>
+                            <div>
+                                <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">ATOSS Dienstplan</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">Schichtplan ansehen</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Handbücher -->
+                <div>
+                    <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">Handbücher</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <a href="#" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;" onclick="alert('Handbuch Kasse: Demnächst verfügbar! Dein Freund kann hier zukünftig PDF-Links oder Texte hinterlegen.'); return false;">
+                            <span style="font-size: 2rem;">💰</span>
+                            <div>
+                                <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Kasse</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">Verkauf & Gutscheine</div>
+                            </div>
+                        </a>
+                        <a href="#" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;" onclick="alert('Handbuch Theke: Demnächst verfügbar!'); return false;">
+                            <span style="font-size: 2rem;">🍿</span>
+                            <div>
+                                <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Theke</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">Hygiene & Zubereitung</div>
+                            </div>
+                        </a>
+                        <a href="#" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;" onclick="alert('Handbuch Einlass / Saal: Demnächst verfügbar!'); return false;">
+                            <span style="font-size: 2rem;">🎟️</span>
+                            <div>
+                                <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Einlass / Saal</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">Kontrolle & Reinigung</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboard" class="dashboard-grid live-section">
             <div id="loading" class="loading-state">
                 <div class="spinner"></div>
                 <div class="loading-text">Abrufen der Live-Daten...</div>
@@ -1653,7 +1767,7 @@
         </div>
 
         <!-- Statistics Section -->
-        <section id="stats-section-container" class="stats-section" style="display: none; margin-bottom: 4rem; padding: 0;">
+        <section id="stats-section-container" class="stats-section tools-section" style="display: none; margin-bottom: 4rem; padding: 0;">
             <div class="section-header card-header" onclick="toggleSection('stats-content', 'stats-toggle-btn')" style="cursor: pointer; padding: 1.5rem 3rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;">
                     <span class="alert-icon-small">📊</span>
@@ -1680,6 +1794,13 @@
     </div>
 
     <script>
+        function switchTab(view, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (view === 'tools') document.body.classList.add('tools-active');
+            else document.body.classList.remove('tools-active');
+        }
+
         const API_URL = '/api/sessions';
         const LOCATIONS_URL = '/api/locations';
 
@@ -2896,17 +3017,17 @@
 
     <!-- Feedback UI -->
     <div class="feedback-tab" onclick="openFeedback()">
-        Feedback
+        Feedback an BL
     </div>
 
     <div id="feedback-modal" class="modal">
         <div class="modal-content glass">
-            <h2>Feedback senden</h2>
-            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Dein Feedback hilft uns, das Dashboard zu verbessern.</p>
+            <h2>Feedback an die Betriebsleitung</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Nachricht direkt und vertraulich an die BL senden. Andere können das nicht lesen (interne Datenbank/Mail).</p>
             
             <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <textarea id="feedback-text" placeholder="Was können wir verbessern?" style="margin: 0;"></textarea>
-                <input type="text" id="feedback-contact" class="input-field" placeholder="Deine E-Mail / Name (optional)" style="background: rgba(255,255,255,0.05);">
+                <textarea id="feedback-text" placeholder="Deine Nachricht (Anregungen, Probleme, Wünsche)..." style="margin: 0;"></textarea>
+                <input type="text" id="feedback-contact" class="input-field" placeholder="Dein Name (freiwillig) – lass leer für anonym" style="background: rgba(255,255,255,0.05);">
             </div>
 
             <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; color: var(--text-muted);">
