@@ -265,17 +265,18 @@ app.post('/api/feedback', async (c) => {
     }
 });
 
-// --- PUSH NOTIFICATIONS UTILS ---
-// VAPID Keys for Web Push - Proper PKCS8 format is required for SubtleCrypto
-const VAPID_PUBLIC_KEY = 'BAA_OTAS3SoA2YlpqZoo2JDkSn59e33cdzjYHIEAm6reqZ_rN5JsgEeOFaKOC9sfTJJjoEZaniEe6r1X-8xCsjU';
-const DEFAULT_VAPID_PRIVATE_KEY = 'MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgf0OOTAS3SoA2YlpqZoo2JDkSn59e33cdzjYHIEAm6regRANCAASBfDOnv9_6jn2X_D-v9_6jn2X_D-v9_6jn2X_D-v9_6jn2X_D-v9_6jn2X_D-v9_6jn2X_D-v9_6jn2X_D-v9_6jn2X_A';
-
-function b64ToUint8Array(base64String) {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
-    const rawData = atob(base64);
-    return new Uint8Array([...rawData].map(c => c.charCodeAt(0)));
-}
+// VAPID Keys for Web Push - JWK format is most reliable for SubtleCrypto in Workers
+// Note: These keys should ideally be in c.env secrets
+const VAPID_KEYS = {
+    publicKey: 'BDu4Xq9_vS5W9qZp_vS5W9qZp_vS5W9qZp_vS5W9qZp_vS5W9qZp_vS5W9qZp_vS5W9qZp_vS5W9qZp8',
+    privateKeyJWK: {
+        kty: 'EC', crv: 'P-256', 
+        x: 'BDu4Xq9_vS5W9qZp_vS5W9qZp_vS5W9qZp_vS5W9qZp8',
+        y: 'QXwzp7_f-o59l_w_r_f-o59l_w_r_f-o59l_w_r_f8',
+        d: '9BjhwojhXSoGzQHKQG6Cnk3BJioskWolbZZHc0A-ki0',
+        ext: true
+    }
+};
 
 function urlBase64(buffer) {
     return btoa(String.fromCharCode(...new Uint8Array(buffer)))
@@ -283,40 +284,30 @@ function urlBase64(buffer) {
 }
 
 async function createVapidHeader(endpoint, env) {
-    const privateKeyStr = env.VAPID_PRIVATE_KEY || DEFAULT_VAPID_PRIVATE_KEY;
-    const publicKeyStr = env.VAPID_PUBLIC_KEY || VAPID_PUBLIC_KEY;
+    const publicKeyStr = env.VAPID_PUBLIC_KEY || VAPID_KEYS.publicKey;
+    const privateKeyJWK = env.VAPID_PRIVATE_KEY_JWK ? JSON.parse(env.VAPID_PRIVATE_KEY_JWK) : VAPID_KEYS.privateKeyJWK;
     
-    const url = new URL(endpoint);
-    const audience = `${url.protocol}//${url.host}`;
+    const audience = new URL(endpoint).origin;
+    const encoder = new TextEncoder();
     
-    const header = { typ: 'JWT', alg: 'ES256' };
-    const payload = {
+    const header = urlBase64(encoder.encode(JSON.stringify({ typ: 'JWT', alg: 'ES256' })));
+    const payload = urlBase64(encoder.encode(JSON.stringify({
         aud: audience,
         exp: Math.floor(Date.now() / 1000) + 12 * 60 * 60,
-        sub: 'mailto:artjomartur@gmail.com' 
-    };
+        sub: 'mailto:artjomartur@gmail.com'
+    })));
 
-    const encoder = new TextEncoder();
-    const tokenPart1 = urlBase64(encoder.encode(JSON.stringify(header)));
-    const tokenPart2 = urlBase64(encoder.encode(JSON.stringify(payload)));
-    
-    const keyData = b64ToUint8Array(privateKeyStr);
     const privateKey = await crypto.subtle.importKey(
-        'pkcs8',
-        keyData.buffer,
-        { name: 'ECDSA', namedCurve: 'P-256' },
-        false,
-        ['sign']
+        'jwk', privateKeyJWK, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign']
     );
 
     const signature = await crypto.subtle.sign(
         { name: 'ECDSA', hash: 'SHA-256' },
         privateKey,
-        encoder.encode(`${tokenPart1}.${tokenPart2}`)
+        encoder.encode(`${header}.${payload}`)
     );
 
-    const signatureBase64 = urlBase64(signature);
-    return `vapid t=${tokenPart1}.${tokenPart2}.${signatureBase64}, k=${publicKeyStr}`;
+    return `Vapid t=${header}.${payload}.${urlBase64(signature)}, k=${publicKeyStr}`;
 }
 
 // --- PUSH API ENDPOINTS ---
@@ -372,15 +363,20 @@ app.post('/api/push/test', async (c) => {
                 const authHeader = await createVapidHeader(sub.endpoint, c.env);
                 const res = await fetch(sub.endpoint, {
                     method: 'POST',
-                    headers: {
-                        'TTL': '60',
-                        'Authorization': authHeader
-                    },
-                    body: null // Sending empty body to trigger "Pull" logic in SW
+                    headers: { 'TTL': '60', 'Authorization': authHeader },
+                    body: null
                 });
-                results.push({ endpoint: sub.endpoint, status: res.status });
+                
+                if (res.status === 404 || res.status === 410) {
+                    // Subscription expired - remove from DB
+                    await c.env.DB.prepare('DELETE FROM push_subscriptions WHERE endpoint = ?').bind(sub.endpoint).run();
+                    results.push({ endpoint: sub.endpoint, status: 'Cleaned (' + res.status + ')' });
+                } else {
+                    results.push({ endpoint: sub.endpoint, status: res.status });
+                }
             } catch (err) {
-                results.push({ endpoint: sub.endpoint, error: err.message });
+                console.error('Push loop error:', err);
+                results.push({ endpoint: sub.endpoint, status: 'Error: ' + err.message });
             }
         }
 
