@@ -393,6 +393,16 @@ app.get('/api/images/:key', async (c) => {
     return c.json({ error: 'Not Found' }, 404);
 });
 
+app.post('/api/ai-agree', async (c) => {
+    try {
+        if (!c.env.AI) return c.json({ error: 'AI binding not found' }, 500);
+        const response = await c.env.AI.run('@cf/meta/llama-3.2-11b-vision-instruct', { prompt: 'agree' });
+        return c.json({ success: true, response });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
 app.post('/api/scan-plan', async (c) => {
     try {
         if (!c.env.AI) return c.json({ error: 'AI binding not found' }, 500);
