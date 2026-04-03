@@ -1937,12 +1937,26 @@
 
         const VAPID_PUBLIC_KEY = 'BAA_OTAS3SoA2YlpqZoo2JDkSn59e33cdzjYHIEAm6reqZ_rN5JsgEeOFaKOC9sfTJJjoEZaniEe6r1X-8xCsjU';
 
+        async function checkNotificationPermission() {
+            const dot = document.getElementById('push-status-dot');
+            const subLabel = document.getElementById('push-sub-label');
+            const card = document.getElementById('push-main-card');
+            if (Notification.permission === 'denied') {
+                dot.style.background = '#e74c3c';
+                dot.classList.remove('active');
+                subLabel.innerText = '❌ Blockiert! Bitte in Browser-Einstellungen erlauben.';
+                subLabel.style.color = '#e74c3c';
+                card.style.borderColor = 'rgba(231, 76, 60, 0.3)';
+            }
+        }
+
         // Register Service Worker
         if ('serviceWorker' in navigator && 'PushManager' in window) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('/sw.js').then(function(registration) {
                     console.log('ServiceWorker registration successful with scope: ', registration.scope);
                     checkPushSubscription();
+                    checkNotificationPermission();
                 }, function(err) {
                     console.log('ServiceWorker registration failed: ', err);
                 });
@@ -2027,24 +2041,24 @@
                         const data = await res.json();
                         if (data.error && data.error.includes('no such table')) {
                             const cmd = 'npx wrangler d1 execute kinopolis-db --remote --file=schema.sql';
-                            alert('⚠️ Datenbank-Setup fehlt!\n\nUm Benachrichtigungen zu nutzen, musst du folgenden Befehl einmal im Terminal ausführen:\n\n' + cmd + '\n\n(Befehl ist in den Logs kopierbar)');
-                            console.log('[SETUP REQUIRED] To fix "no such table" error, run:\n' + cmd);
-                            await newSub.unsubscribe();
+                            alert('⚠️ Datenbank-Setup fehlt!\n\nFühre diesen Befehl aus:\n' + cmd);
                             return;
                         }
                         throw new Error(data.error || 'Server Fehler');
                     }
 
+                    alert('✅ Aktiviert! Du erhältst jetzt Benachrichtigungen.');
                     updatePushUI(true);
                 } catch (err) {
                     console.error('Subscription error:', err);
-                    alert('Fehler beim Aktivieren: ' + err.message);
+                    alert('Fehler: ' + err.message);
                 }
             }
             
             spinner.style.display = 'none';
             chevron.style.display = 'block';
             card.style.pointerEvents = 'all';
+            checkNotificationPermission();
         }
 
         async function sendTestPush() {
@@ -2056,6 +2070,8 @@
                 const data = await res.json();
                 if (data.results) {
                     console.log('Push test results:', data.results);
+                    const stats = data.results.map(r => `Status ${r.status || 'Error'}`).join(', ');
+                    alert('Test an ' + data.results.length + ' Gerät(e) gesendet.\nAntwort: ' + stats + '\n\nFalls Status 201 aber nichts ankommt: Bitte prüfe, ob dein Browser/Handy Benachrichtigungen generell blockiert (Nicht stören Modus etc.)!');
                 } else {
                     alert('Fehler: ' + (data.error || 'Unbekannt'));
                 }

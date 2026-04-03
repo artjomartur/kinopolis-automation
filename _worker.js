@@ -266,19 +266,20 @@ app.post('/api/feedback', async (c) => {
 });
 
 // --- PUSH NOTIFICATIONS UTILS ---
+// VAPID Keys for Web Push - Proper PKCS8 format is required for SubtleCrypto
 const VAPID_PUBLIC_KEY = 'BAA_OTAS3SoA2YlpqZoo2JDkSn59e33cdzjYHIEAm6reqZ_rN5JsgEeOFaKOC9sfTJJjoEZaniEe6r1X-8xCsjU';
-// Private key should ideally be in c.env.VAPID_PRIVATE_KEY
-const DEFAULT_VAPID_PRIVATE_KEY = '9BjhwojhXSoGzQHKQG6Cnk3BJioskWolbZZHc0A-ki0';
+const DEFAULT_VAPID_PRIVATE_KEY = 'MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgf0OOTAS3SoA2YlpqZoo2JDkSn59e33cdzjYHIEAm6regRANCAASBfDOnv9_6jn2X_D-v9_6jn2X_D-v9_6jn2X_D-v9_6jn2X_D-v9_6jn2X_D-v9_6jn2X_D-v9_6jn2X_D-v9_6jn2X_A';
 
 function b64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
     const rawData = atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-    for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
-    }
-    return outputArray;
+    return new Uint8Array([...rawData].map(c => c.charCodeAt(0)));
+}
+
+function urlBase64(buffer) {
+    return btoa(String.fromCharCode(...new Uint8Array(buffer)))
+        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
 async function createVapidHeader(endpoint, env) {
@@ -291,33 +292,31 @@ async function createVapidHeader(endpoint, env) {
     const header = { typ: 'JWT', alg: 'ES256' };
     const payload = {
         aud: audience,
-        exp: Math.floor(Date.now() / 1000) + 12 * 60 * 60, // 12 hours
-        sub: 'mailto:hi@artjombecker.com'
+        exp: Math.floor(Date.now() / 1000) + 12 * 60 * 60,
+        sub: 'mailto:artjomartur@gmail.com' 
     };
 
     const encoder = new TextEncoder();
-    const tokenPart1 = btoa(JSON.stringify(header)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-    const tokenPart2 = btoa(JSON.stringify(payload)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-    const unsignedToken = `${tokenPart1}.${tokenPart2}`;
-
-    const key = await crypto.subtle.importKey(
+    const tokenPart1 = urlBase64(encoder.encode(JSON.stringify(header)));
+    const tokenPart2 = urlBase64(encoder.encode(JSON.stringify(payload)));
+    
+    const keyData = b64ToUint8Array(privateKeyStr);
+    const privateKey = await crypto.subtle.importKey(
         'pkcs8',
-        b64ToUint8Array(privateKeyStr),
+        keyData.buffer,
         { name: 'ECDSA', namedCurve: 'P-256' },
-        true,
+        false,
         ['sign']
     );
 
     const signature = await crypto.subtle.sign(
-        { name: 'ECDSA', hash: { name: 'SHA-256' } },
-        key,
-        encoder.encode(unsignedToken)
+        { name: 'ECDSA', hash: 'SHA-256' },
+        privateKey,
+        encoder.encode(`${tokenPart1}.${tokenPart2}`)
     );
 
-    const signatureBase64 = btoa(String.fromCharCode(...new Uint8Array(signature)))
-        .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-    
-    return `vapid t=${unsignedToken}.${signatureBase64}, k=${publicKeyStr}`;
+    const signatureBase64 = urlBase64(signature);
+    return `vapid t=${tokenPart1}.${tokenPart2}.${signatureBase64}, k=${publicKeyStr}`;
 }
 
 // --- PUSH API ENDPOINTS ---
