@@ -268,11 +268,11 @@ app.post('/api/feedback', async (c) => {
 // VAPID Keys for Web Push - JWK format is most reliable for SubtleCrypto in Workers
 // Note: These keys should ideally be in c.env secrets
 const VAPID_KEYS = {
-    publicKey: 'BKh_f_lYXSoGzQHKQG6Cnk3BJioskWolbZZHc0A-ki7_S8UvXSoGzQHKQG6Cnk3BJioskWolbZZHc0A-ki8',
+    publicKey: 'BEOaO6S_7I2AypH9P-p59-b1I_nK8-C6k2U6A_z5o6v9-Y6I2A8-k9p59-b1I_nK8-C6k2U6A_z5o6v8',
     privateKeyJWK: {
         kty: 'EC', crv: 'P-256', 
-        x: 'f0OOTAS3SoA2YlpqZoo2JDkSn59e33cdzjYHIEAm6re', 
-        y: 'QXwzp7_f-o59l_w_r_f-o59l_w_r_f-o59l_w_r_f8', 
+        x: 'EOaO6S_7I2AypH9P-p59-b1I_nK8-C6k2U6A_z5o6v9',
+        y: 'Y6I2A8-k9p59-b1I_nK8-C6k2U6A_z5o6v8',
         d: '9BjhwojhXSoGzQHKQG6Cnk3BJioskWolbZZHc0A-ki0',
         ext: true
     }
