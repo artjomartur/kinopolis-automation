@@ -871,7 +871,7 @@
         .alert-done-btn:hover {
             background: #2ecc71;
             color: white;
-            transform: scale(1.1) rotate(5deg);
+            transform: scale(1.1);
             box-shadow: 0 0 20px rgba(46, 204, 113, 0.4);
         }
 
@@ -1618,6 +1618,12 @@
                     <span id="auslass-count-badge" class="badge">0</span>
                     <span class="auslass-disclaimer">Auslässe: Ca. Ende + 30m | Poster: 30m nach Start</span>
                 </div>
+                <div style="display: flex; gap: 0.5rem; align-items: center; margin-left: auto; margin-right: 1rem;">
+                    <input type="file" id="plan-scan-input" accept="image/*" capture="environment" style="display: none;" onchange="handlePlanScan(this)">
+                    <button class="btn-primary" onclick="document.getElementById('plan-scan-input').click()" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 12px; background: linear-gradient(135deg, #0078FF, #00d2ff); box-shadow: 0 4px 15px rgba(0, 120, 255, 0.3);">
+                        📸 Plan scannen
+                    </button>
+                </div>
                 <button class="toggle-btn" id="auslaesse-toggle-btn">
                     <svg viewBox="0 0 24 24" width="24" height="24">
                         <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
@@ -1780,6 +1786,38 @@
             </div>
         </div>
 
+        <!-- Push Notifications Settings -->
+        <div class="card-container glass tools-section" style="margin-bottom: 2rem;">
+            <div class="card-header" onclick="toggleSection('push-settings-content', 'push-toggle-btn')" style="cursor: pointer; padding: 1.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
+                    <span class="alert-icon-small">🔔</span>
+                    <h2 style="font-size: 1.25rem;">Push-Benachrichtigungen</h2>
+                    <span id="push-status-badge" class="badge" style="background: var(--text-muted); font-size: 0.7rem;">Deaktiviert</span>
+                </div>
+                <button class="toggle-btn collapsed" id="push-toggle-btn" style="pointer-events: none;">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" /></svg>
+                </button>
+            </div>
+            <div id="push-settings-content" class="collapsible-content collapsed" style="padding: 0 1.5rem 1.5rem;">
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.4;">
+                    Erhalte wichtige Hinweise (z.B. Posterwechsel oder hohe Auslastung) direkt als Benachrichtigung auf dein Handy oder Browser.
+                </p>
+                
+                <div id="push-unsupported" style="display: none; background: rgba(229, 9, 20, 0.1); border: 1px solid rgba(229, 9, 20, 0.2); padding: 1rem; border-radius: 12px; margin-bottom: 1rem;">
+                    <p style="color: #ff4d4d; font-size: 0.85rem;">⚠️ Dein Browser unterstützt keine Push-Benachrichtigungen oder du musst die App zum Home-Bildschirm hinzufügen (iOS).</p>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <button id="push-subscribe-btn" class="btn-primary" style="width: 100%; justify-content: center; background: var(--primary-blue);" onclick="togglePushSubscription()">
+                        🔔 Benachrichtigungen aktivieren
+                    </button>
+                    <button id="push-test-btn" class="btn-secondary" style="width: 100%; justify-content: center; display: none;" onclick="sendTestPush()">
+                        🚀 Test-Benachrichtigung senden
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Statistics Section -->
         <section id="stats-section-container" class="stats-section tools-section" style="display: none; margin-bottom: 4rem; padding: 0;">
             <div class="section-header card-header" onclick="toggleSection('stats-content', 'stats-toggle-btn')" style="cursor: pointer; padding: 1.5rem 3rem;">
@@ -1815,6 +1853,112 @@
             else document.body.classList.remove('tools-active');
         }
 
+        const VAPID_PUBLIC_KEY = 'BAA_OTAS3SoA2YlpqZoo2JDkSn59e33cdzjYHIEAm6reqZ_rN5JsgEeOFaKOC9sfTJJjoEZaniEe6r1X-8xCsjU';
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator && 'PushManager' in window) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    checkPushSubscription();
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        } else {
+            document.getElementById('push-unsupported').style.display = 'block';
+            document.getElementById('push-subscribe-btn').disabled = true;
+        }
+
+        async function checkPushSubscription() {
+            const registration = await navigator.serviceWorker.ready;
+            const subscription = await registration.pushManager.getSubscription();
+            updatePushUI(!!subscription);
+        }
+
+        function updatePushUI(subscribed) {
+            const btn = document.getElementById('push-subscribe-btn');
+            const testBtn = document.getElementById('push-test-btn');
+            const badge = document.getElementById('push-status-badge');
+
+            if (subscribed) {
+                btn.innerText = '🔕 Benachrichtigungen deaktivieren';
+                btn.style.background = 'rgba(255,255,255,0.1)';
+                testBtn.style.display = 'flex';
+                badge.innerText = 'Aktiviert';
+                badge.style.background = 'var(--primary-blue)';
+            } else {
+                btn.innerText = '🔔 Benachrichtigungen aktivieren';
+                btn.style.background = 'var(--primary-blue)';
+                testBtn.style.display = 'none';
+                badge.innerText = 'Deaktiviert';
+                badge.style.background = 'var(--text-muted)';
+            }
+        }
+
+        async function togglePushSubscription() {
+            const registration = await navigator.serviceWorker.ready;
+            const subscription = await registration.pushManager.getSubscription();
+
+            if (subscription) {
+                await subscription.unsubscribe();
+                updatePushUI(false);
+            } else {
+                try {
+                    const status = await Notification.requestPermission();
+                    if (status !== 'granted') return alert('Berechtigung verweigert.');
+
+                    const newSub = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                    });
+
+                    // Send to server
+                    await fetch('/api/push/subscribe', {
+                        method: 'POST',
+                        body: JSON.stringify(newSub),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    updatePushUI(true);
+                } catch (err) {
+                    console.error('Subscription error:', err);
+                    alert('Fehler beim Abonnieren: ' + err.message);
+                }
+            }
+        }
+
+        async function sendTestPush() {
+            const btn = document.getElementById('push-test-btn');
+            btn.innerText = 'Sende...';
+            btn.disabled = true;
+            try {
+                const res = await fetch('/api/push/test', { method: 'POST' });
+                const data = await res.json();
+                if (data.results) {
+                    console.log('Push test results:', data.results);
+                } else {
+                    alert('Fehler: ' + (data.error || 'Unbekannt'));
+                }
+            } catch (err) {
+                alert('Netzwerkfehler');
+            } finally {
+                btn.innerText = '🚀 Test-Benachrichtigung senden';
+                btn.disabled = false;
+            }
+        }
+
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
         const API_URL = '/api/sessions';
         const LOCATIONS_URL = '/api/locations';
 
@@ -1824,6 +1968,7 @@
         let completedAuslaesse = new Set(JSON.parse(localStorage.getItem('completed_auslaesse') || '[]'));
         let completedPosters = new Set(JSON.parse(localStorage.getItem('completed_posters') || '[]'));
         let completedCleaning = new Set(JSON.parse(localStorage.getItem('completed_cleaning') || '[]'));
+        let scannedPlanData = JSON.parse(localStorage.getItem('scanned_plan_data') || '[]');
         let currentCity = 'kp';
         let displayDate = new Date();
 
@@ -2319,6 +2464,8 @@
                     completedAuslaesse.clear();
                     completedPosters.clear();
                     completedCleaning.clear();
+                    scannedPlanData = []; // Clear scanned data daily
+                    localStorage.removeItem('scanned_plan_data');
                     localStorage.setItem('last_task_date', todayStr);
                     saveTaskState();
                 }
@@ -2458,6 +2605,7 @@
             const allTasks = [];
 
             hallsGrouped.forEach(hall => {
+                const hallName = hall.name;
                 const sessions = hall.sessions.filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
                 
                 sessions.forEach((s, idx) => {
@@ -2466,6 +2614,23 @@
                     const running30Min = startMin + 30;
                     const durationBase = startMin + s.duration;
                     const durationMax = durationBase + 30;
+
+                    // CHECK FOR SCANNED DATA OVERRIDE
+                    let timeDisplay = `${formatMinutes(durationBase)} - ${formatMinutes(durationMax)}`;
+                    let triggerMin = durationBase;
+                    let triggerMax = durationMax;
+                    let isVerified = false;
+
+                    const scanned = findScannedMatch(hall.name, s.title);
+                    if (scanned && scanned.end) {
+                        const [eh, em] = scanned.end.split(':').map(Number);
+                        if (!isNaN(eh)) {
+                            triggerMin = eh * 60 + em;
+                            triggerMax = triggerMin + 15; // Tighter window for verified
+                            timeDisplay = `${scanned.end} (Exakt)`;
+                            isVerified = true;
+                        }
+                    }
 
                     // 1. Poster Change Task (Logic moved to updateAlerts/addPosterAlerts)
                     // ...
@@ -2476,10 +2641,12 @@
                             type: 'auslass',
                             hall: hall.name,
                             title: s.title,
-                            time: durationBase,
-                            timeDisplay: `${formatMinutes(durationBase)} - ${formatMinutes(durationMax)}`,
-                            triggerMin: durationBase,
-                            triggerMax: durationMax,
+                            sold: s.sold,
+                            time: triggerMin,
+                            timeDisplay: timeDisplay,
+                            triggerMin: triggerMin,
+                            triggerMax: triggerMax,
+                            isVerified: isVerified,
                             id: `auslass-${hall.name}-${s.title}-${s.time}`
                         });
                     }
@@ -2538,8 +2705,8 @@
 
                 item.innerHTML = `
                     <div class="auslass-hall" style="background: ${isActive ? 'var(--primary-red)' : badgeColor}">${icon} ${t.hall}</div>
-                    <div class="auslass-movie" title="${t.title}">${t.title}</div>
-                    <div class="auslass-time-range">${t.timeDisplay}</div>
+                    <div class="auslass-movie" title="${t.title}">${t.sold} Besucher ${t.isVerified ? '✅' : ''}</div>
+                    <div class="auslass-time-range" style="${t.isVerified ? 'color: #2ecc71; font-weight: 800;' : ''}">${t.timeDisplay}</div>
                 `;
                 
                 item.addEventListener('click', () => {
@@ -3009,6 +3176,64 @@
             this.style.display = 'block';
             this.style.background = 'transparent';
         };
+        // --- SCANNER FUNCTIONS ---
+        async function handlePlanScan(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const btn = document.querySelector('[onclick*="plan-scan-input"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⌛ Analysiere...';
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const res = await fetch('/api/scan-plan', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await res.json();
+                
+                if (result.success && Array.isArray(result.data)) {
+                    scannedPlanData = result.data;
+                    localStorage.setItem('scanned_plan_data', JSON.stringify(scannedPlanData));
+                    alert(`Erfolg! ${result.data.length} Auslasszeiten wurden aus dem Plan übernommen.`);
+                    if (lastData) renderTasks(lastData);
+                } else {
+                    alert('Fehler beim Analysieren: ' + (result.error || 'Unbekannter Fehler'));
+                    console.error('Scan result:', result);
+                }
+            } catch (err) {
+                console.error('Scan fetch error:', err);
+                alert('Netzwerkfehler beim Scannen.');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                input.value = ''; // Reset file input
+            }
+        }
+
+        function findScannedMatch(hallName, movieTitle) {
+            if (!scannedPlanData || scannedPlanData.length === 0) return null;
+            
+            // Extract hall number (e.g. "Kino 4" -> 4)
+            const hallNum = hallName.match(/\d+/)?.[0];
+            if (!hallNum) return null;
+
+            return scannedPlanData.find(item => {
+                const scanKinoNum = item.kino.match(/\d+/)?.[0];
+                const matchKino = scanKinoNum === hallNum;
+                
+                // Fuzzy title match
+                const t1 = movieTitle.toLowerCase().replace(/[^a-z0-8]/g, '');
+                const t2 = item.movie.toLowerCase().replace(/[^a-z0-8]/g, '');
+                const matchMovie = t1.includes(t2) || t2.includes(t1);
+                
+                return matchKino && matchMovie;
+            });
+        }
     </script>
     <!-- Welcome Modal -->
     <div id="welcome-modal" class="modal">
@@ -3021,7 +3246,9 @@
                 <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.5;">
                     <li><strong>Live-Übersicht</strong> aller anstehenden Vorstellungen und Säle.</li>
                     <li><strong>Warnmeldungen:</strong> Automatische Erinnerungen für Zutrittskontrollen (ZE), voll ausgelastete Säle, und Plakatwechsel (Poster-Erinnerungen).</li>
-                    <li><strong>FSK & Jugendschutz (JuSchG):</strong> Zeigt die FSK (farblich passend weiß, gelb, grün, blau, rot) und zusätzlich eine Warnung an, falls der Film eine höhere Altersgrenze wegen der Uhrzeit erfordert (z.B. nach 22/24 Uhr).</li>
+                    <li><strong>📸 Auslassplan Scanner (KI):</strong> Fotografiere den gedruckten Plan, um exakte Zeiten automatisch zu übernehmen.</li>
+                    <li><strong>🔔 Push-Benachrichtigungen:</strong> Bleibe auch unterwegs informiert (aktivierbar in Intern & Tools).</li>
+                    <li><strong>FSK & Jugendschutz (JuSchG):</strong> Automatische Altersprüfung basierend auf Startzeit und FSK.</li>
                     <li><strong>Interne Notizen</strong> verwalten (nur lokal auf diesem Gerät gespeichert).</li>
                 </ul>
 
@@ -3035,7 +3262,7 @@
                 <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.5;">
                     <li><strong>Als App installieren (PWA):</strong> Demnächst als Vollbild-App auf dem Homescreen speicherbar.</li>
                     <li><strong>Verlorene Gegenstände (Global):</strong> Ein komplett digitales Fundbuch für das ganze Team (Testversion aktuell schon "Lokal" verfügbar!).</li>
-                    <li>Erinnerungs-Alarme (Push-Benachrichtigungen) aufs Handy.</li>
+                    <li><strong>Dunkelmodus / Dark Mode:</strong> Optimiertes Design für späte Schichten.</li>
                 </ul>
                 
                 <div style="background: rgba(255, 31, 42, 0.1); border: 1px solid rgba(255, 31, 42, 0.2); padding: 1rem; border-radius: 12px;">

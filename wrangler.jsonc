@@ -18,7 +18,11 @@
       "bucket_name": "kinopolis-images"
     }
   ],
+  "ai": {
+    "binding": "AI"
+  },
   "compatibility_flags": [
+
     "nodejs_compat"
   ]
 }

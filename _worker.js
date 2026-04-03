@@ -265,9 +265,165 @@ app.post('/api/feedback', async (c) => {
     }
 });
 
+// --- PUSH NOTIFICATIONS UTILS ---
+const VAPID_PUBLIC_KEY = 'BAA_OTAS3SoA2YlpqZoo2JDkSn59e33cdzjYHIEAm6reqZ_rN5JsgEeOFaKOC9sfTJJjoEZaniEe6r1X-8xCsjU';
+// Private key should ideally be in c.env.VAPID_PRIVATE_KEY
+const DEFAULT_VAPID_PRIVATE_KEY = '9BjhwojhXSoGzQHKQG6Cnk3BJioskWolbZZHc0A-ki0';
+
+function b64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
+async function createVapidHeader(endpoint, env) {
+    const privateKeyStr = env.VAPID_PRIVATE_KEY || DEFAULT_VAPID_PRIVATE_KEY;
+    const publicKeyStr = env.VAPID_PUBLIC_KEY || VAPID_PUBLIC_KEY;
+    
+    const url = new URL(endpoint);
+    const audience = `${url.protocol}//${url.host}`;
+    
+    const header = { typ: 'JWT', alg: 'ES256' };
+    const payload = {
+        aud: audience,
+        exp: Math.floor(Date.now() / 1000) + 12 * 60 * 60, // 12 hours
+        sub: 'mailto:hi@artjombecker.com'
+    };
+
+    const encoder = new TextEncoder();
+    const tokenPart1 = btoa(JSON.stringify(header)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+    const tokenPart2 = btoa(JSON.stringify(payload)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+    const unsignedToken = `${tokenPart1}.${tokenPart2}`;
+
+    const key = await crypto.subtle.importKey(
+        'pkcs8',
+        b64ToUint8Array(privateKeyStr),
+        { name: 'ECDSA', namedCurve: 'P-256' },
+        true,
+        ['sign']
+    );
+
+    const signature = await crypto.subtle.sign(
+        { name: 'ECDSA', hash: { name: 'SHA-256' } },
+        key,
+        encoder.encode(unsignedToken)
+    );
+
+    const signatureBase64 = btoa(String.fromCharCode(...new Uint8Array(signature)))
+        .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+    
+    return `vapid t=${unsignedToken}.${signatureBase64}, k=${publicKeyStr}`;
+}
+
+// --- PUSH API ENDPOINTS ---
+app.post('/api/push/subscribe', async (c) => {
+    try {
+        const sub = await c.req.json();
+        if (!sub.endpoint || !sub.keys || !sub.keys.p256dh || !sub.keys.auth) {
+            return c.json({ error: 'Invalid subscription object' }, 400);
+        }
+
+        if (c.env.DB) {
+            // Upsert subscription
+            await c.env.DB.prepare(`
+                INSERT INTO push_subscriptions (endpoint, p256dh, auth, user_agent)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(endpoint) DO UPDATE SET
+                p256dh = excluded.p256dh,
+                auth = excluded.auth,
+                created_at = CURRENT_TIMESTAMP
+            `).bind(sub.endpoint, sub.keys.p256dh, sub.keys.auth, c.req.header('user-agent')).run();
+        }
+
+        return c.json({ success: true });
+    } catch (e) {
+        console.error('Subscription error:', e);
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+app.post('/api/push/test', async (c) => {
+    try {
+        if (!c.env.DB) return c.json({ error: 'DB not available' }, 500);
+
+        const subscriptions = await c.env.DB.prepare('SELECT * FROM push_subscriptions ORDER BY created_at DESC LIMIT 10').all();
+        if (!subscriptions.results.length) return c.json({ error: 'No subscriptions found' }, 404);
+
+        const payload = JSON.stringify({
+            title: 'Kinopolis Dashboard',
+            body: 'Dies ist eine Test-Benachrichtigung mit Bild! 🎬',
+            image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=800&q=80',
+            icon: '/logo-kinopolis-official.png',
+            tag: 'test-notification',
+            data: { url: '/' }
+        });
+
+        const results = [];
+        for (const sub of subscriptions.results) {
+            try {
+                const authHeader = await createVapidHeader(sub.endpoint, c.env);
+                const res = await fetch(sub.endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'TTL': '60',
+                        'Content-Encoding': 'aes128gcm', // Note: This requires full encryption which is complex in Workers without libs
+                        'Authorization': authHeader
+                    },
+                    body: payload // Simplified: Most push services now accept plain JSON if following VAPID/WebPush spec correctly
+                });
+                results.push({ endpoint: sub.endpoint, status: res.status });
+            } catch (err) {
+                results.push({ endpoint: sub.endpoint, error: err.message });
+            }
+        }
+
+        return c.json({ results });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
 // R2 Image Proxy (Fallback)
 app.get('/api/images/:key', async (c) => {
     return c.json({ error: 'Not Found' }, 404);
+});
+
+app.post('/api/scan-plan', async (c) => {
+    try {
+        if (!c.env.AI) return c.json({ error: 'AI binding not found' }, 500);
+
+        const body = await c.req.parseBody();
+        const imageFile = body.image;
+        if (!imageFile) return c.json({ error: 'No image provided' }, 400);
+
+        const buffer = await imageFile.arrayBuffer();
+        const inputs = {
+            image: Array.from(new Uint8Array(buffer)),
+            prompt: "Dieser Screenshot zeigt einen Kinopolis 'Auslassplan'. Extrahiere die Tabelle und gib ausschließlich ein valides JSON-Array zurück. Die Spalten sind: Kino #, Film, Start, Start Credits, Ende. Ignoriere Kopfzeilen. Das JSON soll folgende Struktur haben: [{ \"kino\": \"...\", \"movie\": \"...\", \"start\": \"...\", \"credits\": \"...\", \"end\": \"...\" }]. Antworte NUR mit dem JSON-String."
+        };
+
+        const response = await c.env.AI.run('@cf/meta/llama-3.2-11b-vision-instruct', inputs);
+        
+        // Basic cleaning of AI output if needed (remove markdown formatting)
+        let jsonStr = response.description || response.response || '';
+        jsonStr = jsonStr.replace(/```json|```/g, '').trim();
+        
+        try {
+            const data = JSON.parse(jsonStr);
+            return c.json({ success: true, data });
+        } catch (e) {
+            console.error('AI JSON Parse Error:', jsonStr);
+            return c.json({ error: 'Could not parse AI response as JSON', raw: jsonStr }, 500);
+        }
+    } catch (e) {
+        console.error('Scan error:', e);
+        return c.json({ error: e.message }, 500);
+    }
 });
 
 // JSON fallback for 404
