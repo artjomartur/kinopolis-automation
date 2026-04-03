@@ -347,21 +347,25 @@ app.post('/api/push/subscribe', async (c) => {
     }
 });
 
+app.get('/api/push/last-notification', async (c) => {
+    // In a real app, this would check the DB for the last notification for this specific user.
+    // For now, we return a standard test payload or the last system alert.
+    return c.json({
+        title: 'Kinopolis Dashboard',
+        body: 'Dies ist eine Test-Benachrichtigung mit Bild! 🎬',
+        image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=800&q=80',
+        icon: '/logo-kinopolis-official.png',
+        tag: 'test-notification',
+        data: { url: '/' }
+    });
+});
+
 app.post('/api/push/test', async (c) => {
     try {
         if (!c.env.DB) return c.json({ error: 'DB not available' }, 500);
 
         const subscriptions = await c.env.DB.prepare('SELECT * FROM push_subscriptions ORDER BY created_at DESC LIMIT 10').all();
         if (!subscriptions.results.length) return c.json({ error: 'No subscriptions found' }, 404);
-
-        const payload = JSON.stringify({
-            title: 'Kinopolis Dashboard',
-            body: 'Dies ist eine Test-Benachrichtigung mit Bild! 🎬',
-            image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=800&q=80',
-            icon: '/logo-kinopolis-official.png',
-            tag: 'test-notification',
-            data: { url: '/' }
-        });
 
         const results = [];
         for (const sub of subscriptions.results) {
@@ -371,10 +375,9 @@ app.post('/api/push/test', async (c) => {
                     method: 'POST',
                     headers: {
                         'TTL': '60',
-                        'Content-Encoding': 'aes128gcm', // Note: This requires full encryption which is complex in Workers without libs
                         'Authorization': authHeader
                     },
-                    body: payload // Simplified: Most push services now accept plain JSON if following VAPID/WebPush spec correctly
+                    body: null // Sending empty body to trigger "Pull" logic in SW
                 });
                 results.push({ endpoint: sub.endpoint, status: res.status });
             } catch (err) {
