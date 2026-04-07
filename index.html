@@ -3094,6 +3094,10 @@
 
             grid.innerHTML = `
                 <div class="stat-card">
+                    <div class="stat-label">System-Status</div>
+                    <div class="stat-value" style="font-size: 1.2rem; color: #3498db;">OK V2.1</div>
+                </div>
+                <div class="stat-card">
                     <span class="stat-label">Gesamtbesucher</span>
                     <span class="stat-value">${totalSold}</span>
                     <div class="stat-subtext">Tickets heute</div>
@@ -3444,8 +3448,8 @@
             try {
                 let compressedFile;
                 try {
-                    // Reduce image size significantly to stay within model token limits (128k)
-                    compressedFile = await compressImage(file, 600, 0.5);
+                    // Aggressively reduce image size (450px) to stay within 128k token limit
+                    compressedFile = await compressImage(file, 450, 0.5);
                 } catch (err) {
                     console.warn('Compression failed, falling back to original file:', err);
                     compressedFile = file; // Fallback to raw file

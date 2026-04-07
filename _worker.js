@@ -542,7 +542,7 @@ app.post('/api/scan-plan', async (c) => {
                     role: 'user',
                     content: [
                         { type: 'text', text: "Dieser Foto zeigt einen gedruckten Kinopolis 'Auslassplan'. Extrahiere die Tabelle und gib ausschließlich ein valides JSON-Array zurück. Die Tabelle hat 5 Spalten: 1. Saal (z.B. Saal1), 2. Startzeit (HH:MM:SS), 3. Ende Credits (HH:MM:SS), 4. Ende Film (HH:MM:SS), 5. Filmtitel. Ignoriere Kopfzeilen. Das JSON soll folgende Struktur haben: [{ \"hall\": \"...\", \"movie\": \"...\", \"start_time\": \"...\", \"credits_time\": \"...\", \"end_time\": \"...\" }]. Antworte NUR mit dem JSON-String." },
-                        { type: 'image', image: base64Image }
+                        { type: 'image', image: Array.from(new Uint8Array(buffer)) }
                     ]
                 }
             ]
