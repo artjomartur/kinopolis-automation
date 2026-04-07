@@ -3444,8 +3444,8 @@
             try {
                 let compressedFile;
                 try {
-                    // Try to compress image for better AI performance
-                    compressedFile = await compressImage(file, 1000, 0.7);
+                    // Reduce image size significantly to stay within model token limits (128k)
+                    compressedFile = await compressImage(file, 600, 0.5);
                 } catch (err) {
                     console.warn('Compression failed, falling back to original file:', err);
                     compressedFile = file; // Fallback to raw file
