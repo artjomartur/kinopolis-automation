@@ -3466,7 +3466,7 @@
                 }
             } catch (err) {
                 console.error('Scan fetch error:', err);
-                alert('Netzwerkfehler beim Scannen.');
+                alert('Netzwerkfehler beim Scannen: ' + err.message);
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;

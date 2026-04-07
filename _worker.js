@@ -313,7 +313,7 @@ const VAPID_KEYS = {
 };
 
 function urlBase64(buffer) {
-    return btoa(String.fromCharCode(...new Uint8Array(buffer)))
+    return Buffer.from(buffer).toString('base64')
         .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
@@ -546,8 +546,10 @@ app.post('/api/scan-plan', async (c) => {
                 }
             ]
         });
+        console.log('AI Response:', JSON.stringify(response));
         
-        let jsonStr = response.description || response.response || '';
+        let jsonStr = response?.description || response?.response || '';
+        if (typeof response === 'string') jsonStr = response;
         jsonStr = jsonStr.replace(/```json|```/g, '').trim();
         
         try {
