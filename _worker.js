@@ -533,11 +533,45 @@ app.post('/api/scan-plan', async (c) => {
 
         const buffer = await imageFile.arrayBuffer();
         const base64Image = Buffer.from(buffer).toString('base64');
+        const prompt = "Dieser Foto zeigt einen gedruckten Kinopolis 'Auslassplan'. Extrahiere die Tabelle und gib ausschließlich ein valides JSON-Array zurück. Die Tabelle hat 5 Spalten: 1. Saal (z.B. Saal1), 2. Startzeit (HH:MM:SS), 3. Ende Credits (HH:MM:SS), 4. Ende Film (HH:MM:SS), 5. Filmtitel. Ignoriere Kopfzeilen. Das JSON soll folgende Struktur haben: [{ \"hall\": \"...\", \"movie\": \"...\", \"start_time\": \"...\", \"credits_time\": \"...\", \"end_time\": \"...\" }]. Antworte NUR mit dem JSON-String.";
         
-        const response = await c.env.AI.run('@cf/meta/llama-3.2-11b-vision-instruct', {
-            prompt: "Dieser Foto zeigt einen gedruckten Kinopolis 'Auslassplan'. Extrahiere die Tabelle und gib ausschließlich ein valides JSON-Array zurück. Die Tabelle hat 5 Spalten: 1. Saal (z.B. Saal1), 2. Startzeit (HH:MM:SS), 3. Ende Credits (HH:MM:SS), 4. Ende Film (HH:MM:SS), 5. Filmtitel. Ignoriere Kopfzeilen. Das JSON soll folgende Struktur haben: [{ \"hall\": \"...\", \"movie\": \"...\", \"start_time\": \"...\", \"credits_time\": \"...\", \"end_time\": \"...\" }]. Antworte NUR mit dem JSON-String.",
-            image: Array.from(new Uint8Array(buffer))
-        });
+        const models = [
+            '@cf/meta/llama-3.2-11b-vision-instruct',
+            '@cf/microsoft/phi-3-vision-128k-instruct'
+        ];
+        
+        let response;
+        let lastError;
+        
+        for (const model of models) {
+            try {
+                console.log(`Trying AI model: ${model}`);
+                response = await c.env.AI.run(model, {
+                    messages: [
+                        {
+                            role: 'user',
+                            content: [
+                                { type: 'text', text: prompt },
+                                { 
+                                    type: 'image', 
+                                    image: base64Image 
+                                }
+                            ]
+                        }
+                    ]
+                });
+                
+                if (response) break;
+            } catch (err) {
+                console.error(`AI model ${model} failed:`, err);
+                lastError = err;
+            }
+        }
+
+        if (!response) {
+            throw new Error(lastError?.message || 'All AI models failed');
+        }
+
         console.log('AI Response:', JSON.stringify(response));
         
         let jsonStr = response?.description || response?.response || '';
