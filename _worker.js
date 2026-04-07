@@ -532,45 +532,38 @@ app.post('/api/scan-plan', async (c) => {
         if (!imageFile) return c.json({ error: 'No image provided' }, 400);
 
         const buffer = await imageFile.arrayBuffer();
-        const base64Image = Buffer.from(buffer).toString('base64');
+        const binaryArray = [...new Uint8Array(buffer)];
         const prompt = "Dieser Foto zeigt einen gedruckten Kinopolis 'Auslassplan'. Extrahiere die Tabelle und gib ausschließlich ein valides JSON-Array zurück. Die Tabelle hat 5 Spalten: 1. Saal (z.B. Saal1), 2. Startzeit (HH:MM:SS), 3. Ende Credits (HH:MM:SS), 4. Ende Film (HH:MM:SS), 5. Filmtitel. Ignoriere Kopfzeilen. Das JSON soll folgende Struktur haben: [{ \"hall\": \"...\", \"movie\": \"...\", \"start_time\": \"...\", \"credits_time\": \"...\", \"end_time\": \"...\" }]. Antworte NUR mit dem JSON-String.";
         
         let response;
-        let lastError;
-        
-        // Try Llama 3.2 Vision first (Standard Vision Format)
         try {
-            console.log('Trying Llama 3.2 Vision...');
+            console.log('Trying Llama 3.2 Vision (Binary PNG)...');
+            response = await c.env.AI.run('@cf/meta/llama-3.2-11b-vision-instruct', {
+                image: binaryArray,
+                prompt: prompt
+            });
+        } catch (err) {
+            console.error('Llama 3.2 binary failed, attempting license agree/retry:', err);
+            
+            // Safety: Unlock AI just in case
+            await c.env.AI.run('@cf/meta/llama-3.2-11b-vision-instruct', { prompt: "agree" }).catch(() => {});
+            
+            // Retry with Messages API as last resort
             response = await c.env.AI.run('@cf/meta/llama-3.2-11b-vision-instruct', {
                 messages: [
                     {
                         role: 'user',
                         content: [
                             { type: 'text', text: prompt },
-                            { type: 'image', image: base64Image }
+                            { type: 'image', image: Buffer.from(buffer).toString('base64') }
                         ]
                     }
                 ]
             });
-        } catch (err) {
-            console.error('Llama 3.2 failed:', err);
-            lastError = err;
-            
-            // Fallback to UForm-Gen2 (Modern OCR Fallback)
-            try {
-                console.log('Trying UForm Fallback...');
-                response = await c.env.AI.run('@cf/unum/uform-gen2-qwen-500m', {
-                    prompt: prompt,
-                    image: Array.from(new Uint8Array(buffer))
-                });
-            } catch (err2) {
-                console.error('UForm failed:', err2);
-                lastError = err2;
-            }
         }
 
         if (!response) {
-            throw new Error(lastError?.message || 'All AI models failed');
+            throw new Error('AI analysis failed after multiple attempts');
         }
 
         console.log('AI Response:', JSON.stringify(response));
