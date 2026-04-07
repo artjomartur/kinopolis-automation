@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import * as cheerio from 'cheerio';
+import { Buffer } from 'node:buffer';
 
 const app = new Hono();
 
