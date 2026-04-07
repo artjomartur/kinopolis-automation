@@ -3095,7 +3095,7 @@
             grid.innerHTML = `
                 <div class="stat-card">
                     <div class="stat-label">System-Status</div>
-                    <div class="stat-value" style="font-size: 1.2rem; color: #3498db;">OK V2.5</div>
+                    <div class="stat-value" style="font-size: 1.2rem; color: #3498db;">OK V2.6</div>
                 </div>
                 <div class="stat-card">
                     <span class="stat-label">Gesamtbesucher</span>
@@ -3448,8 +3448,8 @@
             try {
                 let compressedFile;
                 try {
-                    // Optimized size (512px) for V2.5 (AI Native)
-                    compressedFile = await compressImage(file, 512, 0.6);
+                    // Vision Standard (640px) for V2.6
+                    compressedFile = await compressImage(file, 640, 0.6);
                 } catch (err) {
                     console.warn('Compression failed, falling back to original file:', err);
                     compressedFile = file; // Fallback to raw file
