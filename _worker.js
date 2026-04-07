@@ -390,7 +390,7 @@ async function encryptPayload(sub, payload) {
     
     // WebPush encryption is tricky. Let's use the specific RFC 8291 labels.
     const ikm = await crypto.subtle.importKey('raw', sharedSecret, 'HKDF', false, ['deriveBits']);
-    const ikm_info = new Uint8Array([...encoder.encode('WebPush: info\0'), ...base64ToBytes(sub.p256dh), ...localPublicKey]);
+    const ikm_info = new Uint8Array([...encoder.encode('WebPush: info\0'), ...base64ToBytes(sub.p256dh), ...new Uint8Array(localPublicKey)]);
     const derivedIKM = await crypto.subtle.deriveBits({ name: 'HKDF', hash: 'SHA-256', salt: clientAuth, info: ikm_info }, ikm, 256);
     
     const cekKey = await crypto.subtle.importKey('raw', derivedIKM, 'HKDF', false, ['deriveBits']);
@@ -533,7 +533,7 @@ app.post('/api/scan-plan', async (c) => {
         if (!imageFile) return c.json({ error: 'No image provided' }, 400);
 
         const buffer = await imageFile.arrayBuffer();
-        const base64Image = btoa(String.fromCharCode(...new Uint8Array(buffer)));
+        const base64Image = Buffer.from(buffer).toString('base64');
         
         const response = await c.env.AI.run('@cf/meta/llama-3.2-11b-vision-instruct', {
             messages: [
