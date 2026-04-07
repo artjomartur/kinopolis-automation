@@ -444,12 +444,19 @@ app.post('/api/scan-plan', async (c) => {
         if (!imageFile) return c.json({ error: 'No image provided' }, 400);
 
         const buffer = await imageFile.arrayBuffer();
-        const inputs = {
-            image: Array.from(new Uint8Array(buffer)),
-            prompt: "Dieser Foto zeigt einen gedruckten Kinopolis 'Auslassplan'. Extrahiere die Tabelle und gib ausschließlich ein valides JSON-Array zurück. Die Tabelle hat 5 Spalten: 1. Saal (z.B. Saal1), 2. Startzeit (HH:MM:SS), 3. Ende Credits (HH:MM:SS), 4. Ende Film (HH:MM:SS), 5. Filmtitel. Ignoriere Kopfzeilen. Das JSON soll folgende Struktur haben: [{ \"hall\": \"...\", \"movie\": \"...\", \"start_time\": \"...\", \"credits_time\": \"...\", \"end_time\": \"...\" }]. Antworte NUR mit dem JSON-String."
-        };
-
-        const response = await c.env.AI.run('@cf/meta/llama-3.2-11b-vision-instruct', inputs);
+        const base64Image = btoa(String.fromCharCode(...new Uint8Array(buffer)));
+        
+        const response = await c.env.AI.run('@cf/meta/llama-3.2-11b-vision-instruct', {
+            messages: [
+                {
+                    role: 'user',
+                    content: [
+                        { type: 'text', text: "Dieser Foto zeigt einen gedruckten Kinopolis 'Auslassplan'. Extrahiere die Tabelle und gib ausschließlich ein valides JSON-Array zurück. Die Tabelle hat 5 Spalten: 1. Saal (z.B. Saal1), 2. Startzeit (HH:MM:SS), 3. Ende Credits (HH:MM:SS), 4. Ende Film (HH:MM:SS), 5. Filmtitel. Ignoriere Kopfzeilen. Das JSON soll folgende Struktur haben: [{ \"hall\": \"...\", \"movie\": \"...\", \"start_time\": \"...\", \"credits_time\": \"...\", \"end_time\": \"...\" }]. Antworte NUR mit dem JSON-String." },
+                        { type: 'image', image: base64Image }
+                    ]
+                }
+            ]
+        });
         
         let jsonStr = response.description || response.response || '';
         jsonStr = jsonStr.replace(/```json|```/g, '').trim();
