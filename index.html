@@ -2956,7 +2956,7 @@
 
                 item.innerHTML = `
                     <div class="auslass-hall" style="background: ${isActive ? 'var(--primary-red)' : badgeColor}">${icon} ${t.hall}</div>
-                    <div class="auslass-movie" title="${t.title}">${t.sold} Besucher ${t.isVerified ? '✅' : ''}</div>
+                    <div class="auslass-movie" title="${t.title}">${t.sold !== undefined ? t.sold + ' Besucher' : ''} ${t.isVerified ? '✅' : ''}</div>
                     <div class="auslass-time-range" style="${t.isVerified ? 'color: #2ecc71; font-weight: 800;' : ''}">${t.timeDisplay}</div>
                 `;
                 
@@ -3475,12 +3475,12 @@
         }
 
         function compressImage(file, maxWidth, quality) {
-            return new Promise((resolve) => {
+            return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
+                reader.onerror = () => reject(new Error("File could not be read"));
                 reader.onload = (event) => {
                     const img = new Image();
-                    img.src = event.target.result;
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
                         let width = img.width;
@@ -3497,9 +3497,12 @@
                         ctx.drawImage(img, 0, 0, width, height);
 
                         canvas.toBlob((blob) => {
+                            if (!blob) return reject(new Error("Canvas toBlob failed"));
                             resolve(new File([blob], file.name, { type: 'image/jpeg' }));
                         }, 'image/jpeg', quality);
                     };
+                    img.onerror = () => reject(new Error("Image could not be loaded"));
+                    img.src = event.target.result;
                 };
             });
         }

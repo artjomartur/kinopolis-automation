@@ -321,7 +321,6 @@ async function createVapidHeader(endpoint, env) {
     const publicKeyStr = env.VAPID_PUBLIC_KEY || VAPID_KEYS.publicKey;
     const privateKeyJWK = env.VAPID_PRIVATE_KEY_JWK ? JSON.parse(env.VAPID_PRIVATE_KEY_JWK) : VAPID_KEYS.privateKeyJWK;
     
-    // Ensure audience only contains origin
     const audience = new URL(endpoint).origin;
     const encoder = new TextEncoder();
     
@@ -342,8 +341,77 @@ async function createVapidHeader(endpoint, env) {
         encoder.encode(`${header}.${payload}`)
     );
 
-    // Using the modern 'Vapid' scheme, ensure k= matches the standard
     return `Vapid t=${header}.${payload}.${urlBase64(signature)}, k=${publicKeyStr}`;
+}
+
+function base64ToBytes(base64) {
+    const binaryString = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes;
+}
+
+async function encryptPayload(sub, payload) {
+    const encoder = new TextEncoder();
+    const clientPublicKey = await crypto.subtle.importKey(
+        'raw', base64ToBytes(sub.p256dh), 
+        { name: 'ECDH', namedCurve: 'P-256' }, 
+        true, []
+    );
+    const clientAuth = base64ToBytes(sub.auth);
+    
+    // 1. Generate Ephemeral Key Pair
+    const localKeyPair = await crypto.subtle.generateKey(
+        { name: 'ECDH', namedCurve: 'P-256' }, 
+        true, ['deriveBits']
+    );
+    const localPublicKey = await crypto.subtle.exportKey('raw', localKeyPair.publicKey);
+    
+    // 2. Derive Shared Secret
+    const sharedSecret = await crypto.subtle.deriveBits(
+        { name: 'ECDH', public: clientPublicKey }, 
+        localKeyPair.privateKey, 
+        256
+    );
+    
+    // 3. HKDF Key Derivation
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    
+    // PRK = HKDF-Extract(salt=auth_secret, IKM=shared_secret)
+    const authKey = await crypto.subtle.importKey('raw', clientAuth, 'HKDF', false, ['deriveBits']);
+    const prk = await crypto.subtle.deriveBits(
+        { name: 'HKDF', hash: 'SHA-256', salt: clientAuth, info: encoder.encode('WebPush: info\0') },
+        authKey, 256
+    );
+    // Actually standard WebPush: info includes the client/server keys. 
+    // For simplicity and compatibility with most Push Services, we use the standard HKDF-Expand process.
+    
+    // WebPush encryption is tricky. Let's use the specific RFC 8291 labels.
+    const ikm = await crypto.subtle.importKey('raw', sharedSecret, 'HKDF', false, ['deriveBits']);
+    const ikm_info = new Uint8Array([...encoder.encode('WebPush: info\0'), ...base64ToBytes(sub.p256dh), ...localPublicKey]);
+    const derivedIKM = await crypto.subtle.deriveBits({ name: 'HKDF', hash: 'SHA-256', salt: clientAuth, info: ikm_info }, ikm, 256);
+    
+    const cekKey = await crypto.subtle.importKey('raw', derivedIKM, 'HKDF', false, ['deriveBits']);
+    const cek = await crypto.subtle.deriveBits({ name: 'HKDF', hash: 'SHA-256', salt, info: encoder.encode('Content-Encoding: aes128gcm\0') }, cekKey, 128);
+    const nonce = await crypto.subtle.deriveBits({ name: 'HKDF', hash: 'SHA-256', salt, info: encoder.encode('Content-Encoding: nonce\0') }, cekKey, 96);
+    
+    // 4. Encrypt Payload
+    const payloadBytes = encoder.encode(JSON.stringify(payload));
+    const padding = new Uint8Array([0, 0]); // Minimal padding
+    const record = new Uint8Array([...payloadBytes, 2]); // 2 is the delimiter for end of record
+    
+    const aesKey = await crypto.subtle.importKey('raw', cek, 'AES-GCM', false, ['encrypt']);
+    const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: nonce, tagLength: 128 }, aesKey, record);
+    
+    // 5. Combine salt + rs + idlen + keyid + ciphertext
+    // For aes128gcm, the body starts with: salt(16) + rs(4) + idlen(1) + publickey
+    const rs = new Uint8Array([0, 0, 16, 0]); // Record size (4096 default)
+    const idlen = new Uint8Array([localPublicKey.length]);
+    const body = new Uint8Array([...salt, ...rs, ...idlen, ...localPublicKey, ...new Uint8Array(ciphertext)]);
+    
+    return body;
 }
 
 // --- PUSH API ENDPOINTS ---
@@ -405,14 +473,17 @@ app.post('/api/push/test', async (c) => {
                     data: { url: '/' }
                 };
 
+                const encryptedBody = await encryptPayload(sub, payload);
+
                 const res = await fetch(sub.endpoint, {
                     method: 'POST',
                     headers: { 
                         'TTL': '60', 
                         'Authorization': authHeader,
-                        'Content-Type': 'application/json'
+                        'Content-Encoding': 'aes128gcm',
+                        'Content-Type': 'application/octet-stream'
                     },
-                    body: JSON.stringify(payload)
+                    body: encryptedBody
                 });
                 
                 const responseText = await res.text();
@@ -523,14 +594,17 @@ async function sendPushToAll(env, payload) {
     for (const sub of subscriptions.results) {
         try {
             const authHeader = await createVapidHeader(sub.endpoint, env);
+            const encryptedBody = await encryptPayload(sub, payload);
+
             const res = await fetch(sub.endpoint, {
                 method: 'POST',
                 headers: { 
                     'TTL': '3600', 
                     'Authorization': authHeader,
-                    'Content-Type': 'application/json'
+                    'Content-Encoding': 'aes128gcm',
+                    'Content-Type': 'application/octet-stream'
                 },
-                body: JSON.stringify(payload)
+                body: encryptedBody
             });
             
             if (res.status === 404 || res.status === 410) {
