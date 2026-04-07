@@ -212,12 +212,46 @@ const STATIC_MESSAGES = [
 ];
 
 app.get('/api/messages', async (c) => {
-    return c.json(STATIC_MESSAGES);
+    if (!c.env.DB) return c.json(STATIC_MESSAGES);
+    try {
+        const { results } = await c.env.DB.prepare('SELECT * FROM messages ORDER BY created_at DESC LIMIT 20').all();
+        return c.json(results.length ? results : STATIC_MESSAGES);
+    } catch (e) {
+        return c.json(STATIC_MESSAGES);
+    }
 });
 
-// Post and Delete disabled for now as per user request
-app.post('/api/messages', (c) => c.json({ error: 'Disabled' }, 403));
-app.delete('/api/messages/:id', (c) => c.json({ error: 'Disabled' }, 403));
+app.post('/api/messages', async (c) => {
+    try {
+        const { title, content, author, image_url } = await c.req.json();
+        if (!title || !content) return c.json({ error: 'Title and content required' }, 400);
+
+        if (c.env.DB) {
+            await c.env.DB.prepare(
+                'INSERT INTO messages (title, content, author, image_url) VALUES (?, ?, ?, ?)'
+            ).bind(title, content, author || 'System', image_url || null).run();
+            
+            // Broadcast push
+            await sendPushToAll(c.env, {
+                title: 'Konfidentielle Mitteilung: ' + title,
+                body: content.length > 100 ? content.substring(0, 97) + '...' : content,
+                tag: 'internal-message'
+            });
+        }
+
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+app.delete('/api/messages/:id', async (c) => {
+    const id = c.req.param('id');
+    if (c.env.DB) {
+        await c.env.DB.prepare('DELETE FROM messages WHERE id = ?').bind(id).run();
+    }
+    return c.json({ success: true });
+});
 
 // Handle Feedback submission
 app.post('/api/feedback', async (c) => {
@@ -412,21 +446,36 @@ app.post('/api/scan-plan', async (c) => {
         const buffer = await imageFile.arrayBuffer();
         const inputs = {
             image: Array.from(new Uint8Array(buffer)),
-            prompt: "Dieser Screenshot zeigt einen Kinopolis 'Auslassplan'. Extrahiere die Tabelle und gib ausschließlich ein valides JSON-Array zurück. Die Spalten sind: Kino #, Film, Start, Start Credits, Ende. Ignoriere Kopfzeilen. Das JSON soll folgende Struktur haben: [{ \"kino\": \"...\", \"movie\": \"...\", \"start\": \"...\", \"credits\": \"...\", \"end\": \"...\" }]. Antworte NUR mit dem JSON-String."
+            prompt: "Dieser Foto zeigt einen gedruckten Kinopolis 'Auslassplan'. Extrahiere die Tabelle und gib ausschließlich ein valides JSON-Array zurück. Die Tabelle hat 5 Spalten: 1. Saal (z.B. Saal1), 2. Startzeit (HH:MM:SS), 3. Ende Credits (HH:MM:SS), 4. Ende Film (HH:MM:SS), 5. Filmtitel. Ignoriere Kopfzeilen. Das JSON soll folgende Struktur haben: [{ \"hall\": \"...\", \"movie\": \"...\", \"start_time\": \"...\", \"credits_time\": \"...\", \"end_time\": \"...\" }]. Antworte NUR mit dem JSON-String."
         };
 
         const response = await c.env.AI.run('@cf/meta/llama-3.2-11b-vision-instruct', inputs);
         
-        // Basic cleaning of AI output if needed (remove markdown formatting)
         let jsonStr = response.description || response.response || '';
         jsonStr = jsonStr.replace(/```json|```/g, '').trim();
         
         try {
             const data = JSON.parse(jsonStr);
+            
+            // Save to D1
+            if (c.env.DB && Array.isArray(data)) {
+                const today = new Date().toISOString().split('T')[0];
+                for (const row of data) {
+                    await c.env.DB.prepare(`
+                        INSERT INTO scanned_plans (hall, movie, start_time, credits_time, end_time, date)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                        ON CONFLICT(hall, movie, date) DO UPDATE SET
+                        start_time = excluded.start_time,
+                        credits_time = excluded.credits_time,
+                        end_time = excluded.end_time
+                    `).bind(row.hall, row.movie, row.start_time, row.credits_time, row.end_time, today).run();
+                }
+            }
+            
             return c.json({ success: true, data });
         } catch (e) {
             console.error('AI JSON Parse Error:', jsonStr);
-            return c.json({ error: 'Could not parse AI response as JSON', raw: jsonStr }, 500);
+            return c.json({ error: 'JSON Parse Error', raw: jsonStr }, 500);
         }
     } catch (e) {
         console.error('Scan error:', e);
@@ -439,14 +488,135 @@ app.notFound((c) => {
     return c.json({ error: 'Not Found', path: c.req.path }, 404);
 });
 
+// --- BROADCAST HELPER ---
+async function sendPushToAll(env, payload) {
+    if (!env.DB) return;
+    
+    const subscriptions = await env.DB.prepare('SELECT * FROM push_subscriptions').all();
+    const results = [];
+    
+    for (const sub of subscriptions.results) {
+        try {
+            const authHeader = await createVapidHeader(sub.endpoint, env);
+            const res = await fetch(sub.endpoint, {
+                method: 'POST',
+                headers: { 
+                    'TTL': '3600', 
+                    'Authorization': authHeader,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            if (res.status === 404 || res.status === 410) {
+                await env.DB.prepare('DELETE FROM push_subscriptions WHERE endpoint = ?').bind(sub.endpoint).run();
+            }
+            results.push({ status: res.status });
+        } catch (e) {
+            results.push({ error: e.message });
+        }
+    }
+    return results;
+}
+
 export default {
     async fetch(request, env, ctx) {
         const url = new URL(request.url);
-        // If it's an API request, let Hono handle it
         if (url.pathname.startsWith('/api/')) {
             return app.fetch(request, env, ctx);
         }
-        // Otherwise serve static assets
         return env.ASSETS.fetch(request);
+    },
+
+    async scheduled(event, env, ctx) {
+        // Run Kinopolis Cron logic
+        console.log('Running Scheduled Push Checks...');
+        if (!env.DB) return;
+
+        // 1. Fetch current sessions for Darmstadt (kp)
+        // We use the internal fetch logic or just Call our own API
+        const baseUrl = 'https://kinopolis-automation.artjombecker.com'; // Change to absolute if needed or use env
+        const res = await fetch('https://www.kinopolis.de/kp/programm');
+        if (!res.ok) return;
+
+        // For simplicity in the worker, we might want a simpler way to get the session JSON
+        // Since the worker logic for parsing is already in app.get('/api/sessions'),
+        // we can theoretically call Hono internally or just replicate the fetch.
+        // Let's use the local API endpoint if possible:
+        const sessionsRes = await app.request('/api/sessions?location=kp', {}, env);
+        if (!sessionsRes.ok) return;
+        const halls = await sessionsRes.json();
+        
+        const now = new Date();
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+        
+        for (const hall of halls) {
+            for (const s of hall.sessions) {
+                if (!s.time || !s.time.includes(':')) continue;
+                const [h, m] = s.time.split(':').map(Number);
+                const startMin = h * 60 + m;
+                const diff = startMin - currentMinutes;
+
+                // --- ZE ALERT ---
+                if (diff > 0 && diff <= 15 && s.sold > 50) {
+                    const alertHash = `ze-${hall.name}-${s.time}-${s.title}`;
+                    const existing = await env.DB.prepare('SELECT id FROM notification_state WHERE alert_hash = ?').bind(alertHash).first();
+                    
+                    if (!existing) {
+                        await env.DB.prepare('INSERT INTO notification_state (alert_hash) VALUES (?)').bind(alertHash).run();
+                        await sendPushToAll(env, {
+                            title: '🛂 ZE Nötig: ' + hall.name,
+                            body: `${s.title} beginnt in ${diff} Min. (${s.sold} Gäste). Bitte Ausweise kontrollieren!`,
+                            tag: 'ze-alert',
+                            data: { url: '/' }
+                        });
+                    }
+                }
+
+                // --- POSTER ALERT ---
+                // Movie running for ~30 mins
+                if (diff < 0 && diff >= -40 && diff <= -30) {
+                    const alertHash = `poster-${hall.name}-${s.time}-${s.title}`;
+                    const existing = await env.DB.prepare('SELECT id FROM notification_state WHERE alert_hash = ?').bind(alertHash).first();
+                    
+                    if (!existing) {
+                        await env.DB.prepare('INSERT INTO notification_state (alert_hash) VALUES (?)').bind(alertHash).run();
+                        await sendPushToAll(env, {
+                            title: '🖼️ Plakatwechsel: ' + hall.name,
+                            body: `${s.title} läuft seit 30 Min. Das Plakat kann jetzt gewechselt werden.`,
+                            tag: 'poster-alert',
+                            data: { url: '/' }
+                        });
+                    }
+                }
+            }
+        }
+
+        // 2. Check SCANNED PLANS for Poster Changes
+        const today = new Date().toISOString().split('T')[0];
+        const scannedResults = await env.DB.prepare('SELECT * FROM scanned_plans WHERE date = ?').bind(today).all();
+        
+        for (const row of scannedResults.results) {
+            if (!row.credits_time || !row.credits_time.includes(':')) continue;
+            const [h, m] = row.credits_time.split(':').map(Number);
+            const alertMin = h * 60 + m;
+            const diff = alertMin - currentMinutes;
+
+            // Trigger when credits start (or slightly before/after)
+            if (diff >= -5 && diff <= 5) {
+                const alertHash = `scanned-poster-${row.hall}-${row.credits_time}-${row.movie}`;
+                const existing = await env.DB.prepare('SELECT id FROM notification_state WHERE alert_hash = ?').bind(alertHash).first();
+                
+                if (!existing) {
+                    await env.DB.prepare('INSERT INTO notification_state (alert_hash) VALUES (?)').bind(alertHash).run();
+                    await sendPushToAll(env, {
+                        title: '🖼️ Plakatwechsel: ' + row.hall,
+                        body: `Laut Plan: ${row.movie} Credits beginnen jetzt (${row.credits_time}). Plakat bereit machen!`,
+                        tag: 'poster-alert',
+                        data: { url: '/' }
+                    });
+                }
+            }
+        }
     }
 };

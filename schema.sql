@@ -25,3 +25,20 @@ CREATE TABLE IF NOT EXISTS push_subscriptions (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS notification_state (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    alert_hash TEXT NOT NULL UNIQUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS scanned_plans (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hall TEXT NOT NULL,
+    movie TEXT NOT NULL,
+    start_time TEXT,
+    credits_time TEXT,
+    end_time TEXT,
+    date TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(hall, movie, date)
+);

@@ -150,6 +150,34 @@
             background: #ff1f2a;
         }
 
+        @media (max-width: 768px) {
+            .feedback-tab {
+                position: fixed;
+                right: 20px !important;
+                bottom: 20px !important;
+                top: auto !important;
+                left: auto !important;
+                transform: none !important;
+                width: 56px !important;
+                height: 56px !important;
+                border-radius: 50% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                font-size: 0 !important;
+                padding: 0 !important;
+                box-shadow: 0 4px 20px rgba(229, 9, 20, 0.5) !important;
+            }
+            .feedback-tab::after {
+                content: '💬';
+                font-size: 1.5rem;
+            }
+            .feedback-tab:hover {
+                transform: scale(1.1) !important;
+                padding-right: 0 !important;
+            }
+        }
+
         /* Modal */
         .modal {
             display: none;
@@ -172,6 +200,23 @@
             padding: 2.5rem;
             border-radius: 24px;
             border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @media (max-width: 768px) {
+            .modal {
+                align-items: flex-end;
+            }
+            .modal-content {
+                width: 100%;
+                max-width: none;
+                border-radius: 24px 24px 0 0;
+                padding: 2rem 1.5rem 3rem;
+                transform: translateY(100%);
+            }
+            .modal.active .modal-content {
+                transform: translateY(0);
+            }
         }
 
         .modal-content h2 {
@@ -1110,151 +1155,124 @@
             transform: scale(1.1);
         }
 
-            /* Mobile Optimization */
-            @media (max-width: 768px) {
-                header {
-                    padding: 0.5rem 0.75rem;
-                    margin-bottom: 1.5rem;
-                }
-                .header-inner {
-                    flex-direction: column !important;
-                    gap: 0.75rem !important;
-                    align-items: center !important;
-                }
-                .brand {
-                    width: 100%;
-                    justify-content: center;
-                }
-                .logo-container {
-                    padding: 0.4rem 0.75rem;
-                }
-                .controls {
-                    width: 100%;
-                    justify-content: center;
-                }
-                .location-select {
-                    width: 100%;
-                    max-width: 300px;
-                    text-align: left;
-                    font-size: 0.9rem;
-                    background-position: right 0.75rem center;
-                }
-                .container {
-                    padding: 0 1rem 3rem !important;
-                }
-                .dashboard-title {
-                    font-size: 1.8rem !important;
-                    margin-top: 0.5rem !important;
-                }
-                .header-main-title {
-                    flex-direction: column;
-                    gap: 0.75rem;
-                    align-items: stretch;
-                }
-                .date-navigator {
-                    justify-content: space-between;
-                    width: 100%;
-                }
-                .dashboard-grid {
-                    grid-template-columns: 1fr;
-                    gap: 1rem;
-                }
-                .hall-card {
-                    padding: 1rem !important;
-                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-                    box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
-                }
-                .hall-header {
-                    padding-bottom: 0.75rem !important;
-                }
-                .hall-name {
-                    font-size: 1.1rem !important;
-                }
-                .session-item {
-                    padding: 1rem 0.5rem !important;
-                    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
-                    grid-template-columns: 50px 1fr !important;
-                    gap: 0.75rem !important;
-                }
-                .time-start {
-                    font-size: 1rem;
-                }
-                .movie-title {
-                    white-space: normal !important;
-                }
-                .stat-card {
-                    padding: 1rem !important;
-                    border-radius: 16px !important;
-                }
-                .auslass-grid {
-                    grid-template-columns: 1fr;
-                    padding: 0.75rem;
-                }
-                .auslass-item {
-                    padding: 0.75rem;
-                    gap: 0.75rem;
-                }
-                .auslass-time-range {
-                    font-size: 0.95rem;
-                }
-                .news-card {
-                    flex-direction: column;
-                    padding: 1rem;
-                    gap: 1rem;
-                }
-                .news-image {
-                    width: 100%;
-                    height: 200px;
-                }
-                
-                /* New mobile fixes */
-                .feedback-tab {
-                    top: auto !important;
-                    bottom: 20px !important;
-                    right: 20px !important;
-                    transform: none !important;
-                    padding: 0 !important;
-                    width: 50px !important;
-                    height: 50px !important;
-                    border-radius: 50% !important;
-                    display: flex !important;
-                    align-items: center !important;
-                    justify-content: center !important;
-                    font-size: 0 !important;
-                    box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4) !important;
-                }
-                .feedback-tab::after {
-                    content: '✨' !important;
-                    font-size: 1.5rem !important;
-                    line-height: 1 !important;
-                }
-                .feedback-tab:hover {
-                    padding-right: 0 !important;
-                    width: 55px !important;
-                    height: 55px !important;
-                    right: 17.5px !important;
-                    bottom: 17.5px !important;
-                    background: #ff1f2a !important;
-                }
-                .alerts-title h2 {
-                    font-size: 1rem !important;
-                }
-                .alert-icon {
-                    font-size: 1.8rem !important;
-                }
-                .stat-value {
-                    font-size: 2rem !important;
-                }
-                .stat-poster {
-                    width: 100px !important; /* Larger posters in stats */
-                    height: 145px !important;
-                    flex-shrink: 0;
-                }
-                .stats-grid {
-                    grid-template-columns: 1fr !important;
-                    gap: 1rem !important;
-                }
+        /* Mobile Optimization (Consolidated) */
+        @media (max-width: 768px) {
+            header {
+                padding: 0.5rem 0.75rem;
+                margin-bottom: 1.5rem;
             }
+            .header-inner {
+                flex-direction: column !important;
+                gap: 0.75rem !important;
+                align-items: center !important;
+            }
+            .brand {
+                width: 100%;
+                justify-content: center;
+            }
+            .logo-container {
+                padding: 0.4rem 0.75rem;
+            }
+            .controls {
+                width: 100%;
+                justify-content: center;
+            }
+            .location-select {
+                width: 100%;
+                max-width: 300px;
+                text-align: left;
+                font-size: 0.9rem;
+                background-position: right 0.75rem center;
+            }
+            .container {
+                padding: 0 1rem 3rem !important;
+            }
+            .dashboard-title {
+                font-size: 2rem !important;
+                margin-top: 1rem !important;
+                margin-bottom: 0 !important;
+            }
+            .header-main-title {
+                flex-direction: column;
+                gap: 0.75rem;
+                align-items: stretch;
+            }
+            .date-navigator {
+                justify-content: space-between;
+                width: 100%;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .hall-card {
+                padding: 1rem !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
+            }
+            .hall-header {
+                padding-bottom: 0.75rem !important;
+            }
+            .hall-name {
+                font-size: 1.1rem !important;
+            }
+            .session-item {
+                grid-template-columns: 45px 1fr !important;
+                padding: 0.75rem !important;
+                border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+            }
+            .time-start {
+                font-size: 0.95rem !important;
+            }
+            .movie-title {
+                font-size: 0.95rem !important;
+                white-space: normal !important;
+            }
+            .stat-card {
+                padding: 1rem !important;
+                border-radius: 16px !important;
+            }
+            .stat-card.poster-card {
+                flex-direction: column !important;
+                text-align: center;
+                gap: 1rem !important;
+            }
+            .stat-poster {
+                width: 120px !important;
+                height: 180px !important;
+                margin: 0 auto;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1rem !important;
+            }
+            .auslass-grid {
+                grid-template-columns: 1fr;
+                padding: 0.75rem;
+            }
+            .auslass-item {
+                padding: 0.75rem;
+                gap: 0.75rem;
+            }
+            .news-card {
+                flex-direction: column;
+                padding: 1rem;
+                gap: 1rem;
+            }
+            .nav-tabs {
+                padding: 0.5rem !important;
+                gap: 0.5rem !important;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                display: flex;
+                justify-content: flex-start;
+            }
+            .tab-btn {
+                white-space: nowrap;
+                padding: 0.6rem 1rem !important;
+                font-size: 0.9rem !important;
+            }
+        }
 
         /* Very small screens */
         @media (max-width: 420px) {
@@ -1639,6 +1657,9 @@
                 <div style="display: flex; align-items: center; gap: 0.75rem; width: 100%;">
                     <span class="alert-icon-small">📢</span>
                     <h2 style="font-size: 1.2rem; flex: 1;">Interne Mitteilungen</h2>
+                    <button class="btn-primary" onclick="openMessageModal()" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; border-radius: 8px; margin-right: 0.5rem; background: var(--primary-red); border: none; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                        <span>✉️</span> Verfassen
+                    </button>
                     <span id="news-count-badge" class="badge">0</span>
                     <button class="toggle-btn collapsed" id="news-toggle-btn">
                         <svg viewBox="0 0 24 24" width="24" height="24">
@@ -1648,6 +1669,25 @@
                 </div>
             </div>
             <div id="news-list" class="collapsed"></div>
+        </div>
+
+        <!-- New Message Modal -->
+        <div id="message-modal" class="modal">
+            <div class="modal-content glass">
+                <h2 style="font-family: 'Outfit', sans-serif;">Interne Mitteilung verfassen</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Diese Nachricht wird gespeichert und als <strong>Push-Benachrichtigung</strong> an alle Kollegen gesendet.</p>
+                
+                <input type="text" id="msg-title" placeholder="Titel (z.B. Mario Merch)" class="input-field" style="margin-top: 1.5rem;">
+                <textarea id="msg-content" placeholder="Inhalt der Nachricht..." class="input-field" style="height: 120px; margin-top: 1rem; resize: none;"></textarea>
+                <input type="text" id="msg-author" placeholder="Dein Name / Kürzel (z.B. AB)" class="input-field" style="margin-top: 1rem;">
+                
+                <div class="modal-actions" style="margin-top: 2rem;">
+                    <button class="btn-secondary" onclick="closeMessageModal()">Abbrechen</button>
+                    <button class="btn-primary" id="msg-send-btn" onclick="sendMessage()" style="background: var(--primary-red); border: none; padding: 0.75rem 1.5rem; border-radius: 12px; color: white; font-weight: 700; cursor: pointer;">
+                        🚀 Speichern & Senden
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div id="poster-alerts-container" class="live-section">
@@ -2484,7 +2524,12 @@
                     <div class="news-content">
                         <div class="news-header">
                             <span class="news-title">${item.title}</span>
-                            <span class="news-meta">${new Date(item.created_at).toLocaleString('de-DE')} von ${item.author}</span>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <span class="news-meta">${new Date(item.created_at).toLocaleString('de-DE')} von ${item.author}</span>
+                                <button class="delete-btn" onclick="deleteMessage(${item.id})" style="background: none; border: none; color: #ff4d4d; cursor: pointer; padding: 4px;" title="Löschen">
+                                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19V4M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" /></svg>
+                                </button>
+                            </div>
                         </div>
                         ${images.length > 0 ? `
                         <div class="news-gallery">
@@ -2495,6 +2540,60 @@
                     </div>
                 </div>
             `}).join('');
+        }
+
+        // --- News Mutation Functions ---
+        function openMessageModal() {
+            document.getElementById('message-modal').classList.add('active');
+        }
+        function closeMessageModal() {
+            document.getElementById('message-modal').classList.remove('active');
+        }
+
+        async function sendMessage() {
+            const title = document.getElementById('msg-title').value.trim();
+            const content = document.getElementById('msg-content').value.trim();
+            const author = document.getElementById('msg-author').value.trim();
+            
+            if (!title || !content) return alert('Titel und Inhalt sind erforderlich!');
+            
+            const btn = document.getElementById('msg-send-btn');
+            btn.innerText = 'Wird gesendet...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, content, author })
+                });
+                
+                if (res.ok) {
+                    closeMessageModal();
+                    document.getElementById('msg-title').value = '';
+                    document.getElementById('msg-content').value = '';
+                    alert('Erfolgreich gespeichert! Push wurde versendet.');
+                    fetchNews();
+                } else {
+                    const err = await res.json();
+                    alert('Fehler: ' + (err.error || 'Server Fehler'));
+                }
+            } catch (e) {
+                alert('Netzwerkfehler beim Senden.');
+            } finally {
+                btn.innerText = '🚀 Speichern & Senden';
+                btn.disabled = false;
+            }
+        }
+
+        async function deleteMessage(id) {
+            if (!confirm('Diese Mitteilung wirklich löschen?')) return;
+            try {
+                const res = await fetch(`/api/messages/${id}`, { method: 'DELETE' });
+                if (res.ok) fetchNews();
+            } catch (e) {
+                alert('Fehler beim Löschen.');
+            }
         }
 
         async function fetchWeather() {
