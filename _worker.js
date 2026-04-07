@@ -408,8 +408,8 @@ async function encryptPayload(sub, payload) {
     // 5. Combine salt + rs + idlen + keyid + ciphertext
     // For aes128gcm, the body starts with: salt(16) + rs(4) + idlen(1) + publickey
     const rs = new Uint8Array([0, 0, 16, 0]); // Record size (4096 default)
-    const idlen = new Uint8Array([localPublicKey.length]);
-    const body = new Uint8Array([...salt, ...rs, ...idlen, ...localPublicKey, ...new Uint8Array(ciphertext)]);
+    const idlen = new Uint8Array([localPublicKey.byteLength]);
+    const body = new Uint8Array([...salt, ...rs, ...idlen, ...new Uint8Array(localPublicKey), ...new Uint8Array(ciphertext)]);
     
     return body;
 }
