@@ -115,7 +115,7 @@ app.get('/api/sessions', async (c) => {
                     let hallTextContent = $(sessionEl).find('.prog2__hall-num > div:first-child').text().trim();
                     if (!hallTextContent) hallTextContent = $(sessionEl).find('.prog2__hall-num').text().replace(/i$/, '').trim();
                     const hall = hallTextContent;
-// ... (rest of the session parsing remains similar but now uses actualDate correctly)
+                    const occupancyText = $(sessionEl).text().trim();
                     let capacity = 0;
                     let freePercent = 95;
                     const seatsEl = $(sessionEl).find('.prog2__seats');
@@ -535,20 +535,8 @@ app.post('/api/scan-plan', async (c) => {
         const base64Image = Buffer.from(buffer).toString('base64');
         
         const response = await c.env.AI.run('@cf/meta/llama-3.2-11b-vision-instruct', {
-            messages: [
-                {
-                    role: 'user',
-                    content: [
-                        { type: 'text', text: "Dieser Foto zeigt einen gedruckten Kinopolis 'Auslassplan'. Extrahiere die Tabelle und gib ausschließlich ein valides JSON-Array zurück. Die Tabelle hat 5 Spalten: 1. Saal (z.B. Saal1), 2. Startzeit (HH:MM:SS), 3. Ende Credits (HH:MM:SS), 4. Ende Film (HH:MM:SS), 5. Filmtitel. Ignoriere Kopfzeilen. Das JSON soll folgende Struktur haben: [{ \"hall\": \"...\", \"movie\": \"...\", \"start_time\": \"...\", \"credits_time\": \"...\", \"end_time\": \"...\" }]. Antworte NUR mit dem JSON-String." },
-                        { 
-                            type: 'image_url', 
-                            image_url: {
-                                url: `data:image/jpeg;base64,${base64Image}`
-                            }
-                        }
-                    ]
-                }
-            ]
+            prompt: "Dieser Foto zeigt einen gedruckten Kinopolis 'Auslassplan'. Extrahiere die Tabelle und gib ausschließlich ein valides JSON-Array zurück. Die Tabelle hat 5 Spalten: 1. Saal (z.B. Saal1), 2. Startzeit (HH:MM:SS), 3. Ende Credits (HH:MM:SS), 4. Ende Film (HH:MM:SS), 5. Filmtitel. Ignoriere Kopfzeilen. Das JSON soll folgende Struktur haben: [{ \"hall\": \"...\", \"movie\": \"...\", \"start_time\": \"...\", \"credits_time\": \"...\", \"end_time\": \"...\" }]. Antworte NUR mit dem JSON-String.",
+            image: Array.from(new Uint8Array(buffer))
         });
         console.log('AI Response:', JSON.stringify(response));
         
