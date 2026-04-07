@@ -8,6 +8,7 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('push', function(event) {
     console.log('[Service Worker] Push Received.');
+    console.log('[Service Worker] Event Data:', event.data ? event.data.text() : 'No data');
     
     let promise;
     if (event.data) {

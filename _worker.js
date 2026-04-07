@@ -321,6 +321,7 @@ async function createVapidHeader(endpoint, env) {
     const publicKeyStr = env.VAPID_PUBLIC_KEY || VAPID_KEYS.publicKey;
     const privateKeyJWK = env.VAPID_PRIVATE_KEY_JWK ? JSON.parse(env.VAPID_PRIVATE_KEY_JWK) : VAPID_KEYS.privateKeyJWK;
     
+    // Ensure audience only contains origin
     const audience = new URL(endpoint).origin;
     const encoder = new TextEncoder();
     
@@ -341,6 +342,7 @@ async function createVapidHeader(endpoint, env) {
         encoder.encode(`${header}.${payload}`)
     );
 
+    // Using the modern 'Vapid' scheme, ensure k= matches the standard
     return `Vapid t=${header}.${payload}.${urlBase64(signature)}, k=${publicKeyStr}`;
 }
 
@@ -388,29 +390,45 @@ app.post('/api/push/test', async (c) => {
     try {
         if (!c.env.DB) return c.json({ error: 'DB not available' }, 500);
 
-        const subscriptions = await c.env.DB.prepare('SELECT * FROM push_subscriptions ORDER BY created_at DESC LIMIT 10').all();
+        const subscriptions = await c.env.DB.prepare('SELECT * FROM push_subscriptions ORDER BY created_at DESC LIMIT 5').all();
         if (!subscriptions.results.length) return c.json({ error: 'No subscriptions found' }, 404);
 
         const results = [];
         for (const sub of subscriptions.results) {
             try {
                 const authHeader = await createVapidHeader(sub.endpoint, c.env);
+                
+                // Construct a minimal payload for test
+                const payload = {
+                    title: '🎬 Test Push',
+                    body: 'Dies ist eine manuelle Test-Benachrichtigung.',
+                    data: { url: '/' }
+                };
+
                 const res = await fetch(sub.endpoint, {
                     method: 'POST',
-                    headers: { 'TTL': '60', 'Authorization': authHeader },
-                    body: null
+                    headers: { 
+                        'TTL': '60', 
+                        'Authorization': authHeader,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
                 });
                 
+                const responseText = await res.text();
+                
                 if (res.status === 404 || res.status === 410) {
-                    // Subscription expired - remove from DB
                     await c.env.DB.prepare('DELETE FROM push_subscriptions WHERE endpoint = ?').bind(sub.endpoint).run();
-                    results.push({ endpoint: sub.endpoint, status: 'Cleaned (' + res.status + ')' });
+                    results.push({ status: 'Expired (' + res.status + ')', endpoint: sub.endpoint.substring(0, 30) + '...' });
+                } else if (!res.ok) {
+                    console.error('Push Service Error:', res.status, responseText);
+                    results.push({ status: 'Error ' + res.status, message: responseText, endpoint: sub.endpoint.substring(0, 30) + '...' });
                 } else {
-                    results.push({ endpoint: sub.endpoint, status: res.status });
+                    results.push({ status: 'Success (201)', endpoint: sub.endpoint.substring(0, 30) + '...' });
                 }
             } catch (err) {
                 console.error('Push loop error:', err);
-                results.push({ endpoint: sub.endpoint, status: 'Error: ' + err.message });
+                results.push({ status: 'Crypto/Network Error', message: err.message });
             }
         }
 

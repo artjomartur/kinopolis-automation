@@ -2110,8 +2110,25 @@
                 const data = await res.json();
                 if (data.results) {
                     console.log('Push test results:', data.results);
-                    const stats = data.results.map(r => `Status ${r.status || 'Error'}`).join(', ');
-                    alert('Test an ' + data.results.length + ' Gerät(e) gesendet.\nAntwort: ' + stats + '\n\nFalls Status 201 aber nichts ankommt: Bitte prüfe, ob dein Browser/Handy Benachrichtigungen generell blockiert (Nicht stören Modus etc.)!');
+                    let statsHtml = data.results.map(r => `
+                        <div style="margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 8px; font-size: 0.85rem;">
+                            <strong style="color: ${r.status.includes('Success') ? '#2ecc71' : '#ff4d4d'}">${r.status}</strong><br>
+                            <span style="color: var(--text-muted); font-size: 0.7rem;">${r.endpoint}</span>
+                            ${r.message ? `<br><small style="color: #ff4d4d; opacity: 0.8;">${r.message}</small>` : ''}
+                        </div>
+                    `).join('');
+                    
+                    const resultDiv = document.createElement('div');
+                    resultDiv.innerHTML = `
+                        <div style="margin-top: 1.5rem; padding: 1.5rem; background: rgba(0,0,0,0.3); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
+                            <h4 style="margin-bottom: 1rem;">Diagnose-Ergebnisse:</h4>
+                            ${statsHtml}
+                            <p style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted);">
+                                💡 Falls überall "Success (201)" steht, du aber nichts siehst: Prüfe "Nicht stören", Fokus-Modes oder Browser-Berechtigungen (Glocken-Icon oben links).
+                            </p>
+                        </div>
+                    `;
+                    btn.parentElement.appendChild(resultDiv);
                 } else {
                     alert('Fehler: ' + (data.error || 'Unbekannt'));
                 }
@@ -3425,8 +3442,8 @@
             btn.disabled = true;
 
             try {
-                // Compress image before sending to stay within AI limits
-                const compressedFile = await compressImage(file, 1200, 0.7);
+                // Compress image more aggressively to speed up AI analysis
+                const compressedFile = await compressImage(file, 800, 0.6);
                 const formData = new FormData();
                 formData.append('image', compressedFile);
 
