@@ -116,8 +116,6 @@ app.get('/api/sessions', async (c) => {
                     if (!hallTextContent) hallTextContent = $(sessionEl).find('.prog2__hall-num').text().replace(/i$/, '').trim();
                     const hall = hallTextContent;
 // ... (rest of the session parsing remains similar but now uses actualDate correctly)
-
-                    const occupancyText = $(sessionEl).text().trim();
                     let capacity = 0;
                     let freePercent = 95;
                     const seatsEl = $(sessionEl).find('.prog2__seats');
@@ -544,7 +542,9 @@ app.post('/api/scan-plan', async (c) => {
                         { type: 'text', text: "Dieser Foto zeigt einen gedruckten Kinopolis 'Auslassplan'. Extrahiere die Tabelle und gib ausschließlich ein valides JSON-Array zurück. Die Tabelle hat 5 Spalten: 1. Saal (z.B. Saal1), 2. Startzeit (HH:MM:SS), 3. Ende Credits (HH:MM:SS), 4. Ende Film (HH:MM:SS), 5. Filmtitel. Ignoriere Kopfzeilen. Das JSON soll folgende Struktur haben: [{ \"hall\": \"...\", \"movie\": \"...\", \"start_time\": \"...\", \"credits_time\": \"...\", \"end_time\": \"...\" }]. Antworte NUR mit dem JSON-String." },
                         { 
                             type: 'image_url', 
-                            image_url: `data:image/jpeg;base64,${Buffer.from(buffer).toString('base64')}` 
+                            image_url: {
+                                url: `data:image/jpeg;base64,${base64Image}`
+                            }
                         }
                     ]
                 }
@@ -626,11 +626,20 @@ async function sendPushToAll(env, payload) {
 
 export default {
     async fetch(request, env, ctx) {
-        const url = new URL(request.url);
-        if (url.pathname.startsWith('/api/')) {
+        if (request.url.includes('/api/')) {
             return app.fetch(request, env, ctx);
         }
-        return env.ASSETS.fetch(request);
+        
+        try {
+            if (env.ASSETS) {
+                const response = await env.ASSETS.fetch(request);
+                if (response.status !== 404) return response;
+            }
+        } catch (e) {
+            console.error('Asset fetch error:', e);
+        }
+        
+        return app.fetch(request, env, ctx);
     },
 
     async scheduled(event, env, ctx) {
