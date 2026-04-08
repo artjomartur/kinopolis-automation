@@ -2873,13 +2873,16 @@
                     let isVerified = false;
 
                     const scanned = findScannedMatch(hall.name, s.title);
-                    if (scanned && scanned.end) {
-                        const [eh, em] = scanned.end.split(':').map(Number);
-                        if (!isNaN(eh)) {
-                            triggerMin = eh * 60 + em;
-                            triggerMax = triggerMin + 15; // Tighter window for verified
-                            timeDisplay = `${scanned.end} (Exakt)`;
-                            isVerified = true;
+                    if (scanned) {
+                        const targetTime = scanned.credits_time || scanned.end_time;
+                        if (targetTime && targetTime.includes(':')) {
+                            const [eh, em] = targetTime.split(':').map(Number);
+                            if (!isNaN(eh)) {
+                                triggerMin = eh * 60 + em;
+                                triggerMax = triggerMin + 15; // Tighter window for verified
+                                timeDisplay = `${targetTime} (Exakt)`;
+                                isVerified = true;
+                            }
                         }
                     }
 
@@ -3095,7 +3098,7 @@
             grid.innerHTML = `
                 <div class="stat-card">
                     <div class="stat-label">System-Status</div>
-                    <div class="stat-value" style="font-size: 1.2rem; color: #3498db;">OK V2.9</div>
+                    <div class="stat-value" style="font-size: 1.2rem; color: #3498db;">OK V3.0</div>
                 </div>
                 <div class="stat-card">
                     <span class="stat-label">Gesamtbesucher</span>
@@ -3517,19 +3520,22 @@
         }
 
         function findScannedMatch(hallName, movieTitle) {
-            if (!scannedPlanData || scannedPlanData.length === 0) return null;
+            if (!scannedPlanData || !Array.isArray(scannedPlanData) || scannedPlanData.length === 0) return null;
             
             // Extract hall number (e.g. "Kino 4" -> 4)
             const hallNum = hallName.match(/\d+/)?.[0];
             if (!hallNum) return null;
 
             return scannedPlanData.find(item => {
-                const scanKinoNum = item.kino.match(/\d+/)?.[0];
+                if (!item || (!item.hall && !item.kino)) return false;
+                
+                const rawHall = item.hall || item.kino || '';
+                const scanKinoNum = rawHall.match(/\d+/)?.[0];
                 const matchKino = scanKinoNum === hallNum;
                 
                 // Fuzzy title match
-                const t1 = movieTitle.toLowerCase().replace(/[^a-z0-8]/g, '');
-                const t2 = item.movie.toLowerCase().replace(/[^a-z0-8]/g, '');
+                const t1 = movieTitle.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const t2 = (item.movie || '').toLowerCase().replace(/[^a-z0-9]/g, '');
                 const matchMovie = t1.includes(t2) || t2.includes(t1);
                 
                 return matchKino && matchMovie;
