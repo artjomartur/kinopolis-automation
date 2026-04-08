@@ -3095,7 +3095,7 @@
             grid.innerHTML = `
                 <div class="stat-card">
                     <div class="stat-label">System-Status</div>
-                    <div class="stat-value" style="font-size: 1.2rem; color: #3498db;">OK V2.8</div>
+                    <div class="stat-value" style="font-size: 1.2rem; color: #3498db;">OK V2.9</div>
                 </div>
                 <div class="stat-card">
                     <span class="stat-label">Gesamtbesucher</span>
@@ -3448,8 +3448,8 @@
             try {
                 let compressedFile;
                 try {
-                    // Vision Standard (640px) for V2.6
-                    compressedFile = await compressImage(file, 640, 0.6);
+                    // Perfect balance (500px) for V2.9
+                    compressedFile = await compressImage(file, 500, 0.6);
                 } catch (err) {
                     console.warn('Compression failed, falling back to original file:', err);
                     compressedFile = file; // Fallback to raw file
@@ -3499,7 +3499,7 @@
                     canvas.height = targetHeight;
                     ctx.drawImage(img, 0, 0, maxWidth, targetHeight);
                     
-                    // Revert to JPEG (400px) for better token compatibility in V2.8
+                    // Use JPEG (500px) for V2.9 - best for Llama 3.2 Vision
                     canvas.toBlob((blob) => {
                         if (blob) {
                             resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", { type: 'image/jpeg' }));

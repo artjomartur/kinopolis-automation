@@ -531,7 +531,7 @@ app.post('/api/scan-plan', async (c) => {
         if (!imageFile) return c.json({ error: 'No image provided' }, 400);
 
         const buffer = await imageFile.arrayBuffer();
-        const prompt = "Dieser Foto zeigt einen gedruckten Kinopolis 'Auslassplan'. Extrahiere die Tabelle und gib ausschließlich ein valides JSON-Array zurück. Die Tabelle hat 5 Spalten: 1. Saal (z.B. Saal1), 2. Startzeit (HH:MM:SS), 3. Ende Credits (HH:MM:SS), 4. Ende Film (HH:MM:SS), 5. Filmtitel. Ignoriere Kopfzeilen. Das JSON soll folgende Struktur haben: [{ \"hall\": \"...\", \"movie\": \"...\", \"start_time\": \"...\", \"credits_time\": \"...\", \"end_time\": \"...\" }]. Antworte NUR mit dem JSON-String.";
+        const prompt = "Dieser Foto zeigt einen gedruckten Kinopolis 'Auslassplan'. Extrahiere die Tabelle und gib ausschließlich ein valides JSON-Array zurück. KEIN TEXT, KEINE TABELLEN, nur das JSON. Die Tabelle hat 5 Spalten: 1. Saal (z.B. Saal1), 2. Startzeit (HH:MM:SS), 3. Ende Credits (HH:MM:SS), 4. Ende Film (HH:MM:SS), 5. Filmtitel. Ignoriere Kopfzeilen. Das JSON soll folgende Struktur haben: [{ \"hall\": \"...\", \"movie\": \"...\", \"start_time\": \"...\", \"credits_time\": \"...\", \"end_time\": \"...\" }]. Antworte NUR mit dem JSON-String im Format [ { ... } ].";
         
         let response;
         try {
@@ -552,7 +552,14 @@ app.post('/api/scan-plan', async (c) => {
         console.log('AI Response:', JSON.stringify(response));
         
         let jsonStr = response?.description || response?.response || '';
-        if (typeof response === 'string') jsonStr = response;
+        if (typeof response === 'object' && response.response) jsonStr = response.response;
+        
+        // Robust extraction: find anything between [ and ]
+        const match = jsonStr.match(/\[[\s\S]*\]/);
+        if (match) {
+            jsonStr = match[0];
+        }
+        
         jsonStr = jsonStr.replace(/```json|```/g, '').trim();
         
         try {
