@@ -562,17 +562,23 @@
         .dashboard-header {
             margin-bottom: 3rem;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
+            justify-content: space-between;
+            align-items: flex-end;
             gap: 1.5rem;
+        }
+
+        .dashboard-header-left {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
         }
 
         .dashboard-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 3.5rem;
+            font-size: 2.8rem;
             font-weight: 800;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0;
             background: linear-gradient(180deg, #fff, #b3b3b3);
             -webkit-background-clip: text;
             background-clip: text;
@@ -1263,19 +1269,23 @@
             .container {
                 padding: 0 1rem 3rem !important;
             }
+            .dashboard-header {
+                flex-direction: column !important;
+                align-items: center !important;
+                gap: 1rem !important;
+            }
+            .dashboard-header-left {
+                align-items: center !important;
+                text-align: center !important;
+            }
             .dashboard-title {
                 font-size: 2rem !important;
                 margin-top: 1rem !important;
                 margin-bottom: 0 !important;
             }
-            .header-main-title {
-                flex-direction: column;
-                gap: 0.75rem;
-                align-items: stretch;
-            }
             .date-navigator {
-                justify-content: space-between;
-                width: 100%;
+                justify-content: center !important;
+                width: 100% !important;
             }
             .dashboard-grid {
                 grid-template-columns: 1fr;
@@ -1712,14 +1722,16 @@
         .tab-btn:hover { color: white; background: rgba(255, 255, 255, 0.05); }
         .tab-btn.active { color: white; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); box-shadow: 0 4px 15px rgba(0, 120, 255, 0.3); }
         
-        .tools-section { display: none !important; }
+        .tools-section, .info-section, .stats-section { display: none !important; }
+        
         body.tools-active .tools-section { display: block !important; }
         body.tools-active .live-section { display: none !important; }
-        body.tools-active .info-section { display: none !important; }
 
         body.info-active .info-section { display: block !important; }
         body.info-active .live-section { display: none !important; }
-        body.info-active .tools-section { display: none !important; }
+
+        body.stats-active .stats-section { display: block !important; }
+        body.stats-active .live-section { display: none !important; }
     </style>
 </head>
 <body>
@@ -1742,18 +1754,20 @@
 
     <div class="container">
         <div class="dashboard-header">
-            <div class="header-main-title">
+            <div class="dashboard-header-left">
                 <h2 class="dashboard-title">Live Overview</h2>
-                <div class="date-navigator">
-                    <button class="nav-btn glass" onclick="changeDate(-1)">❮</button>
-                    <div class="date-display">
-                        <span id="display-date-text">Heute</span>
-                        <span id="display-date-sub" class="date-sub"></span>
-                    </div>
-                    <button class="nav-btn glass" onclick="changeDate(1)">❯</button>
-                </div>
+                <div class="location-badge" id="location-name">Darmstadt: KINOPOLIS</div>
             </div>
-            <div class="location-badge" id="location-name">Darmstadt: KINOPOLIS</div>
+            
+            <div class="date-navigator" style="width: auto; gap: 1rem;">
+                <button class="nav-btn glass" onclick="changeDate(-1)">❮</button>
+                <div class="date-display" style="text-align: center;">
+                    <span id="display-date-text">Heute</span>
+                    <span id="display-date-sub" class="date-sub"></span>
+                </div>
+                <button class="nav-btn glass" onclick="changeDate(1)">❯</button>
+            </div>
+
             <div class="sync-status">
                 <div id="status-indicator" class="status-dot"></div>
                 <span id="current-time-display">Verbinde...</span>
@@ -1763,16 +1777,19 @@
         </div>
 
         <div class="nav-tabs">
-            <button class="tab-btn active" onclick="switchTab('live', this)">🎬 Live Programm</button>
-            <button class="tab-btn" onclick="switchTab('info', this)">🍿 Film-Infos</button>
-            <button class="tab-btn" onclick="switchTab('tools', this)">🛠️ Intern & Tools</button>
+            <button class="tab-btn active" onclick="switchTab('live', this)">🎬 Live</button>
+            <button class="tab-btn" onclick="switchTab('stats', this)">📊 Statistik & Pausen</button>
+            <button class="tab-btn" onclick="switchTab('tools', this)">🛠️ Tools & Funk</button>
+            <button class="tab-btn" onclick="switchTab('info', this)">🍿 Filme & Infos</button>
         </div>
 
         <!-- UPCOMING MOVIES SECTION -->
         <div id="info-section-container" class="info-section" style="display: none;">
-            <div class="dashboard-header" style="margin-bottom: 2rem;">
-                <h2 class="dashboard-title" style="font-size: 2.5rem;">Demnächst im Kino</h2>
-                <div class="location-badge">Bald auf der großen Leinwand</div>
+            <div class="dashboard-header" style="margin-bottom: 2rem; justify-content: flex-start;">
+                <div class="dashboard-header-left">
+                    <h2 class="dashboard-title" style="font-size: 2.5rem;">Filme & Infos</h2>
+                    <div class="location-badge">Aktuell & Demnächst im Kino</div>
+                </div>
             </div>
             
             <div id="upcoming-loading" class="loading-state">
@@ -2186,7 +2203,7 @@
         </div>
 
         <!-- Statistics Section -->
-        <section id="stats-section-container" class="stats-section tools-section" style="display: none; margin-bottom: 4rem; padding: 0;">
+        <section id="stats-section-container" class="stats-section" style="display: none; margin-bottom: 4rem; padding: 0;">
             <div class="section-header card-header" onclick="toggleSection('stats-content', 'stats-toggle-btn')" style="cursor: pointer; padding: 1.5rem 3rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;">
                     <span class="alert-icon-small">📊</span>
@@ -2217,7 +2234,7 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
-            document.body.classList.remove('tools-active', 'info-active');
+            document.body.classList.remove('tools-active', 'info-active', 'stats-active');
             
             if (view === 'tools') {
                 document.body.classList.add('tools-active');
@@ -2226,10 +2243,10 @@
             } else if (view === 'info') {
                 document.body.classList.add('info-active');
                 loadUpcomingMovies();
+            } else if (view === 'stats') {
+                document.body.classList.add('stats-active');
             }
         }
-
-        async function loadUpcomingMovies() {
             const grid = document.getElementById('upcoming-grid');
             const loader = document.getElementById('upcoming-loading');
             
@@ -3510,6 +3527,55 @@
             const h = Math.floor(totalMinutes / 60) % 24;
             const m = totalMinutes % 60;
             return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        }
+
+        function calculateBreaks(allSessions) {
+            const now = new Date();
+            const currentMin = now.getHours() * 60 + now.getMinutes();
+            // Start looking for breaks from NOW
+            const searchStart = Math.min(currentMin, 1440);
+            
+            let thekeScore = new Array(1440).fill(0);
+            let einlassScore = new Array(1440).fill(0);
+            
+            allSessions.forEach(s => {
+                if (!s.time || !s.time.includes(':')) return;
+                const [h, m] = s.time.split(':').map(Number);
+                const startMin = h * 60 + m;
+                const endMin = startMin + s.duration;
+                
+                // Theke: start-30 to start+5
+                for(let i = Math.max(0, startMin - 30); i <= Math.min(1439, startMin + 5); i++) thekeScore[i]++;
+                
+                // Einlass Entry: start-20 to start+10
+                for(let i = Math.max(0, startMin - 20); i <= Math.min(1439, startMin + 10); i++) einlassScore[i]++;
+                
+                // Einlass Clean (Auslass): end to end+15
+                for(let i = Math.max(0, endMin); i <= Math.min(1439, endMin + 15); i++) einlassScore[i]++;
+            });
+            
+            function findGaps(scoreArray, minDuration) {
+                let gaps = [];
+                let currentStart = -1;
+                
+                for (let i = searchStart; i < 1440; i++) {
+                    if (scoreArray[i] === 0) {
+                        if (currentStart === -1) currentStart = i;
+                    } else {
+                        if (currentStart !== -1) {
+                            if (i - currentStart >= minDuration) gaps.push({ start: currentStart, end: i - 1 });
+                            currentStart = -1;
+                        }
+                    }
+                }
+                if (currentStart !== -1 && 1440 - currentStart >= minDuration) gaps.push({ start: currentStart, end: 1439 });
+                return gaps.slice(0, 4); // return max 4 future gaps
+            }
+            
+            return {
+                thekeGaps: findGaps(thekeScore, 30),
+                einlassGaps: findGaps(einlassScore, 30)
+            };
         }
 
         function renderStats(hallsGrouped) {
