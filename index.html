@@ -2231,6 +2231,26 @@
     </div>
 
     <script>
+        // --- GLOBALS & STATE ---
+        const API_URL = '/api/sessions';
+        const LOCATIONS_URL = '/api/locations';
+        const VAPID_PUBLIC_KEY = 'BCP-JGZbVBjKY1_blxAHw6bC5Ddf0nLAyPSp8q39kV7utFahZNyQZJ8KlV-ht6UKg07eAuVBVHJhVsaDMx1m7X8';
+
+        let lastData = null;
+        let lastUpdateTime = null;
+        let currentCity = 'kp';
+        let displayDate = new Date();
+        let completedAuslaesse = new Set(JSON.parse(localStorage.getItem('completed_auslaesse') || '[]'));
+        let completedPosters = new Set(JSON.parse(localStorage.getItem('completed_posters') || '[]'));
+        let completedCleaning = new Set(JSON.parse(localStorage.getItem('completed_cleaning') || '[]'));
+        let scannedPlanData = JSON.parse(localStorage.getItem('scanned_plan_data') || '[]');
+
+        const CLEANING_TASKS = {
+            1: ["Tagesaufgabe 1: MONTAG"], 2: ["Tagesaufgabe 1: DIENSTAG"], 
+            3: ["Tagesaufgabe 1: MITTWOCH"], 4: ["Tagesaufgabe 1: DONNERSTAG"],
+            5: ["Tagesaufgabe 1: FREITAG"], 6: ["Tagesaufgabe 1: SAMSTAG"], 0: ["Tagesaufgabe 1: SONNTAG"]
+        };
+
         function switchTab(view, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -2269,11 +2289,14 @@
             grid.style.display = 'none';
             
             try {
-                // 1. Current Movies (from lastData)
+                // 1. Current Movies (from lastData which is array of halls)
                 let currentMovies = [];
-                if (window.lastData) {
+                if (window.lastData && Array.isArray(window.lastData)) {
                     const seenNames = new Set();
-                    window.lastData.forEach(s => {
+                    // Flatten halls into sessions
+                    const allCurrentSessions = window.lastData.flatMap(h => h.sessions || []);
+                    
+                    allCurrentSessions.forEach(s => {
                         if (!seenNames.has(s.title)) {
                             seenNames.add(s.title);
                             currentMovies.push({
@@ -2308,10 +2331,10 @@
                 
                 loader.style.display = 'none';
                 grid.style.display = 'grid';
-                grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(140px, 1fr))'; // Compact
+                grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(140px, 1fr))';
                 
             } catch (e) {
-                console.error(e);
+                console.error('Error loading movie list:', e);
                 loader.innerHTML = '<div style="color: #ff4d4d;">Fehler beim Laden.</div>';
             }
         }
@@ -2730,35 +2753,14 @@
             }
         }
 
-        const API_URL = '/api/sessions';
-        const LOCATIONS_URL = '/api/locations';
-
-        let lastData = null;
-        let lastUpdateTime = null;
-        let tomorrowSessions = [];
-        let completedAuslaesse = new Set(JSON.parse(localStorage.getItem('completed_auslaesse') || '[]'));
-        let completedPosters = new Set(JSON.parse(localStorage.getItem('completed_posters') || '[]'));
-        let completedCleaning = new Set(JSON.parse(localStorage.getItem('completed_cleaning') || '[]'));
-        let scannedPlanData = JSON.parse(localStorage.getItem('scanned_plan_data') || '[]');
-        let currentCity = 'kp';
-        let displayDate = new Date();
-
-        const CLEANING_TASKS = {
-            1: ["Tagesaufgabe 1: MONTAG"],
-            2: ["Tagesaufgabe 1: DIENSTAG"],
-            3: ["Tagesaufgabe 1: MITTWOCH"],
-            4: ["Tagesaufgabe 1: DONNERSTAG"],
-            5: ["Tagesaufgabe 1: FREITAG"],
-            6: ["Tagesaufgabe 1: SAMSTAG"],
-            0: ["Tagesaufgabe 1: SONNTAG"]
-        };
-
         // Init notes
         const notesArea = document.getElementById('staff-notes');
-        notesArea.value = localStorage.getItem('staff_notes') || '';
-        notesArea.addEventListener('input', (e) => {
-            localStorage.setItem('staff_notes', e.target.value);
-        });
+        if (notesArea) {
+            notesArea.value = localStorage.getItem('staff_notes') || '';
+            notesArea.addEventListener('input', (e) => {
+                localStorage.setItem('staff_notes', e.target.value);
+            });
+        }
 
         // Update clock and countdowns
         setInterval(() => {
