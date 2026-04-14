@@ -492,14 +492,14 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 0 4rem 3rem;
+            padding: 0 2rem 3rem;
         }
 
         @media (max-width: 768px) {
             .container {
-                padding: 0 0 2rem !important;
+                padding: 0 1.25rem 2rem !important;
                 max-width: 100% !important;
             }
             /* Cards go full width edge-to-edge on mobile */
@@ -2131,10 +2131,10 @@
                             <span style="font-size: 2rem;">🍿</span>
                             <span style="font-weight: 600; font-size: 0.9rem;">Popcorn</span>
                         </button>
-                        <div id="funk-popcorn-options" style="display: none; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-top: -0.5rem;">
-                            <button onclick="triggerRestock('🍿 Popcorn Süß')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Süß</button>
-                            <button onclick="triggerRestock('🍿 Popcorn Salz')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Salz</button>
-                            <button onclick="resetFunkView()" class="btn-secondary" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem;">Zurück / Abbrechen</button>
+                        <div id="funk-popcorn-options" style="display: none; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(241, 196, 15, 0.2); margin-top: -0.5rem;">
+                            <button onclick="triggerRestock('🍿 Popcorn Süß')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem; border-color: rgba(241, 196, 15, 0.3); color: #f1c40f;">🍿 Süß</button>
+                            <button onclick="triggerRestock('🍿 Popcorn Salz')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem; border-color: rgba(241, 196, 15, 0.3); color: #f1c40f;">🍿 Salz</button>
+                            <button onclick="resetFunkView()" class="btn-secondary" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem; color: #fff;">Zurück / Abbrechen</button>
                         </div>
                     </div>
 
@@ -2144,11 +2144,11 @@
                             <span style="font-size: 2rem;">🧀</span>
                             <span style="font-weight: 600; font-size: 0.9rem;">Nachos</span>
                         </button>
-                        <div id="funk-nachos-options" style="display: none; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-top: -0.5rem;">
-                            <button onclick="triggerRestock('🧀 1er Nachos')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">1er</button>
-                            <button onclick="triggerRestock('🧀 2er Nachos')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">2er</button>
-                            <button onclick="triggerRestock('🧀 3er Nachos')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">3er</button>
-                            <button onclick="resetFunkView()" class="btn-secondary" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem;">Zurück / Abbrechen</button>
+                        <div id="funk-nachos-options" style="display: none; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(230, 126, 34, 0.2); margin-top: -0.5rem;">
+                            <button onclick="triggerRestock('🧀 1er Nachos')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem; border-color: rgba(230, 126, 34, 0.3); color: #e67e22;">🧀 1er</button>
+                            <button onclick="triggerRestock('🧀 2er Nachos')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem; border-color: rgba(230, 126, 34, 0.3); color: #e67e22;">🧀 2er</button>
+                            <button onclick="triggerRestock('🧀 3er Nachos')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem; border-color: rgba(230, 126, 34, 0.3); color: #e67e22;">🧀 3er</button>
+                            <button onclick="resetFunkView()" class="btn-secondary" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem; color: #fff;">Zurück / Abbrechen</button>
                         </div>
                     </div>
 
@@ -2158,13 +2158,10 @@
                             <span style="font-size: 2rem;">🥤</span>
                             <span style="font-weight: 600; font-size: 0.9rem;">Getränke</span>
                         </button>
-                        <div id="funk-drinks-options" style="display: none; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-top: -0.5rem;">
-                            <button onclick="triggerRestock('🥤 Cola')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Cola</button>
-                            <button onclick="triggerRestock('🥤 Cola Zero')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Cola Zero</button>
-                            <button onclick="triggerRestock('🥤 Fanta')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Fanta</button>
-                            <button onclick="triggerRestock('🥤 Sprite')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Sprite</button>
-                            <button onclick="triggerRestock('🥤 Cola Light')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Cola Light</button>
-                            <button onclick="resetFunkView()" class="btn-secondary" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem;">Zurück / Abbrechen</button>
+                        <div id="funk-drinks-options" style="display: none; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(52, 152, 219, 0.2); margin-top: -0.5rem;">
+                            <button onclick="triggerRestock('🥤 Cola/Limo leer')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem; border-color: rgba(52, 152, 219, 0.3); color: #3498db;">🥤 Soft</button>
+                            <button onclick="triggerRestock('🍻 Bier leer')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem; border-color: rgba(52, 152, 219, 0.3); color: #3498db;">🍻 Bier</button>
+                            <button onclick="resetFunkView()" class="btn-secondary" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem; color: #fff;">Zurück / Abbrechen</button>
                         </div>
                     </div>
 
@@ -2174,12 +2171,12 @@
                             <span style="font-size: 2rem;">🥛</span>
                             <span style="font-weight: 600; font-size: 0.9rem;">Becher</span>
                         </button>
-                        <div id="funk-becher-options" style="display: none; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-top: -0.5rem;">
-                            <button onclick="triggerRestock('🥛 1L Becher')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">1L Becher</button>
-                            <button onclick="triggerRestock('🥛 0.5L Becher')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">0.5L Becher</button>
-                            <button onclick="triggerRestock('🕳️ Deckel')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Deckel</button>
-                            <button onclick="triggerRestock('🥢 Strohhalme')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Strohhalme</button>
-                            <button onclick="resetFunkView()" class="btn-secondary" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem;">Zurück / Abbrechen</button>
+                        <div id="funk-becher-options" style="display: none; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(26, 188, 156, 0.2); margin-top: -0.5rem;">
+                            <button onclick="triggerRestock('🥤 Becher 1.0L')" class="btn-secondary" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(26, 188, 156, 0.3); color: #1abc9c;">🥤 1.0L</button>
+                            <button onclick="triggerRestock('🥤 Becher 0.5L')" class="btn-secondary" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(26, 188, 156, 0.3); color: #1abc9c;">🥤 0.5L</button>
+                            <button onclick="triggerRestock('🥤 Becher Deckel')" class="btn-secondary" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(26, 188, 156, 0.3); color: #1abc9c;">⭕ Deckel</button>
+                            <button onclick="triggerRestock('🥤 Strohhalme')" class="btn-secondary" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(26, 188, 156, 0.3); color: #1abc9c;">🥢 Halme</button>
+                            <button onclick="resetFunkView()" class="btn-secondary" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem; color: #fff;">Zurück / Abbrechen</button>
                         </div>
                     </div>
                 </div>
@@ -3025,8 +3022,11 @@
         function updateKurzwahlVisibility() {
             const section = document.getElementById('kurzwahl-section');
             if (!section) return;
+            // Only allow section to be visible if city is 'kp'.
+            // Instead of 'display: block', we set it to '' so that 
+            // the tab-specific CSS (kontakte-active .kontakte-section) handles the actual visibility.
             if (currentCity === 'kp') {
-                section.style.display = 'block';
+                section.style.display = ''; 
             } else {
                 section.style.display = 'none';
             }
