@@ -2117,10 +2117,10 @@
                                 <div style="font-size: 0.8rem; color: var(--text-muted);">(Tagesabschlusszählung)</div>
                             </div>
                         </a>
-                        <a href="https://eu.atoss.com" target="_blank" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;">
+                        <a href="#" target="_blank" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;">
                             <span style="font-size: 2rem;">📅</span>
                             <div>
-                                <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">ATOSS Dienstplan</div>
+                                <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Dienstplan</div>
                                 <div style="font-size: 0.8rem; color: var(--text-muted);">Schichtplan ansehen</div>
                             </div>
                         </a>
@@ -2251,43 +2251,120 @@
 
         // --- APP START ---
         window.addEventListener('load', async () => {
-            // Load sessions for default location
             fetchLocations();
             fetchSessions();
             fetchWeather();
             fetchNews();
             
-            // Rest of initializations
             initLostFound();
             initTransferList();
         });
 
+        async function loadUpcomingMovies() {
             const grid = document.getElementById('upcoming-grid');
             const loader = document.getElementById('upcoming-loading');
             
-            // Only load once to save bandwidth
-            if (grid.children.length > 0) return;
+            grid.innerHTML = '';
+            loader.style.display = 'flex';
+            grid.style.display = 'none';
             
             try {
-                const res = await fetch('/api/upcoming');
-                const movies = await res.json();
-                
-                if (movies.length === 0) throw new Error('Keine Filme gefunden');
+                // 1. Current Movies (from lastData)
+                let currentMovies = [];
+                if (window.lastData) {
+                    const seenNames = new Set();
+                    window.lastData.forEach(s => {
+                        if (!seenNames.has(s.title)) {
+                            seenNames.add(s.title);
+                            currentMovies.push({
+                                title: s.title,
+                                poster: s.poster,
+                                movieLink: s.movieLink,
+                                current: true
+                            });
+                        }
+                    });
+                }
 
-                grid.innerHTML = movies.map(m => `
-                    <div class="hall-card glass" style="align-items: center; text-align: center; padding: 1rem;">
-                        <img src="${m.poster}" alt="Poster" style="width: 100%; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); margin-bottom: 1rem; aspect-ratio: 2/3; object-fit: cover;">
-                        <h3 style="font-family: 'Outfit'; font-size: 1.2rem; margin-bottom: 0.5rem; color: #fff;">${m.title}</h3>
+                // 2. Upcoming Movies
+                const res = await fetch('/api/upcoming');
+                const upcoming = await res.json();
+                
+                const allMovies = [...currentMovies, ...upcoming.map(m => ({...m, current: false}))];
+
+                if (allMovies.length === 0) throw new Error('Keine Filme gefunden');
+
+                grid.innerHTML = allMovies.map(m => `
+                    <div class="hall-card glass movie-item-card" onclick="openMovieDetail('${m.movieLink || ''}')" style="cursor: pointer; padding: 0; overflow: hidden; border-radius: 12px;">
+                        <div style="position: relative;">
+                            <img src="${m.poster}" alt="Poster" style="width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block;">
+                            ${m.current ? '<span class="badge" style="position: absolute; top: 8px; left: 8px; background: var(--primary-red); font-size: 0.65rem;">JETZT</span>' : ''}
+                        </div>
+                        <div style="padding: 0.75rem; text-align: center;">
+                            <h3 style="font-family: 'Outfit'; font-size: 0.85rem; margin: 0; color: #fff; line-height: 1.2; height: 2.1rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${m.title}</h3>
+                        </div>
                     </div>
                 `).join('');
                 
                 loader.style.display = 'none';
                 grid.style.display = 'grid';
+                grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(140px, 1fr))'; // Compact
                 
             } catch (e) {
+                console.error(e);
                 loader.innerHTML = '<div style="color: #ff4d4d;">Fehler beim Laden.</div>';
             }
         }
+
+        async function openMovieDetail(url) {
+            if (!url) return;
+            const modal = document.getElementById('movie-detail-modal');
+            const content = document.getElementById('movie-detail-content');
+            
+            modal.classList.add('active');
+            content.innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <div class="loading-text">Lade Filminfos...</div>
+                </div>
+            `;
+            
+            try {
+                const res = await fetch(\`/api/movie-details?url=\${encodeURIComponent(url)}\`);
+                const data = await res.json();
+                
+                if (data.error) throw new Error(data.error);
+                
+                content.innerHTML = `
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <h2 style="font-size: 2rem; margin: 0; background: linear-gradient(180deg, #fff, #b3b3b3); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">\${data.title}</h2>
+                        
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <span class="badge" style="background: rgba(255,255,255,0.1); color: #fff;">\${data.fsk}</span>
+                            <span class="badge" style="background: rgba(255,255,255,0.1); color: #fff;">\${data.duration} Min.</span>
+                            <span class="badge" style="background: var(--primary-blue); color: #fff;">\${data.genre}</span>
+                        </div>
+                        
+                        <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
+                            <h3 style="font-size: 1.1rem; margin-top: 0; color: var(--primary-blue);">Inhalt</h3>
+                            <p style="color: var(--text-muted); line-height: 1.6; font-size: 0.95rem; margin-bottom: 0;">\${data.synopsis}</p>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem;">
+                            <button onclick="closeMovieDetail()" class="btn-primary" style="flex: 1; padding: 0.8rem;">Schließen</button>
+                            <a href="\${data.url}" target="_blank" class="btn-secondary" style="flex: 1; padding: 0.8rem; text-decoration: none; text-align: center;">Auf Kinopolis.de ansehen</a>
+                        </div>
+                    </div>
+                `;
+            } catch (e) {
+                content.innerHTML = '<div style="color: #ff4d4d;">Details konnten nicht geladen werden.</div>';
+            }
+        }
+
+        function closeMovieDetail() {
+            document.getElementById('movie-detail-modal').classList.remove('active');
+        }
+
 
         const VAPID_PUBLIC_KEY = 'BCP-JGZbVBjKY1_blxAHw6bC5Ddf0nLAyPSp8q39kV7utFahZNyQZJ8KlV-ht6UKg07eAuVBVHJhVsaDMx1m7X8';
 
@@ -3697,6 +3774,41 @@
                 `;
                 chart.appendChild(barWrapper);
             });
+
+            // --- AI BREAK RECOMMENDATIONS ---
+            const breaks = calculateBreaks(allSessions);
+            const formatGaps = (gaps) => gaps.length > 0 ? gaps.map(g => `<span class="badge" style="background: rgba(255,255,255,0.1); color: #fff; padding: 0.4rem 0.8rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">${g.start} - ${g.end}</span>`).join('') : '<span style="color: var(--text-muted); font-size: 0.85rem;">Keine passenden Lücken heute.</span>';
+
+            grid.innerHTML += `
+                <div class="stat-card" style="grid-column: 1 / -1; align-items: flex-start; background: rgba(0, 120, 255, 0.05); border: 1px solid rgba(0, 120, 255, 0.1);">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
+                        <span style="font-size: 1.5rem;">☕</span>
+                        <span class="stat-label" style="font-size: 1.1rem; color: #fff; margin: 0; text-transform: none; font-weight: 800;">KI-Pausen-Empfehlungen</span>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
+                        <div style="background: rgba(0,0,0,0.4); padding: 1.25rem; border-radius: 16px; border-left: 4px solid var(--primary-blue); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                            <div style="font-weight: 800; color: white; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>🍿</span> Theken-Personal
+                            </div>
+                            <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+                                ${formatGaps(breaks.thekeGaps)}
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem; font-style: italic;">Slots ohne nahen Filmstart (+/- 20min)</div>
+                        </div>
+                        
+                        <div style="background: rgba(0,0,0,0.4); padding: 1.25rem; border-radius: 16px; border-left: 4px solid var(--primary-red); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                            <div style="font-weight: 800; color: white; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>🎟️</span> Einlass & Saal
+                            </div>
+                            <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+                                ${formatGaps(breaks.einlassGaps)}
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem; font-style: italic;">Slots ohne Einlass-Ströme oder anstehende Reinigung</div>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
         function calculateEndTime(startTime, duration) {
@@ -4204,6 +4316,12 @@
             </div>
         </div>
     </div>
+    </div>
+    <!-- Movie Detail Modal -->
+    <div id="movie-detail-modal" class="modal">
+        <div id="movie-detail-content" class="modal-content glass" style="max-height: 90vh; overflow-y: auto;">
+            <!-- Filled via JS -->
+        </div>
     </div>
 </body>
 </html>
