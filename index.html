@@ -125,6 +125,11 @@
             background-size: 1.5rem;
         }
 
+        .location-select option {
+            background-color: #1a1a2e;
+            color: #ffffff;
+        }
+
         .location-select:hover {
             background-color: rgba(255, 255, 255, 0.15);
             border-color: rgba(255, 255, 255, 0.3);
@@ -474,6 +479,11 @@
             background-position: right 0.75rem center;
             transition: all 0.2s ease;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .location-select option {
+            background-color: #1c1c2e;
+            color: #ffffff;
         }
 
         .location-select:hover, .location-select:focus {
@@ -2615,26 +2625,26 @@
         // --- RESTOCK, TRANSFER & LOGBOOK LOGIC ---
         
         const TRANSFER_ITEMS = [
-            "Ai Tee White Peach",
-            "Ai Tee Lemon",
-            "Bionade Orange",
-            "Bionade Holunder",
-            "M&M Schoko",
-            "M&M Peanut",
-            "Popcorn Süß",
-            "Nachos",
-            "Käsesauce",
-            "Salsa",
-            "Cola",
-            "Wasser (still)"
+            { name: "Ai Tee White Peach",  target: 12 },
+            { name: "Ai Tee Lemon",        target: 12 },
+            { name: "Bionade Orange",       target: 8 },
+            { name: "Bionade Holunder",     target: 8 },
+            { name: "M&M Schoko",           target: 14 },
+            { name: "M&M Peanut",           target: 14 },
+            { name: "Nachos",               target: 10 },
+            { name: "Wasser (still)",       target: 12 },
         ];
+
 
         function initTransferList() {
             const container = document.getElementById('transfer-items');
             if (!container) return;
             container.innerHTML = TRANSFER_ITEMS.map((item, index) => `
                 <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
-                    <span style="font-size: 0.95rem; color: #fff;">${item}</span>
+                    <div style="display: flex; flex-direction: column; gap: 0.1rem;">
+                        <span style="font-size: 0.95rem; color: #fff;">${item.name}</span>
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">Soll: ${item.target} Stück</span>
+                    </div>
                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                         <button class="btn-secondary" onclick="updateTransferCount(${index}, -1)" style="width: 30px; height: 30px; padding: 0; border-radius: 6px; font-weight: bold; background: rgba(229, 9, 20, 0.2); border-color: rgba(229, 9, 20, 0.4); color: #ff4d4d; display: flex; align-items: center; justify-content: center;">-</button>
                         <span id="transfer-count-${index}" style="font-weight: bold; width: 20px; text-align: center; color: var(--primary-blue);">0</span>
@@ -2656,7 +2666,7 @@
             let itemsNeeded = [];
             TRANSFER_ITEMS.forEach((item, index) => {
                 const count = parseInt(document.getElementById('transfer-count-' + index).innerText) || 0;
-                if (count > 0) itemsNeeded.push(`${count}x ${item}`);
+                if (count > 0) itemsNeeded.push(`${count}x ${item.name} (Soll: ${item.target})`);
             });
 
             const customVal = document.getElementById('transfer-custom').value.trim();
