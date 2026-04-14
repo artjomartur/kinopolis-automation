@@ -4,6 +4,11 @@ import { Buffer } from 'node:buffer';
 
 const app = new Hono();
 
+app.onError((err, c) => {
+    console.error('Fatal Worker Error:', err);
+    return c.json({ error: 'Internal Server Error', message: err.message }, 500);
+});
+
 // Helper for consistent Kinopolis requests
 async function fetchKinopolis(url) {
     return await fetch(url, {

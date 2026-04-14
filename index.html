@@ -3328,7 +3328,7 @@
                     </div>
                     <div class="alert-text" style="flex: 1">
                         <h2>Plakatwechsel in <span style="white-space: nowrap">${hallName}</span></h2>
-                        <p>${isEndDay ? 'Die <strong>letzte Vorstellung</strong> des Tages hat begonnen.' : 'Der Film läuft seit 30 Min.'} Das Plakat kann gewechselt werden.</p>
+                        <p>${isEndDay ? 'Die <strong>letzte Vorstellung</strong> des Tages hat begonnen.' : 'Der Film läuft seit 20 Min.'} Das Plakat kann gewechselt werden.</p>
                     </div>
                     <div class="next-movie-preview">
                         ${nextMovie.poster ? `<img src="${nextMovie.poster}" class="poster-img" alt="Poster">` : ''}
@@ -3482,8 +3482,8 @@
             try {
                 let compressedFile;
                 try {
-                    // Higher resolution (1200px) for better OCR accuracy
-                    compressedFile = await compressImage(file, 1200, 0.7);
+                    // High resolution (1000px) for balance between accuracy and size
+                    compressedFile = await compressImage(file, 1000, 0.6);
                 } catch (err) {
                     console.warn('Compression failed, falling back to original file:', err);
                     compressedFile = file; // Fallback to raw file
@@ -3496,7 +3496,15 @@
                     method: 'POST',
                     body: formData
                 });
-                const result = await res.json();
+                
+                const responseText = await res.text();
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (e) {
+                    console.error('Non-JSON response:', responseText);
+                    throw new Error(`Server lieferte kein gültiges JSON. Möglicherweise ein Timeout oder Fehler bei Cloudflare. Kurzbeschreibung: ${responseText.substring(0, 50)}...`);
+                }
                 
                 if (result.success && Array.isArray(result.data)) {
                     scannedPlanData = result.data;
