@@ -499,7 +499,8 @@
 
         @media (max-width: 768px) {
             .container {
-                padding: 0 0 2rem;
+                padding: 0 0 2rem !important;
+                max-width: 100% !important;
             }
             /* Cards go full width edge-to-edge on mobile */
             .card-container,
@@ -1266,7 +1267,7 @@
         /* Mobile Optimization (Consolidated) */
         @media (max-width: 768px) {
             header {
-                padding: 0.5rem 2rem;
+                padding: 0.5rem 1rem;
                 margin-bottom: 1.5rem;
             }
             .header-inner {
@@ -1293,7 +1294,7 @@
                 background-position: right 0.75rem center;
             }
             .container {
-                padding: 0 2rem 3rem !important;
+                padding: 0 0 3rem !important;
             }
             .dashboard-header {
                 flex-direction: column !important;
@@ -3855,29 +3856,52 @@
             }
 
             function findGaps(scoreArray, searchFrom, searchTo, minDuration) {
-                const gaps = [];
-                let gapStart = -1;
-
-                for (let i = searchFrom; i <= searchTo; i++) {
-                    if (scoreArray[i] === 0) {
-                        if (gapStart === -1) gapStart = i;
-                    } else {
-                        if (gapStart !== -1) {
-                            const duration = i - gapStart;
-                            if (duration >= minDuration) {
-                                gaps.push({ start: gapStart, end: i - 1, duration, score: gapStart });
-                            }
-                            gapStart = -1;
-                        }
+                const results = [];
+                const windowSize = minDuration;
+                
+                // 1. Calculate "Load Score" for every possible window
+                const windows = [];
+                for (let start = searchFrom; start <= searchTo - windowSize; start++) {
+                    let totalLoad = 0;
+                    let peakLoad = 0;
+                    for (let i = 0; i < windowSize; i++) {
+                        const s = scoreArray[start + i] || 0;
+                        totalLoad += s;
+                        if (s > peakLoad) peakLoad = s;
                     }
-                }
-                // Trailing gap
-                if (gapStart !== -1 && (searchTo - gapStart + 1) >= minDuration) {
-                    gaps.push({ start: gapStart, end: searchTo, duration: searchTo - gapStart + 1, score: gapStart });
+                    // Weighting: peak load is penalized heavily to avoid suggesting breaks during a rush
+                    // Score: lower is better. 
+                    const weightedScore = (totalLoad * 2) + (peakLoad * 20);
+                    windows.push({ start, end: start + windowSize - 1, score: weightedScore, peak: peakLoad });
                 }
 
-                // Sort by earliest start — show best 3
-                return gaps.sort((a, b) => a.score - b.score).slice(0, 3);
+                if (windows.length === 0) return [];
+
+                // 2. Sort windows by best score (lowest first)
+                windows.sort((a, b) => a.score - b.score || a.start - b.start);
+
+                // 3. Pick top 3 non-overlapping windows
+                const finalGaps = [];
+                for (const w of windows) {
+                    const overlaps = finalGaps.some(g => {
+                        // Allow small overlap of 5 mins or none? Let's say none for clarity.
+                        return (w.start <= g.end && w.end >= g.start);
+                    });
+                    
+                    if (!overlaps) {
+                        finalGaps.push({
+                            start: w.start,
+                            end: w.end,
+                            duration: windowSize,
+                            isPerfect: w.score === 0,
+                            loadLevel: w.peak
+                        });
+                    }
+                    if (finalGaps.length >= 3) break;
+                }
+
+                // Sort by time for display
+                return finalGaps.sort((a, b) => a.start - b.start);
             }
 
             return {
@@ -3998,15 +4022,33 @@
             const formatGaps = (gaps) => {
                 if (gaps.length === 0) return '<div style="color: var(--text-muted); font-size: 0.85rem; font-style: italic;">Keine Gaps gefunden</div>';
                 const labels = ['Plan A', 'Plan B', 'Plan C'];
-                return gaps.map((g, idx) => `
+                return gaps.map((g, idx) => {
+                    let badgeColor = 'rgba(46, 204, 113, 0.1)';
+                    let badgeText  = 'Optimal';
+                    let textColor  = '#2ecc71';
+
+                    if (g.isPerfect) {
+                        badgeText = 'Perfekt';
+                    } else if (g.loadLevel === 1) {
+                        badgeText = 'Geringe Last';
+                        badgeColor = 'rgba(52, 152, 219, 0.1)';
+                        textColor = '#3498db';
+                    } else {
+                        badgeText = `${g.loadLevel}x Rush`;
+                        badgeColor = 'rgba(241, 196, 15, 0.1)';
+                        textColor = '#f1c40f';
+                    }
+
+                    return `
                     <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 0.6rem 0.8rem; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 0.7rem; font-weight: 800; color: var(--primary-blue); text-transform: uppercase; letter-spacing: 0.05em;">${labels[idx] || 'Option'}</span>
                             <span style="font-size: 1rem; color: #fff; font-weight: 700;">${formatMinutes(g.start)} — ${formatMinutes(g.end + 1)}</span>
                         </div>
-                        <div style="background: rgba(46, 204, 113, 0.1); color: #2ecc71; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">Optimal</div>
+                        <div style="background: ${badgeColor}; color: ${textColor}; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">${badgeText}</div>
                     </div>
-                `).join('');
+                `;
+                }).join('');
             };
 
             grid.innerHTML += `
