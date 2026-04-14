@@ -2353,7 +2353,7 @@
             `;
             
             try {
-                const res = await fetch(\`/api/movie-details?url=\${encodeURIComponent(url)}\`);
+                const res = await fetch(`/api/movie-details?url=${encodeURIComponent(url)}`);
                 const data = await res.json();
                 
                 if (data.error) throw new Error(data.error);
@@ -2381,7 +2381,7 @@
                         
                         <div style="display: flex; gap: 1rem;">
                             <button onclick="closeMovieDetail()" class="btn-primary" style="flex: 1; padding: 0.8rem;">Schließen</button>
-                            <a href="\${data.url}" target="_blank" class="btn-secondary" style="flex: 1; padding: 0.8rem; text-decoration: none; text-align: center;">Auf Kinopolis.de ansehen</a>
+                            <a href="${data.url}" target="_blank" class="btn-secondary" style="flex: 1; padding: 0.8rem; text-decoration: none; text-align: center;">Auf Kinopolis.de ansehen</a>
                         </div>
                     </div>
                 `;
@@ -2395,7 +2395,6 @@
         }
 
 
-        const VAPID_PUBLIC_KEY = 'BCP-JGZbVBjKY1_blxAHw6bC5Ddf0nLAyPSp8q39kV7utFahZNyQZJ8KlV-ht6UKg07eAuVBVHJhVsaDMx1m7X8';
 
         async function checkNotificationPermission() {
             const dot = document.getElementById('push-status-dot');
@@ -3785,7 +3784,7 @@
 
             // --- AI BREAK RECOMMENDATIONS ---
             const breaks = calculateBreaks(allSessions);
-            const formatGaps = (gaps) => gaps.length > 0 ? gaps.map(g => `<span class="badge" style="background: rgba(255,255,255,0.1); color: #fff; padding: 0.4rem 0.8rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">${g.start} - ${g.end}</span>`).join('') : '<span style="color: var(--text-muted); font-size: 0.85rem;">Keine passenden Lücken heute.</span>';
+            const formatGaps = (gaps) => gaps.length > 0 ? gaps.map(g => `<span class="badge" style="background: rgba(255,255,255,0.1); color: #fff; padding: 0.4rem 0.8rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">${formatMinutes(g.start)} - ${formatMinutes(g.end)}</span>`).join('') : '<span style="color: var(--text-muted); font-size: 0.85rem;">Keine passenden Lücken heute.</span>';
 
             grid.innerHTML += `
                 <div class="stat-card" style="grid-column: 1 / -1; align-items: flex-start; background: rgba(0, 120, 255, 0.05); border: 1px solid rgba(0, 120, 255, 0.1);">
