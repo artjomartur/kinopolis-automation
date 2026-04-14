@@ -21,6 +21,9 @@ CREATE TABLE IF NOT EXISTS push_subscriptions (
     endpoint TEXT NOT NULL UNIQUE,
     p256dh TEXT NOT NULL,
     auth TEXT NOT NULL,
+    location TEXT DEFAULT 'kp',
+    shift_start TEXT,
+    shift_end TEXT,
     user_agent TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

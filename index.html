@@ -1754,16 +1754,16 @@
         </div>
         <!-- Tasks Section (Auslässe & Posterwechsel) -->
         <div id="auslaesse-section-container" class="card-container auslaesse-container glass live-section" style="display: none;">
-            <div class="card-header">
-                <div class="header-left auslass-header-small">
+            <div class="card-header" style="flex-wrap: wrap; gap: 1rem; padding: 1rem 1.5rem;">
+                <div class="header-left auslass-header-small" style="min-width: 200px;">
                     <span class="alert-icon-small">📋</span>
                     <h2 id="tasks-title">Tages-Aufgaben</h2>
                     <span id="auslass-count-badge" class="badge">0</span>
-                    <span class="auslass-disclaimer">Auslässe: Ca. Ende + 30m | Poster: 30m nach Start</span>
+                    <span class="auslass-disclaimer" id="tasks-disclaimer">Auslässe: Ca. Ende + 30m | Poster: 20m nach Start</span>
                 </div>
-                <div style="display: flex; gap: 0.5rem; align-items: center; margin-left: auto; margin-right: 1rem;">
+                <div style="display: flex; gap: 0.5rem; align-items: center; margin-left: auto;">
                     <input type="file" id="plan-scan-input" accept="image/*" capture="environment" style="display: none;" onchange="handlePlanScan(this)">
-                    <button class="btn-primary" onclick="document.getElementById('plan-scan-input').click()" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 12px; background: linear-gradient(135deg, #0078FF, #00d2ff); box-shadow: 0 4px 15px rgba(0, 120, 255, 0.3);">
+                    <button class="btn-primary" onclick="document.getElementById('plan-scan-input').click()" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 12px; background: linear-gradient(135deg, #0078FF, #00d2ff); box-shadow: 0 4px 15px rgba(0, 120, 255, 0.3); white-space: nowrap;">
                         📸 Plan scannen
                     </button>
                 </div>
@@ -2101,7 +2101,10 @@
 
                     const res = await fetch('/api/push/subscribe', {
                         method: 'POST',
-                        body: JSON.stringify(newSub),
+                        body: JSON.stringify({ 
+                            sub: newSub, 
+                            location: currentCity
+                        }),
                         headers: { 'Content-Type': 'application/json' }
                     });
 
@@ -3609,8 +3612,8 @@
                 
                 <h3 style="color: var(--warning-yellow); font-size: 1.1rem; margin-bottom: 0.5rem;">💡 Geplante Add-Ons (Zukunft):</h3>
                 <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.5;">
-                    <li><strong>Als App installieren (PWA):</strong> Demnächst als Vollbild-App auf dem Homescreen speicherbar.</li>
-                    <li><strong>Verlorene Gegenstände (Global):</strong> Ein komplett digitales Fundbuch für das ganze Team (Testversion aktuell schon "Lokal" verfügbar!).</li>
+                    <li><strong>🔒 Rollen-Login:</strong> Dedizierter Login für BL / TL / Dienstplan-Service (standortbasiert).</li>
+                    <li><strong>📅 Dienstplan-Integration:</strong> Automatisierte Pausen- und Schichtplanung (ATOSS Sync).</li>
                     <li><strong>Dunkelmodus / Dark Mode:</strong> Optimiertes Design für späte Schichten.</li>
                 </ul>
                 

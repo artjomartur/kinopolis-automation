@@ -415,21 +415,24 @@ async function encryptPayload(sub, payload) {
 // --- PUSH API ENDPOINTS ---
 app.post('/api/push/subscribe', async (c) => {
     try {
-        const sub = await c.req.json();
-        if (!sub.endpoint || !sub.keys || !sub.keys.p256dh || !sub.keys.auth) {
+        const payload = await c.req.json();
+        const { sub, location } = payload;
+        
+        if (!sub || !sub.endpoint || !sub.keys || !sub.keys.p256dh || !sub.keys.auth) {
             return c.json({ error: 'Invalid subscription object' }, 400);
         }
 
         if (c.env.DB) {
             // Upsert subscription
             await c.env.DB.prepare(`
-                INSERT INTO push_subscriptions (endpoint, p256dh, auth, user_agent)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO push_subscriptions (endpoint, p256dh, auth, location, user_agent)
+                VALUES (?, ?, ?, ?, ?)
                 ON CONFLICT(endpoint) DO UPDATE SET
                 p256dh = excluded.p256dh,
                 auth = excluded.auth,
+                location = excluded.location,
                 created_at = CURRENT_TIMESTAMP
-            `).bind(sub.endpoint, sub.keys.p256dh, sub.keys.auth, c.req.header('user-agent')).run();
+            `).bind(sub.endpoint, sub.keys.p256dh, sub.keys.auth, location || 'kp', c.req.header('user-agent')).run();
         }
 
         return c.json({ success: true });
@@ -598,12 +601,23 @@ app.notFound((c) => {
 });
 
 // --- BROADCAST HELPER ---
-async function sendPushToAll(env, payload) {
+async function sendPushToAll(env, payload, locationFilter = null) {
     if (!env.DB) return;
     
-    const subscriptions = await env.DB.prepare('SELECT * FROM push_subscriptions').all();
+    let query = 'SELECT * FROM push_subscriptions';
+    const params = [];
+    if (locationFilter) {
+        query += ' WHERE location = ?';
+        params.push(locationFilter);
+    }
+    const subscriptions = await env.DB.prepare(query).bind(...params).all();
     const results = [];
     
+    // Get current time in German timezone for shift filtering
+    const berlinTime = new Date().toLocaleString("en-GB", { timeZone: "Europe/Berlin", hour: '2-digit', minute: '2-digit' });
+    const [nowH, nowM] = berlinTime.split(':').map(Number);
+    const nowTotalMin = nowH * 60 + nowM;
+
     for (const sub of subscriptions.results) {
         try {
             const authHeader = await createVapidHeader(sub.endpoint, env);
@@ -650,92 +664,111 @@ export default {
     },
 
     async scheduled(event, env, ctx) {
-        // Run Kinopolis Cron logic
         console.log('Running Scheduled Push Checks...');
         if (!env.DB) return;
 
-        // 1. Fetch current sessions for Darmstadt (kp)
-        // We use the internal fetch logic or just Call our own API
-        const baseUrl = 'https://kinopolis-automation.artjombecker.com'; // Change to absolute if needed or use env
-        const res = await fetch('https://www.kinopolis.de/kp/programm');
-        if (!res.ok) return;
+        // 1. Get all unique locations that have subscribers
+        const locRes = await env.DB.prepare('SELECT DISTINCT location FROM push_subscriptions').all();
+        const locations = locRes.results.map(r => r.location);
+        if (locations.length === 0) return;
 
-        // For simplicity in the worker, we might want a simpler way to get the session JSON
-        // Since the worker logic for parsing is already in app.get('/api/sessions'),
-        // we can theoretically call Hono internally or just replicate the fetch.
-        // Let's use the local API endpoint if possible:
-        const sessionsRes = await app.request('/api/sessions?location=kp', {}, env);
-        if (!sessionsRes.ok) return;
-        const halls = await sessionsRes.json();
-        
         const now = new Date();
         const currentMinutes = now.getHours() * 60 + now.getMinutes();
-        
-        for (const hall of halls) {
-            for (const s of hall.sessions) {
-                if (!s.time || !s.time.includes(':')) continue;
-                const [h, m] = s.time.split(':').map(Number);
-                const startMin = h * 60 + m;
-                const diff = startMin - currentMinutes;
+        const todayStr = now.toISOString().split('T')[0];
 
-                // --- ZE ALERT ---
-                if (diff > 0 && diff <= 15 && s.sold > 50) {
-                    const alertHash = `ze-${hall.name}-${s.time}-${s.title}`;
-                    const existing = await env.DB.prepare('SELECT id FROM notification_state WHERE alert_hash = ?').bind(alertHash).first();
-                    
-                    if (!existing) {
-                        await env.DB.prepare('INSERT INTO notification_state (alert_hash) VALUES (?)').bind(alertHash).run();
-                        await sendPushToAll(env, {
-                            title: '🛂 ZE Nötig: ' + hall.name,
-                            body: `${s.title} beginnt in ${diff} Min. (${s.sold} Gäste). Bitte Ausweise kontrollieren!`,
-                            tag: 'ze-alert',
-                            data: { url: '/' }
-                        });
+        for (const loc of locations) {
+            console.log(`Checking alerts for: ${loc}`);
+            try {
+                // Fetch sessions for this location
+                const sessionsRes = await app.request(`/api/sessions?location=${loc}`, {}, env);
+                if (!sessionsRes.ok) continue;
+                const halls = await sessionsRes.json();
+
+                for (const hall of halls) {
+                    const sessions = hall.sessions;
+                    for (let i = 0; i < sessions.length; i++) {
+                        const s = sessions[i];
+                        if (!s.time || !s.time.includes(':')) continue;
+                        const [h, m] = s.time.split(':').map(Number);
+                        const startMin = h * 60 + m;
+                        const diff = startMin - currentMinutes;
+
+                        // --- ZE ALERT (15m before start) ---
+                        if (diff > 0 && diff <= 15 && s.sold > 50) {
+                            const alertHash = `ze-${loc}-${hall.name}-${s.time}-${s.title}`;
+                            const existing = await env.DB.prepare('SELECT id FROM notification_state WHERE alert_hash = ?').bind(alertHash).first();
+                            
+                            if (!existing) {
+                                await env.DB.prepare('INSERT INTO notification_state (alert_hash) VALUES (?)').bind(alertHash).run();
+                                await sendPushToAll(env, {
+                                    title: 'Check-In: ' + hall.name,
+                                    body: `${s.title} beginnt in ${diff} Min. (${s.sold} Gäste). Bitte Ausweise kontrollieren!`,
+                                    tag: 'ze-alert'
+                                }, loc);
+                            }
+                        }
+
+                        // --- POSTER ALERT (20m after start) ---
+                        // Show NEXT movie and its poster image
+                        if (diff < 0 && diff >= -30 && diff <= -20) {
+                            const nextS = sessions[i + 1];
+                            if (nextS && s.title !== nextS.title) {
+                                const alertHash = `poster-${loc}-${hall.name}-${s.time}-${nextS.title}`;
+                                const existing = await env.DB.prepare('SELECT id FROM notification_state WHERE alert_hash = ?').bind(alertHash).first();
+                                
+                                if (!existing) {
+                                    await env.DB.prepare('INSERT INTO notification_state (alert_hash) VALUES (?)').bind(alertHash).run();
+                                    await sendPushToAll(env, {
+                                        title: '🖼️ Plakatwechsel: ' + hall.name,
+                                        body: `Film läuft seit 20 Min. Bitte Plakat für "${nextS.title}" (${nextS.time} Uhr) einhängen!`,
+                                        image: nextS.poster,
+                                        tag: 'poster-alert'
+                                    }, loc);
+                                }
+                            }
+                        }
+
+                        // --- EXIT ALERT (Duration-based) ---
+                        const endMin = startMin + s.duration;
+                        const endDiff = endMin - currentMinutes;
+                        if (endDiff > -5 && endDiff <= 5 && s.duration > 0) {
+                            const alertHash = `exit-${loc}-${hall.name}-${s.time}-${s.title}`;
+                            const existing = await env.DB.prepare('SELECT id FROM notification_state WHERE alert_hash = ?').bind(alertHash).first();
+                            
+                            if (!existing) {
+                                await env.DB.prepare('INSERT INTO notification_state (alert_hash) VALUES (?)').bind(alertHash).run();
+                                await sendPushToAll(env, {
+                                    title: '🚪 Auslass läuft: ' + hall.name,
+                                    body: `${s.title} endet jetzt. Bitte Auslass vorbereiten!`,
+                                    tag: 'exit-alert'
+                                }, loc);
+                            }
+                        }
                     }
                 }
-
-                // --- POSTER ALERT ---
-                // Movie running for ~30 mins
-                if (diff < 0 && diff >= -40 && diff <= -30) {
-                    const alertHash = `poster-${hall.name}-${s.time}-${s.title}`;
-                    const existing = await env.DB.prepare('SELECT id FROM notification_state WHERE alert_hash = ?').bind(alertHash).first();
-                    
-                    if (!existing) {
-                        await env.DB.prepare('INSERT INTO notification_state (alert_hash) VALUES (?)').bind(alertHash).run();
-                        await sendPushToAll(env, {
-                            title: '🖼️ Plakatwechsel: ' + hall.name,
-                            body: `${s.title} läuft seit 30 Min. Das Plakat kann jetzt gewechselt werden.`,
-                            tag: 'poster-alert',
-                            data: { url: '/' }
-                        });
-                    }
-                }
+            } catch (err) {
+                console.error(`Scheduled loop error for ${loc}:`, err);
             }
         }
 
-        // 2. Check SCANNED PLANS for Poster Changes
-        const today = new Date().toISOString().split('T')[0];
-        const scannedResults = await env.DB.prepare('SELECT * FROM scanned_plans WHERE date = ?').bind(today).all();
-        
+        // 2. Check SCANNED PLANS for Poster Changes (Keep legacy support, but could be merged later)
+        const scannedResults = await env.DB.prepare('SELECT * FROM scanned_plans WHERE date = ?').bind(todayStr).all();
         for (const row of scannedResults.results) {
             if (!row.credits_time || !row.credits_time.includes(':')) continue;
             const [h, m] = row.credits_time.split(':').map(Number);
             const alertMin = h * 60 + m;
             const diff = alertMin - currentMinutes;
 
-            // Trigger when credits start (or slightly before/after)
             if (diff >= -5 && diff <= 5) {
                 const alertHash = `scanned-poster-${row.hall}-${row.credits_time}-${row.movie}`;
                 const existing = await env.DB.prepare('SELECT id FROM notification_state WHERE alert_hash = ?').bind(alertHash).first();
-                
                 if (!existing) {
                     await env.DB.prepare('INSERT INTO notification_state (alert_hash) VALUES (?)').bind(alertHash).run();
                     await sendPushToAll(env, {
                         title: '🖼️ Plakatwechsel: ' + row.hall,
                         body: `Laut Plan: ${row.movie} Credits beginnen jetzt (${row.credits_time}). Plakat bereit machen!`,
-                        tag: 'poster-alert',
-                        data: { url: '/' }
-                    });
+                        tag: 'poster-alert'
+                    }); // Sends to all as scanned_plans has no location yet
                 }
             }
         }
