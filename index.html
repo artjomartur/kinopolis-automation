@@ -3383,7 +3383,7 @@
                                 <div class="time-end">${endTime}</div>
                             </div>
                             <div class="session-info">
-                                <div class="movie-title" title="${s.title}">${s.title}</div>
+                                <div class="movie-title" title="${s.title}" onclick="openMovieDetail('${s.movieLink || ''}')" style="cursor: pointer;">${s.title}</div>
                                 <div class="meta-tags">
                                     <span class="tag">${s.duration} Min</span>
                                     ${getFskTagsHtml(s)}
@@ -3704,7 +3704,7 @@
                 const hour = s.time.split(':')[0] + ':00';
                 hourStats[hour] = (hourStats[hour] || 0) + s.sold;
                 
-                if (!movieStats[s.title]) movieStats[s.title] = { sold: 0, poster: s.poster };
+                if (!movieStats[s.title]) movieStats[s.title] = { sold: 0, poster: s.poster, movieLink: s.movieLink };
                 movieStats[s.title].sold += s.sold;
                 
                 totalSold += s.sold;
@@ -3719,7 +3719,7 @@
             // Top Film
             let topMovie = { title: 'Keine Daten', sold: 0, poster: null };
             for (const [title, stats] of Object.entries(movieStats)) {
-                if (stats.sold > topMovie.sold) topMovie = { title, sold: stats.sold, poster: stats.poster };
+                if (stats.sold > topMovie.sold) topMovie = { title, sold: stats.sold, poster: stats.poster, movieLink: stats.movieLink };
             }
 
             // Peak Hour
@@ -3738,7 +3738,7 @@
                     <span class="stat-value">${totalSold}</span>
                     <div class="stat-subtext">Tickets heute</div>
                 </div>
-                <div class="stat-card poster-card">
+                <div class="stat-card poster-card" onclick="openMovieDetail('${topMovie.movieLink || ''}')" style="cursor: pointer;">
                     ${topMovie.poster ? `<img src="${topMovie.poster}" class="stat-poster">` : ''}
                     <div class="stat-info">
                         <span class="stat-label">Top Film</span>
@@ -3751,7 +3751,7 @@
                     <span class="stat-value">${peakHour.time}</span>
                     <div class="stat-subtext">${peakHour.sold} Besucher gleichzeitig</div>
                 </div>
-                <div class="stat-card poster-card">
+                <div class="stat-card poster-card" onclick="openMovieDetail('${topSession.movieLink || ''}')" style="cursor: pointer;">
                     ${topSession.poster ? `<img src="${topSession.poster}" class="stat-poster">` : ''}
                     <div class="stat-info">
                         <span class="stat-label">Bestausgelastet</span>
