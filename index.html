@@ -2117,7 +2117,7 @@
                                 <div style="font-size: 0.8rem; color: var(--text-muted);">(Tagesabschlusszählung)</div>
                             </div>
                         </a>
-                        <a href="#" target="_blank" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;">
+                        <a href="https://eu.atoss.com" target="_blank" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;">
                             <span style="font-size: 2rem;">📅</span>
                             <div>
                                 <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Dienstplan</div>
@@ -2337,17 +2337,23 @@
                 
                 content.innerHTML = `
                     <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                        <h2 style="font-size: 2rem; margin: 0; background: linear-gradient(180deg, #fff, #b3b3b3); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">\${data.title}</h2>
+                        <h2 style="font-size: 2rem; margin: 0; background: linear-gradient(180deg, #fff, #b3b3b3); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">${data.title}</h2>
                         
                         <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                            <span class="badge" style="background: rgba(255,255,255,0.1); color: #fff;">\${data.fsk}</span>
-                            <span class="badge" style="background: rgba(255,255,255,0.1); color: #fff;">\${data.duration} Min.</span>
-                            <span class="badge" style="background: var(--primary-blue); color: #fff;">\${data.genre}</span>
+                            <span class="badge" style="background: rgba(255,255,255,0.1); color: #fff;">${data.fsk}</span>
+                            <span class="badge" style="background: rgba(255,255,255,0.1); color: #fff;">${data.duration} Min.</span>
+                            <span class="badge" style="background: var(--primary-blue); color: #fff;">${data.genre}</span>
                         </div>
+
+                        ${data.trailerUrl ? `
+                        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                            <iframe src="${data.trailerUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" allowfullscreen></iframe>
+                        </div>
+                        ` : ''}
                         
                         <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
                             <h3 style="font-size: 1.1rem; margin-top: 0; color: var(--primary-blue);">Inhalt</h3>
-                            <p style="color: var(--text-muted); line-height: 1.6; font-size: 0.95rem; margin-bottom: 0;">\${data.synopsis}</p>
+                            <p style="color: var(--text-muted); line-height: 1.6; font-size: 0.95rem; margin-bottom: 0;">${data.synopsis}</p>
                         </div>
                         
                         <div style="display: flex; gap: 1rem;">

@@ -65,12 +65,26 @@ app.get('/api/movie-details', async (c) => {
 
         const genre = $('.movie__specs-el:contains("Genre"), .prog2__movie-info-item:contains("Genre")').text().replace(/Genre:?/i, '').trim();
 
+        // Trailer Extraction
+        let trailerUrl = null;
+        const videoId = $('[data-video-id]').first().attr('data-video-id');
+        if (videoId) {
+            trailerUrl = `https://www.youtube.com/embed/${videoId}`;
+        } else {
+            const ytLink = $('a[href*="youtube.com/watch"], a[href*="youtu.be"]').first().attr('href');
+            if (ytLink) {
+                const ytMatch = ytLink.match(/(?:v=|\/)([0-9A-Za-z_-]{11})/);
+                if (ytMatch) trailerUrl = `https://www.youtube.com/embed/${ytMatch[1]}`;
+            }
+        }
+
         return c.json({
             title,
             synopsis,
             duration,
             fsk,
             genre,
+            trailerUrl,
             url
         });
     } catch (e) {
