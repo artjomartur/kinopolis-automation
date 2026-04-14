@@ -1690,6 +1690,12 @@
             white-space: nowrap;
         }
 
+        .restock-btn:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
         .tab-btn:hover {
             color: white;
             background: rgba(255, 255, 255, 0.05);
@@ -1833,20 +1839,32 @@
         </div>
 
         <!-- DIGITALER FUNK (Nachschub-Ruf) -->
-        <div class="card-container glass tools-section" id="restock-section" style="display: none; margin-bottom: 2rem; border-color: rgba(255, 165, 0, 0.3);">
+        <div class="card-container glass tools-section" id="restock-section" style="display: none; margin-bottom: 2rem;">
             <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <span class="alert-icon-small">📡</span>
+                    <span class="alert-icon-small" style="font-size: 1.5rem;">📡</span>
                     <h2 style="font-size: 1.25rem;">Nachschub-Ruf (Digitaler Funk)</h2>
                 </div>
             </div>
             <div style="padding: 1rem 1.5rem 1.5rem;">
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Sende sofort eine Push-Nachricht an alle Kollegen vor Ort.</p>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-                    <button class="btn-primary" onclick="triggerRestock('🍿 Popcorn')" style="background: linear-gradient(135deg, #f1c40f, #f39c12); color: #000; border: none; font-weight: bold; padding: 1rem;">🍿 Popcorn leer</button>
-                    <button class="btn-primary" onclick="triggerRestock('🌮 Nachos')" style="background: linear-gradient(135deg, #e67e22, #d35400); color: #fff; border: none; font-weight: bold; padding: 1rem;">🌮 Nachos leer</button>
-                    <button class="btn-primary" onclick="triggerRestock('🍦 Eis')" style="background: linear-gradient(135deg, #3498db, #2980b9); color: #fff; border: none; font-weight: bold; padding: 1rem;">🍦 Eis / Konfekt</button>
-                    <button class="btn-primary" onclick="triggerRestock('🥤 Getränke')" style="background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; border: none; font-weight: bold; padding: 1rem;">🥤 Getränke / Sirop</button>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Sende sofort eine unauffällige Push-Nachricht an Kollegen vor Ort.</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem;">
+                    <button onclick="triggerRestock('🍿 Popcorn')" class="restock-btn" style="background: rgba(241, 196, 15, 0.1); border: 1px solid rgba(241, 196, 15, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
+                        <span style="font-size: 2rem;">🍿</span>
+                        <span style="font-weight: 600; font-size: 0.9rem;">Popcorn</span>
+                    </button>
+                    <button onclick="triggerRestock('🌮 Nachos')" class="restock-btn" style="background: rgba(230, 126, 34, 0.1); border: 1px solid rgba(230, 126, 34, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
+                        <span style="font-size: 2rem;">🌮</span>
+                        <span style="font-weight: 600; font-size: 0.9rem;">Nachos</span>
+                    </button>
+                    <button onclick="triggerRestock('🍦 Eis')" class="restock-btn" style="background: rgba(52, 152, 219, 0.1); border: 1px solid rgba(52, 152, 219, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
+                        <span style="font-size: 2rem;">🍦</span>
+                        <span style="font-weight: 600; font-size: 0.9rem;">Eis / Konfekt</span>
+                    </button>
+                    <button onclick="triggerRestock('🥤 Getränke')" class="restock-btn" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
+                        <span style="font-size: 2rem;">🥤</span>
+                        <span style="font-weight: 600; font-size: 0.9rem;">Getränke</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -2510,6 +2528,12 @@
 
             if (!message) return alert('Bitte Nachricht eingeben.');
 
+            // Ändere Button Text für Ladescreen
+            const btn = document.getElementById('log-save-btn');
+            const ogText = btn.innerHTML;
+            btn.innerHTML = '⏳ Speichern...';
+            btn.disabled = true;
+
             try {
                 const res = await fetch('/api/logs', {
                     method: 'POST',
@@ -2520,9 +2544,15 @@
                     closeLogModal();
                     document.getElementById('log-message').value = '';
                     loadLogs();
+                } else {
+                    const data = await res.json();
+                    alert('Fehler beim Speichern: ' + (data.error || 'Server Fehler'));
                 }
             } catch (e) {
-                alert('Speichern fehlgeschlagen.');
+                alert('Speichern fehlgeschlagen: Netzwerk- oder Serverfehler.');
+            } finally {
+                btn.innerHTML = ogText;
+                btn.disabled = false;
             }
         }
 
@@ -4008,6 +4038,7 @@
                 <h3 style="color: var(--warning-yellow); font-size: 1.1rem; margin-bottom: 0.5rem;">💡 Geplante Add-Ons (Zukunft):</h3>
                 <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.5;">
                     <li><strong>🔒 Rollen-Login:</strong> Dedizierter Login für BL / TL / Dienstplan-Service (standortbasiert).</li>
+                    <li><strong>🛠️ Admin Panel:</strong> Einstellungs-Seite, um das Dashboard nach Belieben und standortspezifisch anzupassen.</li>
                     <li><strong>📅 Dienstplan-Integration:</strong> Automatisierte Pausen- und Schichtplanung (ATOSS Sync).</li>
                     <li><strong>Dunkelmodus / Dark Mode:</strong> Optimiertes Design für späte Schichten.</li>
                 </ul>

@@ -571,10 +571,16 @@ app.post('/api/scan-plan', async (c) => {
             }
         }
         
+        let data;
         try {
-            const data = JSON.parse(jsonStr);
-            
-            // Save to D1
+            data = JSON.parse(jsonStr);
+        } catch (e) {
+            console.error('AI JSON Parse Error:', jsonStr);
+            return c.json({ error: 'JSON Parse Error', raw: jsonStr }, 500);
+        }
+        
+        // Save to D1
+        try {
             if (c.env.DB && Array.isArray(data)) {
                 const today = new Date().toISOString().split('T')[0];
                 for (const row of data) {
@@ -588,11 +594,11 @@ app.post('/api/scan-plan', async (c) => {
                     `).bind(row.hall, row.movie, row.start_time, row.credits_time, row.end_time, today).run();
                 }
             }
-            
             return c.json({ success: true, data });
-        } catch (e) {
-            console.error('AI JSON Parse Error:', jsonStr);
-            return c.json({ error: 'JSON Parse Error', raw: jsonStr }, 500);
+        } catch (dbError) {
+            console.error('D1 Database Error:', dbError);
+            // Return success anyway, since the data was parsed correctly
+            return c.json({ success: true, data, dbWarning: 'Konnte Plan nicht in Datenbank speichern.' });
         }
     } catch (e) {
         console.error('Scan error:', e);
