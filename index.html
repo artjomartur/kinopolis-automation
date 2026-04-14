@@ -499,8 +499,22 @@
 
         @media (max-width: 768px) {
             .container {
-                padding: 0 1rem 2rem;
+                padding: 0 0 2rem;
             }
+            /* Cards go full width edge-to-edge on mobile */
+            .card-container,
+            .news-section,
+            .auslaesse-container,
+            .notes-section {
+                border-radius: 0 !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+            .nav-tabs {
+                border-radius: 0;
+                padding: 0.5rem 0.5rem;
+            }
+
             .dashboard-header {
                 margin-bottom: 2rem;
                 gap: 1rem;
@@ -1729,7 +1743,7 @@
             box-shadow: 0 4px 15px rgba(0, 120, 255, 0.3);
         }
         
-        .tools-section, .info-section, .stats-section, .kontakte-section, .intern-section { display: none !important; }
+        .tools-section, .info-section, .stats-section, .kontakte-section, .intern-section, .einstellungen-section { display: none !important; }
         
         body.tools-active .tools-section { display: block !important; }
         body.tools-active .kontakte-section { display: none !important; }
@@ -1741,6 +1755,9 @@
 
         body.intern-active .intern-section { display: block !important; }
         body.intern-active .live-section { display: none !important; }
+
+        body.einstellungen-active .einstellungen-section { display: block !important; }
+        body.einstellungen-active .live-section { display: none !important; }
 
         body.info-active .info-section { display: block !important; }
         body.info-active .live-section { display: none !important; }
@@ -1799,6 +1816,7 @@
             <button class="tab-btn tools-tab-btn" onclick="switchTab('tools', this)">📡 Funk</button>
             <button class="tab-btn" onclick="switchTab('intern', this)">🛠️ Tools</button>
             <button class="tab-btn" onclick="switchTab('info', this)">🍿 Filme</button>
+            <button class="tab-btn" onclick="switchTab('einstellungen', this)">⚙️ Einstellungen</button>
         </div>
 
         <!-- UPCOMING MOVIES SECTION -->
@@ -2178,7 +2196,7 @@
         </div>
 
         <!-- Interner Kontakt (BL) -->
-        <div class="card-container glass intern-section" style="margin-bottom: 1rem; border-color: rgba(0, 120, 255, 0.4); background: linear-gradient(135deg, rgba(0, 120, 255, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
+        <div class="card-container glass einstellungen-section" style="margin-bottom: 1rem; border-color: rgba(0, 120, 255, 0.4); background: linear-gradient(135deg, rgba(0, 120, 255, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
             <div class="card-header" style="padding: 1.25rem;">
                 <a href="#" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem; width: 100%;" onclick="openFeedback('bl'); return false;">
                     <div style="background: rgba(0, 120, 255, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📩</div>
@@ -2264,7 +2282,7 @@
         </div>
 
         <!-- Push Notifications Settings -->
-        <div class="card-container glass intern-section" style="margin-bottom: 1rem;">
+        <div class="card-container glass einstellungen-section" style="margin-bottom: 1rem;">
             <div class="card-header" onclick="toggleSection('push-settings-content', 'push-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
                     <span class="alert-icon-small">🔔</span>
@@ -2354,7 +2372,7 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
-            document.body.classList.remove('tools-active', 'info-active', 'stats-active', 'kontakte-active', 'intern-active');
+            document.body.classList.remove('tools-active', 'info-active', 'stats-active', 'kontakte-active', 'intern-active', 'einstellungen-active');
             
             if (view === 'tools') {
                 document.body.classList.add('tools-active');
@@ -2369,6 +2387,8 @@
             } else if (view === 'intern') {
                 document.body.classList.add('intern-active');
                 loadLogs();
+            } else if (view === 'einstellungen') {
+                document.body.classList.add('einstellungen-active');
             }
         }
 
