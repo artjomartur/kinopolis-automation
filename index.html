@@ -1838,6 +1838,29 @@
             </div>
         </div>
 
+        <!-- Internal Message Modal -->
+        <div id="message-modal" class="modal">
+            <div class="modal-content glass" style="max-width: 450px;">
+                <h2 style="font-family: 'Outfit', sans-serif;">📢 Neue interne Mitteilung</h2>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Schreibe eine Nachricht für das gesamte Team (Sichtbar für alle).</p>
+                
+                <input type="text" id="msg-title" placeholder="Kurzer Titel (z.B. Mario Film Menü)" class="input-field" style="margin-bottom: 1rem;">
+                <textarea id="msg-content" placeholder="Inhalt der Nachricht..." class="input-field" style="height: 120px; resize: none;"></textarea>
+                
+                <div style="margin-top: 1rem;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted);">Absender (optional)</label>
+                    <input type="text" id="msg-author" placeholder="Dein Name oder Position" class="input-field" style="margin-top: 0.3rem;">
+                </div>
+                
+                <div class="modal-actions" style="margin-top: 2rem;">
+                    <button class="btn-secondary" onclick="closeMessageModal()">Abbrechen</button>
+                    <button class="btn-primary" id="msg-send-btn" onclick="sendMessage()" style="background: var(--primary-red); border: none; padding: 0.75rem 1.5rem; border-radius: 12px; color: white; font-weight: 700;">
+                        🚀 Senden
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- DIGITALER FUNK (Nachschub-Ruf) -->
         <div class="card-container glass tools-section" id="restock-section" style="display: none; margin-bottom: 2rem;">
             <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
