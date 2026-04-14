@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kinopolis Automation Dashboard</title>
     <!-- Favicon: Kinopolis Logo -->
     <link rel="icon" href="./icon.png" type="image/png">
@@ -1272,12 +1272,34 @@
                 padding: 0.6rem 1rem !important;
                 font-size: 0.9rem !important;
             }
+            .stats-section {
+                padding: 1.5rem 1rem !important;
+                margin-top: 2rem !important;
+                border-radius: 20px !important;
+            }
+            .chart-container {
+                margin-top: 2rem !important;
+                padding: 1rem !important;
+            }
+            .btn-push-premium {
+                padding: 1rem !important;
+                gap: 0.75rem !important;
+            }
+            .push-info-text h4 {
+                font-size: 1rem !important;
+            }
+            .push-info-text p {
+                font-size: 0.8rem !important;
+            }
         }
 
         /* Very small screens */
         @media (max-width: 420px) {
             .brand h1 {
                 display: none; /* Show only logo on tiny screens */
+            }
+            .dashboard-title {
+                font-size: 1.75rem !important;
             }
             .logo {
                 height: 30px;
@@ -1286,6 +1308,12 @@
                 border-radius: 0;
                 background: transparent;
                 box-shadow: none;
+            }
+            .stat-value {
+                font-size: 1.8rem !important;
+            }
+            .stat-label {
+                font-size: 0.8rem !important;
             }
         }
 
@@ -3451,8 +3479,8 @@
             try {
                 let compressedFile;
                 try {
-                    // Perfect balance (500px) for V2.9
-                    compressedFile = await compressImage(file, 500, 0.6);
+                    // Higher resolution (1200px) for better OCR accuracy
+                    compressedFile = await compressImage(file, 1200, 0.7);
                 } catch (err) {
                     console.warn('Compression failed, falling back to original file:', err);
                     compressedFile = file; // Fallback to raw file
@@ -3509,7 +3537,7 @@
                         } else {
                             reject(new Error('Canvas toBlob failed'));
                         }
-                    }, 'image/jpeg', 0.5);
+                    }, 'image/jpeg', quality);
                 };
                 img.onerror = () => {
                     URL.revokeObjectURL(img.src);
