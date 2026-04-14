@@ -59,14 +59,23 @@ app.get('/api/movie-details', async (c) => {
         // Synopsis: .text is the primary Kinopolis class for the description
         let synopsis = '';
         const synopsisSelectors = [
-            '.text',
+            '.filmdetail__content .text', '#filmdetail .text',
             '.movie__synopsis', '.movie-detail__description', '.movie-info__description',
             '.prog2__synopsis', '.movie__description', '.film-description',
-            '[class*="synopsis"]', '[class*="description"]'
+            '.text'
         ];
+        
         for (const sel of synopsisSelectors) {
-            const t = $(sel).first().text().trim();
-            if (t && t.length > 50) { synopsis = t; break; }
+            const elements = $(sel);
+            elements.each((i, el) => {
+                const t = $(el).text().trim();
+                // Avoid the cinema selection list text
+                if (t && t.length > 50 && !t.includes('Bitte wählen Sie ein Kino aus')) {
+                    synopsis = t;
+                    return false; // break each
+                }
+            });
+            if (synopsis) break;
         }
         
         // Fallback: og:description meta tag
@@ -107,7 +116,7 @@ app.get('/api/movie-details', async (c) => {
             || html.match(/FSK[\s-]*(\d+)/i);
         const fsk = fskMatch ? `FSK ${fskMatch[1]}` : 'FSK ?';
 
-        const genreEl = $('.movie__specs-el:contains("Genre"), .prog2__movie-info-item:contains("Genre"), [class*="genre"]').first();
+        const genreEl = $('.movie__specs-el:contains("Genre"), .prog2__movie-info-item:contains("Genre"), [class*="genre"], .filmdetail__specs-item').first();
         const genre = genreEl.text().replace(/Genre:?/i, '').trim() || 'Film';
 
         // Trailer Extraction
@@ -719,20 +728,23 @@ app.get('/api/upcoming', async (c) => {
         
         const sliderHtml = sliderMatch[0];
         
-        // Match movie blocks
-        const blocks = sliderHtml.split('class="img-fluid"').slice(1);
+        // Match movie blocks in the 'coming-soon-slider'
+        const blocks = sliderHtml.split('<div class="img-wrapper">').slice(1);
         const upcoming = [];
         
         blocks.forEach(block => {
+            const hrefMatch = block.match(/href="([^"]+)"/);
             const srcMatch = block.match(/src="([^"]+)"/);
             const altMatch = block.match(/alt="([^"]+)"/);
             
             if (srcMatch && altMatch) {
-                let titleDecoded = altMatch[1].replace(/&#x20;/g, ' ').replace(/&#x3A;/g, ':').replace(/&#xE4;/g, 'ä').replace(/&#xFC;/g, 'ü').replace(/&#xF6;/g, 'ö');
+                let titleDecoded = altMatch[1].replace(/&#x([0-9A-Fa-f]+);/g, (match, hex) => String.fromCharCode(parseInt(hex, 16)));
+                let movieLink = hrefMatch ? (hrefMatch[1].startsWith('http') ? hrefMatch[1] : `https://www.kinopolis.de${hrefMatch[1]}`) : null;
                 
                 upcoming.push({
                     title: titleDecoded,
-                    poster: srcMatch[1]
+                    poster: srcMatch[1],
+                    movieLink: movieLink
                 });
             }
         });
@@ -764,15 +776,20 @@ app.get('/api/logs', async (c) => {
 });
 
 app.post('/api/logs', async (c) => {
-    const { location, author, message, priority } = await c.req.json();
-    if (!c.env.DB || !message) return c.json({ error: 'Missing data' }, 400);
-    
-    await c.env.DB.prepare(`
-        INSERT INTO shift_logs (location, author, message, priority)
-        VALUES (?, ?, ?, ?)
-    `).bind(location || 'kp', author || 'Anonym', message, priority || 'normal').run();
-    
-    return c.json({ success: true });
+    try {
+        const { location, author, message, priority } = await c.req.json();
+        if (!c.env.DB || !message) return c.json({ error: 'Missing data or DB connection' }, 400);
+        
+        await c.env.DB.prepare(`
+            INSERT INTO shift_logs (location, author, message, priority)
+            VALUES (?, ?, ?, ?)
+        `).bind(location || 'kp', author || 'Anonym', message, priority || 'normal').run();
+        
+        return c.json({ success: true });
+    } catch (e) {
+        console.error('Log save error:', e);
+        return c.json({ error: `Database error: ${e.message}` }, 500);
+    }
 });
 
 // --- RESTOCK CALL API ---

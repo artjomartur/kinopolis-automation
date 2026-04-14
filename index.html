@@ -492,7 +492,7 @@
         }
 
         .container {
-            max-width: 950px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 0 4rem 3rem;
         }
@@ -1743,6 +1743,76 @@
             background: linear-gradient(135deg, var(--primary-blue), #00d2ff);
             box-shadow: 0 4px 15px rgba(0, 120, 255, 0.3);
         }
+
+        /* Contact Cards */
+        .contact-card {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 1rem 1.25rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .contact-card:hover {
+            background: rgba(255,255,255,0.09);
+            transform: translateY(-2px);
+        }
+        .contact-card.mini {
+            padding: 0.75rem 1rem;
+        }
+        .contact-card-inner {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+        }
+        .contact-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .contact-icon.sm {
+            width: 32px;
+            height: 32px;
+            font-size: 1rem;
+        }
+        .contact-icon.bg-red { background: rgba(229,9,20,0.15); border: 1px solid rgba(229,9,20,0.35); }
+        .contact-icon.bg-gold { background: rgba(241,196,15,0.15); border: 1px solid rgba(241,196,15,0.35); }
+        .contact-icon.bg-blue { background: rgba(0,120,255,0.15); border: 1px solid rgba(0,120,255,0.35); }
+        .contact-icon.bg-purple { background: rgba(155,89,182,0.15); border: 1px solid rgba(155,89,182,0.35); }
+        
+        .contact-info { display: flex; flex-direction: column; }
+        .contact-name { font-weight: 600; font-size: 1rem; color: #fff; }
+        .contact-tel { font-size: 0.78rem; color: var(--text-muted); }
+        
+        .contact-dial {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        .contact-dial-sm {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(46,204,113,0.15);
+            border: 1px solid rgba(46,204,113,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+        .contact-dial.bg-green { background: rgba(46,204,113,0.2); border: 1px solid rgba(46,204,113,0.4); }
         
         .tools-section, .info-section, .stats-section, .kontakte-section, .intern-section, .einstellungen-section { display: none !important; }
         
@@ -1839,7 +1909,29 @@
             </div>
         </div>
 
-        <div id="internal-news-container" class="news-section tools-section" style="display: none; margin-bottom: 1rem;">
+        <!-- LEITFADEN & DOKUMENTE -->
+        <div class="card-container glass intern-section" id="docs-section" style="display: none; margin-bottom: 2rem; border-left: 4px solid var(--primary-blue);">
+            <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; width: 100%;">
+                    <span class="alert-icon-small" style="font-size: 1.5rem;">📚</span>
+                    <h2 style="font-size: 1.25rem; flex: 1;">Leitfaden & Dokumente</h2>
+                </div>
+            </div>
+            <div style="padding: 1rem 1.5rem 1.5rem;">
+                <a href="/public/docs/Leitfaden%20schwierige%20G%C3%A4ste.pdf" target="_blank" class="contact-card" style="background: rgba(0, 120, 255, 0.08); border-color: rgba(0, 120, 255, 0.25);">
+                    <div class="contact-card-inner">
+                        <div class="contact-icon sm bg-blue">👔</div>
+                        <div class="contact-info">
+                            <div class="contact-name">Umgang mit schwierigen Gästen</div>
+                            <div class="contact-tel">PDF Dokument • Leitfaden für BL/TL</div>
+                        </div>
+                    </div>
+                    <div class="contact-dial-sm bg-blue" style="width: auto; padding: 0 0.8rem; border-radius: 8px; font-size: 0.75rem; font-weight: 700;">ÖFFNEN</div>
+                </a>
+            </div>
+        </div>
+
+        <div id="internal-news-container" class="news-section intern-section" style="display: none; margin-bottom: 1rem;">
             <div class="card-header glass" style="margin-bottom: 1rem; border-radius: 20px;" onclick="toggleNews()">
                 <div style="display: flex; align-items: center; gap: 0.75rem; width: 100%;">
                     <span class="alert-icon-small">📢</span>
@@ -1915,48 +2007,110 @@
         <!-- KURZWAHL -->
         <div class="card-container glass kontakte-section" id="kurzwahl-section" style="display: none; margin-bottom: 2rem;">
             <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <span class="alert-icon-small" style="font-size: 1.5rem;">📞</span>
                     <h2 style="font-size: 1.25rem;">Kurzwahl</h2>
+                    <span style="font-size: 0.7rem; color: var(--primary-red); font-weight: 800; background: rgba(229,9,20,0.1); padding: 0.2rem 0.5rem; border-radius: 6px; letter-spacing: 0.05em; margin-left: auto;">NUR DARMSTADT</span>
                 </div>
             </div>
-            <div style="padding: 1rem 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
-                <a href="tel:+4961518705928" style="text-decoration: none;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1rem 1.25rem; transition: background 0.2s; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
-                        <div style="display: flex; align-items: center; gap: 0.9rem;">
-                            <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(229,9,20,0.15); border: 1px solid rgba(229,9,20,0.35); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">👔</div>
-                            <div>
-                                <div style="font-weight: 600; font-size: 1rem; color: #fff;">BL</div>
-                                <div style="font-size: 0.78rem; color: var(--text-muted);">+49 6151 87059288</div>
+            <div style="padding: 1rem 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 1.25rem;">
+                
+                <!-- Kategorie: Leitung -->
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="width: 20px; height: 1px; background: rgba(255,255,255,0.1);"></span> Leitung
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 0.6rem;">
+                        <!-- BL -->
+                        <a href="tel:+49615187059288" class="contact-card">
+                            <div class="contact-card-inner">
+                                <div class="contact-icon bg-red">👔</div>
+                                <div class="contact-info">
+                                    <div class="contact-name">BL</div>
+                                    <div class="contact-tel">+49 6151 87059288</div>
+                                </div>
+                            </div>
+                            <div class="contact-dial bg-green">📲</div>
+                        </a>
+                        <!-- TL Grid -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.6rem;">
+                            <a href="tel:+49615187059212" class="contact-card mini">
+                                <div class="contact-card-inner">
+                                    <div class="contact-icon sm bg-gold">⭐</div>
+                                    <div class="contact-name">TL 1</div>
+                                </div>
+                                <div class="contact-dial-sm">📲</div>
+                            </a>
+                            <a href="tel:+49615187059213" class="contact-card mini">
+                                <div class="contact-card-inner">
+                                    <div class="contact-icon sm bg-gold">⭐</div>
+                                    <div class="contact-name">TL 2</div>
+                                </div>
+                                <div class="contact-dial-sm">📲</div>
+                            </a>
+                            <a href="tel:+49615187059214" class="contact-card mini">
+                                <div class="contact-card-inner">
+                                    <div class="contact-icon sm bg-gold">⭐</div>
+                                    <div class="contact-name">TL 3</div>
+                                </div>
+                                <div class="contact-dial-sm">📲</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kategorie: Einlass -->
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="width: 20px; height: 1px; background: rgba(255,255,255,0.1);"></span> Einlass
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem;">
+                        <a href="tel:+49615187059233" class="contact-card mini">
+                            <div class="contact-card-inner">
+                                <div class="contact-icon sm bg-blue">🎟️</div>
+                                <div class="contact-name">Einlass 1</div>
+                            </div>
+                            <div class="contact-dial-sm">📲</div>
+                        </a>
+                        <a href="tel:+49615187059234" class="contact-card mini">
+                            <div class="contact-card-inner">
+                                <div class="contact-icon sm bg-blue">🎟️</div>
+                                <div class="contact-name">Einlass 2</div>
+                            </div>
+                            <div class="contact-dial-sm">📲</div>
+                        </a>
+                        <a href="tel:+49615187059235" class="contact-card mini">
+                            <div class="contact-card-inner">
+                                <div class="contact-icon sm bg-blue">🎟️</div>
+                                <div class="contact-name">Einlass 3</div>
+                            </div>
+                            <div class="contact-dial-sm">📲</div>
+                        </a>
+                        <a href="tel:+49615187059236" class="contact-card mini">
+                            <div class="contact-card-inner">
+                                <div class="contact-icon sm bg-blue">🎟️</div>
+                                <div class="contact-name">Einlass 4</div>
+                            </div>
+                            <div class="contact-dial-sm">📲</div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Kategorie: Verkauf -->
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="width: 20px; height: 1px; background: rgba(255,255,255,0.1);"></span> Verkauf
+                    </div>
+                    <a href="tel:+49615187059203" class="contact-card">
+                        <div class="contact-card-inner">
+                            <div class="contact-icon bg-purple">🍿</div>
+                            <div class="contact-info">
+                                <div class="contact-name">Counter hinten</div>
+                                <div class="contact-tel">+49 6151 87059203</div>
                             </div>
                         </div>
-                        <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(46,204,113,0.2); border: 1px solid rgba(46,204,113,0.4); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">📲</div>
-                    </div>
-                </a>
-                <a href="tel:+4961518705921" style="text-decoration: none;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1rem 1.25rem; transition: background 0.2s; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
-                        <div style="display: flex; align-items: center; gap: 0.9rem;">
-                            <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(241,196,15,0.15); border: 1px solid rgba(241,196,15,0.35); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">⭐</div>
-                            <div>
-                                <div style="font-weight: 600; font-size: 1rem; color: #fff;">TL 1</div>
-                                <div style="font-size: 0.78rem; color: var(--text-muted);">+49 6151 87059212</div>
-                            </div>
-                        </div>
-                        <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(46,204,113,0.2); border: 1px solid rgba(46,204,113,0.4); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">📲</div>
-                    </div>
-                </a>
-                <a href="tel:+4961518705923" style="text-decoration: none;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1rem 1.25rem; transition: background 0.2s; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
-                        <div style="display: flex; align-items: center; gap: 0.9rem;">
-                            <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(0,120,255,0.15); border: 1px solid rgba(0,120,255,0.35); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">🎟️</div>
-                            <div>
-                                <div style="font-weight: 600; font-size: 1rem; color: #fff;">Einlass 1</div>
-                                <div style="font-size: 0.78rem; color: var(--text-muted);">+49 6151 87059233</div>
-                            </div>
-                        </div>
-                        <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(46,204,113,0.2); border: 1px solid rgba(46,204,113,0.4); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">📲</div>
-                    </div>
-                </a>
+                        <div class="contact-dial bg-green">📲</div>
+                    </a>
+                </div>
+
             </div>
         </div>
 
@@ -1973,19 +2127,20 @@
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem;">
                     <!-- Popcorn Category -->
                     <div style="display: contents;">
-                        <button onclick="toggleFunkGlobal('popcorn')" class="restock-btn" style="background: rgba(241, 196, 15, 0.1); border: 1px solid rgba(241, 196, 15, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
+                        <button onclick="toggleFunkGlobal('popcorn')" class="restock-btn funk-main-btn" style="background: rgba(241, 196, 15, 0.1); border: 1px solid rgba(241, 196, 15, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
                             <span style="font-size: 2rem;">🍿</span>
                             <span style="font-weight: 600; font-size: 0.9rem;">Popcorn</span>
                         </button>
                         <div id="funk-popcorn-options" style="display: none; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-top: -0.5rem;">
                             <button onclick="triggerRestock('🍿 Popcorn Süß')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Süß</button>
                             <button onclick="triggerRestock('🍿 Popcorn Salz')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Salz</button>
+                            <button onclick="resetFunkView()" class="btn-secondary" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem;">Zurück / Abbrechen</button>
                         </div>
                     </div>
 
                     <!-- Nachos Category -->
                     <div style="display: contents;">
-                        <button onclick="toggleFunkGlobal('nachos')" class="restock-btn" style="background: rgba(230, 126, 34, 0.1); border: 1px solid rgba(230, 126, 34, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
+                        <button onclick="toggleFunkGlobal('nachos')" class="restock-btn funk-main-btn" style="background: rgba(230, 126, 34, 0.1); border: 1px solid rgba(230, 126, 34, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
                             <span style="font-size: 2rem;">🧀</span>
                             <span style="font-weight: 600; font-size: 0.9rem;">Nachos</span>
                         </button>
@@ -1993,12 +2148,13 @@
                             <button onclick="triggerRestock('🧀 1er Nachos')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">1er</button>
                             <button onclick="triggerRestock('🧀 2er Nachos')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">2er</button>
                             <button onclick="triggerRestock('🧀 3er Nachos')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">3er</button>
+                            <button onclick="resetFunkView()" class="btn-secondary" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem;">Zurück / Abbrechen</button>
                         </div>
                     </div>
 
                     <!-- Getränke Category -->
                     <div style="display: contents;">
-                        <button onclick="toggleFunkGlobal('drinks')" class="restock-btn" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
+                        <button onclick="toggleFunkGlobal('drinks')" class="restock-btn funk-main-btn" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
                             <span style="font-size: 2rem;">🥤</span>
                             <span style="font-weight: 600; font-size: 0.9rem;">Getränke</span>
                         </button>
@@ -2008,12 +2164,13 @@
                             <button onclick="triggerRestock('🥤 Fanta')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Fanta</button>
                             <button onclick="triggerRestock('🥤 Sprite')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Sprite</button>
                             <button onclick="triggerRestock('🥤 Cola Light')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Cola Light</button>
+                            <button onclick="resetFunkView()" class="btn-secondary" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem;">Zurück / Abbrechen</button>
                         </div>
                     </div>
 
                     <!-- Becher Category -->
                     <div style="display: contents;">
-                        <button onclick="toggleFunkGlobal('becher')" class="restock-btn" style="background: rgba(0, 120, 255, 0.1); border: 1px solid rgba(0, 120, 255, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
+                        <button onclick="toggleFunkGlobal('becher')" class="restock-btn funk-main-btn" style="background: rgba(0, 120, 255, 0.1); border: 1px solid rgba(0, 120, 255, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
                             <span style="font-size: 2rem;">🥛</span>
                             <span style="font-weight: 600; font-size: 0.9rem;">Becher</span>
                         </button>
@@ -2022,6 +2179,7 @@
                             <button onclick="triggerRestock('🥛 0.5L Becher')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">0.5L Becher</button>
                             <button onclick="triggerRestock('🕳️ Deckel')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Deckel</button>
                             <button onclick="triggerRestock('🥢 Strohhalme')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Strohhalme</button>
+                            <button onclick="resetFunkView()" class="btn-secondary" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem;">Zurück / Abbrechen</button>
                         </div>
                     </div>
                 </div>
@@ -2385,6 +2543,7 @@
                 document.body.classList.add('stats-active');
             } else if (view === 'kontakte') {
                 document.body.classList.add('kontakte-active');
+                updateKurzwahlVisibility();
             } else if (view === 'intern') {
                 document.body.classList.add('intern-active');
                 loadLogs();
@@ -2445,34 +2604,22 @@
                 if (allMovies.length === 0) throw new Error('Keine Filme gefunden');
 
                 grid.innerHTML = allMovies.map(m => {
-                    if (m.movieLink) {
-                        // Current film with known link -> open detail modal
-                        return `
-                        <div class="hall-card glass movie-item-card" onclick="openMovieDetail('${m.movieLink}')" style="cursor: pointer; padding: 0; overflow: hidden; border-radius: 12px;">
-                            <div style="position: relative;">
-                                <img src="${m.poster}" alt="Poster" style="width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block;">
-                                <span class="badge" style="position: absolute; top: 8px; left: 8px; background: var(--primary-red); font-size: 0.65rem;">JETZT</span>
-                            </div>
-                            <div style="padding: 0.75rem; text-align: center;">
-                                <h3 style="font-family: 'Outfit'; font-size: 0.85rem; margin: 0; color: #fff; line-height: 1.2; height: 2.1rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${m.title}</h3>
-                            </div>
-                        </div>`;
-                    } else {
-                        // Upcoming film without link -> open kinopolis.de in new tab
-                        const searchUrl = `https://www.kinopolis.de/${currentCity}`;
-                        return `
-                        <a href="${searchUrl}" target="_blank" style="text-decoration: none;">
-                            <div class="hall-card glass movie-item-card" style="cursor: pointer; padding: 0; overflow: hidden; border-radius: 12px;">
-                                <div style="position: relative;">
-                                    <img src="${m.poster}" alt="Poster" style="width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block;">
-                                    <span class="badge" style="position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.65); font-size: 0.65rem;">DEMNÄCHST</span>
-                                </div>
-                                <div style="padding: 0.75rem; text-align: center;">
-                                    <h3 style="font-family: 'Outfit'; font-size: 0.85rem; margin: 0; color: #fff; line-height: 1.2; height: 2.1rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${m.title}</h3>
-                                </div>
-                            </div>
-                        </a>`;
-                    }
+                    const badge = m.current ? 
+                        `<span class="badge" style="position: absolute; top: 8px; left: 8px; background: var(--primary-red); font-size: 0.65rem;">JETZT</span>` :
+                        `<span class="badge" style="position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.65); font-size: 0.65rem;">DEMNÄCHST</span>`;
+                    
+                    const onClick = m.movieLink ? `onclick="openMovieDetail('${m.movieLink}')"` : `onclick="window.open('https://www.kinopolis.de/${currentCity}', '_blank')"`;
+
+                    return `
+                    <div class="hall-card glass movie-item-card" ${onClick} style="cursor: pointer; padding: 0; overflow: hidden; border-radius: 12px;">
+                        <div style="position: relative;">
+                            <img src="${m.poster}" alt="Poster" style="width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block;">
+                            ${badge}
+                        </div>
+                        <div style="padding: 0.75rem; text-align: center;">
+                            <h3 style="font-family: 'Outfit'; font-size: 0.85rem; margin: 0; color: #fff; line-height: 1.2; height: 2.1rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${m.title}</h3>
+                        </div>
+                    </div>`;
                 }).join('');
                 
                 loader.style.display = 'none';
@@ -2818,23 +2965,36 @@
             }
         }
 
-        function toggleFunkGlobal(category) {
-            const allOptions = ['popcorn', 'nachos', 'drinks', 'becher'].map(c => `funk-${c}-options`);
-            const targetId = `funk-${category}-options`;
-            
-            allOptions.forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                if (id === targetId) {
-                    el.style.display = el.style.display === 'grid' ? 'none' : 'grid';
-                } else {
-                    el.style.display = 'none';
-                }
+        function resetFunkView() {
+            // Hide all sub-option menus
+            ['popcorn', 'nachos', 'drinks', 'becher'].forEach(c => {
+                const el = document.getElementById(`funk-${c}-options`);
+                if (el) el.style.display = 'none';
+            });
+            // Show all main category buttons
+            document.querySelectorAll('.funk-main-btn').forEach(btn => {
+                btn.style.display = 'flex';
             });
         }
 
+        function toggleFunkGlobal(category) {
+            const targetId = `funk-${category}-options`;
+            const optionsEl = document.getElementById(targetId);
+            
+            if (optionsEl.style.display === 'grid') {
+                resetFunkView();
+            } else {
+                // Hide all main category buttons
+                document.querySelectorAll('.funk-main-btn').forEach(btn => {
+                    btn.style.display = 'none';
+                });
+                // Show only the target options
+                optionsEl.style.display = 'grid';
+            }
+        }
+
         async function triggerRestock(item) {
-            const city = document.getElementById('city-select').value;
+            const city = document.getElementById('cinema-selector').value;
             try {
                 const res = await fetch('/api/push/restock', {
                     method: 'POST',
@@ -2844,11 +3004,7 @@
 
                 if (res.ok) {
                     alert(`✅ Funksignal gesendet: ${item} wird nachgefüllt!`);
-                    // Close all sub-menus
-                    ['popcorn', 'nachos', 'drinks', 'becher'].forEach(c => {
-                        const el = document.getElementById(`funk-${c}-options`);
-                        if (el) el.style.display = 'none';
-                    });
+                    resetFunkView();
                 } else {
                     alert('❌ Fehler beim Senden des Signals.');
                 }
@@ -2864,6 +3020,16 @@
 
         function closeLogModal() {
             document.getElementById('log-modal').style.display = 'none';
+        }
+
+        function updateKurzwahlVisibility() {
+            const section = document.getElementById('kurzwahl-section');
+            if (!section) return;
+            if (currentCity === 'kp') {
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
         }
 
         async function saveLogEntry() {
@@ -2891,6 +3057,7 @@
                     loadLogs();
                 } else {
                     const data = await res.json();
+                    console.error('Server save error:', data);
                     alert('Fehler beim Speichern: ' + (data.error || 'Server Fehler'));
                 }
             } catch (e) {
@@ -3445,6 +3612,7 @@
                     document.getElementById('location-name').innerText = cityName;
                     document.getElementById('dashboard').innerHTML = '<div class="loading-state"><div class="spinner"></div><div class="loading-text">Aktualisiere Daten...</div></div>';
                     completedAuslaesse.clear();
+                    updateKurzwahlVisibility();
                     fetchSessions();
                     fetchWeather();
                 });
@@ -4033,10 +4201,14 @@
                         badgeText = 'Geringe Last';
                         badgeColor = 'rgba(52, 152, 219, 0.1)';
                         textColor = '#3498db';
-                    } else {
-                        badgeText = `${g.loadLevel}x Rush`;
+                    } else if (g.loadLevel === 2) {
+                        badgeText = 'Mittlere Last';
                         badgeColor = 'rgba(241, 196, 15, 0.1)';
                         textColor = '#f1c40f';
+                    } else {
+                        badgeText = 'Hohe Last';
+                        badgeColor = 'rgba(229, 9, 20, 0.1)';
+                        textColor = '#e50914';
                     }
 
                     return `
