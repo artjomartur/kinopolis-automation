@@ -43,6 +43,41 @@ app.get('/api/locations', (c) => {
     return c.json(locations);
 });
 
+app.get('/api/movie-details', async (c) => {
+    const url = c.req.query('url');
+    if (!url) return c.json({ error: 'Missing movie URL' }, 400);
+
+    try {
+        const response = await fetchKinopolis(url);
+        if (!response.ok) return c.json({ error: 'Could not fetch movie details' }, 500);
+        
+        const html = await response.text();
+        const $ = cheerio.load(html);
+
+        const title = $('.hl-link, h1, .movie__title').first().text().trim();
+        const synopsis = $('.movie__synopsis, .prog2__synopsis, .movie__description').first().text().trim();
+        const durationMatch = html.match(/(\d+)\s*Minuten/i) || html.match(/(\d+)\s*Min\.?/i);
+        const duration = durationMatch ? durationMatch[1] : null;
+
+        const specs = $('.movie__specs, .prog2__movie-info').text();
+        const fskMatch = specs.match(/ab\s*(\d+)\s*Jahre/i) || specs.match(/FSK\s*(\d+)/i);
+        const fsk = fskMatch ? `FSK ${fskMatch[1]}` : 'FSK ?';
+
+        const genre = $('.movie__specs-el:contains("Genre"), .prog2__movie-info-item:contains("Genre")').text().replace(/Genre:?/i, '').trim();
+
+        return c.json({
+            title,
+            synopsis,
+            duration,
+            fsk,
+            genre,
+            url
+        });
+    } catch (e) {
+        return c.json({ error: 'Backend error while scraping details' }, 500);
+    }
+});
+
 app.get('/api/sessions', async (c) => {
     const location = c.req.query('location') || 'kp';
     const dateStr = c.req.query('date') || new Date().toISOString().split('T')[0];
@@ -91,6 +126,10 @@ app.get('/api/sessions', async (c) => {
                 const fskMatch = durationText.match(/ab\s*(\d+)\s*Jahre/i) || durationText.match(/FSK\s*(\d+)/i);
                 if (fskMatch) fsk = `FSK ${fskMatch[1]}`;
             }
+
+            // LINK extraction
+            const detailLink = $(movieEl).find('.hl-link, .prog2__movie-title, a[href*="/film/"]').first().attr('href');
+            const movieLink = detailLink ? (detailLink.startsWith('http') ? detailLink : `https://www.kinopolis.de${detailLink}`) : null;
 
             // Build movie-specific date map
             const movieNavDateMap = new Map();
@@ -165,7 +204,7 @@ app.get('/api/sessions', async (c) => {
                                       !occupancyText.includes('ausverkauft');
 
                     const sessionObj = { title, poster: poster ? (poster.startsWith('http') ? poster : `https://www.kinopolis.de${poster}`) : null, 
-                                       time, hall, duration, capacity, freePercent, sold, isBookable, performanceId: perfId, date: actualDate, fsk };
+                                       time, hall, duration, capacity, freePercent, sold, isBookable, performanceId: perfId, date: actualDate, fsk, movieLink };
 
                     const key = `${actualDate}-${perfId || (time + '-' + hall + '-' + title)}`;
                     const existing = sessionMap.get(key);

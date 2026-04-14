@@ -1753,6 +1753,7 @@
     </header>
 
     <div class="container">
+
         <div class="dashboard-header">
             <div class="dashboard-header-left">
                 <h2 class="dashboard-title">Live Overview</h2>
@@ -1778,8 +1779,8 @@
 
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="switchTab('live', this)">🎬 Live</button>
-            <button class="tab-btn" onclick="switchTab('stats', this)">📊 Statistik & Pausen</button>
-            <button class="tab-btn" onclick="switchTab('tools', this)">🛠️ Tools & Funk</button>
+            <button class="tab-btn stats-tab-btn" onclick="switchTab('stats', this)">📊 Statistik & Pausen</button>
+            <button class="tab-btn tools-tab-btn" onclick="switchTab('tools', this)">🛠️ Tools & Funk</button>
             <button class="tab-btn" onclick="switchTab('info', this)">🍿 Filme & Infos</button>
         </div>
 
@@ -2247,6 +2248,20 @@
                 document.body.classList.add('stats-active');
             }
         }
+
+        // --- APP START ---
+        window.addEventListener('load', async () => {
+            // Load sessions for default location
+            fetchLocations();
+            fetchSessions();
+            fetchWeather();
+            fetchNews();
+            
+            // Rest of initializations
+            initLostFound();
+            initTransferList();
+        });
+
             const grid = document.getElementById('upcoming-grid');
             const loader = document.getElementById('upcoming-loading');
             
@@ -4126,9 +4141,8 @@
                 
                 <h3 style="color: var(--warning-yellow); font-size: 1.1rem; margin-bottom: 0.5rem;">💡 Geplante Add-Ons (Zukunft):</h3>
                 <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.5;">
-                    <li><strong>🔒 Rollen-Login:</strong> Dedizierter Login für BL / TL / Dienstplan-Service (standortbasiert).</li>
                     <li><strong>🛠️ Admin Panel:</strong> Einstellungs-Seite, um das Dashboard nach Belieben und standortspezifisch anzupassen.</li>
-                    <li><strong>📅 Dienstplan-Integration:</strong> Automatisierte Pausen- und Schichtplanung (ATOSS Sync).</li>
+                    <li><strong>📅 Dienstplan-Integration:</strong> Automatisierte Pausen- und Schichtplanung.</li>
                     <li><strong>Dunkelmodus / Dark Mode:</strong> Optimiertes Design für späte Schichten.</li>
                 </ul>
                 
@@ -4189,6 +4203,7 @@
                 <button class="btn-primary" onclick="saveLfItem()" style="flex: 1;">Speichern</button>
             </div>
         </div>
+    </div>
     </div>
 </body>
 </html>
