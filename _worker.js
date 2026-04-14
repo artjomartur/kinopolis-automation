@@ -54,16 +54,55 @@ app.get('/api/movie-details', async (c) => {
         const html = await response.text();
         const $ = cheerio.load(html);
 
-        const title = $('.hl-link, h1, .movie__title, .movie-detail__title').first().text().trim();
-        const synopsis = $('.movie-detail__description, .movie-info__description, .movie__synopsis, .prog2__synopsis, .movie__description').first().text().trim();
+        const title = $('h1.hl, h1, .movie__title, .movie-detail__title, .prog2__movie-title').first().text().trim();
+        
+        // Synopsis extraction: Try specific selectors first, then og:description, then paragraph heuristic
+        let synopsis = '';
+        // 1. Try known CSS selectors
+        const synopsisSelectors = [
+            '.movie__synopsis', '.movie-detail__description', '.movie-info__description',
+            '.prog2__synopsis', '.movie__description', '.film-description',
+            '[class*="synopsis"]', '[class*="description"]'
+        ];
+        for (const sel of synopsisSelectors) {
+            const t = $(sel).first().text().trim();
+            if (t && t.length > 50) { synopsis = t; break; }
+        }
+        
+        // 2. Fallback: og:description meta tag (most reliable on Kinopolis)
+        if (!synopsis || synopsis.length < 50) {
+            const ogDesc = $('meta[property="og:description"], meta[name="description"]').first().attr('content');
+            if (ogDesc && ogDesc.length > 50 && !ogDesc.toLowerCase().includes('kinoprogramm')) {
+                synopsis = ogDesc;
+            }
+        }
+        
+        // 3. Fallback: Find the longest paragraph-like element near the top of main content
+        if (!synopsis || synopsis.length < 50) {
+            let longestP = '';
+            $('main p, article p, .content p, section p').each((i, el) => {
+                const t = $(el).text().trim();
+                // Skip navigation/footer-like text, favor actual descriptions
+                if (t.length > longestP.length && t.length > 80 && !t.includes('Kinopolis.de') && !t.match(/^\d{2}:\d{2}$/)) {
+                    longestP = t;
+                }
+            });
+            if (longestP) synopsis = longestP;
+        }
+        
+        // Clean up: strip "English:..." suffix that appears on Kinopolis pages
+        synopsis = synopsis.replace(/\s*English:.*$/si, '').trim();
+
         const durationMatch = html.match(/(\d+)\s*Minuten/i) || html.match(/(\d+)\s*Min\.?/i);
         const duration = durationMatch ? durationMatch[1] : null;
 
-        const specs = $('.movie__specs, .prog2__movie-info').text();
-        const fskMatch = specs.match(/ab\s*(\d+)\s*Jahre/i) || specs.match(/FSK\s*(\d+)/i);
+        const specs = $('.movie__specs, .prog2__movie-info, .movie-detail__specs').text();
+        const fskMatch = specs.match(/ab\s*(\d+)\s*Jahre/i) || specs.match(/FSK\s*(\d+)/i)
+            || html.match(/FSK[\s-]*(\d+)/i);
         const fsk = fskMatch ? `FSK ${fskMatch[1]}` : 'FSK ?';
 
-        const genre = $('.movie__specs-el:contains("Genre"), .prog2__movie-info-item:contains("Genre")').text().replace(/Genre:?/i, '').trim();
+        const genreEl = $('.movie__specs-el:contains("Genre"), .prog2__movie-info-item:contains("Genre"), [class*="genre"]').first();
+        const genre = genreEl.text().replace(/Genre:?/i, '').trim() || 'Film';
 
         // Trailer Extraction
         let trailerUrl = null;
@@ -80,7 +119,7 @@ app.get('/api/movie-details', async (c) => {
 
         return c.json({
             title,
-            synopsis,
+            synopsis: synopsis || 'Keine Beschreibung verfügbar.',
             duration,
             fsk,
             genre,
@@ -88,6 +127,7 @@ app.get('/api/movie-details', async (c) => {
             url
         });
     } catch (e) {
+        console.error('movie-details error:', e);
         return c.json({ error: 'Backend error while scraping details' }, 500);
     }
 });

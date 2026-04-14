@@ -1887,31 +1887,58 @@
             <div style="padding: 1rem 1.5rem 1.5rem;">
                 <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Sende sofort eine unauffällige Push-Nachricht an Kollegen vor Ort.</p>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem;">
-                    <button onclick="triggerRestock('🍿 Popcorn')" class="restock-btn" style="background: rgba(241, 196, 15, 0.1); border: 1px solid rgba(241, 196, 15, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
-                        <span style="font-size: 2rem;">🍿</span>
-                        <span style="font-weight: 600; font-size: 0.9rem;">Popcorn</span>
-                    </button>
-                    <button onclick="triggerRestock('🌮 Nachos')" class="restock-btn" style="background: rgba(230, 126, 34, 0.1); border: 1px solid rgba(230, 126, 34, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
-                        <span style="font-size: 2rem;">🌮</span>
-                        <span style="font-weight: 600; font-size: 0.9rem;">Nachos</span>
-                    </button>
-                    <button onclick="triggerRestock('🍦 Eis')" class="restock-btn" style="background: rgba(52, 152, 219, 0.1); border: 1px solid rgba(52, 152, 219, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
-                        <span style="font-size: 2rem;">🍦</span>
-                        <span style="font-weight: 600; font-size: 0.9rem;">Eis / Konfekt</span>
-                    </button>
-                    <div id="funk-drinks-main" onclick="showDrinkOptions()" class="restock-btn" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
-                        <span style="font-size: 2rem;">🥤</span>
-                        <span style="font-weight: 600; font-size: 0.9rem;">Getränke</span>
+                    <!-- Popcorn Category -->
+                    <div style="display: contents;">
+                        <button onclick="toggleFunkGlobal('popcorn')" class="restock-btn" style="background: rgba(241, 196, 15, 0.1); border: 1px solid rgba(241, 196, 15, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
+                            <span style="font-size: 2rem;">🍿</span>
+                            <span style="font-weight: 600; font-size: 0.9rem;">Popcorn</span>
+                        </button>
+                        <div id="funk-popcorn-options" style="display: none; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-top: -0.5rem;">
+                            <button onclick="triggerRestock('🍿 Popcorn Süß')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Süß</button>
+                            <button onclick="triggerRestock('🍿 Popcorn Salz')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Salz</button>
+                        </div>
                     </div>
 
-                    <!-- Sub-Menu for Drinks (Hidden by default) -->
-                    <div id="funk-drinks-options" style="display: none; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-top: -0.5rem;">
-                        <button onclick="triggerRestock('🥤 Cola')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Cola</button>
-                        <button onclick="triggerRestock('🥤 Cola Zero')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Cola Zero</button>
-                        <button onclick="triggerRestock('🥤 Fanta')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Fanta</button>
-                        <button onclick="triggerRestock('🥤 Sprite')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Sprite</button>
-                        <button onclick="triggerRestock('🥤 Cola Light')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Cola Light</button>
-                        <button onclick="hideDrinkOptions()" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem; grid-column: 1 / -1; background: rgba(229, 9, 20, 0.1); border-color: rgba(229, 9, 20, 0.2); color: var(--primary-red); font-weight: bold;">Abbrechen</button>
+                    <!-- Nachos Category -->
+                    <div style="display: contents;">
+                        <button onclick="toggleFunkGlobal('nachos')" class="restock-btn" style="background: rgba(230, 126, 34, 0.1); border: 1px solid rgba(230, 126, 34, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
+                            <span style="font-size: 2rem;">🧀</span>
+                            <span style="font-weight: 600; font-size: 0.9rem;">Nachos</span>
+                        </button>
+                        <div id="funk-nachos-options" style="display: none; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-top: -0.5rem;">
+                            <button onclick="triggerRestock('🧀 1er Nachos')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">1er</button>
+                            <button onclick="triggerRestock('🧀 2er Nachos')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">2er</button>
+                            <button onclick="triggerRestock('🧀 3er Nachos')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">3er</button>
+                        </div>
+                    </div>
+
+                    <!-- Getränke Category -->
+                    <div style="display: contents;">
+                        <button onclick="toggleFunkGlobal('drinks')" class="restock-btn" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
+                            <span style="font-size: 2rem;">🥤</span>
+                            <span style="font-weight: 600; font-size: 0.9rem;">Getränke</span>
+                        </button>
+                        <div id="funk-drinks-options" style="display: none; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-top: -0.5rem;">
+                            <button onclick="triggerRestock('🥤 Cola')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Cola</button>
+                            <button onclick="triggerRestock('🥤 Cola Zero')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Cola Zero</button>
+                            <button onclick="triggerRestock('🥤 Fanta')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Fanta</button>
+                            <button onclick="triggerRestock('🥤 Sprite')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Sprite</button>
+                            <button onclick="triggerRestock('🥤 Cola Light')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Cola Light</button>
+                        </div>
+                    </div>
+
+                    <!-- Becher Category -->
+                    <div style="display: contents;">
+                        <button onclick="toggleFunkGlobal('becher')" class="restock-btn" style="background: rgba(0, 120, 255, 0.1); border: 1px solid rgba(0, 120, 255, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
+                            <span style="font-size: 2rem;">🥛</span>
+                            <span style="font-weight: 600; font-size: 0.9rem;">Becher</span>
+                        </button>
+                        <div id="funk-becher-options" style="display: none; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-top: -0.5rem;">
+                            <button onclick="triggerRestock('🥛 1L Becher')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">1L Becher</button>
+                            <button onclick="triggerRestock('🥛 0.5L Becher')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">0.5L Becher</button>
+                            <button onclick="triggerRestock('🕳️ Deckel')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Deckel</button>
+                            <button onclick="triggerRestock('🥢 Strohhalme')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Strohhalme</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2670,14 +2697,19 @@
             }
         }
 
-        function showDrinkOptions() {
-            document.getElementById('funk-drinks-main').style.display = 'none';
-            document.getElementById('funk-drinks-options').style.display = 'grid';
-        }
-
-        function hideDrinkOptions() {
-            document.getElementById('funk-drinks-main').style.display = 'flex';
-            document.getElementById('funk-drinks-options').style.display = 'none';
+        function toggleFunkGlobal(category) {
+            const allOptions = ['popcorn', 'nachos', 'drinks', 'becher'].map(c => `funk-${c}-options`);
+            const targetId = `funk-${category}-options`;
+            
+            allOptions.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (id === targetId) {
+                    el.style.display = el.style.display === 'grid' ? 'none' : 'grid';
+                } else {
+                    el.style.display = 'none';
+                }
+            });
         }
 
         async function triggerRestock(item) {
@@ -2691,7 +2723,11 @@
 
                 if (res.ok) {
                     alert(`✅ Funksignal gesendet: ${item} wird nachgefüllt!`);
-                    hideDrinkOptions();
+                    // Close all sub-menus
+                    ['popcorn', 'nachos', 'drinks', 'becher'].forEach(c => {
+                        const el = document.getElementById(`funk-${c}-options`);
+                        if (el) el.style.display = 'none';
+                    });
                 } else {
                     alert('❌ Fehler beim Senden des Signals.');
                 }
@@ -3661,19 +3697,24 @@
         function calculateBreaks(allSessions) {
             const now = new Date();
             const currentMin = now.getHours() * 60 + now.getMinutes();
-            // Start looking for breaks from NOW
-            const searchStart = Math.min(currentMin, 1440);
+            // Only start from current time when viewing today; for other days start from beginning
+            const isToday = displayDate.toDateString() === now.toDateString();
+            const searchStart = isToday ? Math.min(currentMin, 1440) : 0;
             
             let thekeScore = new Array(1440).fill(0);
             let einlassScore = new Array(1440).fill(0);
             
+            // Determine the latest meaningful work minute for each team
+            let thekeWorkEnd = 0;   // After last film start + 30min buffer (theke can relax after last start rush)
+            let einlassWorkEnd = 0; // After last film end + 15min cleanup
+
             allSessions.forEach(s => {
                 if (!s.time || !s.time.includes(':')) return;
                 const [h, m] = s.time.split(':').map(Number);
                 const startMin = h * 60 + m;
-                const endMin = startMin + s.duration;
+                const endMin = startMin + (s.duration || 90);
                 
-                // Theke: start-30 to start+5
+                // Theke: busy from start-30 to start+5
                 for(let i = Math.max(0, startMin - 30); i <= Math.min(1439, startMin + 5); i++) thekeScore[i]++;
                 
                 // Einlass Entry: start-20 to start+10
@@ -3681,20 +3722,25 @@
                 
                 // Einlass Clean (Auslass): end to end+15
                 for(let i = Math.max(0, endMin); i <= Math.min(1439, endMin + 15); i++) einlassScore[i]++;
+
+                // Track work end times
+                if (startMin + 5 > thekeWorkEnd) thekeWorkEnd = startMin + 5;   // Last rush ends shortly after last start
+                if (endMin + 15 > einlassWorkEnd) einlassWorkEnd = endMin + 15; // Last cleanup ends after last film
             });
             
-            function findGaps(scoreArray, minDuration) {
+            function findGaps(scoreArray, minDuration, workEnd) {
                 let gaps = [];
                 let currentStart = -1;
+                // Don't look for gaps past the end of the last movie's work window
+                const searchEnd = workEnd > 0 ? Math.min(workEnd, 1439) : 1439;
                 
-                for (let i = searchStart; i < 1440; i++) {
+                for (let i = searchStart; i < searchEnd; i++) {
                     if (scoreArray[i] === 0) {
                         if (currentStart === -1) currentStart = i;
                     } else {
                         if (currentStart !== -1) {
                             const duration = i - currentStart;
                             if (duration >= minDuration) {
-                                // Scoring: favor earlier gaps, penalize very late (after 21:30 / 1290 min)
                                 let penalty = 0;
                                 if (currentStart > 1290) penalty = (currentStart - 1290) * 2;
                                 gaps.push({ 
@@ -3708,19 +3754,19 @@
                         }
                     }
                 }
-                if (currentStart !== -1 && 1440 - currentStart >= minDuration) {
+                // Handle gap that reaches searchEnd
+                if (currentStart !== -1 && searchEnd - currentStart >= minDuration) {
                     let penalty = 0;
                     if (currentStart > 1290) penalty = (currentStart - 1290) * 2;
-                    gaps.push({ start: currentStart, end: 1439, duration: 1440 - currentStart, score: currentStart + penalty });
+                    gaps.push({ start: currentStart, end: searchEnd - 1, duration: searchEnd - currentStart, score: currentStart + penalty });
                 }
                 
-                // Sort by score (earliest & penalized late)
                 return gaps.sort((a, b) => a.score - b.score).slice(0, 3);
             }
             
             return {
-                thekeGaps: findGaps(thekeScore, 30),
-                einlassGaps: findGaps(einlassScore, 30)
+                thekeGaps: findGaps(thekeScore, 30, thekeWorkEnd),
+                einlassGaps: findGaps(einlassScore, 30, einlassWorkEnd)
             };
         }
 
