@@ -58,7 +58,7 @@
         }
 
         header {
-            padding: 0.6rem 2.5rem;
+            padding: 0.6rem 4rem;
             border-bottom: 1px solid var(--surface-border);
             margin-bottom: 0.75rem;
             background: rgba(10, 10, 13, 0.8);
@@ -482,9 +482,9 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 950px;
             margin: 0 auto;
-            padding: 0 2.5rem 2rem;
+            padding: 0 4rem 3rem;
         }
 
         @media (max-width: 768px) {
@@ -600,8 +600,8 @@
         }
 
         .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            display: flex;
+            flex-direction: column;
             gap: 1.25rem;
         }
 
@@ -1183,10 +1183,10 @@
             letter-spacing: 0.05em;
         }
 
-        /* Responsive - Tablet */
+        /* Responsive - Tablet & Desktop Grid */
         @media (max-width: 1024px) {
             .dashboard-grid {
-                grid-template-columns: repeat(2, 1fr);
+                flex-direction: column;
             }
         }
 
@@ -1242,7 +1242,7 @@
         /* Mobile Optimization (Consolidated) */
         @media (max-width: 768px) {
             header {
-                padding: 0.5rem 1.5rem;
+                padding: 0.5rem 2rem;
                 margin-bottom: 1.5rem;
             }
             .header-inner {
@@ -1269,7 +1269,7 @@
                 background-position: right 0.75rem center;
             }
             .container {
-                padding: 0 1.5rem 3rem !important;
+                padding: 0 2rem 3rem !important;
             }
             .dashboard-header {
                 flex-direction: column !important;
@@ -1899,10 +1899,20 @@
                         <span style="font-size: 2rem;">🍦</span>
                         <span style="font-weight: 600; font-size: 0.9rem;">Eis / Konfekt</span>
                     </button>
-                    <button onclick="triggerRestock('🥤 Getränke')" class="restock-btn" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
+                    <div id="funk-drinks-main" onclick="showDrinkOptions()" class="restock-btn" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
                         <span style="font-size: 2rem;">🥤</span>
                         <span style="font-weight: 600; font-size: 0.9rem;">Getränke</span>
-                    </button>
+                    </div>
+
+                    <!-- Sub-Menu for Drinks (Hidden by default) -->
+                    <div id="funk-drinks-options" style="display: none; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-top: -0.5rem;">
+                        <button onclick="triggerRestock('🥤 Cola')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Cola</button>
+                        <button onclick="triggerRestock('🥤 Cola Zero')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Cola Zero</button>
+                        <button onclick="triggerRestock('🥤 Fanta')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Fanta</button>
+                        <button onclick="triggerRestock('🥤 Sprite')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Sprite</button>
+                        <button onclick="triggerRestock('🥤 Cola Light')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem;">Cola Light</button>
+                        <button onclick="hideDrinkOptions()" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem; grid-column: 1 / -1; background: rgba(229, 9, 20, 0.1); border-color: rgba(229, 9, 20, 0.2); color: var(--primary-red); font-weight: bold;">Abbrechen</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2660,17 +2670,33 @@
             }
         }
 
+        function showDrinkOptions() {
+            document.getElementById('funk-drinks-main').style.display = 'none';
+            document.getElementById('funk-drinks-options').style.display = 'grid';
+        }
+
+        function hideDrinkOptions() {
+            document.getElementById('funk-drinks-main').style.display = 'flex';
+            document.getElementById('funk-drinks-options').style.display = 'none';
+        }
+
         async function triggerRestock(item) {
-            if (!confirm(`Sende Nachschub-Ruf für "${item}"?`)) return;
+            const city = document.getElementById('city-select').value;
             try {
                 const res = await fetch('/api/push/restock', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ location: currentCity, item })
+                    body: JSON.stringify({ item, location: city })
                 });
-                if (res.ok) alert(`Push-Nachricht für ${item} gesendet.`);
+
+                if (res.ok) {
+                    alert(`✅ Funksignal gesendet: ${item} wird nachgefüllt!`);
+                    hideDrinkOptions();
+                } else {
+                    alert('❌ Fehler beim Senden des Signals.');
+                }
             } catch (e) {
-                alert('Senden fehlgeschlagen.');
+                alert('Netzwerkfehler');
             }
         }
 
@@ -3666,13 +3692,30 @@
                         if (currentStart === -1) currentStart = i;
                     } else {
                         if (currentStart !== -1) {
-                            if (i - currentStart >= minDuration) gaps.push({ start: currentStart, end: i - 1 });
+                            const duration = i - currentStart;
+                            if (duration >= minDuration) {
+                                // Scoring: favor earlier gaps, penalize very late (after 21:30 / 1290 min)
+                                let penalty = 0;
+                                if (currentStart > 1290) penalty = (currentStart - 1290) * 2;
+                                gaps.push({ 
+                                    start: currentStart, 
+                                    end: i - 1, 
+                                    duration,
+                                    score: currentStart + penalty 
+                                });
+                            }
                             currentStart = -1;
                         }
                     }
                 }
-                if (currentStart !== -1 && 1440 - currentStart >= minDuration) gaps.push({ start: currentStart, end: 1439 });
-                return gaps.slice(0, 4); // return max 4 future gaps
+                if (currentStart !== -1 && 1440 - currentStart >= minDuration) {
+                    let penalty = 0;
+                    if (currentStart > 1290) penalty = (currentStart - 1290) * 2;
+                    gaps.push({ start: currentStart, end: 1439, duration: 1440 - currentStart, score: currentStart + penalty });
+                }
+                
+                // Sort by score (earliest & penalized late)
+                return gaps.sort((a, b) => a.score - b.score).slice(0, 3);
             }
             
             return {
@@ -3788,7 +3831,19 @@
 
             // --- AI BREAK RECOMMENDATIONS ---
             const breaks = calculateBreaks(allSessions);
-            const formatGaps = (gaps) => gaps.length > 0 ? gaps.map(g => `<span class="badge" style="background: rgba(255,255,255,0.1); color: #fff; padding: 0.4rem 0.8rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">${formatMinutes(g.start)} - ${formatMinutes(g.end)}</span>`).join('') : '<span style="color: var(--text-muted); font-size: 0.85rem;">Keine passenden Lücken heute.</span>';
+            const formatGaps = (gaps) => {
+                if (gaps.length === 0) return '<div style="color: var(--text-muted); font-size: 0.85rem; font-style: italic;">Keine Gaps gefunden</div>';
+                const labels = ['Plan A', 'Plan B', 'Plan C'];
+                return gaps.map((g, idx) => `
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 0.6rem 0.8rem; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 0.7rem; font-weight: 800; color: var(--primary-blue); text-transform: uppercase; letter-spacing: 0.05em;">${labels[idx] || 'Option'}</span>
+                            <span style="font-size: 1rem; color: #fff; font-weight: 700;">${formatMinutes(g.start)} — ${formatMinutes(g.end + 1)}</span>
+                        </div>
+                        <div style="background: rgba(46, 204, 113, 0.1); color: #2ecc71; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">Optimal</div>
+                    </div>
+                `).join('');
+            };
 
             grid.innerHTML += `
                 <div class="stat-card" style="grid-column: 1 / -1; align-items: flex-start; background: rgba(0, 120, 255, 0.05); border: 1px solid rgba(0, 120, 255, 0.1);">
@@ -3802,20 +3857,20 @@
                             <div style="font-weight: 800; color: white; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                                 <span>🍿</span> Theken-Personal
                             </div>
-                            <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+                            <div style="display: flex; flex-direction: column; gap: 0.6rem;">
                                 ${formatGaps(breaks.thekeGaps)}
                             </div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem; font-style: italic;">Slots ohne nahen Filmstart (+/- 20min)</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem; font-style: italic;">Bester Slot ohne nahen Filmstart</div>
                         </div>
                         
                         <div style="background: rgba(0,0,0,0.4); padding: 1.25rem; border-radius: 16px; border-left: 4px solid var(--primary-red); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
                             <div style="font-weight: 800; color: white; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                                 <span>🎟️</span> Einlass & Saal
                             </div>
-                            <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+                            <div style="display: flex; flex-direction: column; gap: 0.6rem;">
                                 ${formatGaps(breaks.einlassGaps)}
                             </div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem; font-style: italic;">Slots ohne Einlass-Ströme oder anstehende Reinigung</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem; font-style: italic;">Bester Slot ohne Einlass-Ströme oder Reinigung</div>
                         </div>
                     </div>
                 </div>
@@ -4265,7 +4320,7 @@
                 <h3 style="color: var(--warning-yellow); font-size: 1.1rem; margin-bottom: 0.5rem;">💡 Geplante Add-Ons (Zukunft):</h3>
                 <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.5;">
                     <li><strong>🛠️ Admin Panel:</strong> Einstellungs-Seite, um das Dashboard nach Belieben und standortspezifisch anzupassen.</li>
-                    <li><strong>📅 Dienstplan-Integration:</strong> Automatisierte Pausen- und Schichtplanung.</li>
+                    <li><strong>📅 Dienstplan-Integration:</strong> Anbindung Dienstplan -> Genaue Pausen- & Schichtplanung.</li>
                     <li><strong>Dunkelmodus / Dark Mode:</strong> Optimiertes Design für späte Schichten.</li>
                 </ul>
                 

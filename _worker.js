@@ -54,8 +54,8 @@ app.get('/api/movie-details', async (c) => {
         const html = await response.text();
         const $ = cheerio.load(html);
 
-        const title = $('.hl-link, h1, .movie__title').first().text().trim();
-        const synopsis = $('.movie__synopsis, .prog2__synopsis, .movie__description').first().text().trim();
+        const title = $('.hl-link, h1, .movie__title, .movie-detail__title').first().text().trim();
+        const synopsis = $('.movie-detail__description, .movie-info__description, .movie__synopsis, .prog2__synopsis, .movie__description').first().text().trim();
         const durationMatch = html.match(/(\d+)\s*Minuten/i) || html.match(/(\d+)\s*Min\.?/i);
         const duration = durationMatch ? durationMatch[1] : null;
 
