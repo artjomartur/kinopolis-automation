@@ -1729,10 +1729,18 @@
             box-shadow: 0 4px 15px rgba(0, 120, 255, 0.3);
         }
         
-        .tools-section, .info-section, .stats-section { display: none !important; }
+        .tools-section, .info-section, .stats-section, .kontakte-section, .intern-section { display: none !important; }
         
         body.tools-active .tools-section { display: block !important; }
+        body.tools-active .kontakte-section { display: none !important; }
+        body.tools-active .intern-section { display: none !important; }
         body.tools-active .live-section { display: none !important; }
+
+        body.kontakte-active .kontakte-section { display: block !important; }
+        body.kontakte-active .live-section { display: none !important; }
+
+        body.intern-active .intern-section { display: block !important; }
+        body.intern-active .live-section { display: none !important; }
 
         body.info-active .info-section { display: block !important; }
         body.info-active .live-section { display: none !important; }
@@ -1786,9 +1794,11 @@
 
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="switchTab('live', this)">🎬 Live</button>
-            <button class="tab-btn stats-tab-btn" onclick="switchTab('stats', this)">📊 Statistik & Pausen</button>
-            <button class="tab-btn tools-tab-btn" onclick="switchTab('tools', this)">🛠️ Tools & Funk</button>
-            <button class="tab-btn" onclick="switchTab('info', this)">🍿 Filme & Infos</button>
+            <button class="tab-btn stats-tab-btn" onclick="switchTab('stats', this)">📊 Statistik</button>
+            <button class="tab-btn" onclick="switchTab('kontakte', this)">📞 Kontakte</button>
+            <button class="tab-btn tools-tab-btn" onclick="switchTab('tools', this)">📡 Funk</button>
+            <button class="tab-btn" onclick="switchTab('intern', this)">🛠️ Tools</button>
+            <button class="tab-btn" onclick="switchTab('info', this)">🍿 Filme</button>
         </div>
 
         <!-- UPCOMING MOVIES SECTION -->
@@ -1880,6 +1890,54 @@
                         🚀 Senden
                     </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- KURZWAHL -->
+        <div class="card-container glass kontakte-section" id="kurzwahl-section" style="display: none; margin-bottom: 2rem;">
+            <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span class="alert-icon-small" style="font-size: 1.5rem;">📞</span>
+                    <h2 style="font-size: 1.25rem;">Kurzwahl</h2>
+                </div>
+            </div>
+            <div style="padding: 1rem 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                <a href="tel:+4961518705928" style="text-decoration: none;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1rem 1.25rem; transition: background 0.2s; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+                        <div style="display: flex; align-items: center; gap: 0.9rem;">
+                            <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(229,9,20,0.15); border: 1px solid rgba(229,9,20,0.35); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">👔</div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 1rem; color: #fff;">BL</div>
+                                <div style="font-size: 0.78rem; color: var(--text-muted);">+49 6151 87059288</div>
+                            </div>
+                        </div>
+                        <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(46,204,113,0.2); border: 1px solid rgba(46,204,113,0.4); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">📲</div>
+                    </div>
+                </a>
+                <a href="tel:+4961518705921" style="text-decoration: none;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1rem 1.25rem; transition: background 0.2s; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+                        <div style="display: flex; align-items: center; gap: 0.9rem;">
+                            <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(241,196,15,0.15); border: 1px solid rgba(241,196,15,0.35); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">⭐</div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 1rem; color: #fff;">TL 1</div>
+                                <div style="font-size: 0.78rem; color: var(--text-muted);">+49 6151 87059212</div>
+                            </div>
+                        </div>
+                        <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(46,204,113,0.2); border: 1px solid rgba(46,204,113,0.4); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">📲</div>
+                    </div>
+                </a>
+                <a href="tel:+4961518705923" style="text-decoration: none;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1rem 1.25rem; transition: background 0.2s; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+                        <div style="display: flex; align-items: center; gap: 0.9rem;">
+                            <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(0,120,255,0.15); border: 1px solid rgba(0,120,255,0.35); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">🎟️</div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 1rem; color: #fff;">Einlass 1</div>
+                                <div style="font-size: 0.78rem; color: var(--text-muted);">+49 6151 87059233</div>
+                            </div>
+                        </div>
+                        <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(46,204,113,0.2); border: 1px solid rgba(46,204,113,0.4); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">📲</div>
+                    </div>
+                </a>
             </div>
         </div>
 
@@ -1978,7 +2036,7 @@
         </div>
 
         <!-- ÜBERGABEBUCH (Shift-Log) -->
-        <div class="card-container glass tools-section" id="logbook-section" style="display: none; margin-bottom: 1rem;">
+        <div class="card-container glass intern-section" id="logbook-section" style="display: none; margin-bottom: 1rem;">
             <div class="card-header" style="padding: 1rem 1.25rem 0.5rem; display: flex; align-items: center; justify-content: space-between;">
                 <div style="display: flex; align-items: center; gap: 0.75rem;">
                     <span class="alert-icon-small">📖</span>
@@ -2011,7 +2069,7 @@
         </div>
 
         <!-- Staff Notes Section -->
-        <div class="card-container notes-section glass tools-section" style="margin-bottom: 1.25rem; display: none;">
+        <div class="card-container notes-section glass intern-section" style="margin-bottom: 1.25rem; display: none;">
             <div class="card-header" onclick="toggleSection('staff-notes-content', 'notes-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
                     <span class="alert-icon-small">📝</span>
@@ -2053,7 +2111,7 @@
         </div>
 
         <!-- Unified Workstation Panel -->
-        <div class="card-container glass tools-section" style="margin-bottom: 1rem;">
+        <div class="card-container glass intern-section" style="margin-bottom: 1rem;">
             <div class="card-header" onclick="toggleSection('workstation-content', 'ws-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
                     <span class="alert-icon-small">🛠️</span>
@@ -2120,7 +2178,7 @@
         </div>
 
         <!-- Interner Kontakt (BL) -->
-        <div class="card-container glass tools-section" style="margin-bottom: 1rem; border-color: rgba(0, 120, 255, 0.4); background: linear-gradient(135deg, rgba(0, 120, 255, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
+        <div class="card-container glass intern-section" style="margin-bottom: 1rem; border-color: rgba(0, 120, 255, 0.4); background: linear-gradient(135deg, rgba(0, 120, 255, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
             <div class="card-header" style="padding: 1.25rem;">
                 <a href="#" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem; width: 100%;" onclick="openFeedback('bl'); return false;">
                     <div style="background: rgba(0, 120, 255, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📩</div>
@@ -2134,7 +2192,7 @@
         </div>
 
         <!-- Externe Links & Handbücher -->
-        <div class="card-container glass tools-section" style="margin-bottom: 1rem;">
+        <div class="card-container glass intern-section" style="margin-bottom: 1rem;">
             <div class="card-header" onclick="toggleSection('links-content', 'links-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
                     <span class="alert-icon-small">🔗</span>
@@ -2206,7 +2264,7 @@
         </div>
 
         <!-- Push Notifications Settings -->
-        <div class="card-container glass tools-section" style="margin-bottom: 1rem;">
+        <div class="card-container glass intern-section" style="margin-bottom: 1rem;">
             <div class="card-header" onclick="toggleSection('push-settings-content', 'push-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
                     <span class="alert-icon-small">🔔</span>
@@ -2296,17 +2354,21 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
-            document.body.classList.remove('tools-active', 'info-active', 'stats-active');
+            document.body.classList.remove('tools-active', 'info-active', 'stats-active', 'kontakte-active', 'intern-active');
             
             if (view === 'tools') {
                 document.body.classList.add('tools-active');
                 if (document.getElementById('transfer-items').children.length === 0) initTransferList();
-                loadLogs();
             } else if (view === 'info') {
                 document.body.classList.add('info-active');
                 loadUpcomingMovies();
             } else if (view === 'stats') {
                 document.body.classList.add('stats-active');
+            } else if (view === 'kontakte') {
+                document.body.classList.add('kontakte-active');
+            } else if (view === 'intern') {
+                document.body.classList.add('intern-active');
+                loadLogs();
             }
         }
 
@@ -3711,80 +3773,77 @@
         }
 
         function calculateBreaks(allSessions) {
-            const now = new Date();
-            const currentMin = now.getHours() * 60 + now.getMinutes();
-            // Only start from current time when viewing today; for other days start from beginning
-            const isToday = displayDate.toDateString() === now.toDateString();
-            const searchStart = isToday ? Math.min(currentMin, 1440) : 0;
-            
-            let thekeScore = new Array(1440).fill(0);
+            let thekeScore  = new Array(1440).fill(0);
             let einlassScore = new Array(1440).fill(0);
-            
-            // Determine the latest meaningful work minute for each team
-            let thekeWorkEnd = 0;   // After last film start + 30min buffer (theke can relax after last start rush)
-            let einlassWorkEnd = 0; // After last film end + 15min cleanup
+
+            // Work window boundaries
+            let thekeStart    = 1440; // earliest theke busy minute (= first rush begins)
+            let thekeEnd      = 0;    // latest theke busy minute  (= last rush ends)
+            let einlassStart  = 1440; // earliest einlass busy minute
+            let einlassEnd    = 0;    // latest einlass busy minute (incl. cleanup)
 
             allSessions.forEach(s => {
                 if (!s.time || !s.time.includes(':')) return;
                 const [h, m] = s.time.split(':').map(Number);
                 const startMin = h * 60 + m;
-                const endMin = startMin + (s.duration || 90);
-                
-                // Theke: busy from start-30 to start+5
-                for(let i = Math.max(0, startMin - 30); i <= Math.min(1439, startMin + 5); i++) thekeScore[i]++;
-                
-                // Einlass Entry: start-20 to start+10
-                for(let i = Math.max(0, startMin - 20); i <= Math.min(1439, startMin + 10); i++) einlassScore[i]++;
-                
-                // Einlass Clean (Auslass): end to end+15
-                for(let i = Math.max(0, endMin); i <= Math.min(1439, endMin + 15); i++) einlassScore[i]++;
+                const endMin   = startMin + (s.duration || 90);
 
-                // Track work end times
-                if (startMin + 5 > thekeWorkEnd) thekeWorkEnd = startMin + 5;   // Last rush ends shortly after last start
-                if (endMin + 15 > einlassWorkEnd) einlassWorkEnd = endMin + 15; // Last cleanup ends after last film
+                // Theke: busy from start-30 to start+5
+                const tBusyStart = Math.max(0, startMin - 30);
+                const tBusyEnd   = Math.min(1439, startMin + 5);
+                for (let i = tBusyStart; i <= tBusyEnd; i++) thekeScore[i]++;
+                if (tBusyStart < thekeStart) thekeStart = tBusyStart;
+                if (tBusyEnd   > thekeEnd)   thekeEnd   = tBusyEnd;
+
+                // Einlass entry: start-20 to start+10
+                const eBusyStart = Math.max(0, startMin - 20);
+                const eBusyEnd   = Math.min(1439, startMin + 10);
+                for (let i = eBusyStart; i <= eBusyEnd; i++) einlassScore[i]++;
+                if (eBusyStart < einlassStart) einlassStart = eBusyStart;
+
+                // Einlass cleanup (Auslass): end to end+15
+                const eCleanEnd = Math.min(1439, endMin + 15);
+                for (let i = Math.max(0, endMin); i <= eCleanEnd; i++) einlassScore[i]++;
+                if (eCleanEnd > einlassEnd) einlassEnd = eCleanEnd;
             });
-            
-            function findGaps(scoreArray, minDuration, workEnd) {
-                let gaps = [];
-                let currentStart = -1;
-                // Don't look for gaps past the end of the last movie's work window
-                const searchEnd = workEnd > 0 ? Math.min(workEnd, 1439) : 1439;
-                
-                for (let i = searchStart; i < searchEnd; i++) {
+
+            // Safety: if no sessions found, return empty
+            if (thekeStart >= thekeEnd || einlassStart >= einlassEnd) {
+                return { thekeGaps: [], einlassGaps: [] };
+            }
+
+            function findGaps(scoreArray, searchFrom, searchTo, minDuration) {
+                const gaps = [];
+                let gapStart = -1;
+
+                for (let i = searchFrom; i <= searchTo; i++) {
                     if (scoreArray[i] === 0) {
-                        if (currentStart === -1) currentStart = i;
+                        if (gapStart === -1) gapStart = i;
                     } else {
-                        if (currentStart !== -1) {
-                            const duration = i - currentStart;
+                        if (gapStart !== -1) {
+                            const duration = i - gapStart;
                             if (duration >= minDuration) {
-                                let penalty = 0;
-                                if (currentStart > 1290) penalty = (currentStart - 1290) * 2;
-                                gaps.push({ 
-                                    start: currentStart, 
-                                    end: i - 1, 
-                                    duration,
-                                    score: currentStart + penalty 
-                                });
+                                gaps.push({ start: gapStart, end: i - 1, duration, score: gapStart });
                             }
-                            currentStart = -1;
+                            gapStart = -1;
                         }
                     }
                 }
-                // Handle gap that reaches searchEnd
-                if (currentStart !== -1 && searchEnd - currentStart >= minDuration) {
-                    let penalty = 0;
-                    if (currentStart > 1290) penalty = (currentStart - 1290) * 2;
-                    gaps.push({ start: currentStart, end: searchEnd - 1, duration: searchEnd - currentStart, score: currentStart + penalty });
+                // Trailing gap
+                if (gapStart !== -1 && (searchTo - gapStart + 1) >= minDuration) {
+                    gaps.push({ start: gapStart, end: searchTo, duration: searchTo - gapStart + 1, score: gapStart });
                 }
-                
+
+                // Sort by earliest start — show best 3
                 return gaps.sort((a, b) => a.score - b.score).slice(0, 3);
             }
-            
+
             return {
-                thekeGaps: findGaps(thekeScore, 30, thekeWorkEnd),
-                einlassGaps: findGaps(einlassScore, 30, einlassWorkEnd)
+                thekeGaps:   findGaps(thekeScore,   thekeStart,   thekeEnd,   30),
+                einlassGaps: findGaps(einlassScore, einlassStart, einlassEnd, 30)
             };
         }
+
 
         function renderStats(hallsGrouped) {
             const container = document.getElementById('stats-section-container');
@@ -3875,17 +3934,18 @@
                 const sold = hourStats[hour];
                 const heightPct = (sold / maxHourSold) * 100;
                 
-                // Heatmap Color Logic: Higher occupancy -> Redder
-                // Simple gradient based on visitor load
-                let barColor = 'rgba(0, 120, 255, 0.4)'; // Default Blueish
-                if (sold > 100) barColor = 'rgba(241, 196, 15, 0.5)'; // Yellow > 100
-                if (sold > 200) barColor = 'rgba(230, 126, 34, 0.6)'; // Orange > 200
-                if (sold > 300 || sold > maxHourSold * 0.8) barColor = 'rgba(229, 9, 20, 0.7)'; // Red > 300 or 80% peak
+                // Heatmap Color: vivid gradients based on visitor load
+                let barColor;
+                const ratio = sold / maxHourSold;
+                if (ratio < 0.3)      barColor = 'linear-gradient(to top, #0078ff, #00c6ff)';   // Blue
+                else if (ratio < 0.6) barColor = 'linear-gradient(to top, #f1c40f, #f39c12)';   // Yellow
+                else if (ratio < 0.8) barColor = 'linear-gradient(to top, #e67e22, #f1c40f)';   // Orange
+                else                  barColor = 'linear-gradient(to top, #e50914, #ff6b35)';   // Red/Peak
                 
                 const barWrapper = document.createElement('div');
                 barWrapper.className = 'hour-bar-wrapper';
                 barWrapper.innerHTML = `
-                    <div class="hour-bar" style="height: ${heightPct}%; background: ${barColor}" data-value="${sold}"></div>
+                    <div class="hour-bar" style="height: ${heightPct}%; background: ${barColor}; box-shadow: 0 0 8px rgba(255,255,255,0.15);" data-value="${sold}"></div>
                     <span class="hour-label">${hour}</span>
                 `;
                 chart.appendChild(barWrapper);
