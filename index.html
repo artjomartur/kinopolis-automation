@@ -1829,9 +1829,6 @@
             <div id="news-list" class="collapsed"></div>
         </div>
 
-            </div>
-        </div>
-
         <!-- Logbook Entry Modal -->
         <div id="log-modal" class="modal">
             <div class="modal-content glass" style="max-width: 450px;">
@@ -2364,17 +2361,20 @@
 
                 if (allMovies.length === 0) throw new Error('Keine Filme gefunden');
 
-                grid.innerHTML = allMovies.map(m => `
-                    <div class="hall-card glass movie-item-card" onclick="openMovieDetail('${m.movieLink || ''}')" style="cursor: pointer; padding: 0; overflow: hidden; border-radius: 12px;">
+                grid.innerHTML = allMovies.map(m => {
+                    // Upcoming movies from /api/upcoming have no movieLink — build a Kinopolis search URL
+                    const link = m.movieLink || `https://www.kinopolis.de/${currentCity}/suche?q=${encodeURIComponent(m.title)}`;
+                    return `
+                    <div class="hall-card glass movie-item-card" onclick="openMovieDetail('${link}')" style="cursor: pointer; padding: 0; overflow: hidden; border-radius: 12px;">
                         <div style="position: relative;">
                             <img src="${m.poster}" alt="Poster" style="width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block;">
-                            ${m.current ? '<span class="badge" style="position: absolute; top: 8px; left: 8px; background: var(--primary-red); font-size: 0.65rem;">JETZT</span>' : ''}
+                            ${m.current ? '<span class="badge" style="position: absolute; top: 8px; left: 8px; background: var(--primary-red); font-size: 0.65rem;">JETZT</span>' : '<span class="badge" style="position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.6); font-size: 0.65rem;">DEMNÄCHST</span>'}
                         </div>
                         <div style="padding: 0.75rem; text-align: center;">
                             <h3 style="font-family: 'Outfit'; font-size: 0.85rem; margin: 0; color: #fff; line-height: 1.2; height: 2.1rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${m.title}</h3>
                         </div>
                     </div>
-                `).join('');
+                `}).join('');
                 
                 loader.style.display = 'none';
                 grid.style.display = 'grid';
@@ -2631,7 +2631,6 @@
             { name: "Bionade Holunder",     target: 8 },
             { name: "M&M Schoko",           target: 14 },
             { name: "M&M Peanut",           target: 14 },
-            { name: "Nachos",               target: 10 },
             { name: "Wasser (still)",       target: 12 },
         ];
 
