@@ -600,6 +600,44 @@ app.post('/api/scan-plan', async (c) => {
     }
 });
 
+// --- UPCOMING MOVIES API ---
+app.get('/api/upcoming', async (c) => {
+    try {
+        const response = await fetch('https://www.kinopolis.de/kp');
+        if (!response.ok) throw new Error('Failed to fetch Kinopolis main page');
+        const html = await response.text();
+
+        const sliderMatch = html.match(/<section id="coming-soon-slider"[\s\S]*?<\/section>/);
+        if (!sliderMatch) return c.json([]);
+        
+        const sliderHtml = sliderMatch[0];
+        
+        // Match movie blocks
+        const blocks = sliderHtml.split('class="img-fluid"').slice(1);
+        const upcoming = [];
+        
+        blocks.forEach(block => {
+            const srcMatch = block.match(/src="([^"]+)"/);
+            const altMatch = block.match(/alt="([^"]+)"/);
+            
+            if (srcMatch && altMatch) {
+                let titleDecoded = altMatch[1].replace(/&#x20;/g, ' ').replace(/&#x3A;/g, ':').replace(/&#xE4;/g, 'ä').replace(/&#xFC;/g, 'ü').replace(/&#xF6;/g, 'ö');
+                
+                upcoming.push({
+                    title: titleDecoded,
+                    poster: srcMatch[1]
+                });
+            }
+        });
+        
+        // Return max 12 upcoming
+        return c.json(upcoming.slice(0, 12));
+    } catch (e) {
+        console.error('Upcoming fetch error:', e);
+        return c.json({ error: 'Failed to fetch upcoming movies' }, 500);
+    }
+});
+
 // JSON fallback for 404
 app.notFound((c) => {
     return c.json({ error: 'Not Found', path: c.req.path }, 404);
@@ -641,6 +679,36 @@ app.post('/api/push/restock', async (c) => {
         tag: 'restock-alert',
         data: { url: '/#restock' }
     };
+
+    await sendPushToAll(c.env, payload, location);
+    return c.json({ success: true });
+});
+
+// --- TRANSFERLISTE API ---
+app.post('/api/push/transfer', async (c) => {
+    const { location, author, items, station } = await c.req.json();
+    if (!items) return c.json({ error: 'Missing items' }, 400);
+
+    const titleStr = station ? `TL-Transferliste (${station})` : 'TL-Transferliste';
+    
+    const payload = {
+        title: `📝 ${titleStr} - von ${author}`,
+        body: items,
+        tag: 'transfer-alert',
+        data: { url: '/#transfer' }
+    };
+
+    // Optionally also save this as a high-priority log entry
+    try {
+        if (c.env.DB) {
+            await c.env.DB.prepare(`
+                INSERT INTO shift_logs (location, author, message, priority)
+                VALUES (?, ?, ?, ?)
+            `).bind(location || 'kp', author || 'Anonym', `[TRANSFERLISTE]\\n${items}`, 'wichtig').run();
+        }
+    } catch (e) {
+        console.error('Error saving transfer to logs', e);
+    }
 
     await sendPushToAll(c.env, payload, location);
     return c.json({ success: true });

@@ -487,6 +487,78 @@
             padding: 0 2rem 4rem;
         }
 
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem 2rem;
+            }
+            .dashboard-header {
+                margin-bottom: 2rem;
+                gap: 1rem;
+            }
+            .dashboard-title {
+                font-size: 2.2rem;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .card-header {
+                padding: 1rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            .card-header > div:last-child {
+                margin-left: 0 !important;
+                width: 100%;
+                justify-content: space-between;
+            }
+            .header-inner {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            .location-select {
+                width: 100%;
+            }
+            .nav-tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+            .tab-btn {
+                flex: 1;
+                text-align: center;
+                padding: 0.75rem 1rem;
+                font-size: 0.95rem;
+            }
+            .hall-card {
+                padding: 1rem;
+            }
+            .session-item {
+                grid-template-columns: 50px 1fr;
+                gap: 0.75rem;
+                padding: 0.75rem;
+            }
+            h1, h2 {
+                font-size: 1.2rem !important;
+            }
+            .news-card {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            .news-image {
+                width: 100%;
+                height: 200px;
+            }
+            .stats-section .card-header {
+                padding: 1rem !important;
+            }
+            .collapsible-content {
+                padding: 0 1rem 1rem !important;
+            }
+        }
+
         .dashboard-header {
             margin-bottom: 3rem;
             display: flex;
@@ -1637,6 +1709,11 @@
         .tools-section { display: none !important; }
         body.tools-active .tools-section { display: block !important; }
         body.tools-active .live-section { display: none !important; }
+        body.tools-active .info-section { display: none !important; }
+
+        body.info-active .info-section { display: block !important; }
+        body.info-active .live-section { display: none !important; }
+        body.info-active .tools-section { display: none !important; }
     </style>
 </head>
 <body>
@@ -1681,7 +1758,25 @@
 
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="switchTab('live', this)">🎬 Live Programm</button>
+            <button class="tab-btn" onclick="switchTab('info', this)">🍿 Film-Infos</button>
             <button class="tab-btn" onclick="switchTab('tools', this)">🛠️ Intern & Tools</button>
+        </div>
+
+        <!-- UPCOMING MOVIES SECTION -->
+        <div id="info-section-container" class="info-section" style="display: none;">
+            <div class="dashboard-header" style="margin-bottom: 2rem;">
+                <h2 class="dashboard-title" style="font-size: 2.5rem;">Demnächst im Kino</h2>
+                <div class="location-badge">Bald auf der großen Leinwand</div>
+            </div>
+            
+            <div id="upcoming-loading" class="loading-state">
+                <div class="spinner"></div>
+                <div class="loading-text">Lade Filmhighlights...</div>
+            </div>
+
+            <div id="upcoming-grid" class="dashboard-grid" style="display: none; gap: 1.5rem;">
+                <!-- Filled via JS -->
+            </div>
         </div>
 
         <div id="internal-news-container" class="news-section live-section" style="display: none;">
@@ -1753,6 +1848,32 @@
                     <button class="btn-primary" onclick="triggerRestock('🍦 Eis')" style="background: linear-gradient(135deg, #3498db, #2980b9); color: #fff; border: none; font-weight: bold; padding: 1rem;">🍦 Eis / Konfekt</button>
                     <button class="btn-primary" onclick="triggerRestock('🥤 Getränke')" style="background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; border: none; font-weight: bold; padding: 1rem;">🥤 Getränke / Sirop</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- WAREN-TRANSFERLISTE -->
+        <div class="card-container glass tools-section" id="transfer-section" style="display: none; margin-bottom: 2rem; border-color: rgba(46, 204, 113, 0.3);">
+            <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span class="alert-icon-small">📋</span>
+                    <h2 style="font-size: 1.25rem;">Waren-Transferliste</h2>
+                </div>
+            </div>
+            <div style="padding: 1rem 1.5rem 1.5rem;">
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Fehlende Waren eintragen und direkt an die TL senden.</p>
+                
+                <div id="transfer-items" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">
+                    <!-- Items generated by JS -->
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Sonstiges / Anmerkungen</label>
+                    <input type="text" id="transfer-custom" placeholder="z.B. 2x Reinigungsmittel, 1x Rolle Zewa..." class="input-field" style="padding: 0.75rem;">
+                </div>
+
+                <button class="btn-primary" onclick="sendTransferList()" style="width: 100%; background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; border: none; font-weight: bold; padding: 1rem; border-radius: 12px; font-size: 1.05rem;">
+                    🚀 Transferliste an TL senden
+                </button>
             </div>
         </div>
 
@@ -2054,11 +2175,44 @@
         function switchTab(view, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            
+            document.body.classList.remove('tools-active', 'info-active');
+            
             if (view === 'tools') {
                 document.body.classList.add('tools-active');
+                if (document.getElementById('transfer-items').children.length === 0) initTransferList();
                 loadLogs();
-            } else {
-                document.body.classList.remove('tools-active');
+            } else if (view === 'info') {
+                document.body.classList.add('info-active');
+                loadUpcomingMovies();
+            }
+        }
+
+        async function loadUpcomingMovies() {
+            const grid = document.getElementById('upcoming-grid');
+            const loader = document.getElementById('upcoming-loading');
+            
+            // Only load once to save bandwidth
+            if (grid.children.length > 0) return;
+            
+            try {
+                const res = await fetch('/api/upcoming');
+                const movies = await res.json();
+                
+                if (movies.length === 0) throw new Error('Keine Filme gefunden');
+
+                grid.innerHTML = movies.map(m => `
+                    <div class="hall-card glass" style="align-items: center; text-align: center; padding: 1rem;">
+                        <img src="${m.poster}" alt="Poster" style="width: 100%; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); margin-bottom: 1rem; aspect-ratio: 2/3; object-fit: cover;">
+                        <h3 style="font-family: 'Outfit'; font-size: 1.2rem; margin-bottom: 0.5rem; color: #fff;">${m.title}</h3>
+                    </div>
+                `).join('');
+                
+                loader.style.display = 'none';
+                grid.style.display = 'grid';
+                
+            } catch (e) {
+                loader.innerHTML = '<div style="color: #ff4d4d;">Fehler beim Laden.</div>';
             }
         }
 
@@ -2241,7 +2395,91 @@
             return outputArray;
         }
 
-        // --- RESTOCK & LOGBOOK LOGIC ---
+        // --- RESTOCK, TRANSFER & LOGBOOK LOGIC ---
+        
+        const TRANSFER_ITEMS = [
+            "Ai Tee White Peach",
+            "Ai Tee Lemon",
+            "Bionade Orange",
+            "Bionade Holunder",
+            "M&M Schoko",
+            "M&M Peanut",
+            "Popcorn Süß",
+            "Nachos",
+            "Käsesauce",
+            "Salsa",
+            "Cola",
+            "Wasser (still)"
+        ];
+
+        function initTransferList() {
+            const container = document.getElementById('transfer-items');
+            if (!container) return;
+            container.innerHTML = TRANSFER_ITEMS.map((item, index) => `
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                    <span style="font-size: 0.95rem; color: #fff;">${item}</span>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <button class="btn-secondary" onclick="updateTransferCount(${index}, -1)" style="width: 30px; height: 30px; padding: 0; border-radius: 6px; font-weight: bold; background: rgba(229, 9, 20, 0.2); border-color: rgba(229, 9, 20, 0.4); color: #ff4d4d; display: flex; align-items: center; justify-content: center;">-</button>
+                        <span id="transfer-count-${index}" style="font-weight: bold; width: 20px; text-align: center; color: var(--primary-blue);">0</span>
+                        <button class="btn-secondary" onclick="updateTransferCount(${index}, 1)" style="width: 30px; height: 30px; padding: 0; border-radius: 6px; font-weight: bold; background: rgba(46, 204, 113, 0.2); border-color: rgba(46, 204, 113, 0.4); color: #2ecc71; display: flex; align-items: center; justify-content: center;">+</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateTransferCount(index, delta) {
+            const el = document.getElementById(`transfer-count-${index}`);
+            let current = parseInt(el.innerText) || 0;
+            current += delta;
+            if (current < 0) current = 0;
+            el.innerText = current;
+        }
+
+        async function sendTransferList() {
+            let itemsNeeded = [];
+            TRANSFER_ITEMS.forEach((item, index) => {
+                const count = parseInt(document.getElementById(`transfer-count-${index}`).innerText) || 0;
+                if (count > 0) itemsNeeded.push(`${count}x ${item}`);
+            });
+
+            const customVal = document.getElementById('transfer-custom').value.trim();
+            if (customVal) itemsNeeded.push(`Sonstiges: ${customVal}`);
+
+            if (itemsNeeded.length === 0) {
+                alert("Die Liste ist leer.");
+                return;
+            }
+
+            const author = localStorage.getItem('kinopolis_shift_name') || 'Ein Mitarbeiter';
+            const locationName = document.getElementById('workstation-selector') ? document.getElementById('workstation-selector').selectedOptions[0].text.split('(')[0].trim() : '';
+
+            const bodyText = itemsNeeded.join('\\n');
+
+            try {
+                const res = await fetch('/api/push/transfer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        location: currentCity, 
+                        author: author,
+                        station: locationName,
+                        items: bodyText 
+                    })
+                });
+                
+                if (res.ok) {
+                    alert("Transferliste erfolgreich an TL gesendet.");
+                    // Reset elements
+                    initTransferList();
+                    document.getElementById('transfer-custom').value = '';
+                } else {
+                    alert("Fehler beim Senden.");
+                }
+            } catch (e) {
+                alert("Netzwerkfehler.");
+            }
+        }
+
         async function triggerRestock(item) {
             if (!confirm(`Sende Nachschub-Ruf für "${item}"?`)) return;
             try {
