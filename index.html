@@ -2619,68 +2619,7 @@
 
         async function openMovieDetail(url) {
             if (!url) return;
-            const modal = document.getElementById('movie-detail-modal');
-            const content = document.getElementById('movie-detail-content');
-            
-            modal.classList.add('active');
-            content.innerHTML = `
-                <div class="loading-state">
-                    <div class="spinner"></div>
-                    <div class="loading-text">Lade Filminfos...</div>
-                </div>
-            `;
-            
-            try {
-                const res = await fetch(`/api/movie-details?url=${encodeURIComponent(url)}`);
-                const data = await res.json();
-                
-                if (data.error) throw new Error(data.error);
-                
-                const trailerHtml = data.trailerUrl ? `
-                        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                            <iframe src="${data.trailerUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" allowfullscreen></iframe>
-                        </div>
-                ` : '';
-
-                content.innerHTML = `
-                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                        <h2 style="font-size: 2rem; margin: 0; background: linear-gradient(180deg, #fff, #b3b3b3); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">${data.title}</h2>
-                        
-                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                            <span class="badge" style="background: rgba(255,255,255,0.1); color: #fff;">${data.fsk}</span>
-                            <span class="badge" style="background: rgba(255,255,255,0.1); color: #fff;">${data.duration} Min.</span>
-                            <span class="badge" style="background: var(--primary-blue); color: #fff;">${data.genre}</span>
-                        </div>
-
-                        ${trailerHtml}
-                        
-                        <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
-                            <h3 style="font-size: 1.1rem; margin-top: 0; color: var(--primary-blue);">Inhalt</h3>
-                            <p style="color: var(--text-muted); line-height: 1.6; font-size: 0.95rem; margin-bottom: 0;">${data.synopsis}</p>
-                        </div>
-                        
-                        ${data.cast ? `
-                        <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
-                            <h3 style="font-size: 1.1rem; margin-top: 0; color: var(--primary-blue);">Cast & Crew</h3>
-                            <p style="color: var(--text-muted); line-height: 1.6; font-size: 0.9rem; margin-bottom: 0;">${data.cast}</p>
-                        </div>` : ''}
-                        
-                        <div style="display: flex; gap: 1rem;">
-                            <button onclick="closeMovieDetail()" class="btn-primary" style="flex: 1; padding: 0.8rem;">Schließen</button>
-                            <a href="${data.url}" target="_blank" class="btn-secondary" style="flex: 1; padding: 0.8rem; text-decoration: none; text-align: center;">Auf Kinopolis.de ansehen</a>
-                        </div>
-                    </div>
-                `;
-
-            } catch (e) {
-                content.innerHTML = `
-                    <div style="display: flex; flex-direction: column; align-items: center; gap: 1.5rem; padding: 1rem; text-align: center;">
-                        <span style="font-size: 3rem;">⚠️</span>
-                        <p style="color: #ff4d4d; font-size: 1rem;">Details konnten nicht geladen werden.</p>
-                        <button onclick="closeMovieDetail()" class="btn-primary" style="width: 100%; padding: 0.8rem;">Schließen</button>
-                    </div>
-                `;
-            }
+            window.open(url, '_blank');
         }
 
         function closeMovieDetail() {
