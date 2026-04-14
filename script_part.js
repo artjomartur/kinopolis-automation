@@ -1922,7 +1922,11 @@
                     const agree = confirm('⚠️ KI-Analyse noch gesperrt: Das Modell benötigt eine einmalige Lizenz-Bestätigung (agree). Soll ich das jetzt für dich tun?');
                     if (agree) unlockAI();
                 } else {
-                    alert('Fehler beim Analysieren: ' + (result.error || 'Unbekannter Fehler'));
+                    let errStr = result.error || 'Unbekannter Fehler';
+                    if (result.raw) {
+                        errStr += '\n\nAntwort (Auszug):\n' + result.raw.substring(0, 150) + '...';
+                    }
+                    alert('Fehler beim Analysieren:\n' + errStr);
                 }
             } catch (err) {
                 console.error('Scan fetch error:', err);
