@@ -45,3 +45,15 @@ CREATE TABLE IF NOT EXISTS scanned_plans (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(hall, movie, date)
 );
+
+CREATE TABLE IF NOT EXISTS shift_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    location TEXT NOT NULL,
+    author TEXT,
+    message TEXT NOT NULL,
+    priority TEXT DEFAULT 'normal',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_shift_logs_location ON shift_logs(location);
+CREATE INDEX IF NOT EXISTS idx_shift_logs_created_at ON shift_logs(created_at);

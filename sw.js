@@ -1,9 +1,37 @@
+const CACHE_NAME = 'kinopolis-v1';
+const ASSETS = [
+    '/',
+    '/index.html',
+    '/manifest.json',
+    '/icon.png',
+    '/logo-kinopolis-official.png'
+];
+
 self.addEventListener('install', (event) => {
+    event.waitUntil(
+        caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    );
     self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-    event.waitUntil(clients.claim());
+    event.waitUntil(
+        caches.keys().then(keys => Promise.all(
+            keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+        ))
+    );
+    return self.clients.claim();
+});
+
+self.addEventListener('fetch', (event) => {
+    // Only cache GET requests and skip API calls
+    if (event.request.method !== 'GET' || event.request.url.includes('/api/')) return;
+    
+    event.respondWith(
+        caches.match(event.request).then(response => {
+            return response || fetch(event.request);
+        })
+    );
 });
 
 self.addEventListener('push', function(event) {

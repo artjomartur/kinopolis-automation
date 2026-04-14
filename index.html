@@ -7,6 +7,10 @@
     <!-- Favicon: Kinopolis Logo -->
     <link rel="icon" href="./icon.png" type="image/png">
     <link rel="apple-touch-icon" href="./icon.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0a0a0d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -1699,21 +1703,72 @@
             <div id="news-list" class="collapsed"></div>
         </div>
 
-        <!-- New Message Modal -->
-        <div id="message-modal" class="modal">
-            <div class="modal-content glass">
-                <h2 style="font-family: 'Outfit', sans-serif;">Interne Mitteilung verfassen</h2>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Diese Nachricht wird gespeichert und als <strong>Push-Benachrichtigung</strong> an alle Kollegen gesendet.</p>
+            </div>
+        </div>
+
+        <!-- Logbook Entry Modal -->
+        <div id="log-modal" class="modal">
+            <div class="modal-content glass" style="max-width: 450px;">
+                <h2 style="font-family: 'Outfit', sans-serif;">📖 Übergabe-Eintrag</h2>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Wichtige Infos für die nächste Schicht festhalten.</p>
                 
-                <input type="text" id="msg-title" placeholder="Titel (z.B. Mario Merch)" class="input-field" style="margin-top: 1.5rem;">
-                <textarea id="msg-content" placeholder="Inhalt der Nachricht..." class="input-field" style="height: 120px; margin-top: 1rem; resize: none;"></textarea>
-                <input type="text" id="msg-author" placeholder="Dein Name / Kürzel (z.B. AB)" class="input-field" style="margin-top: 1rem;">
+                <textarea id="log-message" placeholder="Was ist passiert? (z.B. Saubere Brillen aufgefüllt, Kino 2 Klima defekt...)" class="input-field" style="height: 120px; resize: none;"></textarea>
+                
+                <div style="margin-top: 1rem;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted);">Autor (Name/Kürzel)</label>
+                    <input type="text" id="log-author" placeholder="Dein Name" class="input-field" style="margin-top: 0.3rem;">
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted);">Priorität</label>
+                    <select id="log-priority" class="input-field" style="margin-top: 0.3rem;">
+                        <option value="normal">Normal</option>
+                        <option value="wichtig">⚠️ Wichtig</option>
+                        <option value="dringend">🚨 Dringend</option>
+                    </select>
+                </div>
                 
                 <div class="modal-actions" style="margin-top: 2rem;">
-                    <button class="btn-secondary" onclick="closeMessageModal()">Abbrechen</button>
-                    <button class="btn-primary" id="msg-send-btn" onclick="sendMessage()" style="background: var(--primary-red); border: none; padding: 0.75rem 1.5rem; border-radius: 12px; color: white; font-weight: 700; cursor: pointer;">
-                        🚀 Speichern & Senden
+                    <button class="btn-secondary" onclick="closeLogModal()">Abbrechen</button>
+                    <button class="btn-primary" id="log-save-btn" onclick="saveLogEntry()" style="background: var(--primary-blue); border: none; padding: 0.75rem 1.5rem; border-radius: 12px; color: white; font-weight: 700;">
+                        💾 Speichern
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- DIGITALER FUNK (Nachschub-Ruf) -->
+        <div class="card-container glass tools-section" id="restock-section" style="display: none; margin-bottom: 2rem; border-color: rgba(255, 165, 0, 0.3);">
+            <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span class="alert-icon-small">📡</span>
+                    <h2 style="font-size: 1.25rem;">Nachschub-Ruf (Digitaler Funk)</h2>
+                </div>
+            </div>
+            <div style="padding: 1rem 1.5rem 1.5rem;">
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Sende sofort eine Push-Nachricht an alle Kollegen vor Ort.</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <button class="btn-primary" onclick="triggerRestock('🍿 Popcorn')" style="background: linear-gradient(135deg, #f1c40f, #f39c12); color: #000; border: none; font-weight: bold; padding: 1rem;">🍿 Popcorn leer</button>
+                    <button class="btn-primary" onclick="triggerRestock('🌮 Nachos')" style="background: linear-gradient(135deg, #e67e22, #d35400); color: #fff; border: none; font-weight: bold; padding: 1rem;">🌮 Nachos leer</button>
+                    <button class="btn-primary" onclick="triggerRestock('🍦 Eis')" style="background: linear-gradient(135deg, #3498db, #2980b9); color: #fff; border: none; font-weight: bold; padding: 1rem;">🍦 Eis / Konfekt</button>
+                    <button class="btn-primary" onclick="triggerRestock('🥤 Getränke')" style="background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; border: none; font-weight: bold; padding: 1rem;">🥤 Getränke / Sirop</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÜBERGABEBUCH (Shift-Log) -->
+        <div class="card-container glass tools-section" id="logbook-section" style="display: none; margin-bottom: 2rem;">
+            <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span class="alert-icon-small">📖</span>
+                    <h2 style="font-size: 1.25rem;">Übergabebuch (Schicht-Log)</h2>
+                </div>
+                <button class="btn-primary" onclick="openLogModal()" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 8px;">➕ Eintrag</button>
+            </div>
+            <div style="padding: 1rem 1.5rem 1.5rem;">
+                <div id="logbook-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <!-- Logs will be loaded here -->
+                    <p style="text-align: center; color: var(--text-muted); font-style: italic;">Lade Einträge...</p>
                 </div>
             </div>
         </div>
@@ -1735,7 +1790,7 @@
         </div>
 
         <!-- Staff Notes Section -->
-        <div class="card-container notes-section glass tools-section" style="margin-bottom: 2rem;">
+        <div class="card-container notes-section glass tools-section" style="margin-bottom: 2rem; display: none;">
             <div class="card-header" onclick="toggleSection('staff-notes-content', 'notes-toggle-btn')" style="cursor: pointer; padding: 1.5rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
                     <span class="alert-icon-small">📝</span>
@@ -1999,8 +2054,12 @@
         function switchTab(view, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            if (view === 'tools') document.body.classList.add('tools-active');
-            else document.body.classList.remove('tools-active');
+            if (view === 'tools') {
+                document.body.classList.add('tools-active');
+                loadLogs();
+            } else {
+                document.body.classList.remove('tools-active');
+            }
         }
 
         const VAPID_PUBLIC_KEY = 'BCP-JGZbVBjKY1_blxAHw6bC5Ddf0nLAyPSp8q39kV7utFahZNyQZJ8KlV-ht6UKg07eAuVBVHJhVsaDMx1m7X8';
@@ -2180,6 +2239,89 @@
                 outputArray[i] = rawData.charCodeAt(i);
             }
             return outputArray;
+        }
+
+        // --- RESTOCK & LOGBOOK LOGIC ---
+        async function triggerRestock(item) {
+            if (!confirm(`Sende Nachschub-Ruf für "${item}"?`)) return;
+            try {
+                const res = await fetch('/api/push/restock', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ location: currentCity, item })
+                });
+                if (res.ok) alert(`Push-Nachricht für ${item} gesendet.`);
+            } catch (e) {
+                alert('Senden fehlgeschlagen.');
+            }
+        }
+
+        function openLogModal() {
+            document.getElementById('log-modal').style.display = 'flex';
+            document.getElementById('log-author').value = localStorage.getItem('kinopolis_shift_name') || '';
+        }
+
+        function closeLogModal() {
+            document.getElementById('log-modal').style.display = 'none';
+        }
+
+        async function saveLogEntry() {
+            const message = document.getElementById('log-message').value.trim();
+            const author = document.getElementById('log-author').value.trim();
+            const priority = document.getElementById('log-priority').value;
+
+            if (!message) return alert('Bitte Nachricht eingeben.');
+
+            try {
+                const res = await fetch('/api/logs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ location: currentCity, author, message, priority })
+                });
+                if (res.ok) {
+                    closeLogModal();
+                    document.getElementById('log-message').value = '';
+                    loadLogs();
+                }
+            } catch (e) {
+                alert('Speichern fehlgeschlagen.');
+            }
+        }
+
+        async function loadLogs() {
+            const list = document.getElementById('logbook-list');
+            if (!list) return;
+            try {
+                const res = await fetch(`/api/logs?location=${currentCity}`);
+                const logs = await res.json();
+                
+                if (logs.length === 0) {
+                    list.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-style: italic;">Keine Einträge vorhanden.</p>';
+                    return;
+                }
+
+                list.innerHTML = logs.map(log => {
+                    let color = 'var(--text-muted)';
+                    if (log.priority === 'wichtig') color = '#f1c40f';
+                    if (log.priority === 'dringend') color = '#e74c3c';
+
+                    const date = new Date(log.created_at).toLocaleString('de-DE', { 
+                        hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' 
+                    });
+
+                    return `
+                        <div style="background: rgba(255, 255, 255, 0.03); border-left: 3px solid ${color}; padding: 0.75rem 1rem; border-radius: 4px 12px 12px 4px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem;">
+                                <span style="font-weight: bold; color: ${color === 'var(--text-muted)' ? 'white' : color}">${log.author}</span>
+                                <span>${date}</span>
+                            </div>
+                            <div style="font-size: 0.95rem; color: #fff; line-height: 1.4;">${log.message}</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                list.innerHTML = '<p style="color: #e74c3c;">Fehler beim Laden.</p>';
+            }
         }
 
         const API_URL = '/api/sessions';
@@ -3168,10 +3310,17 @@
                 const sold = hourStats[hour];
                 const heightPct = (sold / maxHourSold) * 100;
                 
+                // Heatmap Color Logic: Higher occupancy -> Redder
+                // Simple gradient based on visitor load
+                let barColor = 'rgba(0, 120, 255, 0.4)'; // Default Blueish
+                if (sold > 100) barColor = 'rgba(241, 196, 15, 0.5)'; // Yellow > 100
+                if (sold > 200) barColor = 'rgba(230, 126, 34, 0.6)'; // Orange > 200
+                if (sold > 300 || sold > maxHourSold * 0.8) barColor = 'rgba(229, 9, 20, 0.7)'; // Red > 300 or 80% peak
+                
                 const barWrapper = document.createElement('div');
                 barWrapper.className = 'hour-bar-wrapper';
                 barWrapper.innerHTML = `
-                    <div class="hour-bar" style="height: ${heightPct}%" data-value="${sold}"></div>
+                    <div class="hour-bar" style="height: ${heightPct}%; background: ${barColor}" data-value="${sold}"></div>
                     <span class="hour-label">${hour}</span>
                 `;
                 chart.appendChild(barWrapper);

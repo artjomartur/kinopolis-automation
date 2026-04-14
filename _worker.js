@@ -605,6 +605,47 @@ app.notFound((c) => {
     return c.json({ error: 'Not Found', path: c.req.path }, 404);
 });
 
+// --- SHIFT LOG API ---
+app.get('/api/logs', async (c) => {
+    const location = c.req.query('location') || 'kp';
+    if (!c.env.DB) return c.json([]);
+    const logs = await c.env.DB.prepare(`
+        SELECT * FROM shift_logs 
+        WHERE location = ? 
+        ORDER BY created_at DESC 
+        LIMIT 50
+    `).bind(location).all();
+    return c.json(logs.results);
+});
+
+app.post('/api/logs', async (c) => {
+    const { location, author, message, priority } = await c.req.json();
+    if (!c.env.DB || !message) return c.json({ error: 'Missing data' }, 400);
+    
+    await c.env.DB.prepare(`
+        INSERT INTO shift_logs (location, author, message, priority)
+        VALUES (?, ?, ?, ?)
+    `).bind(location || 'kp', author || 'Anonym', message, priority || 'normal').run();
+    
+    return c.json({ success: true });
+});
+
+// --- RESTOCK CALL API ---
+app.post('/api/push/restock', async (c) => {
+    const { location, item } = await c.req.json();
+    if (!item) return c.json({ error: 'Missing item' }, 400);
+
+    const payload = {
+        title: '🚨 Nachschub benötigt!',
+        body: `${item} an der Theke/Kasse leer! Bitte auffüllen.`,
+        tag: 'restock-alert',
+        data: { url: '/#restock' }
+    };
+
+    await sendPushToAll(c.env, payload, location);
+    return c.json({ success: true });
+});
+
 // --- BROADCAST HELPER ---
 async function sendPushToAll(env, payload, locationFilter = null) {
     if (!env.DB) return;
