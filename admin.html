@@ -237,22 +237,14 @@
             <!-- Feedback & Support -->
             <div class="admin-section">
                 <h2><span>💬</span> Feedback & Support</h2>
-                <div class="card" style="display: flex; flex-direction: column; gap: 0.75rem;">
-                    <p style="margin-bottom: 0.5rem;">Kontaktiere den Entwickler direkt bei Problemen oder Feature-Wünschen.</p>
-                    <a href="mailto:artjom.becker@icloud.com?subject=Kinopolis%20App%20Feedback" class="feedback-contact">
-                        <div class="feedback-contact-icon">📧</div>
-                        <div>
-                            <strong>E-Mail senden</strong>
-                            <p>artjom.becker@icloud.com</p>
-                        </div>
-                    </a>
-                    <a href="https://wa.me/?text=Hallo!%20Ich%20habe%20Feedback%20zur%20Kinopolis%20App:" target="_blank" class="feedback-contact" style="border-color: rgba(37, 211, 102, 0.25); background: rgba(37, 211, 102, 0.05);">
-                        <div class="feedback-contact-icon" style="background: rgba(37, 211, 102, 0.1);">💬</div>
-                        <div>
-                            <strong>WhatsApp</strong>
-                            <p>Schnelle Nachricht senden</p>
-                        </div>
-                    </a>
+                <div class="card" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <p>Sende Feedback oder Feature-Wünsche direkt an den Entwickler.</p>
+                    <input type="text" id="fb-name" placeholder="Dein Name / Kürzel (optional)" class="input-field" style="margin-bottom: 0;">
+                    <textarea id="fb-message" placeholder="Beschreibe dein Anliegen oder einen Fehler..." style="width: 100%; min-height: 100px; background: rgba(255,255,255,0.05); border: 1px solid var(--surface-border); border-radius: 14px; color: var(--text-main); padding: 0.85rem 1rem; font-size: 0.95rem; outline: none; resize: vertical; font-family: 'Outfit', sans-serif;"></textarea>
+                    <button id="fb-send-btn" onclick="sendFeedback()" style="background: linear-gradient(135deg, var(--primary-blue), #00d2ff); border: none; color: white; font-weight: 800; padding: 0.9rem; border-radius: 14px; cursor: pointer; font-size: 0.95rem; transition: all 0.3s;">
+                        📧 Absenden
+                    </button>
+                    <div id="fb-status" style="display: none; padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600;"></div>
                 </div>
             </div>
 
@@ -346,6 +338,52 @@
         function handleLogout() {
             localStorage.removeItem('is_admin');
             location.reload();
+        }
+
+        async function sendFeedback() {
+            const name = document.getElementById('fb-name').value.trim();
+            const message = document.getElementById('fb-message').value.trim();
+            const btn = document.getElementById('fb-send-btn');
+            const status = document.getElementById('fb-status');
+
+            if (!message) { 
+                status.textContent = '⚠️ Bitte eine Nachricht eingeben.';
+                status.style.background = 'rgba(231, 76, 60, 0.1)';
+                status.style.color = '#e74c3c';
+                status.style.display = 'block';
+                return;
+            }
+
+            btn.textContent = 'Wird gesendet...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: message, contact: name || 'Admin-Portal' })
+                });
+
+                if (res.ok) {
+                    status.textContent = '✅ Nachricht gesendet! Ich melde mich bald.';
+                    status.style.background = 'rgba(46, 204, 113, 0.1)';
+                    status.style.color = '#2ecc71';
+                    document.getElementById('fb-name').value = '';
+                    document.getElementById('fb-message').value = '';
+                } else {
+                    status.textContent = '❌ Fehler beim Senden. Bitte erneut versuchen.';
+                    status.style.background = 'rgba(231, 76, 60, 0.1)';
+                    status.style.color = '#e74c3c';
+                }
+            } catch (e) {
+                status.textContent = '❌ Netzwerkfehler.';
+                status.style.background = 'rgba(231, 76, 60, 0.1)';
+                status.style.color = '#e74c3c';
+            } finally {
+                status.style.display = 'block';
+                btn.textContent = '📧 Absenden';
+                btn.disabled = false;
+            }
         }
 
         function showAdminPanel() {

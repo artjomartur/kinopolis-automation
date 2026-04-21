@@ -1047,7 +1047,14 @@ async function sendPushToAll(env, payload, locationFilter = null) {
         query += ' WHERE location = ?';
         params.push(locationFilter);
     }
-    const subscriptions = await env.DB.prepare(query).bind(...params).all();
+    let subscriptions;
+    try {
+        subscriptions = await env.DB.prepare(query).bind(...params).all();
+    } catch (e) {
+        console.error('Error in sendPushToAll DB query:', e);
+        return [{ error: 'DB error or missing push_subscriptions table' }];
+    }
+    
     const results = [];
     
     // Get current time in German timezone for shift filtering

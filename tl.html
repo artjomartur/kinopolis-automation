@@ -438,7 +438,7 @@
         function tlLogin() {
             const user = document.getElementById('tl-user').value;
             const pass = document.getElementById('tl-pass').value;
-            if (user === 'TL' && pass === 'TL123') {
+            if ((user === 'TL' && pass === 'TL123') || (user === 'admin' && pass === 'admin123')) {
                 localStorage.setItem('is_tl', 'true');
                 showTlPortal();
             } else {
