@@ -151,6 +151,38 @@
             color: var(--primary-blue);
         }
 
+        /* Dashboard Title & Contact Card Light Mode Fixes */
+        body.light-mode .dashboard-title {
+            background: linear-gradient(180deg, #0f172a 0%, #475569 100%) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+        }
+
+        body.light-mode .contact-card {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+        }
+
+        body.light-mode .contact-card:hover {
+            background: #f8fafc !important;
+            border-color: #cbd5e1 !important;
+        }
+
+        body.light-mode .contact-name {
+            color: #0f172a !important;
+        }
+
+        body.light-mode .contact-tel {
+            color: #64748b !important;
+        }
+
+        body.light-mode .contact-dial-sm {
+            background: rgba(46, 204, 113, 0.1);
+            border-color: rgba(46, 204, 113, 0.2);
+        }
+
 
         * {
             margin: 0;
@@ -2210,7 +2242,21 @@
                 <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Schreibe eine Nachricht für das gesamte Team (Sichtbar für alle).</p>
                 
                 <input type="text" id="msg-title" placeholder="Kurzer Titel (z.B. Mario Film Menü)" class="input-field" style="margin-bottom: 1rem;">
-                <input type="text" id="msg-image-url" placeholder="Bild-URL (optional, z.B. imgur link)" class="input-field" style="margin-bottom: 1rem;">
+                
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); padding: 0.75rem; border-radius: 12px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                        <span style="font-size: 1.2rem;">🖼️</span>
+                        <span style="font-size: 0.85rem; color: #fff;">Bild hochladen</span>
+                        <input type="file" id="msg-image-file" accept="image/*" style="display: none;" onchange="handleMessageImage(this)">
+                    </label>
+                </div>
+
+                <div id="msg-image-preview" style="display: none; margin-bottom: 1rem; position: relative;">
+                    <img id="msg-preview-img" style="width: 100%; height: 120px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="removeMessageImage()" style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); border: none; color: white; width: 24px; height: 24px; border-radius: 50%; cursor: pointer;">✕</button>
+                </div>
+
+                <input type="text" id="msg-image-url" placeholder="Oder Bild-URL (z.B. imgur link)" class="input-field" style="margin-bottom: 1rem;">
                 <textarea id="msg-content" placeholder="Inhalt der Nachricht..." class="input-field" style="height: 120px; resize: none;"></textarea>
                 
                 <div style="margin-top: 1rem;">
@@ -2616,6 +2662,20 @@
             </div>
         </div>
 
+        <!-- Team Leader Portal -->
+        <div class="card-container glass einstellungen-section" style="margin-bottom: 2rem; border-color: rgba(0, 120, 255, 0.4); background: linear-gradient(135deg, rgba(0, 120, 255, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
+            <div class="card-header" style="padding: 1.25rem;">
+                <a href="tl.html" target="_blank" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem; width: 100%;">
+                    <div style="background: rgba(0, 120, 255, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🚨</div>
+                    <div style="flex: 1;">
+                        <h2 style="font-size: 1.25rem; margin-bottom: 0.2rem; color: #fff;">Teamleiter-Portal</h2>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Echtzeit-Übersicht für Funk & Transfers, sowie KI-Pausenempfehlungen.</span>
+                    </div>
+                    <div style="color: var(--primary-blue); font-weight: bold;">Portal öffnen ❯</div>
+                </a>
+            </div>
+        </div>
+
         <!-- Admin Portal (Standalone) -->
         <div class="card-container glass einstellungen-section" style="margin-bottom: 2rem; border-color: rgba(168, 85, 247, 0.4); background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
             <div class="card-header" style="padding: 1.25rem;">
@@ -2842,7 +2902,7 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
-            document.body.classList.remove('tools-active', 'info-active', 'stats-active', 'kontakte-active', 'intern-active', 'einstellungen-active');
+            document.body.classList.remove('tools-active', 'info-active', 'stats-active', 'kontakte-active', 'intern-active', 'einstellungen-active', 'funk-active');
             
             if (view === 'tools') {
                 document.body.classList.add('tools-active');
@@ -2858,6 +2918,9 @@
             } else if (view === 'intern') {
                 document.body.classList.add('intern-active');
                 loadLogs();
+            } else if (view === 'funk') {
+                document.body.classList.add('tools-active');
+                if (document.getElementById('transfer-items').children.length === 0) initTransferList();
             } else if (view === 'einstellungen') {
                 document.body.classList.add('einstellungen-active');
             }
@@ -3827,6 +3890,36 @@
             } catch (e) { console.error(e); }
         }
 
+        let currentMsgBase64 = null;
+
+        function handleMessageImage(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            if (file.size > 1024 * 1024) { // 1MB limit for D1/Requests
+                alert('Das Bild ist zu groß (max 1MB erlaubt).');
+                input.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                currentMsgBase64 = e.target.result;
+                document.getElementById('msg-preview-img').src = currentMsgBase64;
+                document.getElementById('msg-image-preview').style.display = 'block';
+                document.getElementById('msg-image-url').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeMessageImage() {
+            currentMsgBase64 = null;
+            document.getElementById('msg-image-file').value = '';
+            document.getElementById('msg-preview-img').src = '';
+            document.getElementById('msg-image-preview').style.display = 'none';
+            document.getElementById('msg-image-url').style.display = 'block';
+        }
+
         async function sendMessage() {
             const title = document.getElementById('msg-title').value.trim();
             const content = document.getElementById('msg-content').value.trim();
@@ -3839,7 +3932,7 @@
             btn.disabled = true;
             
             try {
-                const image_url = document.getElementById('msg-image-url').value.trim();
+                const image_url = currentMsgBase64 || document.getElementById('msg-image-url').value.trim();
                 const res = await fetch('/api/messages', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -3850,6 +3943,7 @@
                     closeMessageModal();
                     document.getElementById('msg-title').value = '';
                     document.getElementById('msg-content').value = '';
+                    removeMessageImage();
                     alert('Erfolgreich gespeichert! Push wurde versendet.');
                     fetchNews();
                 } else {
@@ -3861,16 +3955,6 @@
             } finally {
                 btn.innerText = '🚀 Speichern & Senden';
                 btn.disabled = false;
-            }
-        }
-
-        async function deleteMessage(id) {
-            if (!confirm('Diese Mitteilung wirklich löschen?')) return;
-            try {
-                const res = await fetch(`/api/messages/${id}`, { method: 'DELETE' });
-                if (res.ok) fetchNews();
-            } catch (e) {
-                alert('Fehler beim Löschen.');
             }
         }
 
@@ -5029,6 +5113,13 @@
             const today = new Date().toLocaleDateString('de-DE');
             const city = currentCity.toUpperCase();
             
+            // Add Logo
+            const logoImg = document.getElementById('brand-logo');
+            if (logoImg) {
+                try {
+                    doc.addImage(logoImg, 'PNG', 160, 10, 35, 12);
+                } catch (e) { console.error('Logo export error:', e); }
+            }
             doc.setFontSize(22);
             doc.setTextColor(0, 120, 255);
             doc.text(`Kinopolis Dashboard Export - ${city}`, 14, 20);
@@ -5079,7 +5170,7 @@
             { id: 'live-dashboard', name: 'Live Display', target: '#dashboard', isTab: false },
             { id: 'stats', name: 'Statistiken', target: '#stats-section-container', isTab: false },
             { id: 'kontakte', name: 'Telefonliste', target: '#tab-kontakte', isTab: true },
-            { id: 'funk', name: 'Digital Funk Shop', target: '#tab-funk', isTab: true },
+            { id: 'funk', name: 'Digital Funk Shop', target: '#restock-section', isTab: true },
             { id: 'news', name: 'Interne Mitteilungen', target: '#internal-news-container', isTab: false },
             { id: 'logbook', name: 'Übergabebuch', target: '#logbook-section', isTab: false },
             { id: 'checklist', name: 'Checklisten', target: '#workstation-section', isTab: false },

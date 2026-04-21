@@ -901,6 +901,17 @@ app.post('/api/logs', async (c) => {
     }
 });
 
+app.delete('/api/logs/:id', async (c) => {
+    try {
+        const id = c.req.param('id');
+        if (!c.env.DB) return c.json({ error: 'DB not available' }, 500);
+        await c.env.DB.prepare('DELETE FROM shift_logs WHERE id = ?').bind(id).run();
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
 // --- AI PLAN SCANNER + MODELL FALLBACK ---
 app.post('/api/ai-agree', async (c) => {
     return c.json({ success: true });
@@ -980,6 +991,19 @@ app.post('/api/push/restock', async (c) => {
     };
 
     await sendPushToAll(c.env, payload, location);
+
+    // Persist to logs for TL dashboard
+    try {
+        if (c.env.DB) {
+            await c.env.DB.prepare(`
+                INSERT INTO shift_logs (location, author, message, priority)
+                VALUES (?, ?, ?, ?)
+            `).bind(location || 'kp', 'System (Funk)', `[FUNK] ${item}`, 'dringend').run();
+        }
+    } catch (e) {
+        console.error('Error saving restock to logs', e);
+    }
+
     return c.json({ success: true });
 });
 

@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TL Portal | Kinopolis Automation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-red: #e50914;
+            --primary-blue: #0078ff;
+            --bg-dark: #0f1014;
+            --surface-color: #1a1b1f;
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --accent-glow: rgba(229, 9, 20, 0.3);
+            --blue-glow: rgba(0, 120, 255, 0.3);
+            --glass-bg: rgba(26, 27, 31, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 1.5rem;
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(229, 9, 20, 0.05) 0%, transparent 25%),
+                radial-gradient(circle at 100% 100%, rgba(0, 120, 255, 0.05) 0%, transparent 25%);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-box {
+            background: #fff;
+            padding: 0.5rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-box img {
+            height: 24px;
+        }
+
+        .portal-title {
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -0.02em;
+            background: linear-gradient(90deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .location-select {
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            color: white;
+            padding: 0.6rem 2.5rem 0.6rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            appearance: none;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1000px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--surface-border);
+            border-radius: 24px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .status-badge {
+            background: rgba(46, 204, 113, 0.1);
+            color: #2ecc71;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        /* LIVE FEED */
+        .feed-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .feed-item {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .feed-item.priority-dringend {
+            background: rgba(229, 9, 20, 0.05);
+            border-color: rgba(229, 9, 20, 0.2);
+        }
+
+        .feed-icon {
+            font-size: 1.5rem;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+        }
+
+        .feed-content h3 {
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .feed-content p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .feed-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .feed-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-action {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            background: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+
+        .btn-action.btn-done:hover {
+            background: #2ecc71;
+            border-color: #2ecc71;
+        }
+
+        /* BREAK CARDS */
+        .break-card {
+            background: rgba(0, 120, 255, 0.05);
+            border: 1px solid rgba(0, 120, 255, 0.15);
+            border-left: 4px solid var(--primary-blue);
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .break-card-time {
+            color: var(--primary-blue);
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .break-card-info {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 0;
+            color: var(--text-muted);
+        }
+
+        /* LOADING BAR */
+        .loading-progress {
+            height: 3px;
+            background: var(--primary-blue);
+            position: fixed;
+            top: 0; left: 0;
+            width: 0%;
+            transition: width 0.3s ease;
+            z-index: 1000;
+        }
+
+        /* UTILS */
+        .mt-2 { margin-top: 2rem; }
+        /* Login Gate */
+        #tl-login-gate {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 2rem;
+        }
+
+        .login-box {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--surface-border);
+            border-radius: 28px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+
+        .login-box h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.4rem;
+            background: linear-gradient(90deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-box p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .login-input {
+            width: 100%;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--surface-border);
+            padding: 0.85rem 1rem;
+            border-radius: 14px;
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .login-input:focus { border-color: var(--primary-blue); }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 14px;
+            border: none;
+            background: linear-gradient(135deg, var(--primary-blue), #00d2ff);
+            color: white;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0, 120, 255, 0.35); }
+
+        #tl-main { display: none; }
+
+    </style>
+</head>
+<body>
+    <div id="tl-login-gate">
+        <div class="login-box">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🚨</div>
+            <h2>Teamleiter-Portal</h2>
+            <p>Zugang nur für Teamleiter</p>
+            <input type="text" class="login-input" id="tl-user" placeholder="Benutzername">
+            <input type="password" class="login-input" id="tl-pass" placeholder="Passwort" onkeypress="if(event.key==='Enter') tlLogin()">
+            <button class="login-btn" onclick="tlLogin()">Einloggen</button>
+            <p id="tl-login-err" style="color: #ff6b6b; margin-top: 1rem; font-size: 0.85rem; display: none;">❌ Zugangsdaten inkorrekt.</p>
+        </div>
+    </div>
+
+    <div id="tl-main">
+    <div class="loading-progress" id="loading-bar"></div>
+
+    <header>
+        <div class="logo-wrap">
+            <div class="logo-box">
+                <img src="/assets/logo.png" alt="Kinopolis Logo">
+            </div>
+            <h1 class="portal-title">Kommandozentrale (TL)</h1>
+        </div>
+        <select class="location-select" id="location-selector" onchange="changeCity()">
+            <option value="kp">Darmstadt</option>
+            <option value="gk">Gießen</option>
+            <option value="hanau">Hanau</option>
+            <option value="wiesen">Wiesbaden</option>
+            <option value="main">Main-Taunus</option>
+        </select>
+    </header>
+
+    <div class="dashboard-grid">
+        <!-- OPERATIONAL UPDATES -->
+        <div class="feed-section">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🚨 Aktuelle Anfragen & Funk</div>
+                    <div class="status-badge" id="last-update-status">Live</div>
+                </div>
+                <div class="feed-list" id="ops-feed">
+                    <!-- Loaded dynamically -->
+                    <div class="empty-state">Lade Team-Requests...</div>
+                </div>
+            </div>
+
+            <!-- LOGBOOK / SHIFT NOTES -->
+            <div class="card mt-2">
+                <div class="card-header">
+                    <div class="card-title">📖 Jüngste Notizen (Handover)</div>
+                </div>
+                <div class="feed-list" id="logs-list">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- AI BREAKS & STATS -->
+        <div class="sidebar">
+            <div class="card" style="border-left: 4px solid var(--primary-blue);">
+                <div class="card-header">
+                    <div class="card-title">🤖 AI Pausen-Guide</div>
+                </div>
+                <div id="break-recommendations" class="break-list">
+                    <div class="empty-state" style="padding: 1rem 0;">Analysiere Kinoplan...</div>
+                </div>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem; line-height: 1.4;">
+                    Empfehlungen basieren auf der berechneten Auslastung und den Abspann-Zeiten.
+                </p>
+            </div>
+
+            <!-- SYSTEM STATUS -->
+            <div class="card mt-2">
+                <div class="card-title" style="margin-bottom: 1rem;">⚙️ Services</div>
+                <div id="service-status" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                        <span>D1 Database</span>
+                        <span style="color: #2ecc71;">Online</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                        <span>VAPID Notifications</span>
+                        <span style="color: #2ecc71;">Active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div> <!-- /tl-main -->
+
+    <script>
+        // --- TL LOGIN ---
+        function tlLogin() {
+            const user = document.getElementById('tl-user').value;
+            const pass = document.getElementById('tl-pass').value;
+            if (user === 'TL' && pass === 'TL123') {
+                localStorage.setItem('is_tl', 'true');
+                showTlPortal();
+            } else {
+                document.getElementById('tl-login-err').style.display = 'block';
+            }
+        }
+
+        function showTlPortal() {
+            document.getElementById('tl-login-gate').style.display = 'none';
+            document.getElementById('tl-main').style.display = 'block';
+            refreshDashboard();
+        }
+
+        function tlLogout() {
+            localStorage.removeItem('is_tl');
+            location.reload();
+        }
+
+        window.addEventListener('load', () => {
+            if (localStorage.getItem('is_tl') === 'true') {
+                showTlPortal();
+            }
+        });
+
+        let currentCity = localStorage.getItem('last_city') || 'kp';
+        document.getElementById('location-selector').value = currentCity;
+
+        // Auto Refresh
+        setInterval(refreshDashboard, 30000); // 30s
+        window.onload = refreshDashboard;
+
+        async function refreshDashboard() {
+            setLoading(true);
+            await Promise.all([
+                loadOpsFeed(),
+                loadLogs(),
+                loadBreaks()
+            ]);
+            setLoading(false);
+            document.getElementById('last-update-status').innerText = 'Zuletzt: ' + new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
+        }
+
+        function setLoading(active) {
+            const bar = document.getElementById('loading-bar');
+            bar.style.width = active ? '40%' : '100%';
+            if (!active) setTimeout(() => bar.style.width = '0%', 300);
+        }
+
+        async function changeCity() {
+            currentCity = document.getElementById('location-selector').value;
+            localStorage.setItem('last_city', currentCity);
+            refreshDashboard();
+        }
+
+        async function loadOpsFeed() {
+            try {
+                const res = await fetch(`/api/logs?location=${currentCity}`);
+                if (!res.ok) throw new Error();
+                const logs = await res.json();
+                
+                // Filter for FUNK and TRANSFER
+                const ops = logs.filter(l => l.message.includes('[FUNK]') || l.message.includes('[TRANSFERLISTE]'));
+                const container = document.getElementById('ops-feed');
+                
+                if (ops.length === 0) {
+                    container.innerHTML = '<div class="empty-state">Keine offenen Anfragen oder Funkrufe. ❤️</div>';
+                    return;
+                }
+
+                container.innerHTML = ops.map(item => {
+                    const isFunk = item.message.includes('[FUNK]');
+                    const icon = isFunk ? '📡' : '📝';
+                    const title = isFunk ? 'Digitaler Funk' : 'Transferliste';
+                    const cleanMsg = item.message.replace('[FUNK]', '').replace('[TRANSFERLISTE]', '').trim();
+                    const priorityClass = `priority-${item.priority}`;
+                    
+                    return `
+                        <div class="feed-item ${priorityClass}">
+                            <div class="feed-icon">${icon}</div>
+                            <div class="feed-content">
+                                <h3>${title}</h3>
+                                <p><strong>${item.author}:</strong> ${cleanMsg.replace(/\\n/g, '<br>')}</p>
+                                <span class="feed-time">${formatTime(item.created_at)} Uhr</span>
+                            </div>
+                            <div class="feed-actions">
+                                <button class="btn-action btn-done" onclick="acknowledgeLog(${item.id})" title="Erledigt">✅</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function loadLogs() {
+            try {
+                const res = await fetch(`/api/logs?location=${currentCity}`);
+                if (!res.ok) return;
+                const logs = await res.json();
+                
+                // Filter for regular logs (not ops)
+                const regular = logs.filter(l => !l.message.includes('[FUNK]') && !l.message.includes('[TRANSFERLISTE]')).slice(0, 5);
+                const container = document.getElementById('logs-list');
+                
+                container.innerHTML = regular.map(l => `
+                    <div class="feed-item" style="grid-template-columns: 1fr auto;">
+                        <div class="feed-content">
+                            <p><strong>${l.author}:</strong> ${l.message}</p>
+                            <span class="feed-time">${formatTime(l.created_at)} Uhr</span>
+                        </div>
+                        <div class="feed-actions">
+                            <button class="btn-action" onclick="acknowledgeLog(${l.id})" title="Löschen">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (e) {}
+        }
+
+        async function acknowledgeLog(id) {
+            if (!confirm('Eintrag als erledigt markieren und entfernen?')) return;
+            try {
+                const res = await fetch(`/api/logs/${id}`, { method: 'DELETE' });
+                if (res.ok) refreshDashboard();
+            } catch (e) { alert('Fehler beim Löschen'); }
+        }
+
+        async function loadBreaks() {
+            const container = document.getElementById('break-recommendations');
+            try {
+                const res = await fetch(`/api/sessions?location=${currentCity}`);
+                if (!res.ok) throw new Error();
+                const halls = await res.json();
+                
+                const allSessions = [];
+                halls.forEach(hall => {
+                    hall.sessions.forEach(s => {
+                        allSessions.push({ ...s, hallId: hall.hallId });
+                    });
+                });
+
+                // Algorithm: Look for "quiet windows" where no movies end or start
+                const recommendations = calculateAIBreaks(allSessions);
+                
+                if (recommendations.length === 0) {
+                    container.innerHTML = '<div class="empty-state">Aktuell keine idealen Pausenfenster möglich.</div>';
+                    return;
+                }
+
+                container.innerHTML = recommendations.map(rec => `
+                    <div class="break-card">
+                        <div class="break-card-time">${rec.time}</div>
+                        <div class="break-card-info">${rec.label}</div>
+                    </div>
+                `).join('');
+
+            } catch (e) {
+                container.innerHTML = '<div class="empty-state">Fehler beim Laden des Plans.</div>';
+            }
+        }
+
+        function calculateAIBreaks(sessions) {
+            if (sessions.length === 0) return [];
+            
+            // Map end times
+            const events = [];
+            sessions.forEach(s => {
+                if (s.end_time) events.push({ time: s.end_time, type: 'end' });
+                if (s.start_time) events.push({ time: s.start_time, type: 'start' });
+            });
+
+            // Sort by time
+            events.sort((a,b) => a.time.localeCompare(b.time));
+
+            const recs = [];
+            const now = new Date();
+            const nowStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+            // Strategy: Find gaps of at least 30 mins between "heavy" events
+            // For simplicity in this dashboard, we show upcoming ends to help TLs plan
+            const upcomingEnds = sessions
+                .filter(s => s.end_time > nowStr)
+                .sort((a,b) => a.end_time.localeCompare(b.end_time))
+                .slice(0, 3);
+            
+            return upcomingEnds.map(s => ({
+                time: s.end_time,
+                label: `Abspann: ${s.movie.substring(0,25)}... (Kino ${s.hallId})`
+            }));
+        }
+
+        function formatTime(isoStr) {
+            const d = new Date(isoStr);
+            return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        }
+    </script>
+</body>
+</html>
