@@ -2120,7 +2120,6 @@
             <button class="tab-btn" onclick="switchTab('intern', this)">🛠️ Tools</button>
             <button class="tab-btn" onclick="switchTab('info', this)">🍿 Filme</button>
             <button class="tab-btn" onclick="switchTab('einstellungen', this)">⚙️ Einstellungen</button>
-            <button class="tab-btn" onclick="switchTab('admin', this)" id="admin-tab-btn" style="border-left: 1px solid rgba(255,255,255,0.1); margin-left: 0.5rem; padding-left: 1rem;">🔒 Admin</button>
         </div>
 
         <!-- UPCOMING MOVIES SECTION -->
@@ -2148,9 +2147,6 @@
                 <div style="display: flex; align-items: center; gap: 0.75rem; width: 100%;">
                     <span class="alert-icon-small">📢</span>
                     <h2 style="font-size: 1.2rem; flex: 1;">Interne Mitteilungen</h2>
-                    <button class="btn-primary" onclick="openMessageModal()" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; border-radius: 8px; margin-right: 0.5rem; background: var(--primary-red); border: none; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-                        <span>✉️</span> Verfassen
-                    </button>
                     <span id="news-count-badge" class="badge">0</span>
                     <button class="toggle-btn collapsed" id="news-toggle-btn">
                         <svg viewBox="0 0 24 24" width="24" height="24">
@@ -2623,14 +2619,50 @@
             </div>
         </div>
 
-        <!-- Admin Panel -->
-        <div class="card-container glass admin-section" style="margin-bottom: 2rem;">
+        <!-- Admin Portal (Integrated in Settings) -->
+        <div class="card-container glass einstellungen-section" id="admin-auth-section" style="margin-bottom: 2rem; border-color: rgba(168, 85, 247, 0.3);">
             <div class="card-header" style="flex-direction: column; align-items: flex-start; gap: 0.5rem; padding: 1.5rem;">
-                <h2 style="font-size: 1.5rem;">🔒 Admin Panel</h2>
-                <p style="font-size: 0.85rem; color: var(--text-muted);">Verwalte Sichtbarkeit von Modulen und Dashboard-Einstellungen.</p>
+                <h2 style="font-size: 1.5rem;">🔒 Admin-Bereich</h2>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Zugang nur für autorisiertes Personal.</p>
             </div>
-            <div style="padding: 0 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;" id="admin-modules-list">
-                <!-- Injected via JS -->
+            
+            <!-- Login Form -->
+            <div id="admin-login-form" style="padding: 0 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <input type="text" id="admin-user-input" placeholder="Benutzername" class="input-field" style="height: 48px; border-radius: 12px; margin-top: 0;">
+                    <input type="password" id="admin-password-input" placeholder="Passwort" class="input-field" style="height: 48px; border-radius: 12px; margin-top: 0;">
+                </div>
+                <button onclick="checkAdminLogin()" class="btn-primary" style="height: 50px; border-radius: 14px; background: linear-gradient(135deg, #a855f7, #7c3aed); border: none; font-weight: 800; font-size: 1rem; width: 100%; box-shadow: 0 10px 20px rgba(168, 85, 247, 0.2);">
+                    🔑 Einloggen
+                </button>
+                <p id="admin-login-error" style="color: #e74c3c; font-size: 0.8rem; text-align: center; display: none;">❌ Zugangsdaten inkorrekt.</p>
+            </div>
+
+            <!-- Admin Controls (Initially Hidden) -->
+            <div id="admin-controls-wrapper" style="display: none;">
+                <!-- Welcome & Disclaimer -->
+                <div style="padding: 0 1.5rem 1rem; border-bottom: 1px solid var(--surface-border); margin-bottom: 1rem;">
+                    <div style="background: rgba(0, 120, 255, 0.05); border: 1px solid rgba(0, 120, 255, 0.1); border-radius: 10px; padding: 1rem;">
+                        <h4 style="margin: 0 0 0.5rem 0; font-size: 0.95rem; color: var(--text-main);">👋 Willkommen im Admin-Panel</h4>
+                        <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
+                            Diese WebApp wurde primär für die Betriebsabläufe im <strong>Kinopolis Darmstadt</strong> entwickelt. 
+                            Funktionserweiterungen für andere Standorte können gerne als gesondertes Feedback (inkl. Standort und Ansprechpartner) eingereicht werden.
+                        </p>
+                    </div>
+                </div>
+
+                <div style="padding: 0 1.5rem 1rem; display: flex; flex-direction: column; gap: 1rem;">
+                    <button onclick="openMessageModal()" class="btn-primary" style="height: 44px; border-radius: 10px; background: linear-gradient(135deg, #3498db, #2980b9); border: none; font-weight: 700;">
+                        📢 Interne Mitteilung verfassen
+                    </button>
+                </div>
+
+                <div style="padding: 0 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;" id="admin-modules-list">
+                    <!-- Injected via JS -->
+                </div>
+                <div style="padding: 0 1.5rem 1.5rem; border-top: 1px solid var(--surface-border); margin-top: 1rem;">
+                    <button onclick="adminLogout()" style="width: 100%; padding: 0.8rem; background: rgba(229, 9, 20, 0.1); border: 1px solid rgba(229, 9, 20, 0.2); border-radius: 10px; color: #ff4d4d; font-weight: bold; cursor: pointer;">Abmelden</button>
+                </div>
             </div>
         </div>
         <div class="card-container glass intern-section" style="margin-bottom: 1rem;">
@@ -2845,9 +2877,7 @@
                 loadLogs();
             } else if (view === 'einstellungen') {
                 document.body.classList.add('einstellungen-active');
-            } else if (view === 'admin') {
-                document.body.classList.add('admin-active');
-                renderAdminPanel();
+                checkAdminSession();
             }
         }
 
@@ -3804,6 +3834,16 @@
             document.getElementById('message-modal').classList.remove('active');
         }
 
+        async function loadLogs() {
+            const container = document.getElementById('messages-list');
+            if (!container) return;
+            
+            try {
+                const res = await fetch(`/api/messages?location=${currentCity}`);
+                const logs = await res.json();
+            } catch (e) { console.error(e); }
+        }
+
         async function sendMessage() {
             const title = document.getElementById('msg-title').value.trim();
             const content = document.getElementById('msg-content').value.trim();
@@ -4632,6 +4672,9 @@
         }
 
         function addPosterAlerts(hallsGrouped, tomSessionsFlat, container) {
+            // ONLY FOR DARMSTADT ('kp')
+            if (currentCity !== 'kp') return;
+
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
             const allAlerts = [];
@@ -4643,12 +4686,16 @@
 
                 // Only find the LATEST poster change that has already happened
                 let latestAlert = null;
+                
+                // Track if we found a potential alert - if so, ensure others for this hall are cleared
+                // (LatestAlert logic naturally cleans up older alerts for the same hall when rendering)
 
                 hallSessions.forEach((s, idx) => {
                     const [sh, sm] = s.time.split(':').map(Number);
                     const changeMin = (sh * 60 + sm) + 30;
                     
-                    if (currentMinutes >= changeMin) {
+                    // Expiration: If alert is older than 4 hours (240 mins), hide it
+                    if (currentMinutes >= changeMin && (currentMinutes - changeMin) < 240) {
                         if (idx < hallSessions.length - 1) { // Normal change
                             const nextMovie = hallSessions[idx + 1];
                             
@@ -5050,6 +5097,44 @@
             { id: 'info', name: 'Filme & Demnächst', icon: '🎞️' }
         ];
 
+        function checkAdminLogin() {
+            const user = document.getElementById('admin-user-input').value;
+            const pass = document.getElementById('admin-password-input').value;
+            const error = document.getElementById('admin-login-error');
+
+            if (user === 'admin' && pass === 'admin123') {
+                sessionStorage.setItem('isAdminAuthenticated', 'true');
+                unlockAdminPanel();
+                if (error) error.style.display = 'none';
+            } else {
+                if (error) error.style.display = 'block';
+                // Trigger shake effect maybe? Let's keep it simple for now.
+            }
+        }
+
+        function adminLogout() {
+            sessionStorage.removeItem('isAdminAuthenticated');
+            document.getElementById('admin-login-form').style.display = 'flex';
+            document.getElementById('admin-controls-wrapper').style.display = 'none';
+            document.getElementById('admin-user-input').value = '';
+            document.getElementById('admin-password-input').value = '';
+        }
+
+        function checkAdminSession() {
+            if (sessionStorage.getItem('isAdminAuthenticated') === 'true') {
+                unlockAdminPanel();
+            } else {
+                document.getElementById('admin-login-form').style.display = 'flex';
+                document.getElementById('admin-controls-wrapper').style.display = 'none';
+            }
+        }
+
+        function unlockAdminPanel() {
+            document.getElementById('admin-login-form').style.display = 'none';
+            document.getElementById('admin-controls-wrapper').style.display = 'block';
+            renderAdminPanel();
+        }
+
         function renderAdminPanel() {
             const container = document.getElementById('admin-modules-list');
             if (!container) return;
@@ -5057,8 +5142,8 @@
             const disabledModules = JSON.parse(localStorage.getItem('disabled_modules') || '[]');
             
             container.innerHTML = `
-                <div style="background: rgba(0, 120, 255, 0.1); border: 1px solid rgba(0, 120, 255, 0.2); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem;">
-                    <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.5rem;">Sichtbare Module wählen</h3>
+                <div style="background: rgba(168, 85, 247, 0.05); border: 1px solid rgba(168, 85, 247, 0.1); border-radius: 12px; padding: 1.5rem; margin-bottom: 0;">
+                    <h3 style="color: #a855f7; font-size: 1.1rem; margin-bottom: 0.5rem;">Sichtbare Module wählen</h3>
                     <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem;">Deaktiviere Tabs, die im Dashboard nicht benötigt werden.</p>
                     
                     <div style="display: flex; flex-direction: column; gap: 1rem;">
@@ -5066,7 +5151,7 @@
                             const checked = !disabledModules.includes(mod.id) ? 'checked' : '';
                             return `
                                 <label style="display: flex; align-items: center; gap: 1rem; cursor: pointer; padding: 0.5rem; background: rgba(255,255,255,0.03); border-radius: 8px;">
-                                    <input type="checkbox" onchange="toggleModule('${mod.id}', this.checked)" ${checked} style="width: 1.2rem; height: 1.2rem; accent-color: var(--primary-blue);">
+                                    <input type="checkbox" onchange="toggleModule('${mod.id}', this.checked)" ${checked} style="width: 1.2rem; height: 1.2rem; accent-color: #a855f7;">
                                     <span style="font-size: 1rem;">${mod.icon} ${mod.name}</span>
                                 </label>
                             `;

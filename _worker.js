@@ -327,22 +327,45 @@ const STATIC_MESSAGES = [
 app.get('/api/messages', async (c) => {
     if (!c.env.DB) return c.json(STATIC_MESSAGES);
     try {
-        const { results } = await c.env.DB.prepare('SELECT * FROM messages ORDER BY created_at DESC LIMIT 20').all();
+        const location = c.req.query('location');
+        let query = 'SELECT * FROM messages';
+        let params = [];
+        
+        if (location) {
+            query += ' WHERE location = ? OR location IS NULL';
+            params.push(location);
+        }
+        query += ' ORDER BY created_at DESC LIMIT 20';
+        
+        const { results } = await c.env.DB.prepare(query).bind(...params).all();
         return c.json(results.length ? results : STATIC_MESSAGES);
     } catch (e) {
-        return c.json(STATIC_MESSAGES);
+        // Fallback for older DB versions without location column
+        try {
+            const { results } = await c.env.DB.prepare('SELECT * FROM messages ORDER BY created_at DESC LIMIT 20').all();
+            return c.json(results.length ? results : STATIC_MESSAGES);
+        } catch (e2) {
+            return c.json(STATIC_MESSAGES);
+        }
     }
 });
 
 app.post('/api/messages', async (c) => {
     try {
-        const { title, content, author, image_url } = await c.req.json();
+        const { title, content, author, image_url, location } = await c.req.json();
         if (!title || !content) return c.json({ error: 'Title and content required' }, 400);
 
         if (c.env.DB) {
-            await c.env.DB.prepare(
-                'INSERT INTO messages (title, content, author, image_url) VALUES (?, ?, ?, ?)'
-            ).bind(title, content, author || 'System', image_url || null).run();
+            try {
+                await c.env.DB.prepare(
+                    'INSERT INTO messages (title, content, author, image_url, location) VALUES (?, ?, ?, ?, ?)'
+                ).bind(title, content, author || 'System', image_url || null, location || null).run();
+            } catch (dbErr) {
+                // Compatibility for older DB schema
+                await c.env.DB.prepare(
+                    'INSERT INTO messages (title, content, author, image_url) VALUES (?, ?, ?, ?)'
+                ).bind(title, content, author || 'System', image_url || null).run();
+            }
             
             // Broadcast push
             await sendPushToAll(c.env, {
@@ -877,13 +900,6 @@ app.post('/api/logs', async (c) => {
         return c.json({ error: e.message }, 500);
     }
 });
-        
-        return c.json({ success: true });
-    } catch (e) {
-        console.error('Log save error:', e);
-        return c.json({ error: `Database error: ${e.message}` }, 500);
-    }
-});
 
 // --- AI PLAN SCANNER + MODELL FALLBACK ---
 app.post('/api/ai-agree', async (c) => {
@@ -1111,16 +1127,19 @@ export default {
                             const nextS = sessions[i + 1];
                             if (nextS && s.title !== nextS.title) {
                                 const alertHash = `poster-${loc}-${hall.name}-${s.time}-${nextS.title}`;
-                                const existing = await env.DB.prepare('SELECT id FROM notification_state WHERE alert_hash = ?').bind(alertHash).first();
-                                
-                                if (!existing) {
-                                    await env.DB.prepare('INSERT INTO notification_state (alert_hash) VALUES (?)').bind(alertHash).run();
-                                    await sendPushToAll(env, {
-                                        title: '🖼️ Plakatwechsel: ' + hall.name,
-                                        body: `Film läuft seit 20 Min. Bitte Plakat für "${nextS.title}" (${nextS.time} Uhr) einhängen!`,
-                                        image: nextS.poster,
-                                        tag: 'poster-alert'
-                                    }, loc);
+                                if (loc === 'kp') {
+                                    const existing = await env.DB.prepare('SELECT id FROM notification_state WHERE alert_hash = ?').bind(alertHash).first();
+                                    
+                                    if (!existing) {
+                                        await env.DB.prepare('INSERT INTO notification_state (alert_hash) VALUES (?)').bind(alertHash).run();
+                                        await sendPushToAll(env, {
+                                            title: '🖼️ Plakatwechsel: ' + hall.name,
+                                            body: `Film läuft seit 20 Min. Bitte Plakat für "${nextS.title}" (${nextS.time} Uhr) einhängen!`,
+                                            image: nextS.poster,
+                                            tag: 'poster-alert'
+                                        }, loc);
+                                    }
+                                }
                                 }
                             }
                         }
