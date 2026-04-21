@@ -725,17 +725,19 @@ app.get('/api/upcoming', async (c) => {
         if (!response.ok) throw new Error('Failed to fetch Kinopolis main page');
         const html = await response.text();
 
-        // Target the specific coming-soon-slider ID
-        const sliderMatch = html.match(/<(?:section|div)[^>]*id="coming-soon-slider"[\s\S]*?<\/(?:section|div)>/);
+        // Target the specific coming-soon-slider ID or general highlights
+        const sliderMatch = html.match(/<(?:section|div)[^>]*id="(?:coming-soon-slider|highlights)"[\s\S]*?<\/(?:section|div)>/);
         let blocks = [];
         
         if (sliderMatch) {
             const sliderHtml = sliderMatch[0];
             // Split by movie grid bricks
-            blocks = sliderHtml.split(/<div[^>]*class="[^"]*movie[^"]*"[^>]*>/).slice(1);
-        } else {
-            // Fallback: search for grid items globally
-            const items = html.match(/<div[^>]*class="[^"]*movie[^"]*"[^>]*>[\s\S]*?<\/div>\s*<\/div>/g);
+            blocks = sliderHtml.split(/<(?:div|article)[^>]*class="[^"]*movie[^"]*"[^>]*>/).slice(1);
+        }
+        
+        // If not found in slider, search for grid items globally
+        if (blocks.length === 0) {
+            const items = html.match(/<(?:div|article)[^>]*class="[^"]*movie[^"]*"[^>]*>[\s\S]*?<\/(?:div|article)>/g);
             if (items) blocks = items;
         }
 
@@ -789,38 +791,45 @@ app.get('/api/logs-summary', async (c) => {
         const location = c.req.query('location') || 'kp';
         if (!c.env.DB || !c.env.AI) return c.json({ error: 'DB or AI not available' }, 500);
         
-        // Fetch logs from the last 7 days (or last 50 entries)
-        const logs = await c.env.DB.prepare(`
-            SELECT author, message, priority, created_at 
-            FROM shift_logs 
-            WHERE location = ? 
-            AND created_at > datetime('now', '-7 days')
-            ORDER BY created_at DESC 
-            LIMIT 50
-        `).bind(location).all();
+        try {
+            // Fetch logs from the last 7 days
+            const logs = await c.env.DB.prepare(`
+                SELECT author, message, priority, created_at 
+                FROM shift_logs 
+                WHERE location = ? 
+                AND created_at > datetime('now', '-7 days')
+                ORDER BY created_at DESC 
+                LIMIT 50
+            `).bind(location).all();
 
-        if (logs.results.length === 0) return c.json({ summary: "Keine Einträge in den letzten 7 Tagen vorhanden." });
+            if (logs.results.length === 0) return c.json({ summary: "Keine Einträge in den letzten 7 Tagen vorhanden." });
 
-        const logText = logs.results.map(l => `[${l.priority.toUpperCase()}] ${l.author}: ${l.message}`).join('\n');
-        
-        const systemPrompt = `Du bist ein hilfreicher Assistent für Kinoleiter. 
-        Analysiere die folgenden Übergabebuch-Einträge der letzten Tage. 
-        Erstelle eine SEHR kompakte Zusammenfassung (max 3-5 Aufzählungspunkte). 
-        Konzentriere dich auf:
-        1. Technische Defekte oder offene Probleme.
-        2. Wichtige Personal- oder Bestandshinweise.
-        3. Besondere Vorkommnisse.
-        Schreibe auf Deutsch, professionell und kurz gefasst.`;
+            const logText = logs.results.map(l => `[${l.priority.toUpperCase()}] ${l.author}: ${l.message}`).join('\n');
+            
+            const systemPrompt = `Du bist ein hilfreicher Assistent für Kinoleiter. 
+            Analysiere die folgenden Übergabebuch-Einträge der letzten Tage. 
+            Erstelle eine SEHR kompakte Zusammenfassung (max 3-5 Aufzählungspunkte). 
+            Konzentriere dich auf:
+            1. Technische Defekte oder offene Probleme.
+            2. Wichtige Personal- oder Bestandshinweise.
+            3. Besondere Vorkommnisse.
+            Schreibe auf Deutsch, professionell und kurz gefasst.`;
 
-        const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
-            messages: [
-                { role: 'system', content: systemPrompt },
-                { role: 'user', content: logText }
-            ],
-            max_tokens: 512
-        });
+            const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: logText }
+                ],
+                max_tokens: 512
+            });
 
-        return c.json({ summary: response.response });
+            return c.json({ summary: response.response });
+        } catch (dbError) {
+            if (dbError.message.includes('no such table')) {
+                return c.json({ error: 'DB_MIGRATION_REQUIRED', summary: 'Bitte lege die Tabelle "shift_logs" in deiner Cloudflare D1 Datenbank an.' }, 500);
+            }
+            throw dbError;
+        }
     } catch (e) {
         console.error('Summary generation error:', e);
         return c.json({ error: 'Failed to generate summary' }, 500);
@@ -828,15 +837,22 @@ app.get('/api/logs-summary', async (c) => {
 });
 
 app.get('/api/logs', async (c) => {
-    const location = c.req.query('location') || 'kp';
-    if (!c.env.DB) return c.json([]);
-    const logs = await c.env.DB.prepare(`
-        SELECT * FROM shift_logs 
-        WHERE location = ? 
-        ORDER BY created_at DESC 
-        LIMIT 50
-    `).bind(location).all();
-    return c.json(logs.results);
+    try {
+        const location = c.req.query('location') || 'kp';
+        if (!c.env.DB) return c.json([]);
+        const logs = await c.env.DB.prepare(`
+            SELECT * FROM shift_logs 
+            WHERE location = ? 
+            ORDER BY created_at DESC 
+            LIMIT 50
+        `).bind(location).all();
+        return c.json(logs.results);
+    } catch (e) {
+        if (e.message.includes('no such table')) {
+            return c.json({ error: 'DB_MIGRATION_REQUIRED' }, 500);
+        }
+        return c.json([], 500);
+    }
 });
 
 app.post('/api/logs', async (c) => {
@@ -844,10 +860,23 @@ app.post('/api/logs', async (c) => {
         const { location, author, message, priority } = await c.req.json();
         if (!c.env.DB || !message) return c.json({ error: 'Missing data or DB connection' }, 400);
         
-        await c.env.DB.prepare(`
-            INSERT INTO shift_logs (location, author, message, priority)
-            VALUES (?, ?, ?, ?)
-        `).bind(location || 'kp', author || 'Anonym', message, priority || 'normal').run();
+        try {
+            await c.env.DB.prepare(`
+                INSERT INTO shift_logs (location, author, message, priority)
+                VALUES (?, ?, ?, ?)
+            `).bind(location || 'kp', author || 'Anonym', message, priority || 'normal').run();
+            return c.json({ success: true });
+        } catch (dbError) {
+            if (dbError.message.includes('no such table')) {
+                return c.json({ error: 'DB_MIGRATION_REQUIRED' }, 500);
+            }
+            throw dbError;
+        }
+    } catch (e) {
+        console.error('Log save error:', e);
+        return c.json({ error: e.message }, 500);
+    }
+});
         
         return c.json({ success: true });
     } catch (e) {

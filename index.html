@@ -39,67 +39,116 @@
             --preview-bg: rgba(255, 255, 255, 0.03);
         }
 
-        /* LIGHT MODE OVERRIDES - PREMIUM CONTRAST FIX */
+        /* LIGHT MODE OVERRIDES - PREMIUM COMPLETE REWRITE */
         body.light-mode {
-            --bg-dark: #f8fafc;
-            --surface-color: rgba(255, 255, 255, 0.85);
-            --surface-border: rgba(0, 0, 0, 0.1);
+            --bg-dark: #f1f5f9;
+            --surface-color: #ffffff;
+            --surface-border: #e2e8f0;
             --text-main: #0f172a;
-            --text-muted: #475569;
+            --text-muted: #64748b;
             --card-bg: #ffffff;
-            --glass-bg: rgba(255, 255, 255, 0.7);
-            --glass-border: rgba(0, 0, 0, 0.08);
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: #e2e8f0;
 
             /* Light Alert Tokens */
-            --alert-bg: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
-            --alert-border: rgba(0, 120, 255, 0.2);
+            --alert-bg: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            --alert-border: rgba(0, 120, 255, 0.1);
             --alert-text-h2: #0f172a;
-            --alert-text-p: #475569;
-            --preview-bg: #f1f5f9;
+            --alert-text-p: #64748b;
+            --preview-bg: #f8fafc;
         }
 
-        /* Explicit Light Mode Typography Fixes */
-        body.light-mode h1, 
-        body.light-mode h2, 
-        body.light-mode h3, 
-        body.light-mode h4,
-        body.light-mode .hall-name,
-        body.light-mode .movie-title,
-        body.light-mode .poster-title,
-        body.light-mode .stat-label,
-        body.light-mode .stat-value,
-        body.light-mode .log-author,
-        body.light-mode .item-name,
-        body.light-mode .nav-tabs .tab-btn span,
-        body.light-mode .dashboard-title,
-        body.light-mode .admin-section h2,
-        body.light-mode .admin-section h3,
-        body.light-mode .admin-section p {
+        /* Essential Light Mode Contrast Overrides */
+        body.light-mode h1, body.light-mode h2, body.light-mode h3, body.light-mode h4, body.light-mode h5,
+        body.light-mode label, body.light-mode span:not(.badge), body.light-mode .hall-name,
+        body.light-mode .movie-title, body.light-mode .stat-label, body.light-mode .stat-value,
+        body.light-mode .log-author, body.light-mode .item-name, body.light-mode .dashboard-title,
+        body.light-mode .push-info-text h4, body.light-mode .alert-text h2,
+        body.light-mode .kurzwahl-grid span, body.light-mode .leitung-grid span,
+        body.light-mode .einlass-grid span, body.light-mode .verkauf-grid span {
             color: #0f172a !important;
         }
 
-        body.light-mode .card-container {
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-            border-color: rgba(0, 0, 0, 0.05) !important;
-        }
-
-        body.light-mode .glass {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-        }
-
-        body.light-mode .session-item {
-            background: rgba(0, 0, 0, 0.02) !important;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
-        }
-
-        body.light-mode .session-item:hover {
-            background: rgba(0, 0, 0, 0.04) !important;
+        body.light-mode .card-container, 
+        body.light-mode .news-section, 
+        body.light-mode .stats-section, 
+        body.light-mode .auslaesse-container,
+        body.light-mode .intern-section {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
         }
 
         body.light-mode .stat-card {
+            background: #f8fafc !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+        
+        body.light-mode .stat-card h3, body.light-mode .stat-card div {
+            color: #0f172a !important;
+        }
+
+        body.light-mode .stat-value {
+            color: var(--primary-blue) !important;
+        }
+
+        body.light-mode .glass {
+            background: #ffffff;
+            border-color: #e2e8f0;
+        }
+
+        /* Dropdown & Form Elements */
+        body.light-mode select, 
+        body.light-mode input, 
+        body.light-mode textarea {
             background: #ffffff !important;
-            border: 1px solid rgba(0, 120, 255, 0.1) !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+        
+        body.light-mode textarea::placeholder,
+        body.light-mode input::placeholder {
+            color: #94a3b8 !important;
+        }
+
+        body.light-mode .location-select {
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 1rem center !important;
+            padding-right: 2.5rem !important;
+            background-color: #ffffff !important;
+        }
+
+        /* Buttons & Badges */
+        body.light-mode .tab-btn:not(.active) {
+            color: #64748b;
+        }
+        body.light-mode .btn-secondary {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+        
+        body.light-mode .badge {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        /* Section Specifics */
+        body.light-mode .auslass-item,
+        body.light-mode .news-card {
+            background: #f8fafc !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+        body.light-mode .session-item {
+            border-bottom-color: #f1f5f9 !important;
+            background: #ffffff !important;
+        }
+        body.light-mode .movie-link-btn {
+            background: rgba(0, 120, 255, 0.1);
+            color: var(--primary-blue);
         }
 
 
