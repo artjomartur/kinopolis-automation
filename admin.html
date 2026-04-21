@@ -45,7 +45,7 @@
 
         .admin-container {
             width: 100%;
-            max-width: 900px;
+            max-width: 1000px;
             background: var(--surface-color);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
@@ -59,7 +59,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         .admin-header {
-            padding: 2.5rem;
+            padding: 2rem 2.5rem;
             border-bottom: 1px solid var(--surface-border);
             display: flex;
             justify-content: space-between;
@@ -74,7 +74,7 @@
 
         /* Login Gate */
         #admin-login-gate { text-align: center; max-width: 400px; margin: 0 auto; padding: 4rem 0; }
-        .input-field { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--surface-border); padding: 1rem; border-radius: 14px; color: white; margin-bottom: 1rem; font-size: 1rem; outline: none; transition: border-color 0.3s; }
+        .input-field { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--surface-border); padding: 0.85rem 1rem; border-radius: 14px; color: white; margin-bottom: 1rem; font-size: 1rem; outline: none; transition: border-color 0.3s; }
         .input-field:focus { border-color: var(--primary-purple); }
         .btn-primary { width: 100%; padding: 1rem; border-radius: 14px; border: none; background: linear-gradient(135deg, #a855f7, #7c3aed); color: white; font-weight: 800; cursor: pointer; transition: all 0.3s ease; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(168, 85, 247, 0.3); }
@@ -86,13 +86,14 @@
 
         .card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--surface-border); border-radius: 20px; padding: 1.5rem; }
         
-        .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
-        .module-item { background: rgba(255,255,255,0.02); border: 1px solid var(--surface-border); padding: 1rem; border-radius: 14px; display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: all 0.2s; }
+        .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+        .module-item { background: rgba(255,255,255,0.02); border: 1px solid var(--surface-border); padding: 0.85rem 1rem; border-radius: 14px; display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: all 0.2s; }
         .module-item:hover { background: rgba(255,255,255,0.06); border-color: var(--primary-purple); }
-        .module-item input { width: 1.2rem; height: 1.2rem; accent-color: var(--primary-purple); }
+        .module-item input { width: 1.1rem; height: 1.1rem; accent-color: var(--primary-purple); }
+        .module-item span { font-size: 0.95rem; }
 
         .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .btn-secondary { background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--surface-border); padding: 1rem; border-radius: 14px; cursor: pointer; font-weight: 700; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .btn-secondary { background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--surface-border); padding: 0.85rem; border-radius: 14px; cursor: pointer; font-weight: 700; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
         .btn-secondary:hover { background: rgba(255,255,255,0.1); }
 
         .back-link { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; transition: color 0.2s; }
@@ -101,13 +102,13 @@
         /* Modal for News */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 1000; align-items: center; justify-content: center; padding: 2rem; }
         .modal.active { display: flex; }
-        .modal-content { background: var(--bg-color); border: 1px solid var(--surface-border); padding: 2rem; border-radius: 24px; width: 100%; max-width: 500px; }
+        .modal-content { background: var(--bg-color); border: 1px solid var(--surface-border); padding: 2rem; border-radius: 24px; width: 100%; max-width: 550px; }
         .modal-content h3 { margin-bottom: 1.5rem; }
-        .modal-content textarea { width: 100%; height: 120px; background: rgba(255,255,255,0.05); border: 1px solid var(--surface-border); border-radius: 12px; color: white; padding: 1rem; margin-top: 1rem; resize: none; outline: none; }
+        .modal-content textarea { width: 100%; height: 120px; background: rgba(255,255,255,0.05); border: 1px solid var(--surface-border); border-radius: 12px; color: white; padding: 1rem; margin-top: 0.5rem; resize: none; outline: none; }
 
         @media (max-width: 600px) {
             body { padding: 1rem; }
-            .admin-header { padding: 1.5rem; }
+            .admin-header { padding: 1rem 1.5rem; }
             .admin-content { padding: 1.5rem; }
             .btn-group { grid-template-columns: 1fr; }
         }
@@ -120,7 +121,7 @@
         <div class="admin-header">
             <div>
                 <h1>Admin Portal</h1>
-                <p style="font-size: 0.85rem; color: var(--text-muted);">Steuerung für Kinopolis Automation</p>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Kinopolis Darmstadt Automation</p>
             </div>
             <a href="index.html" class="back-link">
                 <span>🏠</span> Dashboard
@@ -131,7 +132,7 @@
         <div id="admin-login-gate">
             <div style="font-size: 3rem; margin-bottom: 1.5rem;">🔒</div>
             <h2 style="margin-bottom: 0.5rem;">Zugang erforderlich</h2>
-            <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem;">Bitte logge dich mit deinen Administrator-Daten ein.</p>
+            <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem;">Administrator-Zugang für Einstellungen und Mitteilungen.</p>
             <input type="text" id="admin-user" placeholder="Benutzername" class="input-field">
             <input type="password" id="admin-pass" placeholder="Passwort" class="input-field" onkeypress="if(event.key === 'Enter') handleLogin()">
             <button class="btn-primary" onclick="handleLogin()">Einloggen</button>
@@ -147,28 +148,28 @@
                 <div>
                     <h3 style="font-size: 1.1rem; margin-bottom: 0.4rem;">Entwickler-Information</h3>
                     <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
-                        Diese WebApp wurde primär für die Betriebsabläufe im <strong>Kinopolis Darmstadt</strong> entwickelt. 
-                        Funktionserweiterungen für andere Standorte können gerne als gesondertes Feedback (inkl. Standort und Ansprechpartner) eingereicht werden.
+                        Diese App ist optimiert für <strong>Kinopolis Darmstadt</strong>. 
+                        Wünsche für andere Standorte bitte über das Feedback-Modul einreichen.
                     </p>
                 </div>
             </div>
 
             <!-- Interne Mitteilung -->
             <div class="admin-section">
-                <h2><span>📢</span> Mitteilungen veröffentlichen</h2>
+                <h2><span>📢</span> Interne Mitteilungen</h2>
                 <div class="card">
-                    <p style="margin-bottom: 1.25rem;">Erstelle eine Mitteilung für deinen Standort. Diese ist sofort im Dashboard sichtbar.</p>
+                    <p style="margin-bottom: 1rem;">Veröffentliche Neuigkeiten oder Anweisungen für das Team.</p>
                     <button class="btn-primary" style="background: linear-gradient(135deg, #0078FF, #00d2ff);" onclick="openNewsModal()">
-                        Neue Mitteilung verfassen
+                        Neue Mitteilung mit Bild erstellen
                     </button>
                 </div>
             </div>
 
             <!-- Module Management -->
             <div class="admin-section">
-                <h2><span>🧩</span> Modul-Management</h2>
+                <h2><span>🧩</span> Modul-Sichtbarkeit</h2>
                 <div class="card">
-                    <p style="margin-bottom: 1.25rem;">Wähle aus, welche Tabs im Dashboard sichtbar sein sollen.</p>
+                    <p style="margin-bottom: 1.25rem;">Wähle granular aus, welche Unterkategorien im Dashboard angezeigt werden.</p>
                     <div id="module-management-list" class="module-grid">
                         <!-- Filled by JS -->
                     </div>
@@ -179,7 +180,7 @@
             <div class="admin-section">
                 <h2><span>📊</span> Daten & Backup</h2>
                 <div class="card">
-                    <p style="margin-bottom: 1.25rem;">Exportiere alle Schicht-Logs und Daten als Excel oder PDF.</p>
+                    <p style="margin-bottom: 1.25rem;">Exportiere alle Logs und Daten für die Ablage.</p>
                     <div class="btn-group">
                         <button onclick="exportToExcel()" class="btn-secondary" style="border-color: rgba(46, 204, 113, 0.3);">
                             <span style="color: #2ecc71;">📊</span> Excel Export
@@ -205,24 +206,35 @@
     <div id="news-modal" class="modal">
         <div class="modal-content">
             <h3>📢 Neue Mitteilung</h3>
-            <input type="text" id="msg-title" placeholder="Titel (z.B. Klima-Update)" class="input-field">
-            <input type="text" id="msg-author" placeholder="Autor (Name/Kürzel)" class="input-field">
-            <textarea id="msg-content" placeholder="Inhalt der Mitteilung..."></textarea>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <input type="text" id="msg-title" placeholder="Titel (z.B. Klima-Update)" class="input-field" style="margin-bottom: 0;">
+                <input type="text" id="msg-author" placeholder="Dein Name/Kürzel" class="input-field" style="margin-bottom: 0;">
+                <input type="text" id="msg-image" placeholder="Bild-URL (optional, z.B. imgur link)" class="input-field" style="margin-bottom: 0;">
+                <textarea id="msg-content" placeholder="Inhalt der Nachricht..."></textarea>
+            </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
                 <button class="btn-secondary" onclick="closeNewsModal()">Abbrechen</button>
-                <button class="btn-primary" onclick="submitNews()">Veröffentlichen</button>
+                <button class="btn-primary" onclick="submitNews()">Posten</button>
             </div>
         </div>
     </div>
 
     <script>
         const MODULES = [
-            { id: 'live', name: 'Live Display', icon: '📺' },
-            { id: 'stats', name: 'Statistik', icon: '📊' },
-            { id: 'kontakte', name: 'Kontakte', icon: '📞' },
-            { id: 'funk', name: 'Digital Funk', icon: '📡' },
-            { id: 'tools', name: 'Interne Tools', icon: '🛠️' },
-            { id: 'info', name: 'Filme & Info', icon: '🍿' }
+            { id: 'live-dashboard', name: 'Live Display (Haupt)', icon: '📺' },
+            { id: 'stats', name: 'Statistiken', icon: '📊' },
+            { id: 'kontakte', name: 'Telefonliste', icon: '📞' },
+            { id: 'funk', name: 'Digital Funk Shop', icon: '📡' },
+            { id: 'news', name: 'Interne Mitteilungen', icon: '📢' },
+            { id: 'logbook', name: 'Übergabebuch (Log)', icon: '📖' },
+            { id: 'checklist', name: 'Arbeits-Checklisten', icon: '🛠️' },
+            { id: 'transferlist', name: 'Waren-Transferliste', icon: '📋' },
+            { id: 'lostfound', name: 'Fundbüro (L&F)', icon: '🧸' },
+            { id: 'tasks', name: 'Tages-Aufgaben (Scanned)', icon: '📋' },
+            { id: 'alerts', name: 'Dringende Hinweise', icon: '⚠️' },
+            { id: 'info', name: 'Alle Filme & Info', icon: '🎞️' },
+            { id: 'exports', name: 'Backup & Export', icon: '📥' },
+            { id: 'feedback', name: 'Feedback an BL', icon: '📩' }
         ];
 
         let currentCity = localStorage.getItem('kinopolis_city') || 'kp';
@@ -232,8 +244,6 @@
             if (localStorage.getItem('is_admin') === 'true') {
                 showAdminPanel();
             }
-
-            // Theme sync
             if (localStorage.getItem('theme') === 'light') {
                 document.body.classList.add('light-mode');
             }
@@ -242,7 +252,6 @@
         function handleLogin() {
             const user = document.getElementById('admin-user').value;
             const pass = document.getElementById('admin-pass').value;
-
             if (user === 'admin' && pass === 'admin123') {
                 localStorage.setItem('is_admin', 'true');
                 showAdminPanel();
@@ -295,6 +304,7 @@
             const title = document.getElementById('msg-title').value.trim();
             const content = document.getElementById('msg-content').value.trim();
             const author = document.getElementById('msg-author').value.trim();
+            const image_url = document.getElementById('msg-image').value.trim();
             
             if (!title || !content) return alert('Titel und Inhalt erforderlich.');
             
@@ -302,34 +312,28 @@
                 const res = await fetch('/api/messages', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title, content, author, location: currentCity })
+                    body: JSON.stringify({ title, content, author, image_url, location: currentCity })
                 });
                 if (res.ok) {
-                    alert('Erfolgreich veröffentlicht!');
+                    alert('Gesendet!');
                     closeNewsModal();
-                    // Reset fields
                     document.getElementById('msg-title').value = '';
                     document.getElementById('msg-content').value = '';
+                    document.getElementById('msg-image').value = '';
                 }
             } catch (e) {
                 alert('Netzwerkfehler.');
             }
         }
 
-        // Export Logic
+        // Export utils (same as index.html but in Admin Context)
         async function exportToExcel() {
-            if (typeof XLSX === 'undefined') return alert('Library Error');
             try {
-                const wb = XLSX.utils.book_new();
                 const res = await fetch(`/api/logs?location=${currentCity}`);
                 const logs = await res.json();
-                
-                const wsLogs = XLSX.utils.json_to_sheet(logs.map(l => ({ 
-                    Datum: new Date(l.created_at).toLocaleString('de-DE'), 
-                    Autor: l.author, Nachricht: l.message, Priorität: l.priority 
-                })));
-                XLSX.utils.book_append_sheet(wb, wsLogs, "Übergabe-Logs");
-                XLSX.writeFile(wb, `Kinopolis_${currentCity.toUpperCase()}_Export_${new Date().toLocaleDateString('de-DE')}.xlsx`);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(logs), "Logs");
+                XLSX.writeFile(wb, `Kinopolis_Export_${new Date().toLocaleDateString()}.xlsx`);
             } catch(e) { alert('Export Fehler'); }
         }
 
@@ -339,21 +343,13 @@
             try {
                 const res = await fetch(`/api/logs?location=${currentCity}`);
                 const logs = await res.json();
-                
-                doc.setFontSize(18);
-                doc.text(`Übergabebuch - ${currentCity.toUpperCase()}`, 14, 22);
-                doc.setFontSize(11);
-                doc.setTextColor(100);
-                doc.text(`Generiert am ${new Date().toLocaleString('de-DE')}`, 14, 30);
-
+                doc.text("Schicht Logs Export", 14, 20);
                 doc.autoTable({
-                    startY: 35,
-                    head: [['Datum', 'Autor', 'Nachricht', 'Priorität']],
-                    body: logs.map(l => [new Date(l.created_at).toLocaleString('de-DE'), l.author, l.message, l.priority]),
-                    headStyles: { fillStyle: '#0078FF' }
+                    startY: 25,
+                    head: [['Datum', 'Autor', 'Inhalt']],
+                    body: logs.map(l => [new Date(l.created_at).toLocaleString(), l.author, l.message])
                 });
-
-                doc.save(`Kinopolis_Logs_${currentCity.toUpperCase()}.pdf`);
+                doc.save("Kinopolis_Logs.pdf");
             } catch(e) { alert('PDF Fehler'); }
         }
     </script>
