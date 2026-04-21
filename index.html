@@ -2648,6 +2648,29 @@
                     </div>
                 </div>
 
+                <!-- Admin: Export Section -->
+                <div id="export-section" style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+                    <h3 style="color: var(--primary-green); font-size: 1.1rem; margin-bottom: 0.75rem;">📊 Daten-Export</h3>
+                    <div class="stat-card" style="padding: 1.5rem; background: rgba(46, 204, 113, 0.05); border-color: rgba(46, 204, 113, 0.2);">
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Wähle die Daten aus, die du als CSV exportieren möchtest:</p>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="export-logs" checked> Dienstprotokolle
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="export-lf" checked> Fundbüro
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="export-tasks" checked> Tagesaufgaben
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="export-contacts" checked> Kontakte
+                            </label>
+                        </div>
+                        <button onclick="handleExport()" id="export-btn" class="btn-primary" style="width: 100%; background: var(--primary-green); color: white;">🚀 CSV Export generieren</button>
+                    </div>
+                </div>
+
                 <!-- Handbücher -->
                 <div>
                     <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">Handbücher</h3>
@@ -2728,17 +2751,14 @@
                         <span style="font-size: 1.3rem;">🏆</span>
                         <div>
                             <div style="font-weight: 800; font-size: 0.95rem; color: white;">Schicht-Level: <span style="color: var(--primary-blue);">Profi</span></div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted);">Noch 4 Aufgaben bis zum Schicht-Bonus!</div>
+                            <div id="xp-display" style="font-size: 1.1rem; font-weight: 900; color: white;">0 XP</div>
                         </div>
                     </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 1.1rem; font-weight: 900; color: white;">1,250 XP</div>
-                        <div style="font-size: 0.7rem; color: var(--primary-blue); font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">Rang #2 heute</div>
-                    </div>
                 </div>
-                <div style="height: 10px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
-                    <div id="gamification-progress" style="width: 75%; height: 100%; background: linear-gradient(90deg, var(--primary-blue), #00d4ff); transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 15px rgba(0, 120, 255, 0.4);"></div>
+                <div class="progress-container" style="height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; margin-bottom: 0.5rem;">
+                    <div id="xp-bar" class="progress-bar" style="width: 0%; height: 100%; background: linear-gradient(to right, #3498db, #2ecc71); transition: width 0.5s ease;"></div>
                 </div>
+                <div id="xp-status" style="font-size: 0.75rem; color: var(--text-muted);">Erledige Aufgaben, um XP zu sammeln!</div>
             </div>
             <div class="section-header card-header" onclick="toggleSection('stats-content', 'stats-toggle-btn')" style="cursor: pointer; padding: 1.5rem 3rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;">
@@ -2980,6 +3000,7 @@
                 if (localStorage.getItem('welcome_seen_beta') !== 'true' && document.getElementById('welcome-modal')) {
                     document.getElementById('welcome-modal').classList.add('active');
                 }
+                updateGamification();
             } catch (err) {
                 console.error("Critical Dashboard Init Error:", err);
             }
@@ -3502,23 +3523,6 @@
                 { id: 'bl1', text: 'Wochenplanung kontrolliert' },
                 { id: 'bl2', text: 'Bestellwesen geprüft' },
                 { id: 'bl3', text: 'Feedback-Auswertung abgeschlossen' }
-            ],
-            'abbau-1-2': [
-                { id: 'ab12-1', text: '🍿 Müllkontrolle & Nachschub' },
-                { id: 'ab12-2', text: '👓 Brillenboxen geleert' },
-                { id: 'ab12-3', text: '🧹 Boden grob gereinigt' }
-            ],
-            'abbau-3-4': [
-                { id: 'ab34-1', text: '🍿 Müllkontrolle & Nachschub' },
-                { id: 'ab34-2', text: '👓 Brillenboxen geleert' }
-            ],
-            'abbau-5-6': [
-                { id: 'ab56-1', text: '🍿 Müllkontrolle & Nachschub' },
-                { id: 'ab56-2', text: '👓 Brillenboxen geleert' }
-            ],
-            'abbau-7-8': [
-                { id: 'ab78-1', text: '🍿 Müllkontrolle & Nachschub' },
-                { id: 'ab78-2', text: '👓 Brillenboxen geleert' }
             ]
         };
 
@@ -3620,6 +3624,7 @@
                     cloudChecklistState[id + '_by'] = name;
                     // Silent refresh
                     renderWorkstation();
+                    updateGamification();
                 }
             } catch (e) {
                 console.error("Failed to sync checklist item", e);
@@ -3648,6 +3653,7 @@
                 });
             }
             renderWorkstation();
+            updateGamification();
         }
 
         function closeWelcomeModal() {
@@ -3659,7 +3665,7 @@
             document.getElementById('lf-modal').classList.add('active');
         }
         function closeLfModal() {
-            document.getElementById('lf-modal').classList.remove('active');
+            document.getElementById('lf-modal').classList.active = false;
             document.getElementById('lf-what').value = '';
             document.getElementById('lf-category').value = '';
             document.getElementById('lf-where').value = '';
@@ -3773,6 +3779,7 @@
                     closeLfModal();
                     loadLfItems();
                     if (typeof showToast === 'function') showToast("Fundsache erfolgreich gespeichert");
+                    updateGamification();
                 }
             } catch (e) {
                 if (typeof showToast === 'function') showToast("Fehler beim Speichern", true);
@@ -4232,8 +4239,9 @@
 
             // 4. Add Station Abbau Alerts
             if (currentCity === 'kp') {
-                const abbauTasks = getKpStationTasks(hallsGrouped);
-                allTasks.push(...abbauTasks);
+                // Removed Abbau from checklist - only show as alerts/exits
+                // const abbauTasks = getKpStationTasks(hallsGrouped);
+                // allTasks.push(...abbauTasks);
             }
 
             // Filter for tasks:
@@ -4955,6 +4963,76 @@
         /** 
          * Constants moved to top
          */
+
+        // --- EXPORT LOGIC ---
+        async function handleExport() {
+            const btn = document.getElementById('export-btn');
+            const ogText = btn.innerHTML;
+            btn.innerHTML = '⏳ Exportiere...';
+            btn.disabled = true;
+
+            try {
+                let csvContent = "sep=,\nType,Category,Name/Title,Detail,Time,Date\n";
+                
+                // 1. Logs
+                if (document.getElementById('export-logs').checked) {
+                    const res = await fetch(`/api/logs?location=${currentCity}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        data.forEach(l => {
+                            csvContent += `LOG,${l.priority || ''},${l.author || ''},"${(l.message || '').replace(/"/g, '""')}",${l.created_at || ''},${currentCity}\n`;
+                        });
+                    }
+                }
+
+                // 2. Lost & Found
+                if (document.getElementById('export-lf').checked) {
+                    const res = await fetch(`/api/lostfound?location=${currentCity}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        data.forEach(item => {
+                            csvContent += `LOST_FOUND,${item.category || ''},"${(item.what || '').replace(/"/g, '""')}",${item.location || ''},${item.created_at || ''},${currentCity}\n`;
+                        });
+                    }
+                }
+
+                // 3. Tasks (Daily Auslässe)
+                if (document.getElementById('export-tasks').checked) {
+                    const auslaesse = [...completedAuslaesse];
+                    auslaesse.forEach(id => {
+                        csvContent += `TASK,AUSLASS,${id},Erledigt,,${new Date().toISOString().split('T')[0]}\n`;
+                    });
+                }
+
+                // 4. Contacts
+                if (document.getElementById('export-contacts').checked) {
+                    const res = await fetch(`/api/contacts?location=${currentCity}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        data.forEach(c => {
+                            csvContent += `CONTACT,${c.category || ''},${c.role_name || ''},${c.phone_number || ''},,${currentCity}\n`;
+                        });
+                    }
+                }
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", `kinopolis_export_${currentCity}_${new Date().toISOString().split('T')[0]}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showToast("Export erfolgreich!");
+            } catch (e) {
+                console.error("Export failed:", e);
+                showToast("Export fehlgeschlagen", true);
+            } finally {
+                btn.innerHTML = ogText;
+                btn.disabled = false;
+            }
+        }
 
         async function loadContacts() {
             try {
