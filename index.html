@@ -751,6 +751,21 @@
             .collapsible-content {
                 padding: 0 1rem 1rem !important;
             }
+            .tools-section .module-grid {
+                gap: 0.75rem;
+                display: flex;
+                flex-direction: column;
+            }
+            .live-section { margin-top: 1rem; }
+            .hero-section {
+                padding: 1rem;
+                border-radius: 16px;
+            }
+            .card-header h2 { font-size: 1.1rem !important; }
+            .btn-primary { padding: 0.8rem; font-size: 0.95rem; }
+            p { font-size: 0.85rem; }
+            .movie-card { padding: 0.8rem; border-radius: 12px; }
+            .session-item { padding: 0.5rem; gap: 0.4rem; grid-template-columns: 45px 1fr; }
         }
 
         .dashboard-header {
@@ -2105,6 +2120,31 @@
             margin-bottom: 2.5rem;
             font-size: 1.05rem;
         }
+
+        .global-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: rgba(46, 204, 113, 0.9);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: bold;
+            z-index: 10000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .global-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -2204,36 +2244,6 @@
             <div id="news-list" class="collapsed"></div>
         </div>
 
-        <!-- Logbook Entry Modal -->
-        <div id="log-modal" class="modal">
-            <div class="modal-content glass" style="max-width: 450px;">
-                <h2 style="font-family: 'Outfit', sans-serif;">📖 Übergabe-Eintrag</h2>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Wichtige Infos für die nächste Schicht festhalten.</p>
-                
-                <textarea id="log-message" placeholder="Was ist passiert? (z.B. Saubere Brillen aufgefüllt, Kino 2 Klima defekt...)" class="input-field" style="height: 120px; resize: none;"></textarea>
-                
-                <div style="margin-top: 1rem;">
-                    <label style="font-size: 0.8rem; color: var(--text-muted);">Autor (Name/Kürzel)</label>
-                    <input type="text" id="log-author" placeholder="Dein Name" class="input-field" style="margin-top: 0.3rem;">
-                </div>
-
-                <div style="margin-top: 1rem;">
-                    <label style="font-size: 0.8rem; color: var(--text-muted);">Priorität</label>
-                    <select id="log-priority" class="input-field" style="margin-top: 0.3rem;">
-                        <option value="normal">Normal</option>
-                        <option value="wichtig">⚠️ Wichtig</option>
-                        <option value="dringend">🚨 Dringend</option>
-                    </select>
-                </div>
-                
-                <div class="modal-actions" style="margin-top: 2rem;">
-                    <button class="btn-secondary" onclick="closeLogModal()">Abbrechen</button>
-                    <button class="btn-primary" id="log-save-btn" onclick="saveLogEntry()" style="background: var(--primary-blue); border: none; padding: 0.75rem 1.5rem; border-radius: 12px; color: white; font-weight: 700;">
-                        💾 Speichern
-                    </button>
-                </div>
-            </div>
-        </div>
 
         <!-- Internal Message Modal -->
         <div id="message-modal" class="modal">
@@ -2480,35 +2490,6 @@
             </div>
         </div>
 
-        <!-- ÜBERGABEBUCH (Shift-Log) -->
-        <div class="card-container glass intern-section" id="logbook-section" style="display: none; margin-bottom: 1rem;">
-            <div class="card-header" style="padding: 1rem 1.25rem 0.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <span class="alert-icon-small">📖</span>
-                    <h2 style="font-size: 1.25rem;">Übergabebuch (Schicht-Log)</h2>
-                </div>
-                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                    <button id="log-summary-btn" class="btn-primary" onclick="generateLogSummary()" style="padding: 0.4rem 0.8rem; font-size: 0.75rem; border-radius: 8px; background: linear-gradient(135deg, #a855f7, #7c3aed); border: none; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-                        <span>✨</span> KI-Summary
-                    </button>
-                    <button class="btn-primary" onclick="openLogModal()" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 8px;">➕ Eintrag</button>
-                </div>
-            </div>
-            <!-- AI Summary Area -->
-            <div id="log-summary-container" style="display: none; margin: 0 1.25rem 1rem; padding: 1rem; background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.2); border-radius: 12px; position: relative;">
-                <button onclick="this.parentElement.style.display='none'" style="position: absolute; top: 0.5rem; right: 0.5rem; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem;">&times;</button>
-                <h4 style="color: #a855f7; font-size: 0.8rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
-                    <span>✨</span> KI-Analyse
-                </h4>
-                <div id="log-summary-content" style="font-size: 0.85rem; line-height: 1.5; color: var(--text-main);"></div>
-            </div>
-            <div style="padding: 1rem 1.5rem 1.5rem;">
-                <div id="logbook-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                    <!-- Logs will be loaded here -->
-                    <p style="text-align: center; color: var(--text-muted); font-style: italic;">Lade Einträge...</p>
-                </div>
-            </div>
-        </div>
 
         <div id="poster-alerts-container" class="live-section">
             <div class="alerts-header glass" onclick="toggleAlerts()">
@@ -2836,6 +2817,17 @@
         const LOCATIONS_URL = '/api/locations';
         const VAPID_PUBLIC_KEY = 'BCP-JGZbVBjKY1_blxAHw6bC5Ddf0nLAyPSp8q39kV7utFahZNyQZJ8KlV-ht6UKg07eAuVBVHJhVsaDMx1m7X8';
 
+        // --- GLOBAL TOAST ---
+        function showToast(msg, isError = false) {
+            const t = document.getElementById('global-toast');
+            if(!t) return;
+            document.getElementById('toast-msg').innerText = msg;
+            document.getElementById('toast-icon').innerText = isError ? '❌' : '✅';
+            t.style.background = isError ? 'rgba(231, 76, 60, 0.95)' : 'rgba(46, 204, 113, 0.95)';
+            t.classList.add('show');
+            setTimeout(() => { t.classList.remove('show'); }, 3500);
+        }
+
         // --- RESET LOGIC ---
         function checkAndResetDailyTasks() {
             const today = new Date().toISOString().split('T')[0];
@@ -2895,7 +2887,6 @@
                 updateKurzwahlVisibility();
             } else if (view === 'intern') {
                 document.body.classList.add('intern-active');
-                loadLogs();
             } else if (view === 'funk') {
                 document.body.classList.add('tools-active');
                 if (document.getElementById('transfer-items').children.length === 0) initTransferList();
@@ -3258,15 +3249,15 @@
                 });
                 
                 if (res.ok) {
-                    alert("Transferliste erfolgreich an TL gesendet.");
+                    showToast("Transferliste erfolgreich an TL gesendet!");
                     // Reset elements
                     initTransferList();
                     document.getElementById('transfer-custom').value = '';
                 } else {
-                    alert("Fehler beim Senden.");
+                    showToast("Fehler beim Senden", true);
                 }
             } catch (e) {
-                alert("Netzwerkfehler.");
+                showToast("Netzwerkfehler.", true);
             }
         }
 
@@ -3309,130 +3300,16 @@
                 });
 
                 if (res.ok) {
-                    alert(`✅ Funksignal gesendet: ${item} wird nachgefüllt!`);
+                    showToast(`Senden erfolgreich: ${item} wird nachgefüllt!`);
                     resetFunkView();
                 } else {
-                    alert('❌ Fehler beim Senden des Signals.');
+                    showToast('Fehler beim Senden des Signals.', true);
                 }
             } catch (e) {
-                alert('Netzwerkfehler');
+                showToast('Netzwerkfehler', true);
             }
         }
 
-        function openLogModal() {
-            const modal = document.getElementById('log-modal');
-            if (modal) {
-                modal.classList.add('active');
-                modal.style.display = 'flex'; // Keep for structure
-                document.getElementById('log-author').value = localStorage.getItem('kinopolis_shift_name') || '';
-            }
-        }
-
-        function closeLogModal() {
-            const modal = document.getElementById('log-modal');
-            if (modal) {
-                modal.classList.remove('active');
-                setTimeout(() => { modal.style.display = 'none'; }, 500); // Wait for transition
-            }
-        }
-
-        function updateKurzwahlVisibility() {
-            const section = document.getElementById('kurzwahl-section');
-            if (!section) return;
-            // Only allow section to be visible if city is 'kp'.
-            // Instead of 'display: block', we set it to '' so that 
-            // the tab-specific CSS (kontakte-active .kontakte-section) handles the actual visibility.
-            if (currentCity === 'kp') {
-                section.style.display = ''; 
-            } else {
-                section.style.display = 'none';
-            }
-        }
-
-        async function saveLogEntry() {
-            const message = document.getElementById('log-message').value.trim();
-            const author = document.getElementById('log-author').value.trim();
-            const priority = document.getElementById('log-priority').value;
-
-            if (!message) return alert('Bitte Nachricht eingeben.');
-
-            // Ändere Button Text für Ladescreen
-            const btn = document.getElementById('log-save-btn');
-            const ogText = btn.innerHTML;
-            btn.innerHTML = '⏳ Speichern...';
-            btn.disabled = true;
-
-            try {
-                const res = await fetch('/api/logs', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ location: currentCity, author, message, priority })
-                });
-                if (res.ok) {
-                    closeLogModal();
-                    document.getElementById('log-message').value = '';
-                    loadLogs();
-                } else {
-                    const data = await res.json();
-                    console.error('Server save error:', data);
-                    alert('Fehler beim Speichern: ' + (data.error || 'Server Fehler'));
-                }
-            } catch (e) {
-                alert('Speichern fehlgeschlagen: Netzwerk- oder Serverfehler.');
-            } finally {
-                btn.innerHTML = ogText;
-                btn.disabled = false;
-            }
-        }
-
-        async function loadLogs() {
-            const list = document.getElementById('logbook-list');
-            if (!list) return;
-            try {
-                const res = await fetch(`/api/logs?location=${currentCity}`);
-                if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-                
-                const logs = await res.json();
-                if (!Array.isArray(logs)) {
-                    console.error('Logs is not an array:', logs);
-                    list.innerHTML = '<p style="color: #e74c3c;">Systemfehler: Falsches Datenformat.</p>';
-                    return;
-                }
-                
-                if (logs.length === 0) {
-                    list.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-style: italic; margin-top: 1rem;">Keine Einträge vorhanden.</p>';
-                    return;
-                }
-
-                list.innerHTML = logs.map(log => {
-                    let color = 'var(--text-muted)';
-                    if (log.priority === 'wichtig') color = '#f1c40f';
-                    if (log.priority === 'dringend') color = '#e74c3c';
-
-                    const date = new Date(log.created_at).toLocaleString('de-DE', { 
-                        hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' 
-                    });
-
-                    // Light mode safety: Ensure text is dark and backgrounds are clear
-                    const isLight = document.body.classList.contains('light-mode');
-                    const authorColor = (color === 'var(--text-muted)') ? (isLight ? '#0f172a' : 'white') : color;
-                    const msgColor = isLight ? '#0f172a' : '#fff';
-
-                    return `
-                        <div style="background: ${isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255, 255, 255, 0.03)'}; border-left: 3px solid ${color}; padding: 0.75rem 1rem; border-radius: 4px 12px 12px 4px; margin-bottom: 0.75rem;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem;">
-                                <span style="font-weight: bold; color: ${authorColor}">${log.author}</span>
-                                <span>${date}</span>
-                            </div>
-                            <div style="font-size: 0.95rem; color: ${msgColor}; line-height: 1.4;">${log.message}</div>
-                        </div>
-                    `;
-                }).join('');
-            } catch (e) {
-                console.error('Log loading error:', e);
-                list.innerHTML = '<p style="color: #e74c3c;">Fehler beim Laden. Bitte Internetverbindung prüfen.</p>';
-            }
-        }
 
         // Init notes
         const notesArea = document.getElementById('staff-notes');
@@ -4747,16 +4624,16 @@
                 });
 
                 if(res.ok) {
-                    alert('Feedback erfolgreich gesendet! Danke.');
+                    showToast('Feedback erfolgreich gesendet! Danke.');
                     closeFeedback();
                     document.getElementById('feedback-text').value = '';
                     document.getElementById('feedback-contact').value = '';
                 } else {
-                    alert('Fehler beim Senden. Bitte Server-Logs prüfen.');
+                    showToast('Fehler beim Senden. Bitte Server-Logs prüfen.', true);
                 }
             } catch (e) {
                 console.error('Feedback error:', e);
-                alert('Netzwerkfehler beim Senden.');
+                showToast('Netzwerkfehler beim Senden.', true);
             } finally {
                 btn.innerText = 'Senden';
                 btn.disabled = false;
@@ -4921,7 +4798,6 @@
             { id: 'kontakte', name: 'Telefonliste', target: '#tab-kontakte', isTab: true },
             { id: 'funk', name: 'Digital Funk Shop', target: '#restock-section', isTab: true },
             { id: 'news', name: 'Interne Mitteilungen', target: '#internal-news-container', isTab: false },
-            { id: 'logbook', name: 'Übergabebuch', target: '#logbook-section', isTab: false },
             { id: 'checklist', name: 'Checklisten', target: '#workstation-section', isTab: false },
             { id: 'transferlist', name: 'Transferliste', target: '#transfer-section', isTab: false },
             { id: 'lostfound', name: 'Fundbüro', target: '#ws-lostfound-container', isTab: false },
@@ -4948,33 +4824,6 @@
             });
         }
 
-        async function generateLogSummary() {
-            const btn = document.getElementById('log-summary-btn');
-            const container = document.getElementById('log-summary-container');
-            const content = document.getElementById('log-summary-content');
-            
-            const ogText = btn.innerHTML;
-            btn.innerHTML = '<span>⌛</span> Analyse...';
-            btn.disabled = true;
-            
-            try {
-                const res = await fetch(`/api/logs-summary?location=${currentCity}`);
-                const data = await res.json();
-                
-                if (data.summary) {
-                    content.innerHTML = data.summary.replace(/\n/g, '<br>');
-                    container.style.display = 'block';
-                } else {
-                    alert('Keine Zusammenfassung verfügbar.');
-                }
-            } catch (e) {
-                console.error('Summary error:', e);
-                alert('Netzwerkfehler bei der Analyse.');
-            } finally {
-                btn.innerHTML = ogText;
-                btn.disabled = false;
-            }
-        }
 
     </script>
     <!-- Welcome Modal -->
@@ -5002,6 +4851,11 @@
                 <button onclick="closeWelcomeModal()" class="btn-primary" style="width: 100%; padding: 1.25rem; font-size: 1.1rem; border-radius: 16px; font-weight: 800; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); border: none; color: white;">Verstanden & Loslegen</button>
             </div>
         </div>
+    </div>
+
+    <div id="global-toast" class="global-toast">
+        <span id="toast-icon">✅</span>
+        <span id="toast-msg">Erfolgreich ausgeführt</span>
     </div>
 
     <!-- Feedback UI -->
