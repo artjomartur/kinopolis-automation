@@ -665,6 +665,13 @@
         }
 
         // --- ENTWICKLER FEEDBACK TL PORTAL ---
+        function openFeedbackModal() {
+            document.getElementById('feedback-modal').style.display = 'flex';
+        }
+
+        function closeFeedbackModal() {
+            document.getElementById('feedback-modal').style.display = 'none';
+        }
         async function sendTlFeedback() {
             const contact = document.getElementById('tl-feedback-contact').value.trim();
             const text = document.getElementById('tl-feedback-text').value.trim();
