@@ -304,14 +304,6 @@ app.get('/api/sessions', async (c) => {
         let sessions = Array.from(sessionMap.values()).filter(s => s.date === dateStr);
 
         // Filter out Darmstadt extra events
-        if (location === 'kp') {
-            sessions = sessions.filter(s => {
-                return !(s.hall.includes('Helia') || s.hall.includes('Pali') || 
-                         s.hall.includes('Rex') || s.hall.includes('Classic') || 
-                         s.hall.includes('Broadway') || s.hall.includes('Bambi') || s.hall.includes('Festival'));
-            });
-        }
-
         const halls = {};
         sessions.forEach(s => { if (!halls[s.hall]) halls[s.hall] = []; halls[s.hall].push(s); });
         const sortedHalls = Object.keys(halls).sort().map(name => ({ name, sessions: halls[name].sort((a, b) => a.time.localeCompare(b.time)) }));
