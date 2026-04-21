@@ -624,7 +624,7 @@
     <script>
         // --- TL LOGIN ---
         function tlLogin() {
-            const user = document.getElementById('tl-user').value.trim();
+            const user = document.getElementById('tl-user').value.trim().toUpperCase();
             const pass = document.getElementById('tl-pass').value.trim();
             if ((user === 'TL' && pass === 'TL123') || (user === 'admin' && pass === 'admin123')) {
                 localStorage.setItem('is_tl', 'true');
