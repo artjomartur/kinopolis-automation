@@ -70,7 +70,11 @@
         body.light-mode .stat-value,
         body.light-mode .log-author,
         body.light-mode .item-name,
-        body.light-mode .nav-tabs .tab-btn span {
+        body.light-mode .nav-tabs .tab-btn span,
+        body.light-mode .dashboard-title,
+        body.light-mode .admin-section h2,
+        body.light-mode .admin-section h3,
+        body.light-mode .admin-section p {
             color: #0f172a !important;
         }
 
@@ -2067,6 +2071,7 @@
             <button class="tab-btn" onclick="switchTab('intern', this)">🛠️ Tools</button>
             <button class="tab-btn" onclick="switchTab('info', this)">🍿 Filme</button>
             <button class="tab-btn" onclick="switchTab('einstellungen', this)">⚙️ Einstellungen</button>
+            <button class="tab-btn" onclick="switchTab('admin', this)" id="admin-tab-btn" style="border-left: 1px solid rgba(255,255,255,0.1); margin-left: 0.5rem; padding-left: 1rem;">🔒 Admin</button>
         </div>
 
         <!-- UPCOMING MOVIES SECTION -->
@@ -2371,12 +2376,25 @@
 
         <!-- ÜBERGABEBUCH (Shift-Log) -->
         <div class="card-container glass intern-section" id="logbook-section" style="display: none; margin-bottom: 1rem;">
-            <div class="card-header" style="padding: 1rem 1.25rem 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+            <div class="card-header" style="padding: 1rem 1.25rem 0.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem;">
                     <span class="alert-icon-small">📖</span>
                     <h2 style="font-size: 1.25rem;">Übergabebuch (Schicht-Log)</h2>
                 </div>
-                <button class="btn-primary" onclick="openLogModal()" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 8px;">➕ Eintrag</button>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <button id="log-summary-btn" class="btn-primary" onclick="generateLogSummary()" style="padding: 0.4rem 0.8rem; font-size: 0.75rem; border-radius: 8px; background: linear-gradient(135deg, #a855f7, #7c3aed); border: none; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                        <span>✨</span> KI-Summary
+                    </button>
+                    <button class="btn-primary" onclick="openLogModal()" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 8px;">➕ Eintrag</button>
+                </div>
+            </div>
+            <!-- AI Summary Area -->
+            <div id="log-summary-container" style="display: none; margin: 0 1.25rem 1rem; padding: 1rem; background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.2); border-radius: 12px; position: relative;">
+                <button onclick="this.parentElement.style.display='none'" style="position: absolute; top: 0.5rem; right: 0.5rem; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem;">&times;</button>
+                <h4 style="color: #a855f7; font-size: 0.8rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+                    <span>✨</span> KI-Analyse
+                </h4>
+                <div id="log-summary-content" style="font-size: 0.85rem; line-height: 1.5; color: var(--text-main);"></div>
             </div>
             <div style="padding: 1rem 1.5rem 1.5rem;">
                 <div id="logbook-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
@@ -5036,6 +5054,34 @@
                     'info': '.info-active' 
                 };
             });
+        }
+
+        async function generateLogSummary() {
+            const btn = document.getElementById('log-summary-btn');
+            const container = document.getElementById('log-summary-container');
+            const content = document.getElementById('log-summary-content');
+            
+            const ogText = btn.innerHTML;
+            btn.innerHTML = '<span>⌛</span> Analyse...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch(`/api/logs-summary?location=${currentCity}`);
+                const data = await res.json();
+                
+                if (data.summary) {
+                    content.innerHTML = data.summary.replace(/\n/g, '<br>');
+                    container.style.display = 'block';
+                } else {
+                    alert('Keine Zusammenfassung verfügbar.');
+                }
+            } catch (e) {
+                console.error('Summary error:', e);
+                alert('Netzwerkfehler bei der Analyse.');
+            } finally {
+                btn.innerHTML = ogText;
+                btn.disabled = false;
+            }
         }
 
         async function exportToExcel() {

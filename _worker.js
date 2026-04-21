@@ -784,6 +784,49 @@ app.notFound((c) => {
 });
 
 // --- SHIFT LOG API ---
+app.get('/api/logs-summary', async (c) => {
+    try {
+        const location = c.req.query('location') || 'kp';
+        if (!c.env.DB || !c.env.AI) return c.json({ error: 'DB or AI not available' }, 500);
+        
+        // Fetch logs from the last 7 days (or last 50 entries)
+        const logs = await c.env.DB.prepare(`
+            SELECT author, message, priority, created_at 
+            FROM shift_logs 
+            WHERE location = ? 
+            AND created_at > datetime('now', '-7 days')
+            ORDER BY created_at DESC 
+            LIMIT 50
+        `).bind(location).all();
+
+        if (logs.results.length === 0) return c.json({ summary: "Keine Einträge in den letzten 7 Tagen vorhanden." });
+
+        const logText = logs.results.map(l => `[${l.priority.toUpperCase()}] ${l.author}: ${l.message}`).join('\n');
+        
+        const systemPrompt = `Du bist ein hilfreicher Assistent für Kinoleiter. 
+        Analysiere die folgenden Übergabebuch-Einträge der letzten Tage. 
+        Erstelle eine SEHR kompakte Zusammenfassung (max 3-5 Aufzählungspunkte). 
+        Konzentriere dich auf:
+        1. Technische Defekte oder offene Probleme.
+        2. Wichtige Personal- oder Bestandshinweise.
+        3. Besondere Vorkommnisse.
+        Schreibe auf Deutsch, professionell und kurz gefasst.`;
+
+        const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+            messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: logText }
+            ],
+            max_tokens: 512
+        });
+
+        return c.json({ summary: response.response });
+    } catch (e) {
+        console.error('Summary generation error:', e);
+        return c.json({ error: 'Failed to generate summary' }, 500);
+    }
+});
+
 app.get('/api/logs', async (c) => {
     const location = c.req.query('location') || 'kp';
     if (!c.env.DB) return c.json([]);
