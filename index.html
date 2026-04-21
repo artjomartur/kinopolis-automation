@@ -2221,6 +2221,16 @@
                 <span id="last-update-display" class="last-update"></span>
                 <div id="stale-warning" class="stale-badge" style="display: none;">⚠️ Offline-Modus (Veraltete Daten)</div>
             </div>
+
+            <!-- SHIFT CHECK-IN -->
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.5rem;">
+                <button id="shift-checkin-btn" onclick="shiftCheckin()" style="padding:0.5rem 1.1rem;border-radius:10px;border:1px solid #2ecc71;background:rgba(46,204,113,0.15);color:var(--text-main);cursor:pointer;font-weight:700;font-size:0.85rem;transition:all 0.3s;">🟢 Schicht starten</button>
+                <span id="shift-status-text" style="font-size:0.8rem;color:var(--text-muted);"></span>
+            </div>
+        </div>
+
+        <!-- LIVE ALERT BANNER -->
+        <div id="live-alert-banner" style="display:none;margin-bottom:1rem;padding:0.75rem 1rem;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.4);border-radius:12px;display:flex;flex-direction:column;gap:0.5rem;">
         </div>
 
         <div class="nav-tabs">
@@ -2901,6 +2911,9 @@
         let completedCleaning = new Set(JSON.parse(localStorage.getItem('completed_cleaning') || '[]'));
         let scannedPlanData = JSON.parse(localStorage.getItem('scanned_plan_data') || '[]');
 
+        // --- SHIFT CHECK-IN STATE ---
+        let shiftStartTime = localStorage.getItem('shift_start_time') ? new Date(localStorage.getItem('shift_start_time')) : null;
+
         const CLEANING_TASKS = {
             1: ["Tagesaufgabe 1: MONTAG"], 2: ["Tagesaufgabe 1: DIENSTAG"], 
             3: ["Tagesaufgabe 1: MITTWOCH"], 4: ["Tagesaufgabe 1: DONNERSTAG"],
@@ -2972,12 +2985,17 @@
                     });
                 }
 
-                // Periodic Refresh
+                // Periodic Refresh + Countdown Tick
                 setInterval(() => {
                     runSafe(fetchSessions, 'Sessions-Refresh');
                     runSafe(fetchWeather, 'Weather-Refresh');
                     runSafe(fetchNews, 'News-Refresh');
+                    tickAllCountdowns();
+                    updateLiveAlertBanner();
                 }, 60000);
+
+                // Restore check-in state on load
+                updateShiftCheckinUI();
 
                 // Cloud Sync Refresh (Checklist / L&F)
                 setInterval(() => {
@@ -2996,10 +3014,145 @@
                     document.getElementById('welcome-modal').classList.add('active');
                 }
                 updateGamification();
+                tickAllCountdowns();
+                updateLiveAlertBanner();
             } catch (err) {
                 console.error("Critical Dashboard Init Error:", err);
             }
         });
+
+        // ============================================================
+        // FEATURE: COUNTDOWN TIMERS
+        // ============================================================
+        function tickAllCountdowns() {
+            const now = new Date();
+            const currentMin = now.getHours() * 60 + now.getMinutes();
+            document.querySelectorAll('.countdown-timer[data-end]').forEach(el => {
+                const endMin = parseInt(el.dataset.end);
+                if (isNaN(endMin) || endMin <= 0) { el.textContent = ''; return; }
+                const minutesLeft = endMin - currentMin;
+                if (minutesLeft < 0) {
+                    el.textContent = 'Auslass fällig';
+                    el.style.color = '#e74c3c';
+                    el.style.fontWeight = '800';
+                } else if (minutesLeft <= 5) {
+                    el.textContent = `🔴 Auslass in ${minutesLeft} Min`;
+                    el.style.color = '#e74c3c';
+                    el.style.fontWeight = '800';
+                } else if (minutesLeft <= 20) {
+                    el.textContent = `🟡 Auslass in ${minutesLeft} Min`;
+                    el.style.color = '#f1c40f';
+                    el.style.fontWeight = '700';
+                } else {
+                    el.textContent = `⏱ Auslass in ${minutesLeft} Min`;
+                    el.style.color = 'var(--text-muted)';
+                    el.style.fontWeight = 'normal';
+                }
+            });
+        }
+
+        // ============================================================
+        // FEATURE: LIVE ALERT BANNER
+        // ============================================================
+        function updateLiveAlertBanner() {
+            if (!lastData) return;
+            const banner = document.getElementById('live-alert-banner');
+            if (!banner) return;
+
+            const now = new Date();
+            const currentMin = now.getHours() * 60 + now.getMinutes();
+            const ALERT_WINDOW = 15; // minutes before end
+
+            const urgentAlerts = [];
+            lastData.forEach(hall => {
+                (hall.sessions || []).forEach(s => {
+                    if (!s.time || !s.time.includes(':') || !s.duration) return;
+                    const [h, m] = s.time.split(':').map(Number);
+                    const endMin = h * 60 + m + s.duration;
+                    const minutesLeft = endMin - currentMin;
+                    const taskId = `auslass-${hall.name}-${s.title}-${s.time}`;
+                    if (minutesLeft >= 0 && minutesLeft <= ALERT_WINDOW && !completedAuslaesse.has(taskId)) {
+                        urgentAlerts.push({ hall: hall.name, title: s.title, minutesLeft });
+                    }
+                });
+            });
+
+            if (urgentAlerts.length === 0) {
+                banner.style.display = 'none';
+                return;
+            }
+
+            banner.style.display = 'block';
+            banner.innerHTML = urgentAlerts.map(a =>
+                `<div style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 1rem;background:rgba(231,76,60,0.15);border-radius:8px;">
+                    <span style="font-size:1.3rem;">🔴</span>
+                    <div>
+                        <strong>Kino ${a.hall}</strong> – ${a.title}
+                        <div style="font-size:0.8rem;color:#ff8a80;">Auslass in ${a.minutesLeft} Minute${a.minutesLeft !== 1 ? 'n' : ''}!</div>
+                    </div>
+                </div>`
+            ).join('');
+        }
+
+        // ============================================================
+        // FEATURE: SCHICHT CHECK-IN / CHECK-OUT
+        // ============================================================
+        function shiftCheckin() {
+            shiftStartTime = new Date();
+            localStorage.setItem('shift_start_time', shiftStartTime.toISOString());
+            updateShiftCheckinUI();
+            showToast('✅ Schicht gestartet!');
+        }
+
+        function shiftCheckout() {
+            if (!shiftStartTime) return;
+            const now = new Date();
+            const durationMs = now - shiftStartTime;
+            const durationMin = Math.round(durationMs / 60000);
+            const hours = Math.floor(durationMin / 60);
+            const mins = durationMin % 60;
+
+            const auslaesseCount = completedAuslaesse.size;
+            const cleaningCount = completedCleaning.size;
+            const xpTotal = (auslaesseCount * 50) + (cleaningCount * 30);
+
+            const modal = document.getElementById('shift-summary-modal');
+            if (modal) {
+                document.getElementById('shift-summary-duration').textContent = `${hours}h ${mins}m`;
+                document.getElementById('shift-summary-auslaesse').textContent = auslaesseCount;
+                document.getElementById('shift-summary-cleaning').textContent = cleaningCount;
+                document.getElementById('shift-summary-xp').textContent = xpTotal;
+                modal.classList.add('active');
+            }
+
+            shiftStartTime = null;
+            localStorage.removeItem('shift_start_time');
+            updateShiftCheckinUI();
+        }
+
+        function updateShiftCheckinUI() {
+            const btn = document.getElementById('shift-checkin-btn');
+            const statusEl = document.getElementById('shift-status-text');
+            if (!btn) return;
+
+            if (shiftStartTime) {
+                const now = new Date();
+                const mins = Math.round((now - shiftStartTime) / 60000);
+                const h = Math.floor(mins / 60);
+                const m = mins % 60;
+                btn.textContent = '🔴 Schicht beenden';
+                btn.style.background = 'rgba(231,76,60,0.25)';
+                btn.style.borderColor = '#e74c3c';
+                btn.onclick = shiftCheckout;
+                if (statusEl) statusEl.textContent = `Schicht läuft seit ${h > 0 ? h + 'h ' : ''}${m}m`;
+            } else {
+                btn.textContent = '🟢 Schicht starten';
+                btn.style.background = 'rgba(46,204,113,0.15)';
+                btn.style.borderColor = '#2ecc71';
+                btn.onclick = shiftCheckin;
+                if (statusEl) statusEl.textContent = '';
+            }
+        }
 
         async function loadUpcomingMovies() {
             const grid = document.getElementById('upcoming-grid');
@@ -5237,6 +5390,38 @@
     <div id="movie-detail-modal" class="modal">
         <div id="movie-detail-content" class="modal-content glass" style="max-height: 90vh; overflow-y: auto;">
             <!-- Filled via JS -->
+        </div>
+    </div>
+
+    <!-- SHIFT SUMMARY MODAL -->
+    <div id="shift-summary-modal" class="modal">
+        <div class="modal-content glass" style="max-width: 400px; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎬</div>
+            <h2 style="margin: 0 0 0.25rem; font-size: 1.5rem;">Schicht beendet!</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Gute Arbeit heute!</p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem;">
+                    <div style="font-size: 1.6rem; font-weight: 800;" id="shift-summary-duration">0h 0m</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">⏱ Schichtdauer</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem;">
+                    <div style="font-size: 1.6rem; font-weight: 800; color: #3498db;" id="shift-summary-auslaesse">0</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">🚪 Auslässe</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem;">
+                    <div style="font-size: 1.6rem; font-weight: 800; color: #2ecc71;" id="shift-summary-cleaning">0</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">🧹 Aufgaben</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem;">
+                    <div style="font-size: 1.6rem; font-weight: 800; color: #f1c40f;" id="shift-summary-xp">0</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">⭐ XP verdient</div>
+                </div>
+            </div>
+
+            <button onclick="document.getElementById('shift-summary-modal').classList.remove('active')" class="btn-primary" style="width: 100%;">
+                Schließen
+            </button>
         </div>
     </div>
 </body>

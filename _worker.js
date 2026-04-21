@@ -659,6 +659,57 @@ app.post('/api/push/test', async (c) => {
     }
 });
 
+// Broadcast a custom message to ALL subscribed devices
+app.post('/api/push/broadcast', async (c) => {
+    try {
+        if (!c.env.DB) return c.json({ error: 'DB not available' }, 500);
+
+        const { message, title } = await c.req.json();
+        if (!message) return c.json({ error: 'Message required' }, 400);
+
+        const subscriptions = await c.env.DB.prepare('SELECT * FROM push_subscriptions').all();
+        if (!subscriptions.results.length) return c.json({ sent: 0, message: 'Keine Abonnenten gefunden' });
+
+        let sent = 0;
+        let failed = 0;
+        for (const sub of subscriptions.results) {
+            try {
+                const authHeader = await createVapidHeader(sub.endpoint, c.env);
+                const payload = {
+                    title: title || '📢 Kinopolis Nachricht',
+                    body: message,
+                    icon: '/logo-kinopolis-official.png',
+                    data: { url: '/' }
+                };
+                const encryptedBody = await encryptPayload(sub, payload);
+                const res = await fetch(sub.endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'TTL': '300',
+                        'Authorization': authHeader,
+                        'Content-Encoding': 'aes128gcm',
+                        'Content-Type': 'application/octet-stream'
+                    },
+                    body: encryptedBody
+                });
+                if (res.status === 404 || res.status === 410) {
+                    await c.env.DB.prepare('DELETE FROM push_subscriptions WHERE endpoint = ?').bind(sub.endpoint).run();
+                    failed++;
+                } else if (res.ok) {
+                    sent++;
+                } else {
+                    failed++;
+                }
+            } catch (err) {
+                failed++;
+            }
+        }
+        return c.json({ sent, failed });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
 // R2 Image Proxy (Fallback)
 app.get('/api/images/:key', async (c) => {
     return c.json({ error: 'Not Found' }, 404);

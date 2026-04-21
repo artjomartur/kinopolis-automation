@@ -525,6 +525,19 @@
                 </div>
             </div>
 
+            <!-- PUSH BROADCAST -->
+            <div class="card mt-2" style="border-left: 4px solid #e74c3c;">
+                <div class="card-title" style="margin-bottom: 1rem;">📢 Nachricht an alle senden</div>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <input type="text" id="broadcast-title" placeholder="Titel (optional)" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:0.65rem 0.9rem;color:white;font-family:inherit;font-size:0.9rem;outline:none;">
+                    <textarea id="broadcast-message" placeholder="Nachricht eingeben..." rows="3" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:0.65rem 0.9rem;color:white;font-family:inherit;font-size:0.9rem;resize:none;outline:none;"></textarea>
+                    <button id="broadcast-btn" onclick="sendBroadcast()" style="background:linear-gradient(135deg,#e74c3c,#c0392b);border:none;padding:0.75rem;border-radius:10px;color:white;font-weight:700;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">
+                        🚨 An alle senden
+                    </button>
+                    <div id="broadcast-status" style="font-size:0.8rem;text-align:center;display:none;"></div>
+                </div>
+            </div>
+
             </div>
         </div>
     </div>
@@ -1140,6 +1153,47 @@
             } finally {
                 btn.innerHTML = ogText;
                 btn.disabled = false;
+            }
+        }
+
+        // --- PUSH BROADCAST ---
+        async function sendBroadcast() {
+            const message = document.getElementById('broadcast-message').value.trim();
+            const title = document.getElementById('broadcast-title').value.trim();
+            const btn = document.getElementById('broadcast-btn');
+            const status = document.getElementById('broadcast-status');
+
+            if (!message) {
+                showToast('Bitte Nachricht eingeben.', true);
+                return;
+            }
+
+            btn.textContent = '⏳ Sende...';
+            btn.disabled = true;
+            status.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/push/broadcast', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, title: title || '📢 Kinopolis Nachricht' })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Unbekannter Fehler');
+
+                status.style.color = '#2ecc71';
+                status.textContent = `✅ Gesendet an ${data.sent} Gerät${data.sent !== 1 ? 'e' : ''}${data.failed > 0 ? ` (${data.failed} fehlgeschlagen)` : ''}`;
+                document.getElementById('broadcast-message').value = '';
+                document.getElementById('broadcast-title').value = '';
+                showToast(`Nachricht an ${data.sent} Geräte gesendet!`);
+            } catch (e) {
+                status.style.color = '#e74c3c';
+                status.textContent = '❌ Fehler: ' + e.message;
+            } finally {
+                btn.textContent = '🚨 An alle senden';
+                btn.disabled = false;
+                status.style.display = 'block';
+                setTimeout(() => status.style.display = 'none', 5000);
             }
         }
     </script>
