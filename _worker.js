@@ -10,7 +10,7 @@ app.onError((err, c) => {
 });
 
 // Helper for consistent Kinopolis requests
-async function fetchKinopolis(url, retries = 2) {
+async function fetchKinopolis(url, retries = 1) { // v4.3 definitive optimization
     for (let i = 0; i <= retries; i++) {
         try {
             const res = await fetch(url, {
@@ -303,12 +303,30 @@ app.get('/api/sessions', async (c) => {
         // Filter for exactly the requested date
         let sessions = Array.from(sessionMap.values()).filter(s => s.date === dateStr);
 
-        // Filter out Darmstadt extra events
+        // Filter out Darmstadt extra events (separation between Kinopolis and Citydome)
+        const cdKeys = ['helia', 'pali', 'rex', 'festival', 'bambi', 'broadway', 'classic'];
+        
+        if (location === 'kp') {
+            sessions = sessions.filter(s => {
+                const h = (s.hall || '').toLowerCase();
+                // KP Darmstadt: EXCLUDE everything that looks like Citydome
+                return !cdKeys.some(key => h.includes(key));
+            });
+        } else if (location === 'cd') {
+            sessions = sessions.filter(s => {
+                const h = (s.hall || '').toLowerCase();
+                // CD Darmstadt: ONLY include Citydome halls
+                return cdKeys.some(key => h.includes(key));
+            });
+        }
+
         const halls = {};
         sessions.forEach(s => { if (!halls[s.hall]) halls[s.hall] = []; halls[s.hall].push(s); });
         const sortedHalls = Object.keys(halls).sort().map(name => ({ name, sessions: halls[name].sort((a, b) => a.time.localeCompare(b.time)) }));
         
-        c.header('Cache-Control', 'public, max-age=60'); // Cache for 60s
+        // Final Definitive Cache & Versioning Header (v4.3)
+        c.header('Cache-Control', 'public, max-age=60');
+        c.header('X-Worker-Version', '4.3');
         return c.json(sortedHalls);
     } catch (error) {
         console.error('Worker error:', error);

@@ -2805,17 +2805,32 @@
     </div>
 
     <script>
-        // --- GLOBALS & STATE ---
+        console.log('--- DASHBOARD BUILD 4.3 LIVE ---');
+
+        // --- VERSION & GLOBALS ---
+        const DASHBOARD_VERSION = '4.1';
         const API_URL = '/api/sessions';
         const LOCATIONS_URL = '/api/locations';
         const VAPID_PUBLIC_KEY = 'BCP-JGZbVBjKY1_blxAHw6bC5Ddf0nLAyPSp8q39kV7utFahZNyQZJ8KlV-ht6UKg07eAuVBVHJhVsaDMx1m7X8';
 
-        // --- GLOBAL TOAST ---
+        let lastData = null;
+        let lastUpdateTime = null;
+        let currentCity = 'kp';
+        let displayDate = new Date();
+        
+        let completedAuslaesse = new Set(JSON.parse(localStorage.getItem('completed_auslaesse') || '[]'));
+        let completedPosters = new Set(JSON.parse(localStorage.getItem('completed_posters') || '[]'));
+        let completedCleaning = new Set(JSON.parse(localStorage.getItem('completed_cleaning') || '[]'));
+        let scannedPlanData = JSON.parse(localStorage.getItem('scanned_plan_data') || '[]');
+
+        // --- CORE UTILITIES ---
         function showToast(msg, isError = false) {
             const t = document.getElementById('global-toast');
             if(!t) return;
-            document.getElementById('toast-msg').innerText = msg;
-            document.getElementById('toast-icon').innerText = isError ? '❌' : '✅';
+            const msgEl = document.getElementById('toast-msg');
+            const iconEl = document.getElementById('toast-icon');
+            if (msgEl) msgEl.innerText = msg;
+            if (iconEl) iconEl.innerText = isError ? '❌' : '✅';
             t.style.background = isError ? 'rgba(231, 76, 60, 0.95)' : 'rgba(46, 204, 113, 0.95)';
             t.classList.add('show');
             setTimeout(() => { t.classList.remove('show'); }, 3500);
@@ -2835,10 +2850,52 @@
         async function runSafe(fn, errorMsg) {
             try { return await fn(); } 
             catch (e) { 
-                console.error(errorMsg, e);
+                console.error(`[${errorMsg}]`, e);
                 return null;
             }
         }
+
+        function updateGamification() {
+            const xpPerAuslass = 50;
+            const xpPerCleaning = 30;
+            const xpPerPoster = 20;
+
+            const totalXP = (completedAuslaesse.size * xpPerAuslass) + 
+                          (completedCleaning.size * xpPerCleaning) + 
+                          (completedPosters.size * xpPerPoster);
+
+            const display = document.getElementById('xp-display');
+            const bar = document.getElementById('xp-bar');
+            const status = document.getElementById('xp-status');
+            const levelSpan = document.querySelector('#gamification-summary span');
+            
+            if (!display || !bar) return;
+
+            display.innerText = `${totalXP.toLocaleString()} XP`;
+            
+            let level = "Anfänger";
+            let nextGoal = 500;
+            let color = "#95a5a6";
+
+            if (totalXP >= 2000) { level = "Experte"; nextGoal = 5000; color = "#e74c3c"; }
+            else if (totalXP >= 1000) { level = "Profi"; nextGoal = 2000; color = "#f1c40f"; }
+            else if (totalXP >= 400) { level = "Fortgeschritten"; nextGoal = 1000; color = "#3498db"; }
+
+            if (levelSpan) {
+                levelSpan.innerText = level;
+                levelSpan.style.color = color;
+            }
+
+            const progress = Math.min((totalXP / nextGoal) * 100, 100);
+            bar.style.width = `${progress}%`;
+            
+            const remaining = nextGoal - totalXP;
+            if (status) {
+                status.innerText = remaining > 0 ? `Noch ${remaining} XP bis zum nächsten Level-Up!` : "Maximales Level für heute erreicht!";
+            }
+        }
+
+
 
         const CAT_ICONS = {
             'leitung': { icon: '👔', bg: 'bg-gold' },
@@ -2897,14 +2954,8 @@
 
         checkAndResetDailyTasks();
 
-        let lastData = null;
-        let lastUpdateTime = null;
-        let currentCity = 'kp';
-        let displayDate = new Date();
-        let completedAuslaesse = new Set(JSON.parse(localStorage.getItem('completed_auslaesse') || '[]'));
-        let completedPosters = new Set(JSON.parse(localStorage.getItem('completed_posters') || '[]'));
-        let completedCleaning = new Set(JSON.parse(localStorage.getItem('completed_cleaning') || '[]'));
-        let scannedPlanData = JSON.parse(localStorage.getItem('scanned_plan_data') || '[]');
+        // Initial data fetch removed duplication here
+
 
         const CLEANING_TASKS = {
             1: ["Tagesaufgabe 1: MONTAG"], 2: ["Tagesaufgabe 1: DIENSTAG"], 
@@ -3665,7 +3716,7 @@
             document.getElementById('lf-modal').classList.add('active');
         }
         function closeLfModal() {
-            document.getElementById('lf-modal').classList.active = false;
+            document.getElementById('lf-modal').classList.remove('active');
             document.getElementById('lf-what').value = '';
             document.getElementById('lf-category').value = '';
             document.getElementById('lf-where').value = '';
@@ -4156,9 +4207,10 @@
         }
 
         function saveTaskState() {
-            localStorage.setItem('completed_auslaesse', JSON.stringify(Array.from(completedAuslaesse)));
-            localStorage.setItem('completed_posters', JSON.stringify(Array.from(completedPosters)));
-            localStorage.setItem('completed_cleaning', JSON.stringify(Array.from(completedCleaning)));
+            localStorage.setItem('completed_auslaesse', JSON.stringify([...completedAuslaesse]));
+            localStorage.setItem('completed_posters', JSON.stringify([...completedPosters]));
+            localStorage.setItem('completed_cleaning', JSON.stringify([...completedCleaning]));
+            if (typeof updateGamification === 'function') updateGamification();
         }
 
         function renderTasks(hallsGrouped) {
