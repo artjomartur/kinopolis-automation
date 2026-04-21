@@ -10,26 +10,14 @@ app.onError((err, c) => {
 });
 
 // Helper for consistent Kinopolis requests
-async function fetchKinopolis(url, retries = 1) { // v4.3 definitive optimization
-    for (let i = 0; i <= retries; i++) {
-        try {
-            const res = await fetch(url, {
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8'
-                }
-            });
-            if (res.status === 503 && i < retries) {
-                console.warn(`Kinopolis 503, retry ${i+1}...`);
-                await new Promise(r => setTimeout(r, 500 * (i + 1)));
-                continue;
-            }
-            return res;
-        } catch (e) {
-            if (i === retries) throw e;
-            await new Promise(r => setTimeout(r, 500));
+async function fetchKinopolis(url) {
+    return await fetch(url, {
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+            'Accept-Language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7'
         }
-    }
+    });
 }
 
 app.get('/api/locations', (c) => {
@@ -189,110 +177,138 @@ app.get('/api/sessions', async (c) => {
         const navDateMap = new Map(); // Global map for back-compatibility if needed elsewhere, but we now use per-movie map
         
         // Note: Global navDateMap is now less critical as we parse dates per-movie below.
-        // We still keep the mapping here if we ever need a site-wide date referenc        // --- ULTRA-FAST SPLIT-BASED PARSING (v4.7) ---
-        const sessionMap = new Map();
-        
-        // Split by movie container to isolate work
-        const movieBlocks = html.split('class="prog2__movie');
-        // The first block is the header, skip it
-        for (let i = 1; i < movieBlocks.length; i++) {
-            const mBlock = movieBlocks[i];
-            
-            // Fast title extraction
-            const titleMatch = mBlock.match(/class="prog2__movie-title[^>]*>([^<]+)/);
-            if (!titleMatch) continue;
-            const title = titleMatch[1].trim();
+        // We still keep the mapping here if we ever need a site-wide date reference.
 
-            const posterMatch = mBlock.match(/src="([^"]+)"/);
-            const poster = posterMatch ? (posterMatch[1].startsWith('http') ? posterMatch[1] : `https://www.kinopolis.de${posterMatch[1]}`) : null;
-            
-            // Extract dates (heute, morgen, etc.)
-            const movieDates = [];
-            const navSlices = mBlock.split('class="prog-nav__item');
-            for (let j = 1; j < navSlices.length; j++) {
-                const navText = navSlices[j].toLowerCase();
-                if (navText.includes('heute')) movieDates.push(todayISO);
-                else if (navText.includes('morgen')) movieDates.push(tomorrowISO);
-                else {
-                    const d = navText.match(/(\d{2})\.(\d{2})\./);
-                    if (d) movieDates.push(`${today.getFullYear()}-${d[2]}-${d[1]}`);
-                }
+        const sessionMap = new Map(); // Key: date-perfId or date-time-hall-title, Value: session object
+        
+        $('section.movie, .prog2__movie').each((i, movieEl) => {
+            const title = $(movieEl).find('.hl-link, .prog2__movie-title').first().text().trim();
+            if (!title) return;
+            const poster = $(movieEl).find('.prog2__movie-img img, img.img-fluid').first().attr('src');
+            const durationText = $(movieEl).find('.movie__specs-el, .prog2__movie-info-item, .prog2__infos').text().trim();
+            const durationMatch = durationText.match(/Dauer:\s*(\d+)\s*Minuten/i) || durationText.match(/(\d+)\s*Min\.?/i);
+            const duration = durationMatch ? parseInt(durationMatch[1]) : 0;
+
+            let fsk = "FSK ?";
+            const fskImg = $(movieEl).find('img[src*="FSK"]').first().attr('alt');
+            if (fskImg && fskImg.includes('FSK')) {
+                fsk = fskImg;
+            } else {
+                const fskMatch = durationText.match(/ab\s*(\d+)\s*Jahre/i) || durationText.match(/FSK\s*(\d+)/i);
+                if (fskMatch) fsk = `FSK ${fskMatch[1]}`;
             }
 
-            // Extract sessions grouped by day
-            const daySlices = mBlock.split('class="prog-day__wrapper');
-            for (let k = 1; k < daySlices.length; k++) {
-                const dayHtml = daySlices[k];
-                const actualDate = movieDates[k - 1];
-                if (!actualDate) continue;
+            // LINK extraction
+            const detailLink = $(movieEl).find('.hl-link, .prog2__movie-title, a[href*="/film/"]').first().attr('href');
+            const movieLink = detailLink ? (detailLink.startsWith('http') ? detailLink : `https://www.kinopolis.de${detailLink}`) : null;
 
-                // Split by performance entry
-                const sessSlices = dayHtml.split('class="prog2__cont');
-                for (let s = 1; s < sessSlices.length; s++) {
-                    const sHtml = sessSlices[s];
-                    const perfMatch = sHtml.match(/data-performance-id="([^"]*)"/);
-                    const perfId = perfMatch ? perfMatch[1] : '';
-                    
-                    const timeMatch = sHtml.match(/class="prog2__time">([^<]+)/);
-                    if (!timeMatch) continue;
-                    const time = timeMatch[1].trim();
+            // Build movie-specific date map
+            const movieNavDateMap = new Map();
+            $(movieEl).find('.prog-nav__item').each((navIdx, navEl) => {
+                const navText = $(navEl).text().trim().toLowerCase();
+                const dateMatch = navText.match(/(\d{2})\.(\d{2})\./);
+                
+                let navDate = '';
+                if (navText.includes('heute')) navDate = todayISO;
+                else if (navText.includes('morgen')) navDate = tomorrowISO;
+                else if (dateMatch) {
+                    const year = today.getFullYear() + (parseInt(dateMatch[2]) < today.getMonth() + 1 ? 1 : 0);
+                    navDate = `${year}-${dateMatch[2]}-${dateMatch[1]}`;
+                }
+                if (navDate) movieNavDateMap.set(navIdx, navDate);
+            });
 
-                    const hallMatch = sHtml.match(/class="prog2__hall-num">([\s\S]*?)<\/div>/);
-                    const hall = hallMatch ? hallMatch[1].replace(/<[^>]+>/g, '').replace(/Saal/i, '').trim() : '';
+            $(movieEl).find('.prog-day__wrapper').each((dayIndex, wrapper) => {
+                const actualDate = movieNavDateMap.get(dayIndex);
+                if (!actualDate) return;
+
+                $(wrapper).find('.prog2__cont, .prog2__movie-session').each((j, sessionEl) => {
+                    const perfId = $(sessionEl).attr('data-performance-id');
+                    const time = $(sessionEl).find('.prog2__time').first().text().trim();
+                    if (!time) return;
                     
+                    let hallTextContent = $(sessionEl).find('.prog2__hall-num > div:first-child').text().trim();
+                    if (!hallTextContent) hallTextContent = $(sessionEl).find('.prog2__hall-num').text().replace(/i$/, '').trim();
+                    const hall = hallTextContent;
+                    const occupancyText = $(sessionEl).text().trim();
                     let capacity = 0;
-                    let sold = 0;
-                    let freePercent = 100;
-
-                    const seatsMatch = sHtml.match(/(\d+)\s*Pl[äa]tze/);
-                    const freePctMatch = sHtml.match(/(\d+)%\s*frei/);
-                    const freeCountMatch = sHtml.match(/(\d+)\s*frei/);
-
-                    if (seatsMatch) capacity = parseInt(seatsMatch[1]);
-                    if (freePctMatch) freePercent = parseInt(freePctMatch[1]);
+                    let freePercent = 95;
+                    const seatsEl = $(sessionEl).find('.prog2__seats');
+                    if (seatsEl.length) capacity = parseInt(seatsEl.text().replace(/\D/g, '')) || 0;
                     
-                    if (capacity > 0) {
-                        sold = Math.round(capacity * (1 - (freePercent / 100)));
-                        if (freeCountMatch) sold = Math.max(0, capacity - parseInt(freeCountMatch[1]));
+                    const scaleEl = $(sessionEl).find('.prog2__scale');
+                    if (scaleEl.length) {
+                        const percentMatch = scaleEl.text().match(/(\d+)%/);
+                        if (percentMatch) freePercent = parseInt(percentMatch[1]);
+                    }
+                    if (capacity <= 1) {
+                        const combinedMatch = occupancyText.match(/(\d+)\s+(\d+)%\s+frei/);
+                        if (combinedMatch) {
+                            capacity = parseInt(combinedMatch[1]);
+                            freePercent = parseInt(combinedMatch[2]);
+                        } else {
+                            const capacityMatch = occupancyText.match(/(\d+)\s+Pl[äa]tze/);
+                            if (capacityMatch) capacity = parseInt(capacityMatch[1]);
+                        }
+                    }
+                    const freeCountMatch = occupancyText.match(/(\d+)\s+(?:Pl[äa]tze\s+)?frei/);
+                    const freePercentMatch = occupancyText.match(/(\d+)%\s+frei/);
+                    if (freePercentMatch && (!scaleEl.length || freePercent === 95)) freePercent = parseInt(freePercentMatch[1]);
+                    
+                    const seatingAttr = $(sessionEl).find('[data-seating]').attr('data-seating');
+                    if (capacity === 0 && seatingAttr) {
+                        try {
+                            const parsed = JSON.parse(seatingAttr);
+                            if (Array.isArray(parsed) && parsed.length > 0 && parsed[0] > 10) capacity = parsed[0];
+                        } catch(e) {}
                     }
 
-                    const isBookable = !sHtml.includes('ausverkauft') && !sHtml.includes('performance_expired');
+                    let sold = 0;
+                    if (capacity > 0) {
+                        sold = Math.round(capacity * (1 - freePercent / 100));
+                        if (freeCountMatch) sold = capacity - parseInt(freeCountMatch[1]);
+                        if (sold < 0) sold = 0;
+                    }
+                    
+                    const isBookable = !$(sessionEl).hasClass('performance_expired') && 
+                                      !occupancyText.includes('nicht mehr buchbar') && 
+                                      !occupancyText.includes('ausverkauft');
 
-                    const sessionObj = { 
-                        title, poster, time, hall, capacity, sold, 
-                        isBookable, performanceId: perfId, date: actualDate 
-                    };
+                    const sessionObj = { title, poster: poster ? (poster.startsWith('http') ? poster : `https://www.kinopolis.de${poster}`) : null, 
+                                       time, hall, duration, capacity, freePercent, sold, isBookable, performanceId: perfId, date: actualDate, fsk, movieLink };
 
-                    sessionMap.set(`${actualDate}-${perfId || (time + hall + title)}`, sessionObj);
-                }
-            }
-        }
+                    const key = `${actualDate}-${perfId || (time + '-' + hall + '-' + title)}`;
+                    const existing = sessionMap.get(key);
+                    
+                    // Keep the best version
+                    if (!existing || (existing.capacity === 0 && capacity > 0) || (!existing.isBookable && isBookable)) {
+                        sessionMap.set(key, sessionObj);
+                    }
+                });
+            });
+        });
 
-        // --- FILTERING ---
+        // Filter for exactly the requested date
         let sessions = Array.from(sessionMap.values()).filter(s => s.date === dateStr);
-        const cdKeys = ['helia', 'pali', 'rex', 'festival', 'bambi', 'broadway', 'classic'];
-        
+
+        // Filter out Darmstadt extra events (strict separation KP vs CD)
+        const cdHalls = ['helia', 'pali', 'rex', 'classic', 'broadway', 'bambi', 'festival'];
         if (location === 'kp') {
             sessions = sessions.filter(s => {
                 const h = (s.hall || '').toLowerCase();
-                return !cdKeys.some(key => h.includes(key));
+                return !cdHalls.some(k => h.includes(k));
             });
         } else if (location === 'cd') {
             sessions = sessions.filter(s => {
                 const h = (s.hall || '').toLowerCase();
-                return cdKeys.some(key => h.includes(key));
+                return cdHalls.some(k => h.includes(k));
             });
         }
 
         const halls = {};
         sessions.forEach(s => { if (!halls[s.hall]) halls[s.hall] = []; halls[s.hall].push(s); });
-        const sortedHalls = Object.keys(halls).sort().map(name => ({ 
-            name, 
-            sessions: halls[name].sort((a, b) => a.time.localeCompare(b.time)) 
-        }));
-        
-        c.header('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate'); // FORCED NO CACHE
-        c.header('X-Worker-Version', '4.7-FINAL');
+        const sortedHalls = Object.keys(halls).sort().map(name => ({ name, sessions: halls[name].sort((a, b) => a.time.localeCompare(b.time)) }));
+        c.header('Cache-Control', 'public, max-age=120');
         return c.json(sortedHalls);
     } catch (error) {
         console.error('Worker error:', error);
@@ -643,8 +659,93 @@ app.get('/api/images/:key', async (c) => {
     return c.json({ error: 'Not Found' }, 404);
 });
 
-// AI Scan endpoints moved to bottom
+app.post('/api/ai-agree', async (c) => {
+    try {
+        if (!c.env.AI) return c.json({ error: 'AI binding not found' }, 500);
+        const response = await c.env.AI.run('@cf/meta/llama-3.2-11b-vision-instruct', { prompt: 'agree' });
+        return c.json({ success: true, response });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
 
+app.post('/api/scan-plan', async (c) => {
+    try {
+        if (!c.env.AI) return c.json({ error: 'AI binding not found' }, 500);
+
+        const body = await c.req.parseBody();
+        const imageFile = body.image;
+        if (!imageFile) return c.json({ error: 'No image provided' }, 400);
+
+        const buffer = await imageFile.arrayBuffer();
+        const prompt = "Dieser Foto zeigt einen gedruckten Kinopolis 'Auslassplan'. Extrahiere die Tabelle und gib ausschließlich ein valides JSON-Array zurück. Nutze folgendes Format für jedes Objekt: { \"hall\": \"...\", \"movie\": \"...\", \"start_time\": \"...\", \"credits_time\": \"...\", \"end_time\": \"...\" }. Antworte NUR mit dem JSON-String in einem Code-Block (```json ... ```). KEIN WEITERER TEXT.";
+        
+        let response;
+        try {
+            console.log('Running Llama 3.2 Vision for Plan Scan...');
+            response = await c.env.AI.run('@cf/meta/llama-3.2-11b-vision-instruct', {
+                image: new Uint8Array(buffer),
+                prompt: prompt
+            });
+        } catch (err) {
+            console.error('AI Run Error:', err);
+            return c.json({ error: 'AI Error: ' + err.message }, 500);
+        }
+
+        if (!response || (!response.response && !response.description)) {
+            return c.json({ error: 'AI returned empty response' }, 500);
+        }
+
+        let jsonStr = response.response || response.description || '';
+        console.log('Raw AI Response:', jsonStr);
+
+        // Robust extraction: Look for markdown code blocks first, then the array directly
+        const codeBlockMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+        if (codeBlockMatch) {
+            jsonStr = codeBlockMatch[1].trim();
+        } else {
+            const arrayMatch = jsonStr.match(/\[[\s\S]*\]/);
+            if (arrayMatch) {
+                jsonStr = arrayMatch[0].trim();
+            }
+        }
+        
+        let data;
+        // Fix trailing commas often generated by LLMs before parsing
+        jsonStr = jsonStr.replace(/,\s*([\]}])/g, '$1');
+        try {
+            data = JSON.parse(jsonStr);
+        } catch (e) {
+            console.error('AI JSON Parse Error:', jsonStr);
+            return c.json({ error: 'JSON Parse Error', raw: jsonStr }, 500);
+        }
+        
+        // Save to D1
+        try {
+            if (c.env.DB && Array.isArray(data)) {
+                const today = new Date().toISOString().split('T')[0];
+                for (const row of data) {
+                    await c.env.DB.prepare(`
+                        INSERT INTO scanned_plans (hall, movie, start_time, credits_time, end_time, date)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                        ON CONFLICT(hall, movie, date) DO UPDATE SET
+                        start_time = excluded.start_time,
+                        credits_time = excluded.credits_time,
+                        end_time = excluded.end_time
+                    `).bind(row.hall, row.movie, row.start_time, row.credits_time, row.end_time, today).run();
+                }
+            }
+            return c.json({ success: true, data });
+        } catch (dbError) {
+            console.error('D1 Database Error:', dbError);
+            // Return success anyway, since the data was parsed correctly
+            return c.json({ success: true, data, dbWarning: 'Konnte Plan nicht in Datenbank speichern.' });
+        }
+    } catch (e) {
+        console.error('Scan error:', e);
+        return c.json({ error: e.message }, 500);
+    }
+});
 
 // --- UPCOMING MOVIES API ---
 app.get('/api/upcoming', async (c) => {
@@ -817,30 +918,6 @@ app.delete('/api/logs/:id', async (c) => {
     }
 });
 
-app.patch('/api/logs/:id', async (c) => {
-    try {
-        const id = c.req.param('id');
-        const { status } = await c.req.json();
-        if (!c.env.DB) return c.json({ error: 'DB not available' }, 500);
-        
-        // Fetch current message
-        const log = await c.env.DB.prepare('SELECT message FROM shift_logs WHERE id = ?').bind(id).first();
-        if (!log) return c.json({ error: 'Log not found' }, 404);
-        
-        let newMessage = log.message;
-        if (status === 'in_progress' && !newMessage.includes('[IN_PROGRESS]')) {
-            newMessage = '[IN_PROGRESS] ' + newMessage;
-        } else if (status === 'open') {
-            newMessage = newMessage.replace('[IN_PROGRESS] ', '');
-        }
-
-        await c.env.DB.prepare('UPDATE shift_logs SET message = ? WHERE id = ?').bind(newMessage, id).run();
-        return c.json({ success: true });
-    } catch (e) {
-        return c.json({ error: e.message }, 500);
-    }
-});
-
 // --- CONTACTS / TELEFONLISTE API ---
 app.get('/api/contacts', async (c) => {
     try {
@@ -881,78 +958,6 @@ app.delete('/api/contacts/:id', async (c) => {
         const id = c.req.param('id');
         if (!c.env.DB) return c.json({ error: 'DB not available' }, 500);
         await c.env.DB.prepare('DELETE FROM contacts WHERE id = ?').bind(id).run();
-        return c.json({ success: true });
-    } catch (e) {
-        return c.json({ error: e.message }, 500);
-    }
-});
-
-// --- CLOUD SYNC: CHECKLISTS ---
-app.get('/api/checklist', async (c) => {
-    try {
-        const location = c.req.query('location') || 'kp';
-        if (!c.env.DB) return c.json([]);
-        const { results } = await c.env.DB.prepare(`
-            SELECT task_id, is_completed, completed_by FROM checklist_state WHERE location = ?
-        `).bind(location).all();
-        return c.json(results);
-    } catch (e) {
-        return c.json([]);
-    }
-});
-
-app.post('/api/checklist', async (c) => {
-    try {
-        const { location, task_id, is_completed, completed_by } = await c.req.json();
-        if (!c.env.DB) return c.json({ error: 'No DB' }, 500);
-        await c.env.DB.prepare(`
-            INSERT INTO checklist_state (location, task_id, is_completed, completed_by)
-            VALUES (?, ?, ?, ?)
-            ON CONFLICT(location, task_id) DO UPDATE SET
-            is_completed = excluded.is_completed,
-            completed_by = excluded.completed_by,
-            updated_at = CURRENT_TIMESTAMP
-        `).bind(location, task_id, is_completed ? 1 : 0, completed_by || 'Unbekannt').run();
-        return c.json({ success: true });
-    } catch (e) {
-        return c.json({ error: e.message }, 500);
-    }
-});
-
-// --- CLOUD SYNC: LOST & FOUND ---
-app.get('/api/lostfound', async (c) => {
-    try {
-        const location = c.req.query('location') || 'kp';
-        if (!c.env.DB) return c.json([]);
-        const { results } = await c.env.DB.prepare(`
-            SELECT * FROM lost_found WHERE location = ? AND is_returned = 0 ORDER BY created_at DESC
-        `).bind(location).all();
-        return c.json(results);
-    } catch (e) {
-        return c.json([]);
-    }
-});
-
-app.post('/api/lostfound', async (c) => {
-    try {
-        const { location, what, category, found_where, found_by } = await c.req.json();
-        if (!c.env.DB) return c.json({ error: 'No DB' }, 500);
-        await c.env.DB.prepare(`
-            INSERT INTO lost_found (location, what, category, found_where, found_by)
-            VALUES (?, ?, ?, ?, ?)
-        `).bind(location, what, category, found_where, found_by).run();
-        return c.json({ success: true });
-    } catch (e) {
-        return c.json({ error: e.message }, 500);
-    }
-});
-
-app.delete('/api/lostfound/:id', async (c) => {
-    try {
-        const id = c.req.param('id');
-        if (!c.env.DB) return c.json({ error: 'No DB' }, 500);
-        // We mark as returned instead of hard delete for history
-        await c.env.DB.prepare('UPDATE lost_found SET is_returned = 1 WHERE id = ?').bind(id).run();
         return c.json({ success: true });
     } catch (e) {
         return c.json({ error: e.message }, 500);
