@@ -13,6 +13,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <style>
         :root {
             --bg-color: #0a0a0d;
@@ -28,42 +30,32 @@
             --glass-bg: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.08);
             --accent-glow: rgba(0, 242, 254, 0.15);
+            
+            /* Alert Tokens */
+            --alert-bg: linear-gradient(135deg, rgba(229, 9, 20, 0.15) 0%, rgba(20, 20, 25, 0.8) 100%);
+            --alert-border: rgba(229, 9, 20, 0.3);
+            --alert-text-h2: #fff;
+            --alert-text-p: var(--text-muted);
+            --preview-bg: rgba(255, 255, 255, 0.03);
         }
 
-        /* LIGHT MODE OVERRIDES */
+        /* LIGHT MODE OVERRIDES - PREMIUM OVERHAUL */
         body.light-mode {
-            --bg-dark: #f0f2f5;
-            --surface-color: rgba(255, 255, 255, 0.8);
-            --surface-border: rgba(0, 0, 0, 0.1);
+            --bg-dark: #f5f7fa;
+            --surface-color: rgba(255, 255, 255, 0.7);
+            --surface-border: rgba(0, 0, 0, 0.06);
             --text-main: #1a1a2e;
             --text-muted: #64748b;
-            --card-bg: rgba(255, 255, 255, 0.95);
-            --glass-bg: rgba(0, 0, 0, 0.05);
-            --glass-border: rgba(0, 0, 0, 0.1);
-        }
+            --card-bg: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.5);
+            --glass-border: rgba(0, 0, 0, 0.05);
 
-        body.light-mode .glass {
-            background: rgba(255, 255, 255, 0.7) !important;
-            border-color: rgba(0, 0, 0, 0.1) !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05) !important;
-        }
-
-        body.light-mode h1, body.light-mode h2, body.light-mode h3, 
-        body.light-mode .dashboard-title, body.light-mode .hall-name {
-            background: none !important;
-            -webkit-text-fill-color: initial !important;
-            color: #1a1a2e !important;
-        }
-
-        body.light-mode .hall-card, body.light-mode .card-container {
-            background: white !important;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
-        }
-
-        body.light-mode .location-select, body.light-mode .input-field {
-            background: white !important;
-            color: #1a1a2e !important;
-            border-color: #cbd5e1 !important;
+            /* Light Alert Tokens */
+            --alert-bg: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+            --alert-border: rgba(229, 9, 20, 0.15);
+            --alert-text-h2: #1a1a2e;
+            --alert-text-p: #64748b;
+            --preview-bg: #f8fafc;
         }
 
 
@@ -104,6 +96,20 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        body.light-mode header {
+            background: rgba(255, 255, 255, 0.8);
+            border-bottom-color: rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
+
+        body.light-mode .location-select {
+            background: rgba(0, 0, 0, 0.03);
+            border-color: rgba(0, 0, 0, 0.1);
+            color: #1a1a2e;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
         }
 
         .header-inner {
@@ -944,15 +950,20 @@
         }
 
         .poster-change-alert {
-            background: linear-gradient(135deg, rgba(229, 9, 20, 0.15) 0%, rgba(20, 20, 25, 0.8) 100%);
-            border: 1px solid rgba(229, 9, 20, 0.3);
+            background: var(--alert-bg);
+            border: 1px solid var(--alert-border);
             border-radius: 24px;
-            padding: 1.5rem; /* Increased for more room */
-            margin-bottom: 1.25rem; /* Increased for better separation */
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
             backdrop-filter: blur(20px);
-            box-shadow: 0 10px 40px rgba(229, 9, 20, 0.1);
+            box-shadow: 0 10px 40px rgba(229, 9, 20, 0.05);
             position: relative;
             overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        body.light-mode .poster-change-alert {
+            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.08);
         }
 
         .poster-change-alert::before {
@@ -966,28 +977,44 @@
         .alert-content {
             display: flex;
             align-items: center;
-            gap: 1.25rem; /* Reduced from 2.5rem */
+            gap: 1.25rem;
             position: relative;
             z-index: 1;
         }
 
         .alert-icon {
-            font-size: 2.2rem; /* Reduced from 3rem */
+            font-size: 2.2rem;
             text-shadow: 0 0 20px rgba(229, 9, 20, 0.5);
         }
 
         .alert-text h2 {
-            color: #fff;
+            color: var(--alert-text-h2);
             font-family: 'Outfit', sans-serif;
-            font-size: 1.2rem; /* Reduced from 1.5rem */
-            margin-bottom: 0.3rem; /* Reduced from 0.5rem */
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
         
-        .alert-text h2 span {
-            color: var(--primary-red);
+        .alert-text p {
+            color: var(--alert-text-p);
+            font-size: 0.95rem;
+        }
+
+        .poster-change-alert.ze-needed {
+            border-color: var(--primary-blue);
+            background: linear-gradient(135deg, rgba(0, 120, 255, 0.15) 0%, rgba(20, 20, 25, 0.8) 100%);
+        }
+
+        body.light-mode .poster-change-alert.ze-needed {
+            background: linear-gradient(135deg, #eef7ff 0%, #ffffff 100%);
+            border-color: rgba(0, 120, 255, 0.2);
+        }
+
+        .poster-change-alert.ze-needed::before {
+            background: var(--primary-blue);
+            box-shadow: 0 0 15px var(--primary-blue);
         }
 
         .alert-icon-svg {
@@ -1008,10 +1035,10 @@
             display: flex;
             align-items: center;
             gap: 1.5rem;
-            background: rgba(0,0,0,0.3);
+            background: var(--preview-bg);
             padding: 1rem 1.5rem;
             border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
         }
 
         .poster-img {
@@ -1031,10 +1058,10 @@
         }
 
         .next-movie-info h3 {
-            color: #fff;
+            color: var(--alert-text-h2);
             font-family: 'Outfit', sans-serif;
-            font-size: 1.2rem;
-            margin-bottom: 0.3rem;
+            font-size: 1.1rem;
+            margin-bottom: 0.1rem;
         }
 
         .next-movie-info .time {
@@ -1417,11 +1444,26 @@
                 -webkit-overflow-scrolling: touch;
                 display: flex;
                 justify-content: flex-start;
+                background: var(--surface-color);
+                border: 1px solid var(--surface-border);
             }
             .tab-btn {
                 white-space: nowrap;
                 padding: 0.6rem 1rem !important;
                 font-size: 0.9rem !important;
+                color: var(--text-muted);
+                background: transparent;
+                border: none;
+                border-radius: 12px;
+                transition: all 0.2s ease;
+            }
+            .tab-btn.active {
+                background: var(--primary-blue);
+                color: white;
+                box-shadow: 0 4px 12px rgba(0, 120, 255, 0.2);
+            }
+            body.light-mode .tab-btn.active {
+                box-shadow: 0 4px 12px rgba(0, 120, 255, 0.1);
             }
             .stats-section {
                 padding: 1.5rem 1rem !important;
@@ -1852,7 +1894,7 @@
         }
         .contact-dial.bg-green { background: rgba(46,204,113,0.2); border: 1px solid rgba(46,204,113,0.4); }
         
-        .tools-section, .info-section, .stats-section, .kontakte-section, .intern-section, .einstellungen-section { display: none !important; }
+        .tools-section, .info-section, .stats-section, .kontakte-section, .intern-section, .einstellungen-section, .admin-section { display: none !important; }
         
         body.tools-active .tools-section { display: block !important; }
         body.tools-active .kontakte-section { display: none !important; }
@@ -1866,6 +1908,7 @@
         body.intern-active .live-section { display: none !important; }
 
         body.einstellungen-active .einstellungen-section { display: block !important; }
+        body.admin-active .admin-section { display: block !important; }
         body.einstellungen-active .live-section { display: none !important; }
 
         body.info-active .info-section { display: block !important; }
@@ -2383,6 +2426,8 @@
                         <option value="counter">🎫 Counter (Checkliste)</option>
                         <option value="popcornkueche">🌽 Popcornküche (Checkliste)</option>
                         <option value="becherspuelen">🥤 Becherspülen (Checkliste)</option>
+                        <option value="tl">👔 Teamleiter (TL)</option>
+                        <option value="bl">🏢 Betriebsleitung (BL)</option>
                         <optgroup label="Darmstadt Abbau">
                             <option value="abbau-1-2">🏮 Saal 1/2 Abbau</option>
                             <option value="abbau-3-4">🏮 Saal 3/4 Abbau</option>
@@ -2390,7 +2435,6 @@
                             <option value="abbau-7-8">🏮 Saal 7/8 Abbau</option>
                         </optgroup>
                         <option value="lostfound" style="color: var(--primary-blue);">🧸 Fundbüro (Lost & Found)</option>
-
                     </select>
                 </div>
 
@@ -2447,9 +2491,14 @@
                 </div>
             </div>
             <div style="padding: 0 1.5rem 1.5rem;">
-                <button onclick="exportToExcel()" class="btn-primary" style="width: 100%; padding: 1rem; border-radius: 12px; background: linear-gradient(135deg, #2ecc71, #27ae60); border: none; font-weight: 800; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);">
-                    <span>📥</span> Jetzt als Excel exportieren (.xlsx)
-                </button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <button onclick="exportToExcel()" class="btn-primary" style="padding: 1rem; border-radius: 12px; background: linear-gradient(135deg, #2ecc71, #27ae60); border: none; font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);">
+                        <span>📥</span> Excel
+                    </button>
+                    <button onclick="exportToPDF()" class="btn-primary" style="padding: 1rem; border-radius: 12px; background: linear-gradient(135deg, #e74c3c, #c0392b); border: none; font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);">
+                        <span>📄</span> PDF
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -2467,7 +2516,16 @@
             </div>
         </div>
 
-        <!-- Externe Links & Handbücher -->
+        <!-- Admin Panel -->
+        <div class="card-container glass admin-section" style="margin-bottom: 2rem;">
+            <div class="card-header" style="flex-direction: column; align-items: flex-start; gap: 0.5rem; padding: 1.5rem;">
+                <h2 style="font-size: 1.5rem;">🔒 Admin Panel</h2>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Verwalte Sichtbarkeit von Modulen und Dashboard-Einstellungen.</p>
+            </div>
+            <div style="padding: 0 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;" id="admin-modules-list">
+                <!-- Injected via JS -->
+            </div>
+        </div>
         <div class="card-container glass intern-section" style="margin-bottom: 1rem;">
             <div class="card-header" onclick="toggleSection('links-content', 'links-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
@@ -2485,11 +2543,11 @@
                 <div style="margin-bottom: 1rem;">
                     <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.75rem;">Externe Links</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                        <a href="https://kinopolis.net" target="_blank" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;">
+                        <a href="https://walter.kinopolis.net" target="_blank" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;">
                             <span style="font-size: 2rem;">🌐</span>
                             <div>
-                                <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Kinopolis.net</div>
-                                <div style="font-size: 0.8rem; color: var(--text-muted);">(Tagesabschlusszählung)</div>
+                                <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Walter</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">(Tagesbeginn & Abschluss)</div>
                             </div>
                         </a>
                         <a href="https://eu.atoss.com" target="_blank" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;">
@@ -2618,6 +2676,31 @@
         const LOCATIONS_URL = '/api/locations';
         const VAPID_PUBLIC_KEY = 'BCP-JGZbVBjKY1_blxAHw6bC5Ddf0nLAyPSp8q39kV7utFahZNyQZJ8KlV-ht6UKg07eAuVBVHJhVsaDMx1m7X8';
 
+        // --- RESET LOGIC ---
+        function checkAndResetDailyTasks() {
+            const today = new Date().toISOString().split('T')[0];
+            const lastResetDate = localStorage.getItem('kinopolis_last_reset_date');
+            
+            if (lastResetDate !== today) {
+                // Keys to reset
+                const keysToClear = [
+                    'completed_auslaesse',
+                    'completed_posters',
+                    'completed_cleaning',
+                    'kinopolis_shift_checklist',
+                    'scanned_plan_data',
+                    'staff_notes',
+                    'kinopolis_shift_name'
+                ];
+                
+                keysToClear.forEach(key => localStorage.removeItem(key));
+                localStorage.setItem('kinopolis_last_reset_date', today);
+                console.log('✅ Täglicher Aufgaben-Reset durchgeführt:', today);
+            }
+        }
+
+        checkAndResetDailyTasks();
+
         let lastData = null;
         let lastUpdateTime = null;
         let currentCity = 'kp';
@@ -2655,6 +2738,9 @@
                 loadLogs();
             } else if (view === 'einstellungen') {
                 document.body.classList.add('einstellungen-active');
+            } else if (view === 'admin') {
+                document.body.classList.add('admin-active');
+                renderAdminPanel();
             }
         }
 
@@ -3281,16 +3367,25 @@
                 { id: 'b1', text: 'Aufgabe 1' },
                 { id: 'b2', text: 'Aufgabe 2' }
             ],
+            'tl': [
+                { id: 'tl1', text: 'Mitarbeitergespräche geführt' },
+                { id: 'tl2', text: 'Umsatzkontrolle (Stündlich)' },
+                { id: 'tl3', text: 'Pauseneinhaltung geprüft' },
+                { id: 'tl4', text: 'Kassenabrechnung vorbereitet' }
+            ],
+            'bl': [
+                { id: 'bl1', text: 'Wochenplanung kontrolliert' },
+                { id: 'bl2', text: 'Bestellwesen geprüft' },
+                { id: 'bl3', text: 'Feedback-Auswertung abgeschlossen' }
+            ],
             'abbau-1-2': [
                 { id: 'ab12-1', text: '🍿 Müllkontrolle & Nachschub' },
                 { id: 'ab12-2', text: '👓 Brillenboxen geleert' },
-                { id: 'ab12-3', text: '🧹 Boden grob gereinigt' },
-                { id: 'ab12-4', text: '💡 Reinigung-Licht aus' }
+                { id: 'ab12-3', text: '🧹 Boden grob gereinigt' }
             ],
             'abbau-3-4': [
                 { id: 'ab34-1', text: '🍿 Müllkontrolle & Nachschub' },
-                { id: 'ab34-2', text: '👓 Brillenboxen geleert' },
-                { id: 'ab34-3', text: '🎚️ Hörschleife deaktiviert' }
+                { id: 'ab34-2', text: '👓 Brillenboxen geleert' }
             ],
             'abbau-5-6': [
                 { id: 'ab56-1', text: '🍿 Müllkontrolle & Nachschub' },
@@ -4528,26 +4623,25 @@
                         const isZENeeded = !prevSession || prevSession.sold <= 50;
 
                         const alert = document.createElement('div');
-                        alert.className = 'poster-change-alert';
+                        alert.className = 'poster-change-alert occupancy-alert';
                         if (isZENeeded) {
-                            alert.style.background = 'linear-gradient(135deg, rgba(0, 120, 255, 0.2) 0%, rgba(20, 20, 25, 0.8) 100%)';
-                            alert.style.borderColor = 'rgba(0, 120, 255, 0.4)';
+                            alert.classList.add('ze-needed');
                         }
 
                         alert.innerHTML = `
                             <div class="alert-content">
-                                <div class="alert-icon">${isZENeeded ? '🛂' : '🎟️'}</div>
+                                <div class="alert-icon" style="font-size: 2.5rem;">${isZENeeded ? '🛂' : '🎟️'}</div>
                                 <div class="alert-text" style="flex: 1">
-                                    <h2 style="display: flex; align-items: flex-start; gap: 0.5rem; flex-wrap: wrap;">
+                                    <h2 style="display: flex; align-items: flex-start; gap: 0.5rem; flex-wrap: wrap; color: var(--alert-text-h2);">
                                         <span>${isZENeeded ? 'Zutrittskontrolle (ZE) nötig!' : 'Saal fast voll!'}</span>
                                         ${isZENeeded ? getFskTagsHtml(s) : ''}
                                     </h2>
-                                    <p>Der Film <strong>${s.title}</strong> in <strong>${hallName}</strong> beginnt in ${diff} Min. (${s.sold} Plätze belegt).</p>
-                                    ${isZENeeded ? '<p style="color: var(--primary-blue); margin-top: 0.5rem; font-weight: 600;">⚠️ Bitte kontrolliere die Ausweise basierend auf der Uhrzeit und der FSK.</p>' : ''}
+                                    <p style="color: var(--alert-text-p); font-size: 0.95rem;">Der Film <strong>${s.title}</strong> in <strong>${hallName}</strong> beginnt in ${diff} Min. (${s.sold} Plätze belegt).</p>
+                                    ${isZENeeded ? `<p style="color: var(--primary-blue); margin-top: 0.5rem; font-weight: 700;">⚠️ Bitte kontrolliere die Ausweise basierend auf der Uhrzeit und der FSK.</p>` : ''}
                                 </div>
                             </div>
                         `;
-                        container.insertBefore(alert, container.firstChild); // Show these at the top
+                        container.insertBefore(alert, container.firstChild);
                     }
                 });
             });
@@ -4763,6 +4857,124 @@
             const isLight = body.classList.contains('light-mode');
             localStorage.setItem('theme', isLight ? 'light' : 'dark');
             if (icon) icon.innerText = isLight ? '☀️' : '🌙';
+        }
+
+        // --- PDF EXPORT ---
+        async function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const today = new Date().toLocaleDateString('de-DE');
+            const city = currentCity.toUpperCase();
+            
+            doc.setFontSize(22);
+            doc.setTextColor(0, 120, 255);
+            doc.text(`Kinopolis Dashboard Export - ${city}`, 14, 20);
+            
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Datum: ${today} | Exportiert für: ${localStorage.getItem('kinopolis_shift_name') || 'Unbekannt'}`, 14, 28);
+            
+            // Checklists Table
+            const savedChecklist = JSON.parse(localStorage.getItem('kinopolis_shift_checklist') || '{}');
+            const checklistData = [];
+            
+            Object.keys(shiftChecklist).forEach(key => {
+                shiftChecklist[key].forEach(item => {
+                    checklistData.push([
+                        key.toUpperCase(),
+                        item.text,
+                        savedChecklist[item.id] ? 'ERLEDIGT' : 'OFFEN'
+                    ]);
+                });
+            });
+            
+            doc.autoTable({
+                startY: 35,
+                head: [['Bereich', 'Aufgabe', 'Status']],
+                body: checklistData,
+                theme: 'striped',
+                headStyles: { fillColor: [0, 120, 255] }
+            });
+            
+            // Fundbüro Table
+            const lfItems = JSON.parse(localStorage.getItem('kinopolis_lf_items') || '[]');
+            if (lfItems.length > 0) {
+                doc.addPage();
+                doc.text(`Fundbüro - Aktuelle Liste`, 14, 20);
+                doc.autoTable({
+                    startY: 30,
+                    head: [['Gegenstand', 'Kategorie', 'Fundort', 'Personal']],
+                    body: lfItems.map(i => [i.what, i.category, i.where, i.who]),
+                    theme: 'grid'
+                });
+            }
+            
+            doc.save(`Kinopolis_Export_${city}_${today.replace(/\./g, '-')}.pdf`);
+        }
+
+        // --- ADMIN PANEL LOGIC ---
+        const MODULES = [
+            { id: 'live', name: 'Live Übersicht (Sessions)', icon: '🎬' },
+            { id: 'stats', name: 'Statistiken', icon: '📊' },
+            { id: 'kontakte', name: 'Kontakte / Kurzwahl', icon: '📞' },
+            { id: 'funk', name: 'Digital Funk', icon: '📡' },
+            { id: 'tools', name: 'Lost & Found / Tools', icon: '🛠️' },
+            { id: 'info', name: 'Filme & Demnächst', icon: '🎞️' }
+        ];
+
+        function renderAdminPanel() {
+            const container = document.getElementById('admin-modules-list');
+            if (!container) return;
+            
+            const disabledModules = JSON.parse(localStorage.getItem('disabled_modules') || '[]');
+            
+            container.innerHTML = `
+                <div style="background: rgba(0, 120, 255, 0.1); border: 1px solid rgba(0, 120, 255, 0.2); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem;">
+                    <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.5rem;">Sichtbare Module wählen</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem;">Deaktiviere Tabs, die im Dashboard nicht benötigt werden.</p>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        ${MODULES.map(mod => {
+                            const checked = !disabledModules.includes(mod.id) ? 'checked' : '';
+                            return `
+                                <label style="display: flex; align-items: center; gap: 1rem; cursor: pointer; padding: 0.5rem; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                                    <input type="checkbox" onchange="toggleModule('${mod.id}', this.checked)" ${checked} style="width: 1.2rem; height: 1.2rem; accent-color: var(--primary-blue);">
+                                    <span style="font-size: 1rem;">${mod.icon} ${mod.name}</span>
+                                </label>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleModule(id, isEnabled) {
+            let disabled = JSON.parse(localStorage.getItem('disabled_modules') || '[]');
+            if (isEnabled) {
+                disabled = disabled.filter(d => d !== id);
+            } else {
+                if (!disabled.includes(id)) disabled.push(id);
+            }
+            localStorage.setItem('disabled_modules', JSON.stringify(disabled));
+            applyModuleVisibility();
+        }
+
+        function applyModuleVisibility() {
+            const disabled = JSON.parse(localStorage.getItem('disabled_modules') || '[]');
+            MODULES.forEach(mod => {
+                const btn = document.querySelector(`.tab-btn[onclick*="'${mod.id}'"]`);
+                if (btn) btn.style.display = disabled.includes(mod.id) ? 'none' : 'flex';
+                
+                // Also hide corresponding sections
+                const sectionClasses = {
+                    'live': '.live-section',
+                    'stats': '.stats-section',
+                    'kontakte': '.kontakte-section',
+                    'funk': '.funk-section',
+                    'tools': '.intern-section',
+                    'info': '.info-active' 
+                };
+            });
         }
 
         async function exportToExcel() {

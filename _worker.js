@@ -725,45 +725,53 @@ app.get('/api/upcoming', async (c) => {
         if (!response.ok) throw new Error('Failed to fetch Kinopolis main page');
         const html = await response.text();
 
-        // Use a more relaxed match for the upcoming slider
+        // Target the specific coming-soon-slider ID
         const sliderMatch = html.match(/<(?:section|div)[^>]*id="coming-soon-slider"[\s\S]*?<\/(?:section|div)>/);
         let blocks = [];
         
         if (sliderMatch) {
             const sliderHtml = sliderMatch[0];
-            // Try splitting by common containers
-            blocks = sliderHtml.split(/<div class="(?:slider-item|img-wrapper)">/).slice(1);
+            // Split by movie grid bricks
+            blocks = sliderHtml.split(/<div[^>]*class="[^"]*movie[^"]*"[^>]*>/).slice(1);
         } else {
-            // Fallback: look for slider-item blocks globally if ID is missing
-            const items = html.match(/<div class="slider-item">[\s\S]*?<\/div>/g);
+            // Fallback: search for grid items globally
+            const items = html.match(/<div[^>]*class="[^"]*movie[^"]*"[^>]*>[\s\S]*?<\/div>\s*<\/div>/g);
             if (items) blocks = items;
         }
 
         if (blocks.length === 0) return c.json([]);
         
         const upcoming = [];
-        
         blocks.forEach(block => {
             const hrefMatch = block.match(/href="([^"]+)"/);
             const srcMatch = block.match(/src="([^"]+)"/);
-            const altMatch = block.match(/alt="([^"]+)"/);
+            // Title is usually in h3 or alt
+            const titleMatch = block.match(/<h3[^>]*>([\s\S]*?)<\/h3>/) || block.match(/alt="([^"]+)"/);
             
-            if (srcMatch && altMatch) {
-                let titleDecoded = altMatch[1].replace(/&#x([0-9A-Fa-f]+);/g, (match, hex) => String.fromCharCode(parseInt(hex, 16)))
-                                            .replace(/&amp;/g, '&');
-                let movieLink = hrefMatch ? (hrefMatch[1].startsWith('http') ? hrefMatch[1] : `https://www.kinopolis.de${hrefMatch[1]}`) : null;
+            if (hrefMatch && srcMatch) {
+                let title = titleMatch ? titleMatch[1].replace(/<[^>]*>/g, '').trim() : 'Unbekannter Film';
+                // Basic HTML entity decoding
+                title = title.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
                 
                 upcoming.push({
-                    title: titleDecoded,
-                    poster: srcMatch[1],
-                    movieLink: movieLink
+                    title,
+                    poster: srcMatch[1].startsWith('http') ? srcMatch[1] : 'https://www.kinopolis.de' + srcMatch[1],
+                    movieLink: hrefMatch[1].startsWith('http') ? hrefMatch[1] : 'https://www.kinopolis.de' + hrefMatch[1]
                 });
             }
         });
 
+        // Deduplicate and return max 16
+        const unique = [];
+        const seen = new Set();
+        for (const m of upcoming) {
+            if (!seen.has(m.title)) {
+                seen.add(m.title);
+                unique.push(m);
+            }
+        }
         
-        // Return max 12 upcoming
-        return c.json(upcoming.slice(0, 12));
+        return c.json(unique.slice(0, 16));
     } catch (e) {
         console.error('Upcoming fetch error:', e);
         return c.json({ error: 'Failed to fetch upcoming movies' }, 500);
