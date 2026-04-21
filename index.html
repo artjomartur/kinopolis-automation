@@ -2804,11 +2804,18 @@
         </div>
     </div>
 
+    <div id="build-banner-47" style="background: #2ecc71; color: white; padding: 12px; text-align: center; font-weight: 800; font-family: 'Outfit', sans-serif; position: sticky; top: 0; z-index: 9999; box-shadow: 0 4px 15px rgba(0,0,0,0.3); letter-spacing: 1px;">
+        🚀 DASHBOARD BUILD 4.7 LIVE - REFRESH IF NOT GREEN
+    </div>
+
     <script>
-        console.log('--- DASHBOARD BUILD 4.3 LIVE ---');
+        // ==========================================
+        // BUILD 4.7 - FINAL STABILITY (Cache-Bust)
+        // ==========================================
+        console.log('--- DASHBOARD BUILD 4.7 LIVE ---');
 
         // --- VERSION & GLOBALS ---
-        const DASHBOARD_VERSION = '4.1';
+        const DASHBOARD_VERSION = '4.7';
         const API_URL = '/api/sessions';
         const LOCATIONS_URL = '/api/locations';
         const VAPID_PUBLIC_KEY = 'BCP-JGZbVBjKY1_blxAHw6bC5Ddf0nLAyPSp8q39kV7utFahZNyQZJ8KlV-ht6UKg07eAuVBVHJhVsaDMx1m7X8';
@@ -2821,9 +2828,8 @@
         let completedAuslaesse = new Set(JSON.parse(localStorage.getItem('completed_auslaesse') || '[]'));
         let completedPosters = new Set(JSON.parse(localStorage.getItem('completed_posters') || '[]'));
         let completedCleaning = new Set(JSON.parse(localStorage.getItem('completed_cleaning') || '[]'));
-        let scannedPlanData = JSON.parse(localStorage.getItem('scanned_plan_data') || '[]');
 
-        // --- CORE UTILITIES ---
+        // --- CORE UI UTILITIES ---
         function showToast(msg, isError = false) {
             const t = document.getElementById('global-toast');
             if(!t) return;
@@ -2842,20 +2848,7 @@
             return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
         }
 
-        function formatTime(isoStr) {
-            const date = new Date(isoStr);
-            return date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-        }
-
-        async function runSafe(fn, errorMsg) {
-            try { return await fn(); } 
-            catch (e) { 
-                console.error(`[${errorMsg}]`, e);
-                return null;
-            }
-        }
-
-        function updateGamification() {
+        async function updateGamification() {
             const xpPerAuslass = 50;
             const xpPerCleaning = 30;
             const xpPerPoster = 20;
@@ -2882,7 +2875,7 @@
             else if (totalXP >= 400) { level = "Fortgeschritten"; nextGoal = 1000; color = "#3498db"; }
 
             if (levelSpan) {
-                levelSpan.innerText = level;
+                levelSpan.innerHTML = `${level}`;
                 levelSpan.style.color = color;
             }
 
@@ -2895,142 +2888,20 @@
             }
         }
 
-
-
-        const CAT_ICONS = {
-            'leitung': { icon: '👔', bg: 'bg-gold' },
-            'theke': { icon: '🍿', bg: 'bg-purple' },
-            'einlass': { icon: '🎟️', bg: 'bg-blue' },
-            'technik': { icon: '⚙️', bg: 'bg-green' },
-            'sicherheit': { icon: '🛡️', bg: 'bg-red' },
-            'popcornkueche': { icon: '🔥', bg: 'bg-gold' },
-            'putzfirma': { icon: '🧹', bg: 'bg-blue' }
-        };
-
-        const KP_DEFAULT_CONTACTS = [
-            { category: 'leitung', role_name: 'BL', phone_number: '+49 6151 87059288' },
-            { category: 'leitung', role_name: 'TL 1', phone_number: '+49 6151 87059212' },
-            { category: 'leitung', role_name: 'TL 2', phone_number: '+49 6151 87059213' },
-            { category: 'leitung', role_name: 'TL 3', phone_number: '+49 6151 87059214' },
-            { category: 'einlass', role_name: 'Einlass 1', phone_number: '+49 6151 87059233' },
-            { category: 'einlass', role_name: 'Einlass 2', phone_number: '+49 6151 87059234' },
-            { category: 'einlass', role_name: 'Einlass 3', phone_number: '+49 6151 87059235' },
-            { category: 'einlass', role_name: 'Einlass 4', phone_number: '+49 6151 87059236' },
-            { category: 'theke', role_name: 'Counter hinten', phone_number: '+49 6151 87059203' }
-        ];
-
-        const CAT_NAMES = {
-            'leitung': 'Leitung',
-            'einlass': 'Einlass',
-            'theke': 'Kasse/Theke',
-            'sicherheit': 'Sicherheit',
-            'popcornkueche': 'Popcornküche',
-            'putzfirma': 'Putzfirma',
-            'technik': 'Technik'
-        };
-
-        // --- RESET LOGIC ---
-        function checkAndResetDailyTasks() {
-            const today = new Date().toISOString().split('T')[0];
-            const lastResetDate = localStorage.getItem('kinopolis_last_reset_date');
-            
-            if (lastResetDate !== today) {
-                // Keys to reset
-                const keysToClear = [
-                    'completed_auslaesse',
-                    'completed_posters',
-                    'completed_cleaning',
-                    'kinopolis_shift_checklist',
-                    'scanned_plan_data',
-                    'staff_notes',
-                    'kinopolis_shift_name'
-                ];
-                
-                keysToClear.forEach(key => localStorage.removeItem(key));
-                localStorage.setItem('kinopolis_last_reset_date', today);
-                console.log('✅ Täglicher Aufgaben-Reset durchgeführt:', today);
-            }
+        function saveTaskState() {
+            localStorage.setItem('completed_auslaesse', JSON.stringify([...completedAuslaesse]));
+            localStorage.setItem('completed_posters', JSON.stringify([...completedPosters]));
+            localStorage.setItem('completed_cleaning', JSON.stringify([...completedCleaning]));
+            updateGamification();
         }
 
-        checkAndResetDailyTasks();
-
-        // Initial data fetch removed duplication here
-
-
+        // --- DASHBOARD CORE LOGIC ---
         const CLEANING_TASKS = {
             1: ["Tagesaufgabe 1: MONTAG"], 2: ["Tagesaufgabe 1: DIENSTAG"], 
             3: ["Tagesaufgabe 1: MITTWOCH"], 4: ["Tagesaufgabe 1: DONNERSTAG"],
             5: ["Tagesaufgabe 1: FREITAG"], 6: ["Tagesaufgabe 1: SAMSTAG"], 0: ["Tagesaufgabe 1: SONNTAG"]
         };
 
-        function switchTab(view, btn) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            
-            document.body.classList.remove('tools-active', 'info-active', 'stats-active', 'kontakte-active', 'intern-active', 'einstellungen-active', 'funk-active');
-            
-            if (view === 'tools') {
-                document.body.classList.add('tools-active');
-                if (document.getElementById('transfer-items').children.length === 0) initTransferList();
-            } else if (view === 'info') {
-                document.body.classList.add('info-active');
-                loadUpcomingMovies();
-            } else if (view === 'stats') {
-                document.body.classList.add('stats-active');
-            } else if (view === 'kontakte') {
-                document.body.classList.add('kontakte-active');
-            } else if (view === 'intern') {
-                document.body.classList.add('intern-active');
-            } else if (view === 'funk') {
-                document.body.classList.add('tools-active');
-                if (document.getElementById('transfer-items').children.length === 0) initTransferList();
-            } else if (view === 'einstellungen') {
-                document.body.classList.add('einstellungen-active');
-            }
-        }
-
-        // --- APP START ---
-        window.addEventListener('load', async () => {
-            try {
-                // Theme Init
-                const savedTheme = localStorage.getItem('theme');
-                if (savedTheme === 'light') {
-                    document.body.classList.add('light-mode');
-                    const icon = document.getElementById('theme-icon');
-                    if (icon) icon.innerText = '☀️';
-                }
-
-                // Core Data
-                await fetchLocations(); // Should be awaited if others depend on it
-                
-                // Initialize UI modules independently to be robust
-                const runSafe = async (fn, name) => {
-                    try { await fn(); } catch (e) { console.error(`Failed to init ${name}:`, e); }
-                };
-
-                await Promise.all([
-                    runSafe(fetchSessions, 'Sessions'),
-                    runSafe(fetchWeather, 'Weather'),
-                    runSafe(fetchNews, 'News'),
-                    runSafe(loadLfItems, 'LostFound'),
-                    runSafe(initTransferList, 'TransferList'),
-                    runSafe(applyModuleVisibility, 'Visibility'),
-                    runSafe(loadContacts, 'Contacts')
-                ]);
-
-                // Setup toggle for Auslässe
-                const auslaesseBtn = document.getElementById('auslaesse-toggle-btn');
-                if (auslaesseBtn) {
-                    auslaesseBtn.addEventListener('click', () => {
-                        const content = document.getElementById('auslaesse-list');
-                        content.classList.toggle('collapsed');
-                        auslaesseBtn.classList.toggle('collapsed');
-                    });
-                }
-
-                // Periodic Refresh
-                setInterval(() => {
-                    runSafe(fetchSessions, 'Sessions-Refresh');
                     runSafe(fetchWeather, 'Weather-Refresh');
                     runSafe(fetchNews, 'News-Refresh');
                 }, 60000);

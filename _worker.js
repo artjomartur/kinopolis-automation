@@ -189,144 +189,110 @@ app.get('/api/sessions', async (c) => {
         const navDateMap = new Map(); // Global map for back-compatibility if needed elsewhere, but we now use per-movie map
         
         // Note: Global navDateMap is now less critical as we parse dates per-movie below.
-        // We still keep the mapping here if we ever need a site-wide date reference.
-
-        const sessionMap = new Map(); // Key: date-perfId or date-time-hall-title, Value: session object
+        // We still keep the mapping here if we ever need a site-wide date referenc        // --- ULTRA-FAST SPLIT-BASED PARSING (v4.7) ---
+        const sessionMap = new Map();
         
-        $('section.movie, .prog2__movie').each((i, movieEl) => {
-            const title = $(movieEl).find('.hl-link, .prog2__movie-title').first().text().trim();
-            if (!title) return;
-            const poster = $(movieEl).find('.prog2__movie-img img, img.img-fluid').first().attr('src');
-            const durationText = $(movieEl).find('.movie__specs-el, .prog2__movie-info-item, .prog2__infos').text().trim();
-            const durationMatch = durationText.match(/Dauer:\s*(\d+)\s*Minuten/i) || durationText.match(/(\d+)\s*Min\.?/i);
-            const duration = durationMatch ? parseInt(durationMatch[1]) : 0;
+        // Split by movie container to isolate work
+        const movieBlocks = html.split('class="prog2__movie');
+        // The first block is the header, skip it
+        for (let i = 1; i < movieBlocks.length; i++) {
+            const mBlock = movieBlocks[i];
+            
+            // Fast title extraction
+            const titleMatch = mBlock.match(/class="prog2__movie-title[^>]*>([^<]+)/);
+            if (!titleMatch) continue;
+            const title = titleMatch[1].trim();
 
-            let fsk = "FSK ?";
-            const fskImg = $(movieEl).find('img[src*="FSK"]').first().attr('alt');
-            if (fskImg && fskImg.includes('FSK')) {
-                fsk = fskImg;
-            } else {
-                const fskMatch = durationText.match(/ab\s*(\d+)\s*Jahre/i) || durationText.match(/FSK\s*(\d+)/i);
-                if (fskMatch) fsk = `FSK ${fskMatch[1]}`;
+            const posterMatch = mBlock.match(/src="([^"]+)"/);
+            const poster = posterMatch ? (posterMatch[1].startsWith('http') ? posterMatch[1] : `https://www.kinopolis.de${posterMatch[1]}`) : null;
+            
+            // Extract dates (heute, morgen, etc.)
+            const movieDates = [];
+            const navSlices = mBlock.split('class="prog-nav__item');
+            for (let j = 1; j < navSlices.length; j++) {
+                const navText = navSlices[j].toLowerCase();
+                if (navText.includes('heute')) movieDates.push(todayISO);
+                else if (navText.includes('morgen')) movieDates.push(tomorrowISO);
+                else {
+                    const d = navText.match(/(\d{2})\.(\d{2})\./);
+                    if (d) movieDates.push(`${today.getFullYear()}-${d[2]}-${d[1]}`);
+                }
             }
 
-            // LINK extraction
-            const detailLink = $(movieEl).find('.hl-link, .prog2__movie-title, a[href*="/film/"]').first().attr('href');
-            const movieLink = detailLink ? (detailLink.startsWith('http') ? detailLink : `https://www.kinopolis.de${detailLink}`) : null;
+            // Extract sessions grouped by day
+            const daySlices = mBlock.split('class="prog-day__wrapper');
+            for (let k = 1; k < daySlices.length; k++) {
+                const dayHtml = daySlices[k];
+                const actualDate = movieDates[k - 1];
+                if (!actualDate) continue;
 
-            // Build movie-specific date map
-            const movieNavDateMap = new Map();
-            $(movieEl).find('.prog-nav__item').each((navIdx, navEl) => {
-                const navText = $(navEl).text().trim().toLowerCase();
-                const dateMatch = navText.match(/(\d{2})\.(\d{2})\./);
-                
-                let navDate = '';
-                if (navText.includes('heute')) navDate = todayISO;
-                else if (navText.includes('morgen')) navDate = tomorrowISO;
-                else if (dateMatch) {
-                    const year = today.getFullYear() + (parseInt(dateMatch[2]) < today.getMonth() + 1 ? 1 : 0);
-                    navDate = `${year}-${dateMatch[2]}-${dateMatch[1]}`;
-                }
-                if (navDate) movieNavDateMap.set(navIdx, navDate);
-            });
-
-            $(movieEl).find('.prog-day__wrapper').each((dayIndex, wrapper) => {
-                const actualDate = movieNavDateMap.get(dayIndex);
-                if (!actualDate) return;
-
-                $(wrapper).find('.prog2__cont, .prog2__movie-session').each((j, sessionEl) => {
-                    const perfId = $(sessionEl).attr('data-performance-id');
-                    const time = $(sessionEl).find('.prog2__time').first().text().trim();
-                    if (!time) return;
+                // Split by performance entry
+                const sessSlices = dayHtml.split('class="prog2__cont');
+                for (let s = 1; s < sessSlices.length; s++) {
+                    const sHtml = sessSlices[s];
+                    const perfMatch = sHtml.match(/data-performance-id="([^"]*)"/);
+                    const perfId = perfMatch ? perfMatch[1] : '';
                     
-                    let hallTextContent = $(sessionEl).find('.prog2__hall-num > div:first-child').text().trim();
-                    if (!hallTextContent) hallTextContent = $(sessionEl).find('.prog2__hall-num').text().replace(/i$/, '').trim();
-                    const hall = hallTextContent;
-                    const occupancyText = $(sessionEl).text().trim();
+                    const timeMatch = sHtml.match(/class="prog2__time">([^<]+)/);
+                    if (!timeMatch) continue;
+                    const time = timeMatch[1].trim();
+
+                    const hallMatch = sHtml.match(/class="prog2__hall-num">([\s\S]*?)<\/div>/);
+                    const hall = hallMatch ? hallMatch[1].replace(/<[^>]+>/g, '').replace(/Saal/i, '').trim() : '';
+                    
                     let capacity = 0;
-                    let freePercent = 95;
-                    const seatsEl = $(sessionEl).find('.prog2__seats');
-                    if (seatsEl.length) capacity = parseInt(seatsEl.text().replace(/\D/g, '')) || 0;
-                    
-                    const scaleEl = $(sessionEl).find('.prog2__scale');
-                    if (scaleEl.length) {
-                        const percentMatch = scaleEl.text().match(/(\d+)%/);
-                        if (percentMatch) freePercent = parseInt(percentMatch[1]);
-                    }
-                    if (capacity <= 1) {
-                        const combinedMatch = occupancyText.match(/(\d+)\s+(\d+)%\s+frei/);
-                        if (combinedMatch) {
-                            capacity = parseInt(combinedMatch[1]);
-                            freePercent = parseInt(combinedMatch[2]);
-                        } else {
-                            const capacityMatch = occupancyText.match(/(\d+)\s+Pl[äa]tze/);
-                            if (capacityMatch) capacity = parseInt(capacityMatch[1]);
-                        }
-                    }
-                    const freeCountMatch = occupancyText.match(/(\d+)\s+(?:Pl[äa]tze\s+)?frei/);
-                    const freePercentMatch = occupancyText.match(/(\d+)%\s+frei/);
-                    if (freePercentMatch && (!scaleEl.length || freePercent === 95)) freePercent = parseInt(freePercentMatch[1]);
-                    
-                    const seatingAttr = $(sessionEl).find('[data-seating]').attr('data-seating');
-                    if (capacity === 0 && seatingAttr) {
-                        try {
-                            const parsed = JSON.parse(seatingAttr);
-                            if (Array.isArray(parsed) && parsed.length > 0 && parsed[0] > 10) capacity = parsed[0];
-                        } catch(e) {}
-                    }
-
                     let sold = 0;
+                    let freePercent = 100;
+
+                    const seatsMatch = sHtml.match(/(\d+)\s*Pl[äa]tze/);
+                    const freePctMatch = sHtml.match(/(\d+)%\s*frei/);
+                    const freeCountMatch = sHtml.match(/(\d+)\s*frei/);
+
+                    if (seatsMatch) capacity = parseInt(seatsMatch[1]);
+                    if (freePctMatch) freePercent = parseInt(freePctMatch[1]);
+                    
                     if (capacity > 0) {
-                        sold = Math.round(capacity * (1 - freePercent / 100));
-                        if (freeCountMatch) sold = capacity - parseInt(freeCountMatch[1]);
-                        if (sold < 0) sold = 0;
+                        sold = Math.round(capacity * (1 - (freePercent / 100)));
+                        if (freeCountMatch) sold = Math.max(0, capacity - parseInt(freeCountMatch[1]));
                     }
-                    
-                    const isBookable = !$(sessionEl).hasClass('performance_expired') && 
-                                      !occupancyText.includes('nicht mehr buchbar') && 
-                                      !occupancyText.includes('ausverkauft');
 
-                    const sessionObj = { title, poster: poster ? (poster.startsWith('http') ? poster : `https://www.kinopolis.de${poster}`) : null, 
-                                       time, hall, duration, capacity, freePercent, sold, isBookable, performanceId: perfId, date: actualDate, fsk, movieLink };
+                    const isBookable = !sHtml.includes('ausverkauft') && !sHtml.includes('performance_expired');
 
-                    const key = `${actualDate}-${perfId || (time + '-' + hall + '-' + title)}`;
-                    const existing = sessionMap.get(key);
-                    
-                    // Keep the best version
-                    if (!existing || (existing.capacity === 0 && capacity > 0) || (!existing.isBookable && isBookable)) {
-                        sessionMap.set(key, sessionObj);
-                    }
-                });
-            });
-        });
+                    const sessionObj = { 
+                        title, poster, time, hall, capacity, sold, 
+                        isBookable, performanceId: perfId, date: actualDate 
+                    };
 
-        // Filter for exactly the requested date
+                    sessionMap.set(`${actualDate}-${perfId || (time + hall + title)}`, sessionObj);
+                }
+            }
+        }
+
+        // --- FILTERING ---
         let sessions = Array.from(sessionMap.values()).filter(s => s.date === dateStr);
-
-        // Filter out Darmstadt extra events (separation between Kinopolis and Citydome)
         const cdKeys = ['helia', 'pali', 'rex', 'festival', 'bambi', 'broadway', 'classic'];
         
         if (location === 'kp') {
             sessions = sessions.filter(s => {
                 const h = (s.hall || '').toLowerCase();
-                // KP Darmstadt: EXCLUDE everything that looks like Citydome
                 return !cdKeys.some(key => h.includes(key));
             });
         } else if (location === 'cd') {
             sessions = sessions.filter(s => {
                 const h = (s.hall || '').toLowerCase();
-                // CD Darmstadt: ONLY include Citydome halls
                 return cdKeys.some(key => h.includes(key));
             });
         }
 
         const halls = {};
         sessions.forEach(s => { if (!halls[s.hall]) halls[s.hall] = []; halls[s.hall].push(s); });
-        const sortedHalls = Object.keys(halls).sort().map(name => ({ name, sessions: halls[name].sort((a, b) => a.time.localeCompare(b.time)) }));
+        const sortedHalls = Object.keys(halls).sort().map(name => ({ 
+            name, 
+            sessions: halls[name].sort((a, b) => a.time.localeCompare(b.time)) 
+        }));
         
-        // Final Definitive Cache & Versioning Header (v4.3)
-        c.header('Cache-Control', 'public, max-age=60');
-        c.header('X-Worker-Version', '4.3');
+        c.header('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate'); // FORCED NO CACHE
+        c.header('X-Worker-Version', '4.7-FINAL');
         return c.json(sortedHalls);
     } catch (error) {
         console.error('Worker error:', error);
