@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Archiv | Kinopolis</title>
+    <link rel="icon" type="image/x-icon" href="https://www.kinopolis.de/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f0f13;
+            --surface-color: #1a1a24;
+            --surface-border: rgba(255,255,255,0.08);
+            --text-main: #f8f9fa;
+            --text-muted: #8b8b9a;
+            --primary-blue: #0078ff;
+            --primary-gold: #ffb900;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Outfit', -apple-system, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            width: 100%;
+            flex: 1;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-title h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #aaa);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-title span {
+            font-size: 2rem;
+        }
+
+        .card {
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            border-color: rgba(255,255,255,0.15);
+        }
+
+        .feed-item {
+            padding: 1.25rem;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--text-muted);
+        }
+
+        .feed-item.priority-wichtig { border-left-color: #f1c40f; }
+        .feed-item.priority-dringend { border-left-color: #e74c3c; background: rgba(231,76,60,0.05); }
+
+        .feed-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 2rem;
+            background: rgba(255,255,255,0.02);
+            border-radius: 12px;
+            border: 1px dashed var(--surface-border);
+        }
+
+        .btn-primary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .log-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            max-height: 300px;
+            object-fit: cover;
+        }
+        
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-select {
+            background: var(--surface-color);
+            color: white;
+            border: 1px solid var(--surface-border);
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-family: inherit;
+            outline: none;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-title">
+                <span>🗃️</span>
+                <h1>Nachrichten-Archiv</h1>
+            </div>
+            <div>
+                <a href="index.html" class="btn-primary">Zurück zum Dashboard</a>
+            </div>
+        </header>
+
+        <div class="filter-bar">
+            <select class="filter-select" id="location-select" onchange="loadArchive()">
+                <option value="kp">Darmstadt (KP)</option>
+                <option value="cd">Darmstadt (CD)</option>
+                <option value="rx">Darmstadt (RX)</option>
+                <option value="ab">Aschaffenburg</option>
+            </select>
+            <button class="btn-primary" onclick="loadArchive()" style="border-color: var(--primary-blue); color: var(--primary-blue); background: rgba(0,120,255,0.1);">
+                🔄 Aktualisieren
+            </button>
+        </div>
+
+        <div class="card">
+            <h2 style="font-size: 1.25rem; margin-bottom: 1rem;">Alle archivierten Notizen & Bilder</h2>
+            <div id="archive-list">
+                <div class="empty-state">Lade Archiv...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check location from localStorage to match user's dashboard setting
+        let currentCity = localStorage.getItem('last_city') || 'kp';
+        document.getElementById('location-select').value = currentCity;
+
+        window.addEventListener('load', loadArchive);
+
+        function formatTime(isoStr) {
+            const date = new Date(isoStr);
+            return date.toLocaleDateString('de-DE') + ' ' + date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        async function loadArchive() {
+            const list = document.getElementById('archive-list');
+            list.innerHTML = '<div class="empty-state">Lade Archiv...</div>';
+            
+            const city = document.getElementById('location-select').value;
+            localStorage.setItem('last_city', city); // Sync with other pages
+
+            try {
+                // Assuming /api/logs also returns historical logs if we don't have a specific archive endpoint
+                // Since this is just a quick feature, we'll fetch logs and display them all
+                const res = await fetch(`/api/logs?location=${city}`);
+                if (!res.ok) throw new Error("Fehler beim Laden");
+                const logs = await res.json();
+
+                if (!logs || logs.length === 0) {
+                    list.innerHTML = '<div class="empty-state">Keine Einträge im Archiv gefunden.</div>';
+                    return;
+                }
+
+                // Show all logs in a continuous list
+                list.innerHTML = logs.map(item => {
+                    const isFunk = item.message.includes('[FUNK]');
+                    const priorityClass = item.priority ? `priority-${item.priority}` : '';
+                    let cleanMsg = item.message.replace('[FUNK]', '').replace('[TRANSFERLISTE]', '').replace('[IN_PROGRESS]', '').trim();
+                    let imgHtml = '';
+                    
+                    // If log items ever get image URLs saved (future proofing)
+                    if (item.image_url) {
+                        imgHtml = `<br><img src="${item.image_url}" class="log-image" loading="lazy">`;
+                    }
+                    // Simple regex to check if a URL to an image is within the message text
+                    const urlRegex = /(https?:\\/\\/[^\\s]+(?:jpg|jpeg|png|gif|webp))/ig;
+                    if (cleanMsg.match(urlRegex)) {
+                        const urls = cleanMsg.match(urlRegex);
+                        for(let url of urls) {
+                            imgHtml += `<br><img src="${url}" class="log-image" loading="lazy">`;
+                            cleanMsg = cleanMsg.replace(url, `<a href="${url}" target="_blank" style="color:var(--primary-blue);">[Bild Link]</a>`);
+                        }
+                    }
+
+                    return `
+                        <div class="feed-item ${priorityClass}">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <strong>${item.author || 'System'} ${isFunk ? '📡' : '📝'}</strong>
+                                <span class="feed-time">${formatTime(item.created_at)}</span>
+                            </div>
+                            <div style="font-size: 0.95rem; white-space: pre-wrap;">${cleanMsg}</div>
+                            ${imgHtml}
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                list.innerHTML = `<div class="empty-state" style="border-color: #e74c3c; color: #ff8a80;">Fehler beim Laden des Archivs: ${err.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
