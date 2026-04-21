@@ -5071,8 +5071,9 @@
                     theme: 'grid'
                 });
             }
-            
             doc.save(`Kinopolis_Export_${city}_${today.replace(/\./g, '-')}.pdf`);
+        }
+        
         // --- DATA VISIBILITY & UTILS ---
         const MODULES = [
             { id: 'live-dashboard', name: 'Live Display', target: '#dashboard', isTab: false },
