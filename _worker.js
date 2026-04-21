@@ -219,7 +219,8 @@ app.get('/api/sessions', async (c) => {
             });
 
             $(movieEl).find('.prog-day__wrapper').each((dayIndex, wrapper) => {
-                const actualDate = movieNavDateMap.get(dayIndex);
+                // If there's no navigation tab for this day, assume it's the requested date
+                const actualDate = movieNavDateMap.get(dayIndex) || dateStr;
                 if (!actualDate) return;
 
                 $(wrapper).find('.prog2__cont, .prog2__movie-session').each((j, sessionEl) => {
