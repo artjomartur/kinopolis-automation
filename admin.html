@@ -207,6 +207,33 @@
                 </div>
             </div>
 
+            <!-- Contacts Management -->
+            <div class="admin-section">
+                <h2><span>📞</span> Telefonliste verwalten</h2>
+                <div class="card">
+                    <p style="margin-bottom: 1.25rem;">Bearbeite die Notfall- und Dienstnummern für deinen Standort.</p>
+                    
+                    <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 14px; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                        <input type="text" id="contact-role" placeholder="Bezeichnung (z.B. TL 1, Security)" class="input-field" style="margin-bottom: 0;">
+                        <input type="text" id="contact-phone" placeholder="Nummer (z.B. +49...)" class="input-field" style="margin-bottom: 0;">
+                        <select id="contact-category" class="input-field" style="margin-bottom: 0;">
+                            <option value="leitung">Leitung (BL/TL)</option>
+                            <option value="einlass">Einlass</option>
+                            <option value="theke">Kasse/Theke</option>
+                            <option value="sicherheit">Sicherheit</option>
+                            <option value="popcornkueche">Popcornküche</option>
+                            <option value="putzfirma">Putzfirma</option>
+                        </select>
+                        <button class="btn-primary" onclick="addContact()" style="padding: 0.75rem;">Kontakt Hinzufügen</button>
+                    </div>
+
+                    <h3 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; text-transform: uppercase;">Gespeicherte Nummern</h3>
+                    <div id="admin-contacts-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <p style="color: var(--text-muted); font-size: 0.85rem;">Lade Kontakte...</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Module Management -->
             <div class="admin-section">
                 <h2><span>🧩</span> Modul-Sichtbarkeit</h2>
@@ -391,6 +418,7 @@
             document.getElementById('admin-main-content').style.display = 'flex';
             renderModules();
             loadAdminMessages();
+            loadAdminContacts();
         }
 
         function renderModules() {
@@ -447,6 +475,60 @@
                 if (res.ok) loadAdminMessages();
                 else alert('Fehler beim Löschen.');
             } catch(e) { alert('Netzwerkfehler.'); }
+        }
+
+        // Contacts Management
+        async function loadAdminContacts() {
+            const container = document.getElementById('admin-contacts-list');
+            try {
+                const res = await fetch(`/api/contacts?location=${currentCity}`);
+                if (!res.ok) { container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">Keine Verbindung zur Datenbank.</p>'; return; }
+                const contacts = await res.json();
+                if (!contacts.length) { container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">Keine Nummern hinterlegt. (Standort fällt auf "000" zurück).</p>'; return; }
+                container.innerHTML = contacts.map(c => `
+                    <div class="msg-item" style="align-items: center;">
+                        <div class="msg-item-body">
+                            <div class="msg-item-title">${c.role_name} <span style="font-size: 0.75rem; color: var(--primary-blue); margin-left: 0.5rem; text-transform: uppercase;">[${c.category}]</span></div>
+                            <div class="msg-item-meta" style="font-weight: 700; color: white;">${c.phone_number}</div>
+                        </div>
+                        <button class="btn-delete" onclick="deleteContact(${c.id})">🗑️</button>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">Fehler beim Laden der Nummern.</p>';
+            }
+        }
+
+        async function addContact() {
+            const role_name = document.getElementById('contact-role').value.trim();
+            const phone_number = document.getElementById('contact-phone').value.trim();
+            const category = document.getElementById('contact-category').value;
+
+            if (!role_name || !phone_number) return alert('Bitte Bezeichnung und Nummer eingeben.');
+
+            try {
+                const res = await fetch('/api/contacts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ location: currentCity, category, role_name, phone_number })
+                });
+                if (res.ok) {
+                    document.getElementById('contact-role').value = '';
+                    document.getElementById('contact-phone').value = '';
+                    loadAdminContacts();
+                } else {
+                    alert('Fehler beim Speichern.');
+                }
+            } catch (e) { alert('Netzwerkfehler'); }
+        }
+
+        async function deleteContact(id) {
+            if (!confirm('Kontakt wirklich löschen?')) return;
+            try {
+                const res = await fetch(`/api/contacts/${id}`, { method: 'DELETE' });
+                if (res.ok) loadAdminContacts();
+                else alert('Fehler beim Löschen');
+            } catch (e) { alert('Netzwerkfehler'); }
         }
 
         // News Modal

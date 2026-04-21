@@ -912,6 +912,52 @@ app.delete('/api/logs/:id', async (c) => {
     }
 });
 
+// --- CONTACTS / TELEFONLISTE API ---
+app.get('/api/contacts', async (c) => {
+    try {
+        const location = c.req.query('location') || 'kp';
+        if (!c.env.DB) return c.json([]);
+        const contacts = await c.env.DB.prepare(`
+            SELECT * FROM contacts 
+            WHERE location = ? 
+            ORDER BY category ASC, role_name ASC
+        `).bind(location).all();
+        return c.json(contacts.results || []);
+    } catch (e) {
+        if (e.message.includes('no such table')) {
+            return c.json({ error: 'DB_MIGRATION_REQUIRED' }, 500);
+        }
+        return c.json([], 500);
+    }
+});
+
+app.post('/api/contacts', async (c) => {
+    try {
+        const { location, category, role_name, phone_number } = await c.req.json();
+        if (!c.env.DB || !category || !role_name || !phone_number) return c.json({ error: 'Missing data' }, 400);
+        
+        await c.env.DB.prepare(`
+            INSERT INTO contacts (location, category, role_name, phone_number)
+            VALUES (?, ?, ?, ?)
+        `).bind(location || 'kp', category, role_name, phone_number).run();
+        return c.json({ success: true });
+    } catch (e) {
+        console.error('Contact save error:', e);
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+app.delete('/api/contacts/:id', async (c) => {
+    try {
+        const id = c.req.param('id');
+        if (!c.env.DB) return c.json({ error: 'DB not available' }, 500);
+        await c.env.DB.prepare('DELETE FROM contacts WHERE id = ?').bind(id).run();
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
 // --- AI PLAN SCANNER + MODELL FALLBACK ---
 app.post('/api/ai-agree', async (c) => {
     return c.json({ success: true });

@@ -2283,112 +2283,16 @@
             </div>
         </div>
 
-        <!-- KURZWAHL -->
+        <!-- DYNAMISCHE KURZWAHL / TELEFONLISTE -->
         <div class="card-container glass kontakte-section" id="kurzwahl-section" style="display: none; margin-bottom: 2rem;">
             <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
-                    <h2 style="font-size: 1.25rem;">Kurzwahl</h2>
-                    <span style="font-size: 0.7rem; color: var(--primary-red); font-weight: 800; background: rgba(229,9,20,0.1); padding: 0.2rem 0.5rem; border-radius: 6px; letter-spacing: 0.05em; margin-left: auto;">NUR DARMSTADT</span>
-                </div>
-            <div style="padding: 1rem 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 1.25rem;">
-                
-                <!-- Kategorie: Leitung -->
-                <div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="width: 20px; height: 1px; background: rgba(255,255,255,0.1);"></span> Leitung
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr; gap: 0.6rem;">
-                        <!-- BL -->
-                        <a href="tel:+49615187059288" class="contact-card">
-                            <div class="contact-card-inner">
-                                <div class="contact-icon bg-red">👔</div>
-                                <div class="contact-info">
-                                    <div class="contact-name">BL</div>
-                                    <div class="contact-tel">+49 6151 87059288</div>
-                                </div>
-                            </div>
-                            <div class="contact-dial bg-green">📲</div>
-                        </a>
-                        <!-- TL Grid -->
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.6rem;">
-                            <a href="tel:+49615187059212" class="contact-card mini">
-                                <div class="contact-card-inner">
-                                    <div class="contact-icon sm bg-gold">⭐</div>
-                                    <div class="contact-name">TL 1</div>
-                                </div>
-                                <div class="contact-dial-sm">📲</div>
-                            </a>
-                            <a href="tel:+49615187059213" class="contact-card mini">
-                                <div class="contact-card-inner">
-                                    <div class="contact-icon sm bg-gold">⭐</div>
-                                    <div class="contact-name">TL 2</div>
-                                </div>
-                                <div class="contact-dial-sm">📲</div>
-                            </a>
-                            <a href="tel:+49615187059214" class="contact-card mini">
-                                <div class="contact-card-inner">
-                                    <div class="contact-icon sm bg-gold">⭐</div>
-                                    <div class="contact-name">TL 3</div>
-                                </div>
-                                <div class="contact-dial-sm">📲</div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Kategorie: Einlass -->
-                <div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="width: 20px; height: 1px; background: rgba(255,255,255,0.1);"></span> Einlass
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem;">
-                        <a href="tel:+49615187059233" class="contact-card mini">
-                            <div class="contact-card-inner">
-                                <div class="contact-icon sm bg-blue">🎟️</div>
-                                <div class="contact-name">Einlass 1</div>
-                            </div>
-                            <div class="contact-dial-sm">📲</div>
-                        </a>
-                        <a href="tel:+49615187059234" class="contact-card mini">
-                            <div class="contact-card-inner">
-                                <div class="contact-icon sm bg-blue">🎟️</div>
-                                <div class="contact-name">Einlass 2</div>
-                            </div>
-                            <div class="contact-dial-sm">📲</div>
-                        </a>
-                        <a href="tel:+49615187059235" class="contact-card mini">
-                            <div class="contact-card-inner">
-                                <div class="contact-icon sm bg-blue">🎟️</div>
-                                <div class="contact-name">Einlass 3</div>
-                            </div>
-                            <div class="contact-dial-sm">📲</div>
-                        </a>
-                        <a href="tel:+49615187059236" class="contact-card mini">
-                            <div class="contact-card-inner">
-                                <div class="contact-icon sm bg-blue">🎟️</div>
-                                <div class="contact-name">Einlass 4</div>
-                            </div>
-                            <div class="contact-dial-sm">📲</div>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Kategorie: Verkauf -->
-                <div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="width: 20px; height: 1px; background: rgba(255,255,255,0.1);"></span> Verkauf
-                    </div>
-                    <a href="tel:+49615187059203" class="contact-card">
-                        <div class="contact-card-inner">
-                            <div class="contact-icon bg-purple">🍿</div>
-                            <div class="contact-info">
-                                <div class="contact-name">Counter hinten</div>
-                                <div class="contact-tel">+49 6151 87059203</div>
-                            </div>
-                        </div>
-                        <div class="contact-dial bg-green">📲</div>
-                    </a>
-                </div>
-
+                <h2 style="font-size: 1.25rem;">Telefonliste</h2>
+            </div>
+            <div id="contacts-loading" style="padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+                Lade Kontakte...
+            </div>
+            <div id="contacts-container" style="padding: 1rem 1.5rem 1.5rem; display: none; flex-direction: column; gap: 1.25rem;">
+                <!-- Filled via JS -->
             </div>
         </div>
 
@@ -2884,7 +2788,6 @@
                 document.body.classList.add('stats-active');
             } else if (view === 'kontakte') {
                 document.body.classList.add('kontakte-active');
-                updateKurzwahlVisibility();
             } else if (view === 'intern') {
                 document.body.classList.add('intern-active');
             } else if (view === 'funk') {
@@ -2913,6 +2816,7 @@
             initLostFound();
             initTransferList();
             applyModuleVisibility();
+            loadContacts();
 
             // Welcome Modal Logic
             if (localStorage.getItem('welcome_seen_beta') !== 'true' && document.getElementById('welcome-modal')) {
@@ -4810,18 +4714,133 @@
 
         function applyModuleVisibility() {
             const disabled = JSON.parse(localStorage.getItem('disabled_modules') || '[]');
-            MODULES.forEach(mod => {
-                const el = document.querySelector(mod.target);
+            
+            const targetMap = {
+                'live-dashboard': '#tab-live',
+                'stats': '#tab-stats',
+                'kontakte': '#tab-kontakte',
+                'funk': '#tab-funk',
+                'info': '#tab-info',
+                'news': '#internal-news-container',
+                'checklist': '#workstation-section',
+                'transferlist': '#transfer-section',
+                'lostfound': '#ws-lostfound-container',
+                'tasks': '#auslaesse-section-container',
+                'alerts': '#poster-alerts-container',
+                'exports': '#export-section',
+                'feedback': '#feedback-section',
+                'intern': '#tab-intern'
+            };
+
+            for (const [modId, selector] of Object.entries(targetMap)) {
+                const el = document.querySelector(selector);
                 if (el) {
-                    el.style.display = disabled.includes(mod.id) ? 'none' : (mod.isTab ? 'flex' : 'block');
+                    if (disabled.includes(modId)) {
+                        el.style.setProperty('display', 'none', 'important');
+                    } else {
+                        el.style.removeProperty('display');
+                    }
                 }
-                
-                // Extra handling for IDs in specific cases
-                if (mod.id === 'lostfound' && disabled.includes('lostfound')) {
-                    const opt = document.querySelector('option[value="lostfound"]');
-                    if (opt) opt.style.display = 'none';
+            }
+            
+            if (disabled.includes('lostfound')) {
+                const opt = document.querySelector('option[value="lostfound"]');
+                if (opt) opt.style.display = 'none';
+            }
+        }
+
+        const CAT_ICONS = {
+            'leitung': { icon: '👔', bg: 'bg-red' },
+            'einlass': { icon: '🎟️', bg: 'bg-blue' },
+            'theke': { icon: '🍿', bg: 'bg-purple' },
+            'sicherheit': { icon: '👮', bg: 'bg-gold' },
+            'popcornkueche': { icon: '🌽', bg: 'bg-gold' },
+            'putzfirma': { icon: '🧹', bg: 'bg-blue' }
+        };
+
+        const CAT_NAMES = {
+            'leitung': 'Leitung',
+            'einlass': 'Einlass',
+            'theke': 'Kasse/Theke',
+            'sicherheit': 'Sicherheit',
+            'popcornkueche': 'Popcornküche',
+            'putzfirma': 'Putzfirma'
+        };
+
+        const KP_DEFAULT_CONTACTS = [
+            { category: 'leitung', role_name: 'BL', phone_number: '+49 6151 87059288' },
+            { category: 'leitung', role_name: 'TL 1', phone_number: '+49 6151 87059212' },
+            { category: 'leitung', role_name: 'TL 2', phone_number: '+49 6151 87059213' },
+            { category: 'leitung', role_name: 'TL 3', phone_number: '+49 6151 87059214' },
+            { category: 'einlass', role_name: 'Einlass 1', phone_number: '+49 6151 87059233' },
+            { category: 'einlass', role_name: 'Einlass 2', phone_number: '+49 6151 87059234' },
+            { category: 'einlass', role_name: 'Einlass 3', phone_number: '+49 6151 87059235' },
+            { category: 'einlass', role_name: 'Einlass 4', phone_number: '+49 6151 87059236' },
+            { category: 'theke', role_name: 'Counter hinten', phone_number: '+49 6151 87059203' }
+        ];
+
+        async function loadContacts() {
+            const container = document.getElementById('contacts-container');
+            const loader = document.getElementById('contacts-loading');
+            
+            try {
+                const res = await fetch(`/api/contacts?location=${currentCity}`);
+                let contacts = [];
+                if (res.ok) contacts = await res.json();
+
+                if (contacts.length === 0) {
+                    if (currentCity === 'kp') {
+                        contacts = KP_DEFAULT_CONTACTS;
+                    } else {
+                        // User request: Default to 000 for non-kp if empty
+                        contacts = [
+                            { category: 'leitung', role_name: 'TL', phone_number: '000' },
+                            { category: 'einlass', role_name: 'Einlass', phone_number: '000' },
+                            { category: 'theke', role_name: 'Theke', phone_number: '000' }
+                        ];
+                    }
                 }
-            });
+
+                const byCategory = {};
+                for (const c of contacts) {
+                    if (!byCategory[c.category]) byCategory[c.category] = [];
+                    byCategory[c.category].push(c);
+                }
+
+                let html = '';
+                for (const cat of Object.keys(CAT_NAMES)) {
+                    if (!byCategory[cat]) continue;
+                    html += `
+                    <div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="width: 20px; height: 1px; background: rgba(255,255,255,0.1);"></span> ${CAT_NAMES[cat]}
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.6rem;">
+                            ${byCategory[cat].map(c => {
+                                const info = CAT_ICONS[c.category] || { icon: '📞', bg: '' };
+                                return `
+                                <a href="tel:${c.phone_number}" class="contact-card mini">
+                                    <div class="contact-card-inner">
+                                        <div class="contact-icon sm ${info.bg}">${info.icon}</div>
+                                        <div>
+                                            <div class="contact-name">${c.role_name}</div>
+                                            <div style="font-size: 0.75rem; color: var(--text-muted);">${c.phone_number}</div>
+                                        </div>
+                                    </div>
+                                    <div class="contact-dial-sm">📲</div>
+                                </a>`;
+                            }).join('')}
+                        </div>
+                    </div>`;
+                }
+
+                container.innerHTML = html;
+                loader.style.display = 'none';
+                container.style.display = 'flex';
+
+            } catch (e) {
+                loader.innerHTML = 'Fehler beim Laden der Kontakte.';
+            }
         }
 
 
