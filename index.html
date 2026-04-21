@@ -2824,6 +2824,57 @@
             setTimeout(() => { t.classList.remove('show'); }, 3500);
         }
 
+        function formatMinutes(min) {
+            const h = Math.floor(min / 60);
+            const m = min % 60;
+            return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+        }
+
+        function formatTime(isoStr) {
+            const date = new Date(isoStr);
+            return date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        async function runSafe(fn, errorMsg) {
+            try { return await fn(); } 
+            catch (e) { 
+                console.error(errorMsg, e);
+                return null;
+            }
+        }
+
+        const CAT_ICONS = {
+            'leitung': { icon: '👔', bg: 'bg-gold' },
+            'theke': { icon: '🍿', bg: 'bg-purple' },
+            'einlass': { icon: '🎟️', bg: 'bg-blue' },
+            'technik': { icon: '⚙️', bg: 'bg-green' },
+            'sicherheit': { icon: '🛡️', bg: 'bg-red' },
+            'popcornkueche': { icon: '🔥', bg: 'bg-gold' },
+            'putzfirma': { icon: '🧹', bg: 'bg-blue' }
+        };
+
+        const KP_DEFAULT_CONTACTS = [
+            { category: 'leitung', role_name: 'BL', phone_number: '+49 6151 87059288' },
+            { category: 'leitung', role_name: 'TL 1', phone_number: '+49 6151 87059212' },
+            { category: 'leitung', role_name: 'TL 2', phone_number: '+49 6151 87059213' },
+            { category: 'leitung', role_name: 'TL 3', phone_number: '+49 6151 87059214' },
+            { category: 'einlass', role_name: 'Einlass 1', phone_number: '+49 6151 87059233' },
+            { category: 'einlass', role_name: 'Einlass 2', phone_number: '+49 6151 87059234' },
+            { category: 'einlass', role_name: 'Einlass 3', phone_number: '+49 6151 87059235' },
+            { category: 'einlass', role_name: 'Einlass 4', phone_number: '+49 6151 87059236' },
+            { category: 'theke', role_name: 'Counter hinten', phone_number: '+49 6151 87059203' }
+        ];
+
+        const CAT_NAMES = {
+            'leitung': 'Leitung',
+            'einlass': 'Einlass',
+            'theke': 'Kasse/Theke',
+            'sicherheit': 'Sicherheit',
+            'popcornkueche': 'Popcornküche',
+            'putzfirma': 'Putzfirma',
+            'technik': 'Technik'
+        };
+
         // --- RESET LOGIC ---
         function checkAndResetDailyTasks() {
             const today = new Date().toISOString().split('T')[0];
@@ -4924,35 +4975,9 @@
             }
         }
 
-        const CAT_ICONS = {
-            'leitung': { icon: '👔', bg: 'bg-red' },
-            'einlass': { icon: '🎟️', bg: 'bg-blue' },
-            'theke': { icon: '🍿', bg: 'bg-purple' },
-            'sicherheit': { icon: '👮', bg: 'bg-gold' },
-            'popcornkueche': { icon: '🌽', bg: 'bg-gold' },
-            'putzfirma': { icon: '🧹', bg: 'bg-blue' }
-        };
-
-        const CAT_NAMES = {
-            'leitung': 'Leitung',
-            'einlass': 'Einlass',
-            'theke': 'Kasse/Theke',
-            'sicherheit': 'Sicherheit',
-            'popcornkueche': 'Popcornküche',
-            'putzfirma': 'Putzfirma'
-        };
-
-        const KP_DEFAULT_CONTACTS = [
-            { category: 'leitung', role_name: 'BL', phone_number: '+49 6151 87059288' },
-            { category: 'leitung', role_name: 'TL 1', phone_number: '+49 6151 87059212' },
-            { category: 'leitung', role_name: 'TL 2', phone_number: '+49 6151 87059213' },
-            { category: 'leitung', role_name: 'TL 3', phone_number: '+49 6151 87059214' },
-            { category: 'einlass', role_name: 'Einlass 1', phone_number: '+49 6151 87059233' },
-            { category: 'einlass', role_name: 'Einlass 2', phone_number: '+49 6151 87059234' },
-            { category: 'einlass', role_name: 'Einlass 3', phone_number: '+49 6151 87059235' },
-            { category: 'einlass', role_name: 'Einlass 4', phone_number: '+49 6151 87059236' },
-            { category: 'theke', role_name: 'Counter hinten', phone_number: '+49 6151 87059203' }
-        ];
+        /** 
+         * Constants moved to top
+         */
 
         async function loadContacts() {
             try {
