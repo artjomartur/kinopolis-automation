@@ -1365,7 +1365,10 @@
                 border-radius: 6px;
             }
             .next-movie-info {
-                /* TOOLTIPS / BADGES */
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+                flex: 1;
             }
             .badge {
                 font-size: 0.7rem;
@@ -2909,7 +2912,7 @@
                     runSafe(fetchSessions, 'Sessions'),
                     runSafe(fetchWeather, 'Weather'),
                     runSafe(fetchNews, 'News'),
-                    runSafe(initLostFound, 'LostFound'),
+                    runSafe(loadLfItems, 'LostFound'),
                     runSafe(initTransferList, 'TransferList'),
                     runSafe(applyModuleVisibility, 'Visibility'),
                     runSafe(loadContacts, 'Contacts')
@@ -3633,50 +3636,34 @@
             document.getElementById('lf-where').value = '';
             document.getElementById('lf-who').value = '';
         }
-        function loadLfItems() {
-            const allItems = JSON.parse(localStorage.getItem('kinopolis_lf_items') || '[]');
-            const searchVal = (document.getElementById('lf-search')?.value || '').toLowerCase();
-            const catFilter = document.getElementById('lf-filter-cat')?.value || '';
-            const items = allItems.filter(item => {
-                const matchSearch = !searchVal || item.what.toLowerCase().includes(searchVal) || item.where.toLowerCase().includes(searchVal) || item.who.toLowerCase().includes(searchVal);
-                const matchCat = !catFilter || item.category === catFilter;
-                return matchSearch && matchCat;
-            });
-            document.getElementById('lf-count-badge').textContent = allItems.length;
+        async function loadLfItems() {
             const list = document.getElementById('lf-items-list');
-            list.innerHTML = '';
-            if (items.length === 0) {
-                list.innerHTML = `<div style="text-align:center; padding: 2rem 1rem; color: var(--text-muted);">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎒</div>
-                    <div style="font-size: 0.95rem;">Noch keine Fundgegenstände eingetragen</div>
-                </div>`;
-                return;
-            }
-            const categoryColors = {
-                'Kleidung': '#4A90E2', 'Elektronik': '#7B68EE', 'Schmuck': '#FFD700',
-                'Spielzeug': '#FF6B6B', 'Dokumente': '#48CAE4', 'Taschen': '#F4845F',
-                'Sonstiges': '#6C757D'
-            };
-            items.forEach((item, index) => {
-                const color = categoryColors[item.category] || '#6C757D';
-                const el = document.createElement('div');
-                el.style.cssText = `
-                    background: rgba(255,255,255,0.03);
-                    border: 1px solid rgba(255,255,255,0.08);
-                    border-left: 4px solid ${color};
-                    border-radius: 10px;
-                    padding: 1rem 1.25rem;
-                    transition: background 0.2s;
-                `;
             if(!list) return;
             
             try {
                 const res = await fetch(`/api/lostfound?location=${currentCity}`);
                 if (!res.ok) throw new Error();
-                const items = await res.json();
+                const allItems = await res.json();
+
+                // Update badge
+                const badge = document.getElementById('lf-count-badge');
+                if (badge) badge.textContent = allItems.length;
+
+                // Client-side filtering
+                const searchVal = (document.getElementById('lf-search')?.value || '').toLowerCase();
+                const catFilter = document.getElementById('lf-filter-cat')?.value || '';
+                
+                const items = allItems.filter(item => {
+                    const matchSearch = !searchVal || 
+                        item.what.toLowerCase().includes(searchVal) || 
+                        item.found_where.toLowerCase().includes(searchVal) || 
+                        item.found_by.toLowerCase().includes(searchVal);
+                    const matchCat = !catFilter || item.category === catFilter;
+                    return matchSearch && matchCat;
+                });
 
                 if (items.length === 0) {
-                    list.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-muted); font-style: italic;">Aktuell keine Fundsachen registriert.</div>';
+                    list.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-muted); font-style: italic;">Keine passenden Fundsachen gefunden.</div>';
                     return;
                 }
                 
@@ -3716,6 +3703,19 @@
                 });
             } catch (e) {
                 list.innerHTML = '<div style="padding: 2rem; color: #ff4d4d;">Fehler beim Laden des Fundbüros.</div>';
+            }
+        }
+
+        async function deleteLfItem(id) {
+            if (!confirm("Fundsache endgültig löschen / als abgeholt markieren?")) return;
+            try {
+                const res = await fetch(`/api/lostfound/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    loadLfItems();
+                    if (typeof showToast === 'function') showToast("Fundsache entfernt");
+                }
+            } catch (e) {
+                if (typeof showToast === 'function') showToast("Fehler beim Löschen", true);
             }
         }
 
@@ -5009,27 +5009,28 @@
             } catch (e) { alert("Fehler beim Löschen"); }
         }
 
-        function renderContacts(contacts) {
+        function renderContacts(providedContacts) {
             const container = document.getElementById('contacts-container');
             const loader = document.getElementById('contacts-loading');
+            if (!container) return;
             
-            try {
-                const res = await fetch(`/api/contacts?location=${currentCity}`);
-                let contacts = [];
-                if (res.ok) contacts = await res.json();
-
-                if (contacts.length === 0) {
-                    if (currentCity === 'kp') {
-                        contacts = KP_DEFAULT_CONTACTS;
-                    } else {
-                        // User request: Default to 000 for non-kp if empty
-                        contacts = [
-                            { category: 'leitung', role_name: 'TL', phone_number: '000' },
-                            { category: 'einlass', role_name: 'Einlass', phone_number: '000' },
-                            { category: 'theke', role_name: 'Theke', phone_number: '000' }
-                        ];
-                    }
+            let contacts = providedContacts || [];
+            
+            // Fallback logic if no contacts from backend
+            if (contacts.length === 0) {
+                if (currentCity === 'kp') {
+                    contacts = KP_DEFAULT_CONTACTS;
+                } else {
+                    contacts = [
+                        { category: 'leitung', role_name: 'TL', phone_number: '000' },
+                        { category: 'einlass', role_name: 'Einlass', phone_number: '000' },
+                        { category: 'theke', role_name: 'Theke', phone_number: '000' },
+                        { category: 'Sicherheit', role_name: 'Sicherheitsdienst', phone_number: '000' },
+                        { category: 'Popcornküche', role_name: 'Produktion', phone_number: '000' },
+                        { category: 'Putzfirma', role_name: 'Reinigung', phone_number: '000' }
+                    ];
                 }
+            }
 
                 const byCategory = {};
                 for (const c of contacts) {
