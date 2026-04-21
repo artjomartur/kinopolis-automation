@@ -253,6 +253,36 @@
         }
 
         /* BREAK CARDS */
+        .btn-start {
+            background: rgba(255, 185, 0, 0.1);
+            color: var(--primary-gold);
+            border: 1px solid rgba(255, 185, 0, 0.3);
+        }
+        .btn-active {
+            background: var(--primary-gold);
+            color: black;
+            border: 1px solid var(--primary-gold);
+            animation: pulse-gold 2s infinite;
+        }
+        @keyframes pulse-gold {
+            0% { box-shadow: 0 0 0 0 rgba(255, 185, 0, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 185, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 185, 0, 0); }
+        }
+        .in-progress-card {
+            border-left: 5px solid var(--primary-gold) !important;
+            background: rgba(255, 185, 0, 0.03) !important;
+        }
+        .badge.in-progress {
+            background: var(--primary-gold);
+            color: black;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-left: 0.5rem;
+        }
         .break-card {
             background: rgba(0, 120, 255, 0.05);
             border: 1px solid rgba(0, 120, 255, 0.15);
@@ -440,15 +470,28 @@
             <div class="card mt-2">
                 <div class="card" style="grid-column: 1 / -1;">
                     <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
-
                         <span>📖 Jüngste Notizen (Handover)</span>
-                        <button class="btn-primary" onclick="openLogModal()" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; border-radius: 8px; background: rgba(0, 120, 255, 0.2); color: #fff; border: 1px solid rgba(0, 120, 255, 0.4); cursor: pointer;">➕ Eintrag</button>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button id="btn-gen-summary" onclick="generateShiftSummary()" style="font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 8px; background: rgba(255, 185, 0, 0.1); color: var(--primary-gold); border: 1px solid rgba(255, 185, 0, 0.3); cursor: pointer;">✨ KI Zusammenfassung</button>
+                            <button class="btn-primary" onclick="openLogModal()" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; border-radius: 8px; background: rgba(0, 120, 255, 0.2); color: #fff; border: 1px solid rgba(0, 120, 255, 0.4); cursor: pointer;">➕ Eintrag</button>
+                        </div>
                     </div>
+
+                    <!-- AI Summary Result -->
+                    <div id="ai-summary-container" style="display: none; margin: 1rem 0; padding: 1rem; background: rgba(255,185,0,0.05); border: 1px solid rgba(255,185,0,0.2); border-radius: 12px;">
+                        <div style="font-size: 0.8rem; font-weight: bold; color: var(--primary-gold); margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                            <span>🤖 KI-ANALYSE (Letzte 7 Tage)</span>
+                            <button onclick="copyToClipboard('ai-summary-text')" style="background: none; border: none; color: white; cursor: pointer; text-decoration: underline; font-size: 0.75rem;">Kopieren 📋</button>
+                        </div>
+                        <div id="ai-summary-text" style="font-size: 0.9rem; line-height: 1.5; color: #eee;">Lade Analyse...</div>
+                    </div>
+
                     <div id="logs-list">
                         <!-- Logs will be loaded here -->
                         <div class="empty-state">Lade Notizen...</div>
                     </div>
                 </div>
+            </div>
         </div>
 
         <!-- AI BREAKS & STATS -->
@@ -633,6 +676,22 @@
             }
         }
 
+        // --- GLOBAL TOAST ---
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('global-toast');
+            const icon = document.getElementById('toast-icon');
+            const toastMsg = document.getElementById('toast-msg');
+            
+            icon.innerText = isError ? '❌' : '✅';
+            toastMsg.innerText = msg;
+            toast.style.borderLeft = isError ? '4px solid #ff4d4d' : '4px solid #00c853';
+            
+            toast.classList.add('active');
+            setTimeout(() => {
+                toast.classList.remove('active');
+            }, 3500);
+        }
+
         function setLoading(active) {
             const bar = document.getElementById('loading-bar');
             bar.style.width = active ? '40%' : '100%';
@@ -662,17 +721,17 @@
 
                 container.innerHTML = ops.map(item => {
                     const isFunk = item.message.includes('[FUNK]');
+                    const isInProgress = item.message.includes('[IN_PROGRESS]');
                     const icon = isFunk ? '📡' : '📦';
                     const title = isFunk ? 'Digitaler Funk' : 'Transferliste';
-                    let cleanMsg = item.message.replace('[FUNK]', '').replace('[TRANSFERLISTE]', '').trim();
-                    const priorityClass = `priority-${item.priority}`;
+                    let cleanMsg = item.message.replace('[FUNK]', '').replace('[TRANSFERLISTE]', '').replace('[IN_PROGRESS]', '').trim();
+                    const priorityClass = `priority-${item.priority}${isInProgress ? ' in-progress-card' : ''}`;
                     
                     let extraBody = '';
                     if (!isFunk) {
                         const itemsList = cleanMsg.split('\\n').filter(i => i.trim());
                         extraBody = '<div style="margin-top: 0.6rem; display: flex; flex-direction: column; gap: 0.4rem;">' +
                             itemsList.map(i => {
-                                const isCustom = i.startsWith('Sonstiges:');
                                 return `<div style="background: rgba(0,0,0,0.3); padding: 0.4rem 0.6rem; border-radius: 6px; border: 1px dashed rgba(255,255,255,0.05); font-family: monospace; color: white; display:flex; align-items:center; gap: 0.5rem;"><span style="color:var(--primary-blue);">▶</span> ${i}</div>`;
                             }).join('') + '</div>';
                         cleanMsg = ''; 
@@ -680,16 +739,24 @@
                     
                     return `
                         <div class="feed-item ${priorityClass}">
-                            <div class="feed-icon">${icon}</div>
+                            <div class="feed-icon" style="${isInProgress ? 'background: var(--primary-gold); color: black;' : ''}">${icon}</div>
                             <div class="feed-content" style="width: 100%;">
                                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                                    <h3>${title}</h3>
+                                    <h3 style="display:flex; align-items:center; gap:0.5rem;">
+                                        ${title}
+                                        ${isInProgress ? '<span class="badge in-progress">⌛ Läufer unterwegs</span>' : ''}
+                                    </h3>
                                     <span style="font-size: 0.75rem; color: var(--text-muted);">von ${item.author}</span>
                                 </div>
                                 ${isFunk ? `<p style="margin-top:0.3rem; font-weight:bold;">${cleanMsg}</p>` : extraBody}
                                 <span class="feed-time" style="margin-top: 0.5rem; display: block;">${formatTime(item.created_at)} Uhr</span>
                             </div>
                             <div class="feed-actions">
+                                <button class="btn-action ${isInProgress ? 'btn-active' : 'btn-start'}" 
+                                        onclick="toggleLogStatus(${item.id}, ${isInProgress ? "'open'" : "'in_progress'"})" 
+                                        title="${isInProgress ? 'Wieder auf Offen setzen' : 'In Bearbeitung setzen'}">
+                                    ${isInProgress ? '⏳' : '🏃‍♂️'}
+                                </button>
                                 <button class="btn-action btn-done" onclick="acknowledgeLog(${item.id})" title="Erledigt">✅</button>
                             </div>
                         </div>
@@ -726,18 +793,76 @@
             } catch (e) {}
         }
 
+        async function toggleLogStatus(id, newStatus) {
+            try {
+                const res = await fetch(`/api/logs/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (res.ok) {
+                    loadOpsFeed();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
         async function acknowledgeLog(id) {
+            if (!confirm('Diesen Eintrag als erledigt markieren?')) return;
             try {
                 const res = await fetch(`/api/logs/${id}`, { method: 'DELETE' });
                 if (res.ok) {
-                    showToast('Eintrag als erledigt markiert');
-                    refreshDashboard();
+                    loadOpsFeed();
+                    loadLogs();
+                    if (typeof showToast === 'function') showToast("Eintrag erfolgreich archiviert");
                 }
-            } catch (e) { showToast('Fehler beim Löschen', true); }
+            } catch (e) {
+                console.error(e);
+            }
         }
 
+        // Periodic Refresh for TL View
+        setInterval(() => {
+            if (typeof refreshDashboard === 'function') refreshDashboard();
+        }, 15000); // 15s sync for TL to see incoming funk pronto
+
+        async function generateShiftSummary() {
+            const container = document.getElementById('ai-summary-container');
+            const summaryText = document.getElementById('ai-summary-text');
+            const btn = document.getElementById('btn-gen-summary');
+            
+            container.style.display = 'block';
+            summaryText.innerHTML = '<div class="spinner" style="width:20px; height:20px; border-width:2px; margin:0;"></div> Analysiere Einträge...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`/api/logs-summary?location=${currentCity}`);
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                
+                if (data.error === 'DB_MIGRATION_REQUIRED') {
+                    summaryText.innerHTML = `<span style="color:#ff6b6b">⚠️ Migration erforderlich: ${data.summary}</span>`;
+                } else {
+                    summaryText.innerText = data.summary || "Keine Zusammenfassung möglich.";
+                }
+            } catch (e) {
+                summaryText.innerText = "Fehler bei der KI-Zusammenfassung.";
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            try {
+                await navigator.clipboard.writeText(text);
+                if (typeof showToast === 'function') showToast("In Zwischenablage kopiert! 📋");
+            } catch (err) {
+                alert("Fehler beim Kopieren.");
+            }
+        }
         async function loadBreaks() {
-            const container = document.getElementById('break-recommendations');
             try {
                 const res = await fetch(`/api/sessions?location=${currentCity}`);
                 if (!res.ok) throw new Error();

@@ -912,6 +912,30 @@ app.delete('/api/logs/:id', async (c) => {
     }
 });
 
+app.patch('/api/logs/:id', async (c) => {
+    try {
+        const id = c.req.param('id');
+        const { status } = await c.req.json();
+        if (!c.env.DB) return c.json({ error: 'DB not available' }, 500);
+        
+        // Fetch current message
+        const log = await c.env.DB.prepare('SELECT message FROM shift_logs WHERE id = ?').bind(id).first();
+        if (!log) return c.json({ error: 'Log not found' }, 404);
+        
+        let newMessage = log.message;
+        if (status === 'in_progress' && !newMessage.includes('[IN_PROGRESS]')) {
+            newMessage = '[IN_PROGRESS] ' + newMessage;
+        } else if (status === 'open') {
+            newMessage = newMessage.replace('[IN_PROGRESS] ', '');
+        }
+
+        await c.env.DB.prepare('UPDATE shift_logs SET message = ? WHERE id = ?').bind(newMessage, id).run();
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
 // --- CONTACTS / TELEFONLISTE API ---
 app.get('/api/contacts', async (c) => {
     try {
@@ -952,6 +976,78 @@ app.delete('/api/contacts/:id', async (c) => {
         const id = c.req.param('id');
         if (!c.env.DB) return c.json({ error: 'DB not available' }, 500);
         await c.env.DB.prepare('DELETE FROM contacts WHERE id = ?').bind(id).run();
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+// --- CLOUD SYNC: CHECKLISTS ---
+app.get('/api/checklist', async (c) => {
+    try {
+        const location = c.req.query('location') || 'kp';
+        if (!c.env.DB) return c.json([]);
+        const { results } = await c.env.DB.prepare(`
+            SELECT task_id, is_completed, completed_by FROM checklist_state WHERE location = ?
+        `).bind(location).all();
+        return c.json(results);
+    } catch (e) {
+        return c.json([]);
+    }
+});
+
+app.post('/api/checklist', async (c) => {
+    try {
+        const { location, task_id, is_completed, completed_by } = await c.req.json();
+        if (!c.env.DB) return c.json({ error: 'No DB' }, 500);
+        await c.env.DB.prepare(`
+            INSERT INTO checklist_state (location, task_id, is_completed, completed_by)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(location, task_id) DO UPDATE SET
+            is_completed = excluded.is_completed,
+            completed_by = excluded.completed_by,
+            updated_at = CURRENT_TIMESTAMP
+        `).bind(location, task_id, is_completed ? 1 : 0, completed_by || 'Unbekannt').run();
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+// --- CLOUD SYNC: LOST & FOUND ---
+app.get('/api/lostfound', async (c) => {
+    try {
+        const location = c.req.query('location') || 'kp';
+        if (!c.env.DB) return c.json([]);
+        const { results } = await c.env.DB.prepare(`
+            SELECT * FROM lost_found WHERE location = ? AND is_returned = 0 ORDER BY created_at DESC
+        `).bind(location).all();
+        return c.json(results);
+    } catch (e) {
+        return c.json([]);
+    }
+});
+
+app.post('/api/lostfound', async (c) => {
+    try {
+        const { location, what, category, found_where, found_by } = await c.req.json();
+        if (!c.env.DB) return c.json({ error: 'No DB' }, 500);
+        await c.env.DB.prepare(`
+            INSERT INTO lost_found (location, what, category, found_where, found_by)
+            VALUES (?, ?, ?, ?, ?)
+        `).bind(location, what, category, found_where, found_by).run();
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+app.delete('/api/lostfound/:id', async (c) => {
+    try {
+        const id = c.req.param('id');
+        if (!c.env.DB) return c.json({ error: 'No DB' }, 500);
+        // We mark as returned instead of hard delete for history
+        await c.env.DB.prepare('UPDATE lost_found SET is_returned = 1 WHERE id = ?').bind(id).run();
         return c.json({ success: true });
     } catch (e) {
         return c.json({ error: e.message }, 500);

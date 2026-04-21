@@ -1364,6 +1364,28 @@
                 flex-shrink: 0;
                 border-radius: 6px;
             }
+            .next-movie-info {
+                /* TOOLTIPS / BADGES */
+            }
+            .badge {
+                font-size: 0.7rem;
+                padding: 2px 8px;
+                border-radius: 20px;
+                font-weight: 700;
+            }
+
+            /* MOBILE OPTIMIZATIONS (Point 4 Fix) */
+            @media (max-width: 600px) {
+                .container { padding: 0.5rem; }
+                .tab-btn { padding: 0.6rem 0.4rem; font-size: 0.8rem; }
+                .stat-card { padding: 0.75rem; }
+                h1 { font-size: 1.5rem !important; }
+                .feed-item { padding: 0.75rem; gap: 0.75rem; }
+                .badge { font-size: 0.6rem; }
+                .card-header { padding: 0.75rem 1rem !important; }
+                .dashboard-grid { gap: 0.75rem; }
+                .bottom-nav { padding: 0.5rem; }
+            }
             .next-movie-info h4 {
                 font-size: 0.7rem;
                 margin-bottom: 0.1rem;
@@ -2586,6 +2608,52 @@
                     </div>
                 </div>
 
+                <!-- Admin: Kontakte (Neu) -->
+                <div id="admin-contacts-section" style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+                    <h3 style="color: var(--primary-gold); font-size: 1.1rem; margin-bottom: 0.75rem;">🛠️ Kontakte Verwalten (Admin)</h3>
+                    <div class="stat-card" style="padding: 1.5rem; background: rgba(255,185,0,0.03); border-color: rgba(255,185,0,0.2);">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 0.75rem; margin-bottom: 1rem;">
+                            <select id="admin-contact-cat" style="background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 6px;">
+                                <option value="leitung">Leitung</option>
+                                <option value="einlass">Einlass / Service</option>
+                                <option value="theke">Theke / Kasse</option>
+                                <option value="sicherheit">Sicherheit</option>
+                                <option value="popcornkueche">Popcornküche</option>
+                                <option value="putzfirma">Putzfirma</option>
+                            </select>
+                            <input type="text" id="admin-contact-role" placeholder="Name/Funktion e.g. BL" style="background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 6px;">
+                            <input type="text" id="admin-contact-phone" placeholder="Telefonnummer" style="background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 6px;">
+                            <button onclick="addAdminContact()" class="btn-primary" style="background: var(--primary-gold); color: black;">Hinzufügen</button>
+                        </div>
+                        <div id="admin-contacts-list" style="max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem;">
+                            <!-- List loaded via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin: Kontakte (Neu) -->
+                <div id="admin-contacts-section" style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+                    <h3 style="color: var(--primary-gold); font-size: 1.1rem; margin-bottom: 0.75rem;">🛠️ Kontakte Verwalten (Admin)</h3>
+                    <div class="stat-card" style="padding: 1.5rem; background: rgba(255,185,0,0.03); border-color: rgba(255,185,0,0.2);">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 0.75rem; margin-bottom: 1rem;">
+                            <select id="admin-contact-cat" style="background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 6px;">
+                                <option value="leitung">Leitung</option>
+                                <option value="einlass">Einlass / Service</option>
+                                <option value="theke">Theke / Kasse</option>
+                                <option value="sicherheit">Sicherheit</option>
+                                <option value="popcornkueche">Popcornküche</option>
+                                <option value="putzfirma">Putzfirma</option>
+                            </select>
+                            <input type="text" id="admin-contact-role" placeholder="Name/Funktion e.g. BL" style="background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 6px;">
+                            <input type="text" id="admin-contact-phone" placeholder="Telefonnummer" style="background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 6px;">
+                            <button onclick="addAdminContact()" class="btn-primary" style="background: var(--primary-gold); color: black;">Hinzufügen</button>
+                        </div>
+                        <div id="admin-contacts-list" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem;">
+                            <!-- List loaded via JS -->
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Handbücher -->
                 <div>
                     <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">Handbücher</h3>
@@ -2597,25 +2665,11 @@
                                 <div style="font-size: 0.8rem; color: var(--text-muted);">PDF Leitfaden für alle</div>
                             </div>
                         </a>
-                        <a href="#" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;" onclick="alert('Handbuch Kasse: Demnächst verfügbar! Dein Freund kann hier zukünftig PDF-Links oder Texte hinterlegen.'); return false;">
+                        <a href="#" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;" onclick="alert('Handbuch Kasse: Demnächst verfügbar!'); return false;">
                             <span style="font-size: 2rem;">💰</span>
                             <div>
                                 <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Kasse</div>
                                 <div style="font-size: 0.8rem; color: var(--text-muted);">Verkauf & Gutscheine</div>
-                            </div>
-                        </a>
-                        <a href="#" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;" onclick="alert('Handbuch Theke: Demnächst verfügbar!'); return false;">
-                            <span style="font-size: 2rem;">🍿</span>
-                            <div>
-                                <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Theke</div>
-                                <div style="font-size: 0.8rem; color: var(--text-muted);">Hygiene & Zubereitung</div>
-                            </div>
-                        </a>
-                        <a href="#" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;" onclick="alert('Handbuch Einlass / Saal: Demnächst verfügbar!'); return false;">
-                            <span style="font-size: 2rem;">🎟️</span>
-                            <div>
-                                <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Einlass / Saal</div>
-                                <div style="font-size: 0.8rem; color: var(--text-muted);">Kontrolle & Reinigung</div>
                             </div>
                         </a>
                     </div>
@@ -2800,27 +2854,68 @@
 
         // --- APP START ---
         window.addEventListener('load', async () => {
-            // Theme Init
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'light') {
-                document.body.classList.add('light-mode');
-                const icon = document.getElementById('theme-icon');
-                if (icon) icon.innerText = '☀️';
-            }
+            try {
+                // Theme Init
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'light') {
+                    document.body.classList.add('light-mode');
+                    const icon = document.getElementById('theme-icon');
+                    if (icon) icon.innerText = '☀️';
+                }
 
-            fetchLocations();
-            fetchSessions();
-            fetchWeather();
-            fetchNews();
-            
-            initLostFound();
-            initTransferList();
-            applyModuleVisibility();
-            loadContacts();
+                // Core Data
+                await fetchLocations(); // Should be awaited if others depend on it
+                
+                // Initialize UI modules independently to be robust
+                const runSafe = async (fn, name) => {
+                    try { await fn(); } catch (e) { console.error(`Failed to init ${name}:`, e); }
+                };
 
-            // Welcome Modal Logic
-            if (localStorage.getItem('welcome_seen_beta') !== 'true' && document.getElementById('welcome-modal')) {
-                document.getElementById('welcome-modal').classList.add('active');
+                await Promise.all([
+                    runSafe(fetchSessions, 'Sessions'),
+                    runSafe(fetchWeather, 'Weather'),
+                    runSafe(fetchNews, 'News'),
+                    runSafe(initLostFound, 'LostFound'),
+                    runSafe(initTransferList, 'TransferList'),
+                    runSafe(applyModuleVisibility, 'Visibility'),
+                    runSafe(loadContacts, 'Contacts')
+                ]);
+
+                // Setup toggle for Auslässe
+                const auslaesseBtn = document.getElementById('auslaesse-toggle-btn');
+                if (auslaesseBtn) {
+                    auslaesseBtn.addEventListener('click', () => {
+                        const content = document.getElementById('auslaesse-list');
+                        content.classList.toggle('collapsed');
+                        auslaesseBtn.classList.toggle('collapsed');
+                    });
+                }
+
+                // Periodic Refresh
+                setInterval(() => {
+                    runSafe(fetchSessions, 'Sessions-Refresh');
+                    runSafe(fetchWeather, 'Weather-Refresh');
+                    runSafe(fetchNews, 'News-Refresh');
+                }, 60000);
+
+                // Cloud Sync Refresh (Checklist / L&F)
+                setInterval(() => {
+                    const selector = document.getElementById('workstation-selector');
+                    if (selector) {
+                        if (selector.value === 'lostfound') {
+                            runSafe(loadLfItems, 'LF-Sync');
+                        } else {
+                            runSafe(() => fetchChecklistState().then(renderWorkstation), 'Checklist-Sync');
+                        }
+                    }
+                }, 15000);
+
+                // Welcome Modal Logic
+                if (localStorage.getItem('welcome_seen_beta') !== 'true' && document.getElementById('welcome-modal')) {
+                    document.getElementById('welcome-modal').classList.add('active');
+                }
+            } catch (err) {
+                console.error("Critical Dashboard Init Error:", err);
             }
         });
 
@@ -3361,7 +3456,24 @@
             ]
         };
 
-        function renderWorkstation() {
+        let cloudChecklistState = {}; // Global cache for current workstation state
+
+        async function fetchChecklistState() {
+            try {
+                const res = await fetch(`/api/checklist?location=${currentCity}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    const newState = {};
+                    data.forEach(d => {
+                        newState[d.task_id] = d.is_completed === 1;
+                        newState[d.task_id + '_by'] = d.completed_by;
+                    });
+                    cloudChecklistState = newState;
+                }
+            } catch (e) { console.error('Cloud checklist sync failed', e); }
+        }
+
+        async function renderWorkstation() {
             const selector = document.getElementById('workstation-selector');
             if (!selector) return;
             const checklistContainer = document.getElementById('ws-checklist-container');
@@ -3372,17 +3484,20 @@
             if (group === 'lostfound') {
                 if (checklistContainer) checklistContainer.style.display = 'none';
                 if (lfContainer) lfContainer.style.display = 'block';
-                loadLfItems();
+                await loadLfItems();
             } else {
                 if (lfContainer) lfContainer.style.display = 'none';
                 if (checklistContainer) checklistContainer.style.display = 'block';
-                const savedState = JSON.parse(localStorage.getItem('kinopolis_shift_checklist') || '{}');
+                
+                // Fetch latest state before rendering to be sure
+                await fetchChecklistState();
+                
                 const items = shiftChecklist[group] || [];
                 if (activeItems) {
                     activeItems.innerHTML = items.map(item => {
-                        const checked = savedState[item.id] ? 'checked' : '';
-                        const checkedBy = savedState[item.id + '_by'] || '';
-                        const lineThrough = savedState[item.id] ? 'text-decoration: line-through; opacity: 0.5;' : '';
+                        const checked = cloudChecklistState[item.id] ? 'checked' : '';
+                        const checkedBy = cloudChecklistState[item.id + '_by'] || '';
+                        const lineThrough = cloudChecklistState[item.id] ? 'text-decoration: line-through; opacity: 0.5;' : '';
                         return `
                             <label style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; cursor: pointer; transition: background 0.2s;">
                                 <input type="checkbox" id="${item.id}" onchange="toggleChecklistItem('${item.id}')" ${checked} style="width: 1.2rem; height: 1.2rem; accent-color: var(--primary-blue); cursor: pointer; flex-shrink: 0;">
@@ -3400,15 +3515,15 @@
             }
         }
 
-        function toggleChecklistItem(id) {
-            const savedState = JSON.parse(localStorage.getItem('kinopolis_shift_checklist') || '{}');
+        async function toggleChecklistItem(id) {
             const checkbox = document.getElementById(id);
             const label = document.getElementById('label-' + id);
             if (!checkbox || !label) return;
 
+            const nameInput = document.getElementById('ws-name-input');
+            const name = nameInput ? nameInput.value.trim() : (localStorage.getItem('kinopolis_shift_name') || '');
+            
             if (checkbox.checked) {
-                const nameInput = document.getElementById('ws-name-input');
-                const name = nameInput ? nameInput.value.trim() : (localStorage.getItem('kinopolis_shift_name') || '');
                 if (!name) {
                     alert('Bitte zuerst deinen Namen oben eintragen!');
                     checkbox.checked = false;
@@ -3418,20 +3533,54 @@
                 localStorage.setItem('kinopolis_shift_name', name);
             }
 
-            savedState[id] = checkbox.checked;
-            localStorage.setItem('kinopolis_shift_checklist', JSON.stringify(savedState));
+            // UI feedback
             label.style.textDecoration = checkbox.checked ? 'line-through' : 'none';
             label.style.opacity = checkbox.checked ? '0.5' : '1';
+
+            try {
+                const res = await fetch('/api/checklist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        location: currentCity,
+                        task_id: id,
+                        is_completed: checkbox.checked,
+                        completed_by: name
+                    })
+                });
+                if (res.ok) {
+                    // Update local cache
+                    cloudChecklistState[id] = checkbox.checked;
+                    cloudChecklistState[id + '_by'] = name;
+                    // Silent refresh
+                    renderWorkstation();
+                }
+            } catch (e) {
+                console.error("Failed to sync checklist item", e);
+                showToast("Fehler bei der Cloud-Synchronisierung", true);
+            }
         }
 
-        function resetChecklist() {
+        async function resetChecklist() {
             const selector = document.getElementById('workstation-selector');
             if (!selector || selector.value === 'lostfound') return;
-            if (!confirm('Alle Häkchen für diese Station zurücksetzen?')) return;
+            if (!confirm('Alle Häkchen für diese Station für ALLE Geräte zurücksetzen?')) return;
+            
             const group = selector.value;
-            const savedState = JSON.parse(localStorage.getItem('kinopolis_shift_checklist') || '{}');
-            (shiftChecklist[group] || []).forEach(item => delete savedState[item.id]);
-            localStorage.setItem('kinopolis_shift_checklist', JSON.stringify(savedState));
+            const items = shiftChecklist[group] || [];
+            
+            for (const item of items) {
+                await fetch('/api/checklist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        location: currentCity,
+                        task_id: item.id,
+                        is_completed: false,
+                        completed_by: ''
+                    })
+                });
+            }
             renderWorkstation();
         }
 
@@ -3485,36 +3634,58 @@
                     padding: 1rem 1.25rem;
                     transition: background 0.2s;
                 `;
-                el.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.75rem;">
-                        <strong style="color: white; font-size: 1.05rem; line-height: 1.3;">${item.what}</strong>
-                        <span style="flex-shrink: 0; font-size: 0.75rem; font-weight: 600; background: ${color + '22'}; color: ${color}; border: 1px solid ${color + '55'}; padding: 3px 8px; border-radius: 20px; white-space: nowrap;">${item.category}</span>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem 1rem; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                        <div><span style="margin-right: 0.3rem;">📍</span><span style="color: rgba(255,255,255,0.7);">${item.where}</span></div>
-                        <div><span style="margin-right: 0.3rem;">👤</span><span style="color: rgba(255,255,255,0.7);">${item.who}</span></div>
-                        <div style="grid-column: 1/-1;"><span style="margin-right: 0.3rem;">⏰</span><span style="color: rgba(255,255,255,0.5); font-size: 0.8rem;">${item.time}</span></div>
-                    </div>
-                    <div style="display: flex; justify-content: flex-end;">
-                        <button onclick="deleteLfItem(${index})" style="
-                            background: rgba(229,9,20,0.08);
-                            border: 1px solid rgba(229,9,20,0.25);
-                            color: #ff6b6b;
-                            cursor: pointer;
-                            font-size: 0.82rem;
-                            padding: 5px 12px;
-                            border-radius: 6px;
-                            font-weight: 600;
-                            transition: background 0.2s;
-                        " onmouseover="this.style.background='rgba(229,9,20,0.18)'" onmouseout="this.style.background='rgba(229,9,20,0.08)'">
-                            ✅ Als abgeholt markieren
-                        </button>
-                    </div>
-                `;
-                list.appendChild(el);
-            });
+            if(!list) return;
+            
+            try {
+                const res = await fetch(`/api/lostfound?location=${currentCity}`);
+                if (!res.ok) throw new Error();
+                const items = await res.json();
+
+                if (items.length === 0) {
+                    list.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-muted); font-style: italic;">Aktuell keine Fundsachen registriert.</div>';
+                    return;
+                }
+                
+                list.innerHTML = '';
+                items.forEach((item) => {
+                    const el = document.createElement('div');
+                    el.className = 'glass';
+                    el.style.cssText = 'padding: 1.2rem; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;';
+                    el.innerHTML = `
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 1.1rem; color: white;">${item.what}</div>
+                            <div style="display: flex; gap: 1rem; margin-top: 0.4rem; font-size: 0.82rem; color: var(--text-muted);">
+                                <span>📂 ${item.category}</span>
+                                <span>📍 ${item.found_where}</span>
+                            </div>
+                            <div style="margin-top: 0.4rem; font-size: 0.75rem; color: rgba(255,255,255,0.3);">
+                                Gefunden am ${new Date(item.created_at).toLocaleString('de-DE')} von ${item.found_by}
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button onclick="deleteLfItem(${item.id})" style="
+                                background: rgba(229,9,20,0.08);
+                                border: 1px solid rgba(229,9,20,0.25);
+                                color: #ff6b6b;
+                                cursor: pointer;
+                                font-size: 0.82rem;
+                                padding: 5px 12px;
+                                border-radius: 6px;
+                                font-weight: 600;
+                                transition: background 0.2s;
+                            " onmouseover="this.style.background='rgba(229,9,20,0.18)'" onmouseout="this.style.background='rgba(229,9,20,0.08)'">
+                                ✅ Als abgeholt markieren
+                            </button>
+                        </div>
+                    `;
+                    list.appendChild(el);
+                });
+            } catch (e) {
+                list.innerHTML = '<div style="padding: 2rem; color: #ff4d4d;">Fehler beim Laden des Fundbüros.</div>';
+            }
         }
-        function saveLfItem() {
+
+        async function saveLfItem() {
             const what = document.getElementById('lf-what').value.trim();
             const category = document.getElementById('lf-category').value;
             const where = document.getElementById('lf-where').value.trim();
@@ -3525,60 +3696,31 @@
                 return;
             }
             
-            const items = JSON.parse(localStorage.getItem('kinopolis_lf_items') || '[]');
-            const now = new Date();
-            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} Uhr (${now.toLocaleDateString('de-DE')})`;
-            
-            items.unshift({ what, category, where, who, time: timeStr });
-            localStorage.setItem('kinopolis_lf_items', JSON.stringify(items));
-            
-            closeLfModal();
-            loadLfItems();
-        }
-        function deleteLfItem(index) {
-            if(!confirm('Gegenstand wirklich als abgeholt markieren / löschen?')) return;
-            const items = JSON.parse(localStorage.getItem('kinopolis_lf_items') || '[]');
-            items.splice(index, 1);
-            localStorage.setItem('kinopolis_lf_items', JSON.stringify(items));
-            loadLfItems();
-        }
-
-        async function init() {
-            console.log('Kinopolis Dashboard v1.1 - Unified Worker Mode');
-            renderWorkstation();
-            
-            if (!localStorage.getItem('welcome_seen_beta')) {
-                const modal = document.getElementById('welcome-modal');
-                if (modal) modal.classList.add('active');
+            try {
+                const res = await fetch('/api/lostfound', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        location: currentCity,
+                        what, category, found_where: where, found_by: who
+                    })
+                });
+                
+                if (res.ok) {
+                    closeLfModal();
+                    loadLfItems();
+                    if (typeof showToast === 'function') showToast("Fundsache erfolgreich gespeichert");
+                }
+            } catch (e) {
+                if (typeof showToast === 'function') showToast("Fehler beim Speichern", true);
             }
-            
-            // Setup toggle for Auslässe
-            document.getElementById('auslaesse-toggle-btn').addEventListener('click', () => {
-                const content = document.getElementById('auslaesse-list');
-                const btn = document.getElementById('auslaesse-toggle-btn');
-                content.classList.toggle('collapsed');
-                btn.classList.toggle('collapsed');
-            });
-
-            await fetchLocations();
-            updateDateUI();
-            await fetchWeather();
-            await fetchSessions();
-            await fetchNews();
-            
-            // Refresh every 60 seconds
-            setInterval(() => {
-                fetchSessions();
-                fetchWeather();
-                fetchNews();
-            }, 60000);
         }
 
         function toggleNews() {
             const list = document.getElementById('news-list');
             const btn = document.getElementById('news-toggle-btn');
-            list.classList.toggle('collapsed');
-            btn.classList.toggle('collapsed');
+            if (list) list.classList.toggle('collapsed');
+            if (btn) btn.classList.toggle('collapsed');
         }
 
         // --- News Logic ---
@@ -4780,6 +4922,60 @@
         ];
 
         async function loadContacts() {
+            try {
+                const res = await fetch(`/api/contacts?location=${currentCity}`);
+                if (!res.ok) throw new Error();
+                const contacts = await res.json();
+                renderContacts(contacts);
+                renderAdminContacts(contacts); 
+            } catch (e) {
+                console.warn("Backend contacts failed, using fallback", e);
+                renderContacts(KP_DEFAULT_CONTACTS[currentCity] || []);
+            }
+        }
+
+        function renderAdminContacts(contacts) {
+            const list = document.getElementById('admin-contacts-list');
+            if (!list) return;
+            list.innerHTML = contacts.map(c => `
+                <div style="background: rgba(255,255,255,0.05); padding: 0.75rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-size: 0.85rem;">
+                        <span style="color: var(--primary-gold);">${c.category.toUpperCase()}</span>: 
+                        <strong>${c.role_name}</strong> (${c.phone_number})
+                    </div>
+                    <button onclick="deleteAdminContact(${c.id})" style="background: none; border: none; color: #ff4d4d; cursor: pointer; padding: 0.5rem;">🗑️</button>
+                </div>
+            `).join('');
+        }
+
+        async function addAdminContact() {
+            const category = document.getElementById('admin-contact-cat').value;
+            const role_name = document.getElementById('admin-contact-role').value.trim();
+            const phone_number = document.getElementById('admin-contact-phone').value.trim();
+            if (!role_name || !phone_number) return alert("Bitte alle Felder ausfüllen!");
+            try {
+                const res = await fetch('/api/contacts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ location: currentCity, category, role_name, phone_number })
+                });
+                if (res.ok) {
+                    loadContacts();
+                    document.getElementById('admin-contact-role').value = '';
+                    document.getElementById('admin-contact-phone').value = '';
+                }
+            } catch (e) { alert("Fehler beim Hinzufügen des Kontakts."); }
+        }
+
+        async function deleteAdminContact(id) {
+            if (!confirm("Kontakt wirklich löschen?")) return;
+            try {
+                const res = await fetch(`/api/contacts/${id}`, { method: 'DELETE' });
+                if (res.ok) loadContacts();
+            } catch (e) { alert("Fehler beim Löschen"); }
+        }
+
+        function renderContacts(contacts) {
             const container = document.getElementById('contacts-container');
             const loader = document.getElementById('contacts-loading');
             
@@ -4849,17 +5045,17 @@
     <div id="welcome-modal" class="modal">
         <div class="modal-content glass" style="max-height: 90vh; overflow-y: auto;">
             <span class="welcome-icon">🍿</span>
-            <h2 class="modal-title">Willkommen V3.1!</h2>
+            <h2 class="modal-title">Willkommen V4.0!</h2>
             <div style="margin-bottom: 2rem; color: var(--text-main); font-size: 0.95rem; text-align: left;">
-                <p style="margin-bottom: 1.5rem; line-height: 1.5; text-align: center;">Das Kinopolis Dashboard wurde aktualisiert und ist nun noch leistungsfähiger.</p>
+                <p style="margin-bottom: 1.5rem; line-height: 1.5; text-align: center;">Das Dashboard wurde massiv erweitert für eine bessere Team-Zusammenarbeit.</p>
                 
-                <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.5rem;">✨ Neue Features:</h3>
+                <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.5rem;">🚀 Neue Core-Features:</h3>
                 <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.5;">
-                    <li><strong>☀️ White Mode:</strong> Helles Design für sonnige Tage (Toggle im Header).</li>
-                    <li><strong>📊 Excel-Export:</strong> Tabellen im Einstellungs-Tab als .xlsx exportieren.</li>
-                    <li><strong>🏮 Saal-Abbau:</strong> Spezielle Checklisten für Darmstadt (Halls 1-8).</li>
-                    <li><strong>🤖 KI-Plan-Scanner:</strong> Jetzt mit Llama 3.2 Vision für präzisere Zeiten.</li>
-                    <li><strong>📱 Optimiertes UI:</strong> Schnellere Ladezeiten und bessere Mobile-Ansicht.</li>
+                    <li><strong>☁️ Cloud Sync:</strong> Checklisten & Fundbüro sind jetzt auf allen Geräten synchronisiert.</li>
+                    <li><strong>🏃‍♂️ Runner-Status:</strong> TLs können Funk-Anfragen als "In Bearbeitung" markieren.</li>
+                    <li><strong>✨ KI Schicht-Check:</strong> Erstelle kompakte WhatsApp-Übergaben mit einem Klick.</li>
+                    <li><strong>📖 Admin-Tools:</strong> Kontakte & Telefonnummern direkt im Dashboard verwalten.</li>
+                    <li><strong>📱 Mobile First:</strong> Schlankeres Design für die Nutzung auf dem Smartphone.</li>
                 </ul>
 
                 <div style="background: rgba(0, 120, 255, 0.1); border: 1px solid rgba(0, 120, 255, 0.2); padding: 1rem; border-radius: 12px;">
