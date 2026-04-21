@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal | Kinopolis Automation</title>
+    <link rel="icon" href="./icon.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0a0a0d;
+            --surface-color: rgba(20, 20, 25, 0.6);
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --primary-blue: #0078FF;
+            --primary-purple: #a855f7;
+            --text-main: #F2F2F2;
+            --text-muted: #8E8E93;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        body.light-mode {
+            --bg-color: #f1f5f9;
+            --surface-color: #ffffff;
+            --surface-border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 10% 10%, rgba(168, 85, 247, 0.1) 0%, transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .admin-container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--surface-color);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--surface-border);
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .admin-header {
+            padding: 2.5rem;
+            border-bottom: 1px solid var(--surface-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .admin-header h1 { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.02em; }
+        .admin-header .badge { background: var(--primary-purple); color: white; padding: 0.4rem 0.8rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
+
+        .admin-content { padding: 2.5rem; display: flex; flex-direction: column; gap: 2.5rem; }
+
+        /* Login Gate */
+        #admin-login-gate { text-align: center; max-width: 400px; margin: 0 auto; padding: 4rem 0; }
+        .input-field { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--surface-border); padding: 1rem; border-radius: 14px; color: white; margin-bottom: 1rem; font-size: 1rem; outline: none; transition: border-color 0.3s; }
+        .input-field:focus { border-color: var(--primary-purple); }
+        .btn-primary { width: 100%; padding: 1rem; border-radius: 14px; border: none; background: linear-gradient(135deg, #a855f7, #7c3aed); color: white; font-weight: 800; cursor: pointer; transition: all 0.3s ease; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(168, 85, 247, 0.3); }
+
+        /* Module States */
+        .admin-section { display: flex; flex-direction: column; gap: 1rem; }
+        .admin-section h2 { font-size: 1.2rem; color: var(--text-main); display: flex; align-items: center; gap: 0.75rem; }
+        .admin-section p { font-size: 0.9rem; color: var(--text-muted); }
+
+        .card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--surface-border); border-radius: 20px; padding: 1.5rem; }
+        
+        .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+        .module-item { background: rgba(255,255,255,0.02); border: 1px solid var(--surface-border); padding: 1rem; border-radius: 14px; display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: all 0.2s; }
+        .module-item:hover { background: rgba(255,255,255,0.06); border-color: var(--primary-purple); }
+        .module-item input { width: 1.2rem; height: 1.2rem; accent-color: var(--primary-purple); }
+
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .btn-secondary { background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--surface-border); padding: 1rem; border-radius: 14px; cursor: pointer; font-weight: 700; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+        .back-link { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; transition: color 0.2s; }
+        .back-link:hover { color: var(--text-main); }
+
+        /* Modal for News */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 1000; align-items: center; justify-content: center; padding: 2rem; }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--bg-color); border: 1px solid var(--surface-border); padding: 2rem; border-radius: 24px; width: 100%; max-width: 500px; }
+        .modal-content h3 { margin-bottom: 1.5rem; }
+        .modal-content textarea { width: 100%; height: 120px; background: rgba(255,255,255,0.05); border: 1px solid var(--surface-border); border-radius: 12px; color: white; padding: 1rem; margin-top: 1rem; resize: none; outline: none; }
+
+        @media (max-width: 600px) {
+            body { padding: 1rem; }
+            .admin-header { padding: 1.5rem; }
+            .admin-content { padding: 1.5rem; }
+            .btn-group { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body id="admin-body">
+
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <div>
+                <h1>Admin Portal</h1>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Steuerung für Kinopolis Automation</p>
+            </div>
+            <a href="index.html" class="back-link">
+                <span>🏠</span> Dashboard
+            </a>
+        </div>
+
+        <!-- Login Gate -->
+        <div id="admin-login-gate">
+            <div style="font-size: 3rem; margin-bottom: 1.5rem;">🔒</div>
+            <h2 style="margin-bottom: 0.5rem;">Zugang erforderlich</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem;">Bitte logge dich mit deinen Administrator-Daten ein.</p>
+            <input type="text" id="admin-user" placeholder="Benutzername" class="input-field">
+            <input type="password" id="admin-pass" placeholder="Passwort" class="input-field" onkeypress="if(event.key === 'Enter') handleLogin()">
+            <button class="btn-primary" onclick="handleLogin()">Einloggen</button>
+            <p id="login-error" style="color: #ff4d4d; font-size: 0.8rem; margin-top: 1rem; display: none;">❌ Zugangsdaten inkorrekt.</p>
+        </div>
+
+        <!-- Admin Content -->
+        <div id="admin-main-content" class="admin-content" style="display: none;">
+            
+            <!-- Welcome Disclaimer -->
+            <div style="background: rgba(0, 120, 255, 0.05); border: 1px solid rgba(0, 120, 255, 0.1); border-radius: 20px; padding: 1.5rem; display: flex; gap: 1rem; align-items: flex-start;">
+                <span style="font-size: 1.5rem;">👋</span>
+                <div>
+                    <h3 style="font-size: 1.1rem; margin-bottom: 0.4rem;">Entwickler-Information</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
+                        Diese WebApp wurde primär für die Betriebsabläufe im <strong>Kinopolis Darmstadt</strong> entwickelt. 
+                        Funktionserweiterungen für andere Standorte können gerne als gesondertes Feedback (inkl. Standort und Ansprechpartner) eingereicht werden.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Interne Mitteilung -->
+            <div class="admin-section">
+                <h2><span>📢</span> Mitteilungen veröffentlichen</h2>
+                <div class="card">
+                    <p style="margin-bottom: 1.25rem;">Erstelle eine Mitteilung für deinen Standort. Diese ist sofort im Dashboard sichtbar.</p>
+                    <button class="btn-primary" style="background: linear-gradient(135deg, #0078FF, #00d2ff);" onclick="openNewsModal()">
+                        Neue Mitteilung verfassen
+                    </button>
+                </div>
+            </div>
+
+            <!-- Module Management -->
+            <div class="admin-section">
+                <h2><span>🧩</span> Modul-Management</h2>
+                <div class="card">
+                    <p style="margin-bottom: 1.25rem;">Wähle aus, welche Tabs im Dashboard sichtbar sein sollen.</p>
+                    <div id="module-management-list" class="module-grid">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export & Backup -->
+            <div class="admin-section">
+                <h2><span>📊</span> Daten & Backup</h2>
+                <div class="card">
+                    <p style="margin-bottom: 1.25rem;">Exportiere alle Schicht-Logs und Daten als Excel oder PDF.</p>
+                    <div class="btn-group">
+                        <button onclick="exportToExcel()" class="btn-secondary" style="border-color: rgba(46, 204, 113, 0.3);">
+                            <span style="color: #2ecc71;">📊</span> Excel Export
+                        </button>
+                        <button onclick="exportToPDF()" class="btn-secondary" style="border-color: rgba(231, 76, 60, 0.3);">
+                            <span style="color: #e74c3c;">📄</span> PDF Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer / Logout -->
+            <div style="text-align: center; padding-top: 1rem; border-top: 1px solid var(--surface-border);">
+                <button onclick="handleLogout()" style="background: none; border: none; color: #ff4d4d; font-weight: 700; cursor: pointer; font-size: 0.9rem;">
+                    Sicher Abmelden
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- News Modal -->
+    <div id="news-modal" class="modal">
+        <div class="modal-content">
+            <h3>📢 Neue Mitteilung</h3>
+            <input type="text" id="msg-title" placeholder="Titel (z.B. Klima-Update)" class="input-field">
+            <input type="text" id="msg-author" placeholder="Autor (Name/Kürzel)" class="input-field">
+            <textarea id="msg-content" placeholder="Inhalt der Mitteilung..."></textarea>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn-secondary" onclick="closeNewsModal()">Abbrechen</button>
+                <button class="btn-primary" onclick="submitNews()">Veröffentlichen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MODULES = [
+            { id: 'live', name: 'Live Display', icon: '📺' },
+            { id: 'stats', name: 'Statistik', icon: '📊' },
+            { id: 'kontakte', name: 'Kontakte', icon: '📞' },
+            { id: 'funk', name: 'Digital Funk', icon: '📡' },
+            { id: 'tools', name: 'Interne Tools', icon: '🛠️' },
+            { id: 'info', name: 'Filme & Info', icon: '🍿' }
+        ];
+
+        let currentCity = localStorage.getItem('kinopolis_city') || 'kp';
+
+        // Check Auth
+        window.addEventListener('load', () => {
+            if (localStorage.getItem('is_admin') === 'true') {
+                showAdminPanel();
+            }
+
+            // Theme sync
+            if (localStorage.getItem('theme') === 'light') {
+                document.body.classList.add('light-mode');
+            }
+        });
+
+        function handleLogin() {
+            const user = document.getElementById('admin-user').value;
+            const pass = document.getElementById('admin-pass').value;
+
+            if (user === 'admin' && pass === 'admin123') {
+                localStorage.setItem('is_admin', 'true');
+                showAdminPanel();
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('is_admin');
+            location.reload();
+        }
+
+        function showAdminPanel() {
+            document.getElementById('admin-login-gate').style.display = 'none';
+            document.getElementById('admin-main-content').style.display = 'flex';
+            renderModules();
+        }
+
+        function renderModules() {
+            const container = document.getElementById('module-management-list');
+            const disabledModules = JSON.parse(localStorage.getItem('disabled_modules') || '[]');
+            
+            container.innerHTML = MODULES.map(mod => {
+                const checked = !disabledModules.includes(mod.id) ? 'checked' : '';
+                return `
+                    <label class="module-item">
+                        <input type="checkbox" onchange="toggleModule('${mod.id}', this.checked)" ${checked}>
+                        <span>${mod.icon} ${mod.name}</span>
+                    </label>
+                `;
+            }).join('');
+        }
+
+        function toggleModule(id, isEnabled) {
+            let disabled = JSON.parse(localStorage.getItem('disabled_modules') || '[]');
+            if (isEnabled) {
+                disabled = disabled.filter(d => d !== id);
+            } else {
+                if (!disabled.includes(id)) disabled.push(id);
+            }
+            localStorage.setItem('disabled_modules', JSON.stringify(disabled));
+        }
+
+        // News Logic
+        function openNewsModal() { document.getElementById('news-modal').classList.add('active'); }
+        function closeNewsModal() { document.getElementById('news-modal').classList.remove('active'); }
+
+        async function submitNews() {
+            const title = document.getElementById('msg-title').value.trim();
+            const content = document.getElementById('msg-content').value.trim();
+            const author = document.getElementById('msg-author').value.trim();
+            
+            if (!title || !content) return alert('Titel und Inhalt erforderlich.');
+            
+            try {
+                const res = await fetch('/api/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, content, author, location: currentCity })
+                });
+                if (res.ok) {
+                    alert('Erfolgreich veröffentlicht!');
+                    closeNewsModal();
+                    // Reset fields
+                    document.getElementById('msg-title').value = '';
+                    document.getElementById('msg-content').value = '';
+                }
+            } catch (e) {
+                alert('Netzwerkfehler.');
+            }
+        }
+
+        // Export Logic
+        async function exportToExcel() {
+            if (typeof XLSX === 'undefined') return alert('Library Error');
+            try {
+                const wb = XLSX.utils.book_new();
+                const res = await fetch(`/api/logs?location=${currentCity}`);
+                const logs = await res.json();
+                
+                const wsLogs = XLSX.utils.json_to_sheet(logs.map(l => ({ 
+                    Datum: new Date(l.created_at).toLocaleString('de-DE'), 
+                    Autor: l.author, Nachricht: l.message, Priorität: l.priority 
+                })));
+                XLSX.utils.book_append_sheet(wb, wsLogs, "Übergabe-Logs");
+                XLSX.writeFile(wb, `Kinopolis_${currentCity.toUpperCase()}_Export_${new Date().toLocaleDateString('de-DE')}.xlsx`);
+            } catch(e) { alert('Export Fehler'); }
+        }
+
+        async function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            try {
+                const res = await fetch(`/api/logs?location=${currentCity}`);
+                const logs = await res.json();
+                
+                doc.setFontSize(18);
+                doc.text(`Übergabebuch - ${currentCity.toUpperCase()}`, 14, 22);
+                doc.setFontSize(11);
+                doc.setTextColor(100);
+                doc.text(`Generiert am ${new Date().toLocaleString('de-DE')}`, 14, 30);
+
+                doc.autoTable({
+                    startY: 35,
+                    head: [['Datum', 'Autor', 'Nachricht', 'Priorität']],
+                    body: logs.map(l => [new Date(l.created_at).toLocaleString('de-DE'), l.author, l.message, l.priority]),
+                    headStyles: { fillStyle: '#0078FF' }
+                });
+
+                doc.save(`Kinopolis_Logs_${currentCity.toUpperCase()}.pdf`);
+            } catch(e) { alert('PDF Fehler'); }
+        }
+    </script>
+</body>
+</html>

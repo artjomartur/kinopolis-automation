@@ -2055,6 +2055,7 @@
             margin-bottom: 1rem;
             background: linear-gradient(135deg, #fff 0%, #aaa 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .modal-text {
@@ -2465,24 +2466,6 @@
             <div id="poster-alerts" class="collapsible-content alerts-list"></div>
         </div>
 
-        <!-- Staff Notes Section -->
-        <div class="card-container notes-section glass intern-section" style="margin-bottom: 1.25rem; display: none;">
-            <div class="card-header" onclick="toggleSection('staff-notes-content', 'notes-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
-                    <span class="alert-icon-small">📝</span>
-                    <h2 style="font-size: 1.25rem;">Schicht-Notizen</h2>
-                    <span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic; margin-left: auto;">Local Storage</span>
-                </div>
-                <button class="toggle-btn" id="notes-toggle-btn" style="pointer-events: none;">
-                    <svg viewBox="0 0 24 24" width="24" height="24">
-                        <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
-                    </svg>
-                </button>
-            </div>
-            <div id="staff-notes-content" class="collapsible-content" style="padding: 0 1.5rem 1.5rem;">
-                <textarea id="staff-notes" class="notes-area" placeholder="Notizen für die aktuelle Schicht hier eintragen..."></textarea>
-            </div>
-        </div>
         <!-- Tasks Section (Auslässe & Posterwechsel) -->
         <div id="auslaesse-section-container" class="card-container auslaesse-container glass live-section" style="display: none;">
             <div class="card-header" style="flex-wrap: wrap; gap: 1rem; padding: 1rem 1.5rem;">
@@ -2619,50 +2602,17 @@
             </div>
         </div>
 
-        <!-- Admin Portal (Integrated in Settings) -->
-        <div class="card-container glass einstellungen-section" id="admin-auth-section" style="margin-bottom: 2rem; border-color: rgba(168, 85, 247, 0.3);">
-            <div class="card-header" style="flex-direction: column; align-items: flex-start; gap: 0.5rem; padding: 1.5rem;">
-                <h2 style="font-size: 1.5rem;">🔒 Admin-Bereich</h2>
-                <p style="font-size: 0.85rem; color: var(--text-muted);">Zugang nur für autorisiertes Personal.</p>
-            </div>
-            
-            <!-- Login Form -->
-            <div id="admin-login-form" style="padding: 0 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <input type="text" id="admin-user-input" placeholder="Benutzername" class="input-field" style="height: 48px; border-radius: 12px; margin-top: 0;">
-                    <input type="password" id="admin-password-input" placeholder="Passwort" class="input-field" style="height: 48px; border-radius: 12px; margin-top: 0;">
-                </div>
-                <button onclick="checkAdminLogin()" class="btn-primary" style="height: 50px; border-radius: 14px; background: linear-gradient(135deg, #a855f7, #7c3aed); border: none; font-weight: 800; font-size: 1rem; width: 100%; box-shadow: 0 10px 20px rgba(168, 85, 247, 0.2);">
-                    🔑 Einloggen
-                </button>
-                <p id="admin-login-error" style="color: #e74c3c; font-size: 0.8rem; text-align: center; display: none;">❌ Zugangsdaten inkorrekt.</p>
-            </div>
-
-            <!-- Admin Controls (Initially Hidden) -->
-            <div id="admin-controls-wrapper" style="display: none;">
-                <!-- Welcome & Disclaimer -->
-                <div style="padding: 0 1.5rem 1rem; border-bottom: 1px solid var(--surface-border); margin-bottom: 1rem;">
-                    <div style="background: rgba(0, 120, 255, 0.05); border: 1px solid rgba(0, 120, 255, 0.1); border-radius: 10px; padding: 1rem;">
-                        <h4 style="margin: 0 0 0.5rem 0; font-size: 0.95rem; color: var(--text-main);">👋 Willkommen im Admin-Panel</h4>
-                        <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
-                            Diese WebApp wurde primär für die Betriebsabläufe im <strong>Kinopolis Darmstadt</strong> entwickelt. 
-                            Funktionserweiterungen für andere Standorte können gerne als gesondertes Feedback (inkl. Standort und Ansprechpartner) eingereicht werden.
-                        </p>
+        <!-- Admin Portal (Standalone) -->
+        <div class="card-container glass einstellungen-section" style="margin-bottom: 2rem; border-color: rgba(168, 85, 247, 0.4); background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
+            <div class="card-header" style="padding: 1.25rem;">
+                <a href="admin.html" target="_blank" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem; width: 100%;">
+                    <div style="background: rgba(168, 85, 247, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🔒</div>
+                    <div style="flex: 1;">
+                        <h2 style="font-size: 1.25rem; margin-bottom: 0.2rem; color: #fff;">Admin Portal</h2>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Sichtbare Module verwalten, Mitteilungen schreiben und Daten exportieren.</span>
                     </div>
-                </div>
-
-                <div style="padding: 0 1.5rem 1rem; display: flex; flex-direction: column; gap: 1rem;">
-                    <button onclick="openMessageModal()" class="btn-primary" style="height: 44px; border-radius: 10px; background: linear-gradient(135deg, #3498db, #2980b9); border: none; font-weight: 700;">
-                        📢 Interne Mitteilung verfassen
-                    </button>
-                </div>
-
-                <div style="padding: 0 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;" id="admin-modules-list">
-                    <!-- Injected via JS -->
-                </div>
-                <div style="padding: 0 1.5rem 1.5rem; border-top: 1px solid var(--surface-border); margin-top: 1rem;">
-                    <button onclick="adminLogout()" style="width: 100%; padding: 0.8rem; background: rgba(229, 9, 20, 0.1); border: 1px solid rgba(229, 9, 20, 0.2); border-radius: 10px; color: #ff4d4d; font-weight: bold; cursor: pointer;">Abmelden</button>
-                </div>
+                    <div style="color: #a855f7; font-weight: bold;">Portal öffnen ❯</div>
+                </a>
             </div>
         </div>
         <div class="card-container glass intern-section" style="margin-bottom: 1rem;">
@@ -2807,6 +2757,25 @@
                 </div>
             </div>
         </section>
+
+        <!-- Staff Notes Section (Moved to Bottom) -->
+        <div class="card-container notes-section glass intern-section" style="margin-top: 2rem; margin-bottom: 2rem; display: none;">
+            <div class="card-header" onclick="toggleSection('staff-notes-content', 'notes-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
+                    <span class="alert-icon-small">📝</span>
+                    <h2 style="font-size: 1.25rem;">Schicht-Notizen</h2>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic; margin-left: auto;">Local Storage</span>
+                </div>
+                <button class="toggle-btn" id="notes-toggle-btn" style="pointer-events: none;">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
+                    </svg>
+                </button>
+            </div>
+            <div id="staff-notes-content" class="collapsible-content" style="padding: 0 1.5rem 1.5rem;">
+                <textarea id="staff-notes" class="notes-area" placeholder="Notizen für die aktuelle Schicht hier eintragen..."></textarea>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -2877,7 +2846,6 @@
                 loadLogs();
             } else if (view === 'einstellungen') {
                 document.body.classList.add('einstellungen-active');
-                checkAdminSession();
             }
         }
 
@@ -2898,6 +2866,7 @@
             
             initLostFound();
             initTransferList();
+            applyModuleVisibility();
 
             // Welcome Modal Logic
             if (localStorage.getItem('welcome_seen_beta') !== 'true' && document.getElementById('welcome-modal')) {
@@ -5085,11 +5054,9 @@
             }
             
             doc.save(`Kinopolis_Export_${city}_${today.replace(/\./g, '-')}.pdf`);
-        }
-
-        // --- ADMIN PANEL LOGIC ---
+        // --- DATA VISIBILITY & UTILS ---
         const MODULES = [
-            { id: 'live', name: 'Live Übersicht (Sessions)', icon: '🎬' },
+            { id: 'live', name: 'Live Übersicht', icon: '🎬' },
             { id: 'stats', name: 'Statistiken', icon: '📊' },
             { id: 'kontakte', name: 'Kontakte / Kurzwahl', icon: '📞' },
             { id: 'funk', name: 'Digital Funk', icon: '📡' },
@@ -5097,96 +5064,16 @@
             { id: 'info', name: 'Filme & Demnächst', icon: '🎞️' }
         ];
 
-        function checkAdminLogin() {
-            const user = document.getElementById('admin-user-input').value;
-            const pass = document.getElementById('admin-password-input').value;
-            const error = document.getElementById('admin-login-error');
-
-            if (user === 'admin' && pass === 'admin123') {
-                sessionStorage.setItem('isAdminAuthenticated', 'true');
-                unlockAdminPanel();
-                if (error) error.style.display = 'none';
-            } else {
-                if (error) error.style.display = 'block';
-                // Trigger shake effect maybe? Let's keep it simple for now.
-            }
-        }
-
-        function adminLogout() {
-            sessionStorage.removeItem('isAdminAuthenticated');
-            document.getElementById('admin-login-form').style.display = 'flex';
-            document.getElementById('admin-controls-wrapper').style.display = 'none';
-            document.getElementById('admin-user-input').value = '';
-            document.getElementById('admin-password-input').value = '';
-        }
-
-        function checkAdminSession() {
-            if (sessionStorage.getItem('isAdminAuthenticated') === 'true') {
-                unlockAdminPanel();
-            } else {
-                document.getElementById('admin-login-form').style.display = 'flex';
-                document.getElementById('admin-controls-wrapper').style.display = 'none';
-            }
-        }
-
-        function unlockAdminPanel() {
-            document.getElementById('admin-login-form').style.display = 'none';
-            document.getElementById('admin-controls-wrapper').style.display = 'block';
-            renderAdminPanel();
-        }
-
-        function renderAdminPanel() {
-            const container = document.getElementById('admin-modules-list');
-            if (!container) return;
-            
-            const disabledModules = JSON.parse(localStorage.getItem('disabled_modules') || '[]');
-            
-            container.innerHTML = `
-                <div style="background: rgba(168, 85, 247, 0.05); border: 1px solid rgba(168, 85, 247, 0.1); border-radius: 12px; padding: 1.5rem; margin-bottom: 0;">
-                    <h3 style="color: #a855f7; font-size: 1.1rem; margin-bottom: 0.5rem;">Sichtbare Module wählen</h3>
-                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem;">Deaktiviere Tabs, die im Dashboard nicht benötigt werden.</p>
-                    
-                    <div style="display: flex; flex-direction: column; gap: 1rem;">
-                        ${MODULES.map(mod => {
-                            const checked = !disabledModules.includes(mod.id) ? 'checked' : '';
-                            return `
-                                <label style="display: flex; align-items: center; gap: 1rem; cursor: pointer; padding: 0.5rem; background: rgba(255,255,255,0.03); border-radius: 8px;">
-                                    <input type="checkbox" onchange="toggleModule('${mod.id}', this.checked)" ${checked} style="width: 1.2rem; height: 1.2rem; accent-color: #a855f7;">
-                                    <span style="font-size: 1rem;">${mod.icon} ${mod.name}</span>
-                                </label>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        function toggleModule(id, isEnabled) {
-            let disabled = JSON.parse(localStorage.getItem('disabled_modules') || '[]');
-            if (isEnabled) {
-                disabled = disabled.filter(d => d !== id);
-            } else {
-                if (!disabled.includes(id)) disabled.push(id);
-            }
-            localStorage.setItem('disabled_modules', JSON.stringify(disabled));
-            applyModuleVisibility();
-        }
-
         function applyModuleVisibility() {
             const disabled = JSON.parse(localStorage.getItem('disabled_modules') || '[]');
             MODULES.forEach(mod => {
                 const btn = document.querySelector(`.tab-btn[onclick*="'${mod.id}'"]`);
                 if (btn) btn.style.display = disabled.includes(mod.id) ? 'none' : 'flex';
                 
-                // Also hide corresponding sections
-                const sectionClasses = {
-                    'live': '.live-section',
-                    'stats': '.stats-section',
-                    'kontakte': '.kontakte-section',
-                    'funk': '.funk-section',
-                    'tools': '.intern-section',
-                    'info': '.info-active' 
-                };
+                // Hide actual sections if currently on a disabled tab
+                if (disabled.includes(mod.id)) {
+                    document.body.classList.remove(`${mod.id}-active`);
+                }
             });
         }
 
