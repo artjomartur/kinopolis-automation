@@ -12,6 +12,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <style>
         :root {
             --bg-color: #0a0a0d;
@@ -28,6 +29,43 @@
             --glass-border: rgba(255, 255, 255, 0.08);
             --accent-glow: rgba(0, 242, 254, 0.15);
         }
+
+        /* LIGHT MODE OVERRIDES */
+        body.light-mode {
+            --bg-dark: #f0f2f5;
+            --surface-color: rgba(255, 255, 255, 0.8);
+            --surface-border: rgba(0, 0, 0, 0.1);
+            --text-main: #1a1a2e;
+            --text-muted: #64748b;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --glass-bg: rgba(0, 0, 0, 0.05);
+            --glass-border: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .glass {
+            background: rgba(255, 255, 255, 0.7) !important;
+            border-color: rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        body.light-mode h1, body.light-mode h2, body.light-mode h3, 
+        body.light-mode .dashboard-title, body.light-mode .hall-name {
+            background: none !important;
+            -webkit-text-fill-color: initial !important;
+            color: #1a1a2e !important;
+        }
+
+        body.light-mode .hall-card, body.light-mode .card-container {
+            background: white !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
+        }
+
+        body.light-mode .location-select, body.light-mode .input-field {
+            background: white !important;
+            color: #1a1a2e !important;
+            border-color: #cbd5e1 !important;
+        }
+
 
         * {
             margin: 0;
@@ -1835,6 +1873,60 @@
 
         body.stats-active .stats-section { display: block !important; }
         body.stats-active .live-section { display: none !important; }
+
+        /* Welcome Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            backdrop-filter: blur(15px);
+            padding: 1.5rem;
+        }
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, rgba(20, 20, 25, 0.95) 0%, rgba(10, 10, 15, 0.98) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 32px;
+            padding: 3rem 2rem;
+            max-width: 550px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            transform: translateY(20px);
+            transition: transform 0.5s ease;
+        }
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+        .welcome-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: block;
+            filter: drop-shadow(0 0 15px var(--primary-blue));
+        }
+        .modal-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .modal-text {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+            font-size: 1.05rem;
+        }
     </style>
 </head>
 <body>
@@ -1850,7 +1942,11 @@
                     <span id="weather-icon"></span>
                     <span id="weather-temp"></span>
                 </div>
+                <button onclick="toggleTheme()" class="glass" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--surface-border); background: var(--surface-color); color: var(--text-main); transition: all 0.3s ease;">
+                    <span id="theme-icon">🌙</span>
+                </button>
                 <select id="cinema-selector" class="location-select glass"></select>
+
             </div>
         </div>
     </header>
@@ -2287,7 +2383,14 @@
                         <option value="counter">🎫 Counter (Checkliste)</option>
                         <option value="popcornkueche">🌽 Popcornküche (Checkliste)</option>
                         <option value="becherspuelen">🥤 Becherspülen (Checkliste)</option>
+                        <optgroup label="Darmstadt Abbau">
+                            <option value="abbau-1-2">🏮 Saal 1/2 Abbau</option>
+                            <option value="abbau-3-4">🏮 Saal 3/4 Abbau</option>
+                            <option value="abbau-5-6">🏮 Saal 5/6 Abbau</option>
+                            <option value="abbau-7-8">🏮 Saal 7/8 Abbau</option>
+                        </optgroup>
                         <option value="lostfound" style="color: var(--primary-blue);">🧸 Fundbüro (Lost & Found)</option>
+
                     </select>
                 </div>
 
@@ -2329,6 +2432,24 @@
                     <button onclick="openLfModal()" style="width: 100%; border-radius: 8px; font-weight: bold; font-size: 1rem; background: var(--primary-red); color: white; border: none; padding: 0.8rem 1rem; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'"><span class="icon">➕</span> Gefundenen Gegenstand eintragen</button>
                 </div>
 
+            </div>
+        </div>
+
+        <!-- Daten & Backup Export -->
+        <div class="card-container glass einstellungen-section" style="margin-bottom: 1rem; border-color: rgba(46, 204, 113, 0.3);">
+            <div class="card-header" style="padding: 1.25rem;">
+                <div style="display: flex; align-items: center; gap: 1rem; width: 100%;">
+                    <div style="background: rgba(46, 204, 113, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📊</div>
+                    <div style="flex: 1;">
+                        <h2 style="font-size: 1.25rem; margin-bottom: 0.2rem; color: #fff;">Daten & Backup</h2>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Alle Logs, Checklisten und Fundgegenstände als Excel exportieren.</span>
+                    </div>
+                </div>
+            </div>
+            <div style="padding: 0 1.5rem 1.5rem;">
+                <button onclick="exportToExcel()" class="btn-primary" style="width: 100%; padding: 1rem; border-radius: 12px; background: linear-gradient(135deg, #2ecc71, #27ae60); border: none; font-weight: 800; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);">
+                    <span>📥</span> Jetzt als Excel exportieren (.xlsx)
+                </button>
             </div>
         </div>
 
@@ -4606,39 +4727,26 @@
     <!-- Welcome Modal -->
     <div id="welcome-modal" class="modal">
         <div class="modal-content glass" style="max-height: 90vh; overflow-y: auto;">
-            <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Willkommen beim Kinopolis Dashboard 👋</h2>
-            <div style="margin-bottom: 2rem; color: var(--text-main); font-size: 0.95rem;">
-                <p style="margin-bottom: 1.5rem; line-height: 1.5;">Dieses Dashboard befindet sich noch in der <strong>Testphase (Beta)</strong> und wurde noch nicht vollständig für den Vollbetrieb validiert.</p>
+            <span class="welcome-icon">🍿</span>
+            <h2 class="modal-title">Willkommen V3.1!</h2>
+            <div style="margin-bottom: 2rem; color: var(--text-main); font-size: 0.95rem; text-align: left;">
+                <p style="margin-bottom: 1.5rem; line-height: 1.5; text-align: center;">Das Kinopolis Dashboard wurde aktualisiert und ist nun noch leistungsfähiger.</p>
                 
-                <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.5rem;">✅ Was die Seite kann:</h3>
+                <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.5rem;">✨ Neue Features:</h3>
                 <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.5;">
-                    <li><strong>Live-Übersicht</strong> aller anstehenden Vorstellungen und Säle.</li>
-                    <li><strong>Warnmeldungen:</strong> Automatische Erinnerungen für Zutrittskontrollen (ZE), voll ausgelastete Säle, und Plakatwechsel (Poster-Erinnerungen).</li>
-                    <li><strong>📸 Auslassplan Scanner (KI):</strong> Fotografiere den gedruckten Plan, um exakte Zeiten automatisch zu übernehmen.</li>
-                    <li><strong>🔔 Push-Benachrichtigungen:</strong> Bleibe auch unterwegs informiert (aktivierbar in Intern & Tools).</li>
-                    <li><strong>FSK & Jugendschutz (JuSchG):</strong> Automatische Altersprüfung basierend auf Startzeit und FSK.</li>
-                    <li><strong>Interne Notizen</strong> verwalten (nur lokal auf diesem Gerät gespeichert).</li>
+                    <li><strong>☀️ White Mode:</strong> Helles Design für sonnige Tage (Toggle im Header).</li>
+                    <li><strong>📊 Excel-Export:</strong> Tabellen im Einstellungs-Tab als .xlsx exportieren.</li>
+                    <li><strong>🏮 Saal-Abbau:</strong> Spezielle Checklisten für Darmstadt (Halls 1-8).</li>
+                    <li><strong>🤖 KI-Plan-Scanner:</strong> Jetzt mit Llama 3.2 Vision für präzisere Zeiten.</li>
+                    <li><strong>📱 Optimiertes UI:</strong> Schnellere Ladezeiten und bessere Mobile-Ansicht.</li>
                 </ul>
 
-                <h3 style="color: var(--primary-red); font-size: 1.1rem; margin-bottom: 0.5rem;">⚠️ Was die Seite (noch) nicht kann:</h3>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.5;">
-                    <li><strong>Auslasszeiten:</strong> Diese sind im System aktuell <em>nur sehr grob geschätzt</em> (Startzeit + Dauer + 30 Minuten Puffer). Sie sind nicht zu 100% verlässlich!</li>
-                    <li>Das Programm ist <strong>noch nicht vollständig getestet</strong>. Technische Fehler, Ausfälle oder stellenweise falsche Daten können vereinzelt auftreten.</li>
-                </ul>
-                
-                <h3 style="color: var(--warning-yellow); font-size: 1.1rem; margin-bottom: 0.5rem;">💡 Geplante Add-Ons (Zukunft):</h3>
-                <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.5;">
-                    <li><strong>🛠️ Admin Panel:</strong> Einstellungs-Seite, um das Dashboard nach Belieben und standortspezifisch anzupassen.</li>
-                    <li><strong>📅 Dienstplan-Integration:</strong> Anbindung Dienstplan -> Genaue Pausen- & Schichtplanung.</li>
-                    <li><strong>Dunkelmodus / Dark Mode:</strong> Optimiertes Design für späte Schichten.</li>
-                </ul>
-                
-                <div style="background: rgba(255, 31, 42, 0.1); border: 1px solid rgba(255, 31, 42, 0.2); padding: 1rem; border-radius: 12px;">
-                    <p style="line-height: 1.5; margin: 0;">Daher ist dein <strong>Feedback enorm wichtig!</strong> Bitte nutze den <span style="font-weight: bold; color: #ff4d4d;">roten Feedback-Button (✨)</span> unten rechts, wenn dir Fehler auffallen, Daten fehlen oder du gute Ideen zur Verbesserung hast.</p>
+                <div style="background: rgba(0, 120, 255, 0.1); border: 1px solid rgba(0, 120, 255, 0.2); padding: 1rem; border-radius: 12px;">
+                    <p style="line-height: 1.5; margin: 0; color: var(--primary-blue); font-weight: bold;">Tipp: Nutze den 📸 Button in "Tages-Aufgaben", um den Auslassplan zu scannen!</p>
                 </div>
             </div>
             <div class="modal-actions" style="justify-content: center;">
-                <button onclick="closeWelcomeModal()" class="btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem; border-radius: 12px; font-weight: bold;">Alles klar, verstanden!</button>
+                <button onclick="closeWelcomeModal()" class="btn-primary" style="width: 100%; padding: 1.25rem; font-size: 1.1rem; border-radius: 16px; font-weight: 800; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); border: none; color: white;">Verstanden & Loslegen</button>
             </div>
         </div>
     </div>

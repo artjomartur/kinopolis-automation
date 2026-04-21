@@ -38,6 +38,13 @@
 
         // --- APP START ---
         window.addEventListener('load', async () => {
+            // Theme Init
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('theme-icon').innerText = '☀️';
+            }
+
             fetchLocations();
             fetchSessions();
             fetchWeather();
@@ -45,7 +52,27 @@
             
             initLostFound();
             initTransferList();
+            
+            // Check for welcome modal logic if any
+            if (localStorage.getItem('welcome_seen_beta') !== 'true' && document.getElementById('welcome-modal')) {
+                document.getElementById('welcome-modal').classList.add('active');
+            }
         });
+
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            body.classList.toggle('light-mode');
+            
+            if (body.classList.contains('light-mode')) {
+                localStorage.setItem('theme', 'light');
+                icon.innerText = '☀️';
+            } else {
+                localStorage.setItem('theme', 'dark');
+                icon.innerText = '🌙';
+            }
+        }
+
 
         async function loadUpcomingMovies() {
             const grid = document.getElementById('upcoming-grid');
@@ -634,7 +661,36 @@
             'becherspuelen': [
                 { id: 'b1', text: 'Aufgabe 1' },
                 { id: 'b2', text: 'Aufgabe 2' }
+            ],
+            'abbau-1-2': [
+                { id: 'ab12-1', text: 'Müllkontrolle & Reihenkontrolle' },
+                { id: 'ab12-2', text: 'Brillenboxen entleeren' },
+                { id: 'ab12-3', text: 'Hörgeräteschleife prüfen' },
+                { id: 'ab12-4', text: 'Licht auf Reinigung stellen' },
+                { id: 'ab12-5', text: 'Leitfaden-Check abgeschlossen' }
+            ],
+            'abbau-3-4': [
+                { id: 'ab34-1', text: 'Müllkontrolle & Reihenkontrolle' },
+                { id: 'ab34-2', text: 'Brillenboxen entleeren' },
+                { id: 'ab34-3', text: 'Hörgeräteschleife prüfen' },
+                { id: 'ab34-4', text: 'Licht auf Reinigung stellen' },
+                { id: 'ab34-5', text: 'Leitfaden-Check abgeschlossen' }
+            ],
+            'abbau-5-6': [
+                { id: 'ab56-1', text: 'Müllkontrolle & Reihenkontrolle' },
+                { id: 'ab56-2', text: 'Brillenboxen entleeren' },
+                { id: 'ab56-3', text: 'Hörgeräteschleife prüfen' },
+                { id: 'ab56-4', text: 'Licht auf Reinigung stellen' },
+                { id: 'ab56-5', text: 'Leitfaden-Check abgeschlossen' }
+            ],
+            'abbau-7-8': [
+                { id: 'ab78-1', text: 'Müllkontrolle & Reihenkontrolle' },
+                { id: 'ab78-2', text: 'Brillenboxen entleeren' },
+                { id: 'ab78-3', text: 'Hörgeräteschleife prüfen' },
+                { id: 'ab78-4', text: 'Licht auf Reinigung stellen' },
+                { id: 'ab78-5', text: 'Leitfaden-Check abgeschlossen' }
             ]
+
         };
 
         function renderWorkstation() {
@@ -2003,5 +2059,83 @@
                 }
             } catch (e) {
                 alert('Netzwerkfehler');
+            }
+        }
+
+        // --- EXCEL EXPORT LOGIC ---
+        async function exportToExcel() {
+            if (typeof XLSX === 'undefined') {
+                alert('SheetJS Bibliothek konnte nicht geladen werden. Bitte Internetverbindung prüfen.');
+                return;
+            }
+
+            try {
+                const wb = XLSX.utils.book_new();
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('de-DE').replace(/\./g, '-');
+                const location = currentCity.toUpperCase();
+
+                // 1. Logs Sheet
+                let logs = [];
+                try {
+                    const res = await fetch(`/api/logs?location=${currentCity}`);
+                    if (res.ok) logs = await res.json();
+                } catch(e) { console.error("Export: Logs fetch failed", e); }
+                
+                const logsSheetData = logs.map(l => ({
+                    Datum: new Date(l.created_at).toLocaleString('de-DE'),
+                    Autor: l.author,
+                    Nachricht: l.message,
+                    Priorität: l.priority
+                }));
+                const wsLogs = XLSX.utils.json_to_sheet(logsSheetData.length ? logsSheetData : [{ Status: "Keine Logs vorhanden" }]);
+                XLSX.utils.book_append_sheet(wb, wsLogs, "Übergabe-Logs");
+
+                // 2. Fundbüro Sheet
+                const lfItems = JSON.parse(localStorage.getItem('kinopolis_lf_items') || '[]');
+                const lfSheetData = lfItems.map(i => ({
+                    Was: i.what,
+                    Kategorie: i.category,
+                    Wo: i.where,
+                    Wer: i.who,
+                    Zeitpunkt: i.time
+                }));
+                const wsLf = XLSX.utils.json_to_sheet(lfSheetData.length ? lfSheetData : [{ Status: "Keine Fundgegenstände" }]);
+                XLSX.utils.book_append_sheet(wb, wsLf, "Fundbüro");
+
+                // 3. Checklisten Sheet
+                const checklistState = JSON.parse(localStorage.getItem('kinopolis_shift_checklist') || '{}');
+                const checklistData = [];
+                
+                // Map the shiftChecklist object to a flat array
+                for (const [group, items] of Object.entries(shiftChecklist)) {
+                    items.forEach(item => {
+                        checklistData.push({
+                            Bereich: group.toUpperCase(),
+                            Aufgabe: item.text,
+                            Status: checklistState[item.id] ? "ERLEDIGT ✅" : "OFFEN ⭕",
+                            Bearbeiter: checklistState[item.id + '_by'] || ""
+                        });
+                    });
+                }
+                const wsCheck = XLSX.utils.json_to_sheet(checklistData.length ? checklistData : [{ Status: "Keine Checklisten-Daten" }]);
+                XLSX.utils.book_append_sheet(wb, wsCheck, "Checklisten");
+
+                // 4. Notizen & Meta Sheet
+                const metaData = [
+                    { Kategorie: "Export-Zeitpunkt", Inhalt: now.toLocaleString('de-DE') },
+                    { Kategorie: "Standort", Inhalt: location },
+                    { Kategorie: "Schicht-Name", Inhalt: localStorage.getItem('kinopolis_shift_name') || "Nicht angegeben" },
+                    { Kategorie: "Aktuelle Notizen", Inhalt: localStorage.getItem('staff_notes') || "" }
+                ];
+                const wsMeta = XLSX.utils.json_to_sheet(metaData);
+                XLSX.utils.book_append_sheet(wb, wsMeta, "Info & Notizen");
+
+                // Generate and Download
+                XLSX.writeFile(wb, `Kinopolis_Export_${location}_${dateStr}.xlsx`);
+                
+            } catch (err) {
+                console.error("Excel Export Error:", err);
+                alert("Fehler beim Erstellen der Excel-Datei: " + err.message);
             }
         }

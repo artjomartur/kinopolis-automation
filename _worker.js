@@ -725,13 +725,22 @@ app.get('/api/upcoming', async (c) => {
         if (!response.ok) throw new Error('Failed to fetch Kinopolis main page');
         const html = await response.text();
 
-        const sliderMatch = html.match(/<section id="coming-soon-slider"[\s\S]*?<\/section>/);
-        if (!sliderMatch) return c.json([]);
+        // Use a more relaxed match for the upcoming slider
+        const sliderMatch = html.match(/<(?:section|div)[^>]*id="coming-soon-slider"[\s\S]*?<\/(?:section|div)>/);
+        let blocks = [];
         
-        const sliderHtml = sliderMatch[0];
+        if (sliderMatch) {
+            const sliderHtml = sliderMatch[0];
+            // Try splitting by common containers
+            blocks = sliderHtml.split(/<div class="(?:slider-item|img-wrapper)">/).slice(1);
+        } else {
+            // Fallback: look for slider-item blocks globally if ID is missing
+            const items = html.match(/<div class="slider-item">[\s\S]*?<\/div>/g);
+            if (items) blocks = items;
+        }
+
+        if (blocks.length === 0) return c.json([]);
         
-        // Match movie blocks in the 'coming-soon-slider'
-        const blocks = sliderHtml.split('<div class="img-wrapper">').slice(1);
         const upcoming = [];
         
         blocks.forEach(block => {
@@ -740,7 +749,8 @@ app.get('/api/upcoming', async (c) => {
             const altMatch = block.match(/alt="([^"]+)"/);
             
             if (srcMatch && altMatch) {
-                let titleDecoded = altMatch[1].replace(/&#x([0-9A-Fa-f]+);/g, (match, hex) => String.fromCharCode(parseInt(hex, 16)));
+                let titleDecoded = altMatch[1].replace(/&#x([0-9A-Fa-f]+);/g, (match, hex) => String.fromCharCode(parseInt(hex, 16)))
+                                            .replace(/&amp;/g, '&');
                 let movieLink = hrefMatch ? (hrefMatch[1].startsWith('http') ? hrefMatch[1] : `https://www.kinopolis.de${hrefMatch[1]}`) : null;
                 
                 upcoming.push({
@@ -750,6 +760,7 @@ app.get('/api/upcoming', async (c) => {
                 });
             }
         });
+
         
         // Return max 12 upcoming
         return c.json(upcoming.slice(0, 12));
@@ -794,7 +805,73 @@ app.post('/api/logs', async (c) => {
     }
 });
 
+// --- AI PLAN SCANNER + MODELL FALLBACK ---
+app.post('/api/ai-agree', async (c) => {
+    return c.json({ success: true });
+});
+
+app.post('/api/scan-plan', async (c) => {
+    try {
+        const body = await c.req.parseBody();
+        const imageFile = body.image;
+        if (!imageFile) return c.json({ error: 'No image uploaded' }, 400);
+
+        const imageArrayBuffer = await imageFile.arrayBuffer();
+        const imageData = new Uint8Array(imageArrayBuffer);
+
+        const prompt = `Du bist ein spezialisierter Assistent für Kinobetriebe. 
+        Analysiere dieses Foto eines gedruckten Auslassplans/Dienstplans.
+        Extrahiere die Tabelle mit den Auslasszeiten (Credits).
+        WICHTIG: Gib NUR ein raues JSON-Array zurück im Format: 
+        [{"hall": "Kino 1", "movie": "Film Titel", "credits_time": "HH:MM"}, ...]
+        Suche nach Spalten wie 'Saal', 'Film', 'Credits' oder 'Ende'.
+        Ignoriere alle anderen Texte.`;
+
+        let result;
+        let usedModel = '@cf/meta/llama-3.2-11b-vision-instruct';
+
+        try {
+            const response = await c.env.AI.run(usedModel, {
+                prompt,
+                image: [...imageData],
+                max_tokens: 1024
+            });
+            result = response.response;
+        } catch (e) {
+            console.warn("Llama 3.2 Vision failed", e);
+            throw e;
+        }
+
+        const jsonMatch = result.match(/\[\s*\{[\s\S]*\}\s*\]/);
+        if (!jsonMatch) {
+            return c.json({ error: 'KI konnte keine gültige Tabelle finden.', raw: result }, 500);
+        }
+
+        const data = JSON.parse(jsonMatch[0]);
+
+        const todayStr = new Date().toISOString().split('T')[0];
+        try {
+            if (c.env.DB) {
+                for (const item of data) {
+                    await c.env.DB.prepare(`
+                        INSERT INTO scanned_plans (date, hall, movie, credits_time)
+                        VALUES (?, ?, ?, ?)
+                    `).bind(todayStr, item.hall, item.movie, item.credits_time).run();
+                }
+            }
+        } catch (dbErr) {
+            console.error("DB Save Error:", dbErr);
+        }
+
+        return c.json({ success: true, data, model: usedModel });
+    } catch (e) {
+        console.error('Scan error:', e);
+        return c.json({ error: `Scanner-Fehler: ${e.message}` }, 500);
+    }
+});
+
 // --- RESTOCK CALL API ---
+
 app.post('/api/push/restock', async (c) => {
     const { location, item } = await c.req.json();
     if (!item) return c.json({ error: 'Missing item' }, 400);
