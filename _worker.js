@@ -204,7 +204,7 @@ app.get('/api/sessions', async (c) => {
 
             // Build movie-specific date map
             const movieNavDateMap = new Map();
-            $(movieEl).find('.prog-nav__item').each((navIdx, navEl) => {
+            $(movieEl).find('.prog-nav__item[data-index]').each((navIdx, navEl) => {
                 const navText = $(navEl).text().trim().toLowerCase();
                 const dateMatch = navText.match(/(\d{2})\.(\d{2})\./);
                 
