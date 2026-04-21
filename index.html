@@ -2660,6 +2660,14 @@
 
         // --- APP START ---
         window.addEventListener('load', async () => {
+            // Theme Init
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                const icon = document.getElementById('theme-icon');
+                if (icon) icon.innerText = '☀️';
+            }
+
             fetchLocations();
             fetchSessions();
             fetchWeather();
@@ -2667,6 +2675,11 @@
             
             initLostFound();
             initTransferList();
+
+            // Welcome Modal Logic
+            if (localStorage.getItem('welcome_seen_beta') !== 'true' && document.getElementById('welcome-modal')) {
+                document.getElementById('welcome-modal').classList.add('active');
+            }
         });
 
         async function loadUpcomingMovies() {
@@ -3267,6 +3280,25 @@
             'becherspuelen': [
                 { id: 'b1', text: 'Aufgabe 1' },
                 { id: 'b2', text: 'Aufgabe 2' }
+            ],
+            'abbau-1-2': [
+                { id: 'ab12-1', text: '🍿 Müllkontrolle & Nachschub' },
+                { id: 'ab12-2', text: '👓 Brillenboxen geleert' },
+                { id: 'ab12-3', text: '🧹 Boden grob gereinigt' },
+                { id: 'ab12-4', text: '💡 Reinigung-Licht aus' }
+            ],
+            'abbau-3-4': [
+                { id: 'ab34-1', text: '🍿 Müllkontrolle & Nachschub' },
+                { id: 'ab34-2', text: '👓 Brillenboxen geleert' },
+                { id: 'ab34-3', text: '🎚️ Hörschleife deaktiviert' }
+            ],
+            'abbau-5-6': [
+                { id: 'ab56-1', text: '🍿 Müllkontrolle & Nachschub' },
+                { id: 'ab56-2', text: '👓 Brillenboxen geleert' }
+            ],
+            'abbau-7-8': [
+                { id: 'ab78-1', text: '🍿 Müllkontrolle & Nachschub' },
+                { id: 'ab78-2', text: '👓 Brillenboxen geleert' }
             ]
         };
 
@@ -4723,6 +4755,71 @@
                 alert('Netzwerkfehler');
             }
         }
+
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            body.classList.toggle('light-mode');
+            const isLight = body.classList.contains('light-mode');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            if (icon) icon.innerText = isLight ? '☀️' : '🌙';
+        }
+
+        async function exportToExcel() {
+            if (typeof XLSX === 'undefined') {
+                alert('SheetJS Bibliothek konnte nicht geladen werden.');
+                return;
+            }
+            try {
+                const wb = XLSX.utils.book_new();
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('de-DE').replace(/\./g, '-');
+                const location = currentCity.toUpperCase();
+
+                let logs = [];
+                try {
+                    const res = await fetch(`/api/logs?location=${currentCity}`);
+                    if (res.ok) logs = await res.json();
+                } catch(e) {}
+                
+                const wsLogs = XLSX.utils.json_to_sheet(logs.map(l => ({ 
+                    Datum: new Date(l.created_at).toLocaleString('de-DE'), 
+                    Autor: l.author, 
+                    Nachricht: l.message, 
+                    Priorität: l.priority 
+                })));
+                XLSX.utils.book_append_sheet(wb, wsLogs, "Übergabe-Logs");
+
+                const lfItems = JSON.parse(localStorage.getItem('kinopolis_lf_items') || '[]');
+                const wsLf = XLSX.utils.json_to_sheet(lfItems.map(i => ({ 
+                    Was: i.what, Kategorie: i.category, Wo: i.where, Wer: i.who, Zeit: i.time 
+                })));
+                XLSX.utils.book_append_sheet(wb, wsLf, "Fundbüro");
+
+                const checklistState = JSON.parse(localStorage.getItem('kinopolis_shift_checklist') || '{}');
+                const checklistData = [];
+                for (const [group, items] of Object.entries(shiftChecklist)) {
+                    items.forEach(item => {
+                        checklistData.push({ 
+                            Bereich: group.toUpperCase(), 
+                            Aufgabe: item.text, 
+                            Status: checklistState[item.id] ? "ERLEDIGT ✅" : "OFFEN ⭕" 
+                        });
+                    });
+                }
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(checklistData), "Checklisten");
+                
+                const meta = [
+                    { Kategorie: "Export-Zeitpunkt", Inhalt: now.toLocaleString('de-DE') }, 
+                    { Kategorie: "Standort", Inhalt: location }, 
+                    { Kategorie: "Schicht-Name", Inhalt: localStorage.getItem('kinopolis_shift_name') || "" },
+                    { Kategorie: "Notizen", Inhalt: localStorage.getItem('staff_notes') || "" }
+                ];
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(meta), "Info & Notizen");
+
+                XLSX.writeFile(wb, `Kinopolis_Export_${location}_${dateStr}.xlsx`);
+            } catch (err) { alert("Fehler beim Erstellen der Excel-Datei: " + err.message); }
+        }
     </script>
     <!-- Welcome Modal -->
     <div id="welcome-modal" class="modal">
@@ -4798,7 +4895,6 @@
                 <button class="btn-primary" onclick="saveLfItem()" style="flex: 1;">Speichern</button>
             </div>
         </div>
-    </div>
     </div>
     <!-- Movie Detail Modal -->
     <div id="movie-detail-modal" class="modal">
