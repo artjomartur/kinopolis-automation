@@ -39,23 +39,63 @@
             --preview-bg: rgba(255, 255, 255, 0.03);
         }
 
-        /* LIGHT MODE OVERRIDES - PREMIUM OVERHAUL */
+        /* LIGHT MODE OVERRIDES - PREMIUM CONTRAST FIX */
         body.light-mode {
-            --bg-dark: #f5f7fa;
-            --surface-color: rgba(255, 255, 255, 0.7);
-            --surface-border: rgba(0, 0, 0, 0.06);
-            --text-main: #1a1a2e;
-            --text-muted: #64748b;
+            --bg-dark: #f8fafc;
+            --surface-color: rgba(255, 255, 255, 0.85);
+            --surface-border: rgba(0, 0, 0, 0.1);
+            --text-main: #0f172a;
+            --text-muted: #475569;
             --card-bg: #ffffff;
-            --glass-bg: rgba(255, 255, 255, 0.5);
-            --glass-border: rgba(0, 0, 0, 0.05);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.08);
 
             /* Light Alert Tokens */
-            --alert-bg: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
-            --alert-border: rgba(229, 9, 20, 0.15);
-            --alert-text-h2: #1a1a2e;
-            --alert-text-p: #64748b;
-            --preview-bg: #f8fafc;
+            --alert-bg: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            --alert-border: rgba(0, 120, 255, 0.2);
+            --alert-text-h2: #0f172a;
+            --alert-text-p: #475569;
+            --preview-bg: #f1f5f9;
+        }
+
+        /* Explicit Light Mode Typography Fixes */
+        body.light-mode h1, 
+        body.light-mode h2, 
+        body.light-mode h3, 
+        body.light-mode h4,
+        body.light-mode .hall-name,
+        body.light-mode .movie-title,
+        body.light-mode .poster-title,
+        body.light-mode .stat-label,
+        body.light-mode .stat-value,
+        body.light-mode .log-author,
+        body.light-mode .item-name,
+        body.light-mode .nav-tabs .tab-btn span {
+            color: #0f172a !important;
+        }
+
+        body.light-mode .card-container {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.05) !important;
+        }
+
+        body.light-mode .glass {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .session-item {
+            background: rgba(0, 0, 0, 0.02) !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+        }
+
+        body.light-mode .session-item:hover {
+            background: rgba(0, 0, 0, 0.04) !important;
+        }
+
+        body.light-mode .stat-card {
+            background: #ffffff !important;
+            border: 1px solid rgba(0, 120, 255, 0.1) !important;
         }
 
 
@@ -3158,12 +3198,20 @@
         }
 
         function openLogModal() {
-            document.getElementById('log-modal').style.display = 'flex';
-            document.getElementById('log-author').value = localStorage.getItem('kinopolis_shift_name') || '';
+            const modal = document.getElementById('log-modal');
+            if (modal) {
+                modal.classList.add('active');
+                modal.style.display = 'flex'; // Keep for structure
+                document.getElementById('log-author').value = localStorage.getItem('kinopolis_shift_name') || '';
+            }
         }
 
         function closeLogModal() {
-            document.getElementById('log-modal').style.display = 'none';
+            const modal = document.getElementById('log-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                setTimeout(() => { modal.style.display = 'none'; }, 500); // Wait for transition
+            }
         }
 
         function updateKurzwahlVisibility() {
@@ -3220,10 +3268,17 @@
             if (!list) return;
             try {
                 const res = await fetch(`/api/logs?location=${currentCity}`);
+                if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                
                 const logs = await res.json();
+                if (!Array.isArray(logs)) {
+                    console.error('Logs is not an array:', logs);
+                    list.innerHTML = '<p style="color: #e74c3c;">Systemfehler: Falsches Datenformat.</p>';
+                    return;
+                }
                 
                 if (logs.length === 0) {
-                    list.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-style: italic;">Keine Einträge vorhanden.</p>';
+                    list.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-style: italic; margin-top: 1rem;">Keine Einträge vorhanden.</p>';
                     return;
                 }
 
@@ -3236,18 +3291,24 @@
                         hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' 
                     });
 
+                    // Light mode safety: Ensure text is dark and backgrounds are clear
+                    const isLight = document.body.classList.contains('light-mode');
+                    const authorColor = (color === 'var(--text-muted)') ? (isLight ? '#0f172a' : 'white') : color;
+                    const msgColor = isLight ? '#0f172a' : '#fff';
+
                     return `
-                        <div style="background: rgba(255, 255, 255, 0.03); border-left: 3px solid ${color}; padding: 0.75rem 1rem; border-radius: 4px 12px 12px 4px;">
+                        <div style="background: ${isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255, 255, 255, 0.03)'}; border-left: 3px solid ${color}; padding: 0.75rem 1rem; border-radius: 4px 12px 12px 4px; margin-bottom: 0.75rem;">
                             <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem;">
-                                <span style="font-weight: bold; color: ${color === 'var(--text-muted)' ? 'white' : color}">${log.author}</span>
+                                <span style="font-weight: bold; color: ${authorColor}">${log.author}</span>
                                 <span>${date}</span>
                             </div>
-                            <div style="font-size: 0.95rem; color: #fff; line-height: 1.4;">${log.message}</div>
+                            <div style="font-size: 0.95rem; color: ${msgColor}; line-height: 1.4;">${log.message}</div>
                         </div>
                     `;
                 }).join('');
             } catch (e) {
-                list.innerHTML = '<p style="color: #e74c3c;">Fehler beim Laden.</p>';
+                console.error('Log loading error:', e);
+                list.innerHTML = '<p style="color: #e74c3c;">Fehler beim Laden. Bitte Internetverbindung prüfen.</p>';
             }
         }
 
