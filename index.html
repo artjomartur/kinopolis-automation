@@ -2694,25 +2694,7 @@
             </div>
         </div>
 
-        <!-- GAMIFICATION: PROGRESS BAR -->
-        <div id="gamification-summary" class="glass" style="margin: 0 1.5rem 1.5rem; padding: 1.2rem; border-radius: 16px; border: 1px solid rgba(0, 120, 255, 0.2); background: linear-gradient(135deg, rgba(0, 120, 255, 0.05) 0%, rgba(0,0,0,0.2) 100%);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                <div style="display: flex; align-items: center; gap: 0.6rem;">
-                    <span style="font-size: 1.3rem;">🏆</span>
-                    <div>
-                        <div style="font-weight: 800; font-size: 0.95rem; color: white;">Schicht-Level: <span style="color: var(--primary-blue);">Profi</span></div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">Noch 4 Aufgaben bis zum Schicht-Bonus!</div>
-                    </div>
-                </div>
-                <div style="text-align: right;">
-                    <div style="font-size: 1.1rem; font-weight: 900; color: white;">1,250 XP</div>
-                    <div style="font-size: 0.7rem; color: var(--primary-blue); font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">Rang #2 heute</div>
-                </div>
-            </div>
-            <div style="height: 10px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
-                <div id="gamification-progress" style="width: 75%; height: 100%; background: linear-gradient(90deg, var(--primary-blue), #00d4ff); transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 15px rgba(0, 120, 255, 0.4);"></div>
-            </div>
-        </div>
+        <!-- GAMIFICATION: PROGRESS BAR (Moved to Stats) -->
 
         <div id="dashboard" class="dashboard-grid live-section">
             <div id="loading" class="loading-state">
@@ -2762,6 +2744,25 @@
 
         <!-- Statistics Section -->
         <section id="stats-section-container" class="stats-section" style="display: none; margin-bottom: 4rem; padding: 0;">
+            <!-- GAMIFICATION: PROGRESS BAR -->
+            <div id="gamification-summary" class="glass" style="margin: 1.5rem; padding: 1.2rem; border-radius: 16px; border: 1px solid rgba(0, 120, 255, 0.2); background: linear-gradient(135deg, rgba(0, 120, 255, 0.05) 0%, rgba(0,0,0,0.2) 100%);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <div style="display: flex; align-items: center; gap: 0.6rem;">
+                        <span style="font-size: 1.3rem;">🏆</span>
+                        <div>
+                            <div style="font-weight: 800; font-size: 0.95rem; color: white;">Schicht-Level: <span style="color: var(--primary-blue);">Profi</span></div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Noch 4 Aufgaben bis zum Schicht-Bonus!</div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.1rem; font-weight: 900; color: white;">1,250 XP</div>
+                        <div style="font-size: 0.7rem; color: var(--primary-blue); font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">Rang #2 heute</div>
+                    </div>
+                </div>
+                <div style="height: 10px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+                    <div id="gamification-progress" style="width: 75%; height: 100%; background: linear-gradient(90deg, var(--primary-blue), #00d4ff); transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 15px rgba(0, 120, 255, 0.4);"></div>
+                </div>
+            </div>
             <div class="section-header card-header" onclick="toggleSection('stats-content', 'stats-toggle-btn')" style="cursor: pointer; padding: 1.5rem 3rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;">
                     <span class="alert-icon-small">📊</span>
@@ -4170,21 +4171,19 @@
                     // 1. Poster Change Task (Logic moved to updateAlerts/addPosterAlerts)
                     // ...
 
-                    // 2. Auslass Task (All except last)
-                    if (idx < sessions.length - 1) {
-                        allTasks.push({
-                            type: 'auslass',
-                            hall: hall.name,
-                            title: s.title,
-                            sold: s.sold,
-                            time: triggerMin,
-                            timeDisplay: timeDisplay,
-                            triggerMin: triggerMin,
-                            triggerMax: triggerMax,
-                            isVerified: isVerified,
-                            id: `auslass-${hall.name}-${s.title}-${s.time}`
-                        });
-                    }
+                    // 2. Auslass Task (All sessions)
+                    allTasks.push({
+                        type: 'auslass',
+                        hall: hall.name,
+                        title: s.title,
+                        sold: s.sold,
+                        time: triggerMin,
+                        timeDisplay: timeDisplay,
+                        triggerMin: triggerMin,
+                        triggerMax: triggerMax,
+                        isVerified: isVerified,
+                        id: `auslass-${hall.name}-${s.title}-${s.time}`
+                    });
                 });
             });
 
@@ -4672,7 +4671,7 @@
                 desc.innerText = 'Nachricht vertraulich an die BL senden. Andere Kollegen können das nicht lesen.';
                 textarea.placeholder = 'Deine Nachricht (Anregungen, Probleme, Wünsche)...';
             } else {
-                title.innerText = 'App Feedback (Entwickler)';
+                title.innerText = 'Entwickler Feedback';
                 desc.innerText = 'Fehler gefunden oder gute Ideen zur Seite? Nachricht geht direkt an Artjom.';
                 textarea.placeholder = 'Was können wir am Dashboard verbessern?';
             }
@@ -4687,7 +4686,7 @@
             const rawText = document.getElementById('feedback-text').value;
             if (!rawText.trim()) return alert('Bitte gib ein Feedback ein.');
             
-            const prefix = currentFeedbackType === 'bl' ? '[AN BL] ' : '[APP FEEDBACK] ';
+            const prefix = currentFeedbackType === 'bl' ? '[AN BL] ' : '[MAIN DASHBOARD] ';
             const text = prefix + rawText;
             
             const contact = document.getElementById('feedback-contact')?.value || '';
@@ -5113,7 +5112,7 @@
 
     <!-- Feedback UI -->
     <div class="feedback-tab" onclick="openFeedback('artjom')">
-        App Feedback
+        Entwickler Feedback
     </div>
 
     <div id="feedback-modal" class="modal">
