@@ -2650,51 +2650,7 @@
                     </div>
                 </div>
 
-                <!-- Admin: Kontakte (Neu) -->
-                <div id="admin-contacts-section" style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
-                    <h3 style="color: var(--primary-gold); font-size: 1.1rem; margin-bottom: 0.75rem;">🛠️ Kontakte Verwalten (Admin)</h3>
-                    <div class="stat-card" style="padding: 1.5rem; background: rgba(255,185,0,0.03); border-color: rgba(255,185,0,0.2);">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 0.75rem; margin-bottom: 1rem;">
-                            <select id="admin-contact-cat" style="background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 6px;">
-                                <option value="leitung">Leitung</option>
-                                <option value="einlass">Einlass / Service</option>
-                                <option value="theke">Theke / Kasse</option>
-                                <option value="sicherheit">Sicherheit</option>
-                                <option value="popcornkueche">Popcornküche</option>
-                                <option value="putzfirma">Putzfirma</option>
-                            </select>
-                            <input type="text" id="admin-contact-role" placeholder="Name/Funktion e.g. BL" style="background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 6px;">
-                            <input type="text" id="admin-contact-phone" placeholder="Telefonnummer" style="background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 6px;">
-                            <button onclick="addAdminContact()" class="btn-primary" style="background: var(--primary-gold); color: black;">Hinzufügen</button>
-                        </div>
-                        <div id="admin-contacts-list" style="max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem;">
-                            <!-- List loaded via JS -->
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Admin: Export Section -->
-                <div id="export-section" style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
-                    <h3 style="color: var(--primary-green); font-size: 1.1rem; margin-bottom: 0.75rem;">📊 Daten-Export</h3>
-                    <div class="stat-card" style="padding: 1.5rem; background: rgba(46, 204, 113, 0.05); border-color: rgba(46, 204, 113, 0.2);">
-                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Wähle die Daten aus, die du als CSV exportieren möchtest:</p>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                <input type="checkbox" id="export-logs" checked> Dienstprotokolle
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                <input type="checkbox" id="export-lf" checked> Fundbüro
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                <input type="checkbox" id="export-tasks" checked> Tagesaufgaben
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                <input type="checkbox" id="export-contacts" checked> Kontakte
-                            </label>
-                        </div>
-                        <button onclick="handleExport()" id="export-btn" class="btn-primary" style="width: 100%; background: var(--primary-green); color: white;">🚀 CSV Export generieren</button>
-                    </div>
-                </div>
 
                 <!-- Handbücher -->
                 <div>
@@ -5132,75 +5088,7 @@
          * Constants moved to top
          */
 
-        // --- EXPORT LOGIC ---
-        async function handleExport() {
-            const btn = document.getElementById('export-btn');
-            const ogText = btn.innerHTML;
-            btn.innerHTML = '⏳ Exportiere...';
-            btn.disabled = true;
 
-            try {
-                let csvContent = "sep=,\nType,Category,Name/Title,Detail,Time,Date\n";
-                
-                // 1. Logs
-                if (document.getElementById('export-logs').checked) {
-                    const res = await fetch(`/api/logs?location=${currentCity}`);
-                    if (res.ok) {
-                        const data = await res.json();
-                        data.forEach(l => {
-                            csvContent += `LOG,${l.priority || ''},${l.author || ''},"${(l.message || '').replace(/"/g, '""')}",${l.created_at || ''},${currentCity}\n`;
-                        });
-                    }
-                }
-
-                // 2. Lost & Found
-                if (document.getElementById('export-lf').checked) {
-                    const res = await fetch(`/api/lostfound?location=${currentCity}`);
-                    if (res.ok) {
-                        const data = await res.json();
-                        data.forEach(item => {
-                            csvContent += `LOST_FOUND,${item.category || ''},"${(item.what || '').replace(/"/g, '""')}",${item.location || ''},${item.created_at || ''},${currentCity}\n`;
-                        });
-                    }
-                }
-
-                // 3. Tasks (Daily Auslässe)
-                if (document.getElementById('export-tasks').checked) {
-                    const auslaesse = [...completedAuslaesse];
-                    auslaesse.forEach(id => {
-                        csvContent += `TASK,AUSLASS,${id},Erledigt,,${new Date().toISOString().split('T')[0]}\n`;
-                    });
-                }
-
-                // 4. Contacts
-                if (document.getElementById('export-contacts').checked) {
-                    const res = await fetch(`/api/contacts?location=${currentCity}`);
-                    if (res.ok) {
-                        const data = await res.json();
-                        data.forEach(c => {
-                            csvContent += `CONTACT,${c.category || ''},${c.role_name || ''},${c.phone_number || ''},,${currentCity}\n`;
-                        });
-                    }
-                }
-
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a");
-                const url = URL.createObjectURL(blob);
-                link.setAttribute("href", url);
-                link.setAttribute("download", `kinopolis_export_${currentCity}_${new Date().toISOString().split('T')[0]}.csv`);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                showToast("Export erfolgreich!");
-            } catch (e) {
-                console.error("Export failed:", e);
-                showToast("Export fehlgeschlagen", true);
-            } finally {
-                btn.innerHTML = ogText;
-                btn.disabled = false;
-            }
-        }
 
         async function loadContacts() {
             try {
