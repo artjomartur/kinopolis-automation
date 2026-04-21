@@ -1140,7 +1140,6 @@ export default {
                                         }, loc);
                                     }
                                 }
-                                }
                             }
                         }
 
