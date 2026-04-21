@@ -2230,7 +2230,7 @@
         </div>
 
         <!-- LIVE ALERT BANNER -->
-        <div id="live-alert-banner" style="display:none;margin-bottom:1rem;padding:0.75rem 1rem;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.4);border-radius:12px;display:flex;flex-direction:column;gap:0.5rem;">
+        <div id="live-alert-banner" style="display:none; flex-direction:column; gap:0.5rem; margin-bottom:1rem; padding:0.75rem 1rem; background:rgba(231,76,60,0.1); border:1px solid rgba(231,76,60,0.4); border-radius:12px;">
         </div>
 
         <div class="nav-tabs">
@@ -3089,7 +3089,7 @@
                 return;
             }
 
-            banner.style.display = 'block';
+            banner.style.display = 'flex';
             banner.innerHTML = urgentAlerts.map(a =>
                 `<div style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 1rem;background:rgba(231,76,60,0.15);border-radius:8px;">
                     <span style="font-size:1.3rem;">🔴</span>
@@ -3108,7 +3108,7 @@
             shiftStartTime = new Date();
             localStorage.setItem('shift_start_time', shiftStartTime.toISOString());
             updateShiftCheckinUI();
-            showToast('✅ Schicht gestartet!');
+            showToast('Schicht gestartet!');
         }
 
         function shiftCheckout() {
@@ -5441,7 +5441,7 @@
                 </div>
             </div>
 
-            <button onclick="document.getElementById('shift-summary-modal').classList.remove('active')" class="btn-primary" style="width: 100%;">
+            <button onclick="document.getElementById('shift-summary-modal').classList.remove('active')" style="width: 100%; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); color: white; border: none; padding: 1rem; border-radius: 12px; font-weight: 800; font-size: 1.1rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(0, 120, 255, 0.4);">
                 Schließen
             </button>
         </div>
