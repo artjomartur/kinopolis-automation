@@ -350,7 +350,7 @@
     <header>
         <div class="logo-wrap">
             <div class="logo-box">
-                <img src="/assets/logo.png" alt="Kinopolis Logo">
+                <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png?20260323" alt="Kinopolis Logo">
             </div>
             <h1 class="portal-title">Kommandozentrale (TL)</h1>
         </div>
@@ -575,10 +575,15 @@
                 if (!res.ok) throw new Error();
                 const halls = await res.json();
                 
+                if (!Array.isArray(halls)) {
+                    throw new Error(halls.error || 'Server returns invalid format');
+                }
+
                 const allSessions = [];
                 halls.forEach(hall => {
+                    if (!hall.sessions) return;
                     hall.sessions.forEach(s => {
-                        allSessions.push({ ...s, hallId: hall.hallId });
+                        allSessions.push({ ...s, hallId: hall.name });
                     });
                 });
 
@@ -598,7 +603,8 @@
                 `).join('');
 
             } catch (e) {
-                container.innerHTML = '<div class="empty-state">Fehler beim Laden des Plans.</div>';
+                console.error('Error loading breaks:', e);
+                container.innerHTML = '<div class="empty-state">Fehler beim Laden des Plans. ' + (e.message || '') + '</div>';
             }
         }
 
