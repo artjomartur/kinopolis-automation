@@ -307,7 +307,12 @@ app.get('/api/sessions', async (c) => {
 
         const halls = {};
         sessions.forEach(s => { if (!halls[s.hall]) halls[s.hall] = []; halls[s.hall].push(s); });
-        const sortedHalls = Object.keys(halls).sort().map(name => ({ name, sessions: halls[name].sort((a, b) => a.time.localeCompare(b.time)) }));
+        const sortedHalls = Object.keys(halls).sort().map(name => {
+            const sorted = halls[name].sort((a, b) => a.time.localeCompare(b.time));
+            // Remove the last session per hall — last Auslass can be ignored
+            const withoutLast = sorted.length > 1 ? sorted.slice(0, -1) : sorted;
+            return { name, sessions: withoutLast };
+        });
         c.header('Cache-Control', 'public, max-age=120');
         return c.json(sortedHalls);
     } catch (error) {
