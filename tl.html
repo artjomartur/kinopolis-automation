@@ -926,7 +926,13 @@
                 halls.forEach(hall => {
                     if (!hall.sessions) return;
                     hall.sessions.forEach(s => {
-                        allSessions.push({ ...s, hallId: hall.name });
+                        // Calculate end time in minutes from midnight
+                        let endMin = 0;
+                        if (s.time && s.time.includes(':')) {
+                            const [h, m] = s.time.split(':').map(Number);
+                            endMin = h * 60 + m + (s.duration || 90);
+                        }
+                        allSessions.push({ ...s, hallId: hall.name, endMin });
                     });
                 });
 
@@ -934,34 +940,37 @@
                 
                 // --- RENDER AUSLASS PLAN ---
                 const now = new Date();
-                const in90Mins = new Date(now.getTime() + 90 * 60000);
-                
+                const nowMin = now.getHours() * 60 + now.getMinutes();
+                const in90Min = nowMin + 90;
+
                 const upcomingExits = allSessions.filter(s => {
-                    const end = new Date(s.end);
-                    return end >= now && end <= in90Mins;
-                }).sort((a, b) => new Date(a.end) - new Date(b.end));
+                    return s.endMin >= nowMin && s.endMin <= in90Min;
+                }).sort((a, b) => a.endMin - b.endMin);
                 
                 const auslassHtmlContainer = document.getElementById('auslass-list');
                 if (upcomingExits.length === 0) {
                     auslassHtmlContainer.innerHTML = '<div class="empty-state" style="padding: 0;">Kein Auslass in den nächsten 90 Minuten.</div>';
                 } else {
                     auslassHtmlContainer.innerHTML = upcomingExits.map(s => {
-                        const isHighLoad = (s.occupancy_rate > 70 && s.total_sold > 120) || s.total_sold > 200;
+                        const isHighLoad = s.sold > 150;
+                        const endTimeStr = formatMinutes(s.endMin);
                         const alertBlock = isHighLoad ? 
                             `<div style="color: #ff4d4d; font-size: 0.75rem; font-weight: bold; background: rgba(255, 77, 77, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px; display: inline-block; margin-top: 0.3rem;">🚨 Saal prüfen - eventuell Hilfe anfragen!</div>` : '';
                         
                         return `
                         <div style="background: rgba(255,255,255,0.03); border-left: 3px solid ${isHighLoad ? '#e74c3c' : '#3498db'}; padding: 0.6rem 0.8rem; border-radius: 4px 8px 8px 4px; display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <div style="font-weight: bold; font-size: 0.95rem;">${formatTime(s.end)} Uhr</div>
+                                <div style="font-weight: bold; font-size: 0.95rem;">${endTimeStr} Uhr</div>
                                 <div style="font-size: 0.8rem; color: var(--text-muted);">${s.title || 'Film'}</div>
                                 ${alertBlock}
                             </div>
                             <div style="text-align: right;">
                                 <div style="font-weight: bold; font-size: 1.1rem; color: ${isHighLoad ? '#ff4d4d' : '#fff'};">${s.hallId}</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">${s.total_sold} Pax (${Math.round(s.occupancy_rate)}%)</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">${s.sold || 0} Pax${s.capacity ? ' (' + Math.round((s.sold/s.capacity)*100) + '%)' : ''}</div>
                             </div>
                         </div>`;
+                    }).join('');
+                }
                     }).join('');
                 }
                 

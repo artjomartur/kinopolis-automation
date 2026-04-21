@@ -5186,13 +5186,28 @@
             try {
                 const res = await fetch(`/api/contacts?location=${currentCity}`);
                 if (!res.ok) throw new Error();
-                const contacts = await res.json();
-                renderContacts(contacts);
-                renderAdminContacts(contacts); 
+                let contacts = await res.json();
+
+                // Auto-seed DB with real default contacts if empty for KP
+                if (contacts.length === 0 && currentCity === 'kp') {
+                    for (const c of KP_DEFAULT_CONTACTS) {
+                        await fetch('/api/contacts', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ ...c, location: 'kp' })
+                        }).catch(() => {});
+                    }
+                    // Re-fetch after seeding
+                    const res2 = await fetch(`/api/contacts?location=kp`);
+                    if (res2.ok) contacts = await res2.json();
+                    else contacts = KP_DEFAULT_CONTACTS;
+                }
+
+                renderContacts(contacts.length > 0 ? contacts : KP_DEFAULT_CONTACTS);
+                renderAdminContacts(contacts);
             } catch (e) {
                 console.warn("Backend contacts failed, using fallback", e);
-                // renderContacts will handle its own logic for empty list
-                renderContacts([]);
+                renderContacts(KP_DEFAULT_CONTACTS);
             }
         }
 
