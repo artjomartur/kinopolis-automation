@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kinopolis Automation Dashboard</title>
     <!-- Favicon: Kinopolis Logo -->
     <link rel="icon" href="./icon.png" type="image/png">
@@ -2667,7 +2667,7 @@
                 </a>
             </div>
         </div>
-        <div class="card-container glass intern-section" style="margin-bottom: 1rem;">
+        <div class="card-container glass einstellungen-section" style="margin-bottom: 1rem;">
             <div class="card-header" onclick="toggleSection('links-content', 'links-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
                     <span class="alert-icon-small">🔗</span>
@@ -3208,10 +3208,10 @@
                         <span style="font-size: 0.95rem; color: #fff;">${item.name}</span>
                         <span style="font-size: 0.7rem; color: var(--text-muted);">Soll: ${item.target} Stück</span>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <button class="btn-secondary" onclick="updateTransferCount(${index}, -1)" style="width: 30px; height: 30px; padding: 0; border-radius: 6px; font-weight: bold; background: rgba(229, 9, 20, 0.2); border-color: rgba(229, 9, 20, 0.4); color: #ff4d4d; display: flex; align-items: center; justify-content: center;">-</button>
-                        <span id="transfer-count-${index}" style="font-weight: bold; width: 20px; text-align: center; color: var(--primary-blue);">0</span>
-                        <button class="btn-secondary" onclick="updateTransferCount(${index}, 1)" style="width: 30px; height: 30px; padding: 0; border-radius: 6px; font-weight: bold; background: rgba(46, 204, 113, 0.2); border-color: rgba(46, 204, 113, 0.4); color: #2ecc71; display: flex; align-items: center; justify-content: center;">+</button>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <button class="btn-secondary" onclick="updateTransferCount(${index}, -1)" style="width: 32px; height: 32px; padding: 0; border-radius: 8px; font-weight: bold; background: rgba(229, 9, 20, 0.2); border-color: rgba(229, 9, 20, 0.4); color: #ff4d4d; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">-</button>
+                        <input type="number" id="transfer-count-${index}" min="0" value="0" style="width: 45px; height: 32px; text-align: center; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: var(--primary-blue); font-weight: bold; font-size: 1rem; padding: 0; appearance: textfield;" />
+                        <button class="btn-secondary" onclick="updateTransferCount(${index}, 1)" style="width: 32px; height: 32px; padding: 0; border-radius: 8px; font-weight: bold; background: rgba(46, 204, 113, 0.2); border-color: rgba(46, 204, 113, 0.4); color: #2ecc71; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">+</button>
                     </div>
                 </div>
             `).join('');
@@ -3219,16 +3219,16 @@
 
         function updateTransferCount(index, delta) {
             const el = document.getElementById('transfer-count-' + index);
-            let current = parseInt(el.innerText) || 0;
+            let current = parseInt(el.value) || 0;
             current += delta;
             if (current < 0) current = 0;
-            el.innerText = current;
+            el.value = current;
         }
 
         async function sendTransferList() {
             let itemsNeeded = [];
             TRANSFER_ITEMS.forEach((item, index) => {
-                const count = parseInt(document.getElementById('transfer-count-' + index).innerText) || 0;
+                const count = parseInt(document.getElementById('transfer-count-' + index).value) || 0;
                 if (count > 0) itemsNeeded.push(`${count}x ${item.name} (Soll: ${item.target})`);
             });
 
@@ -3856,15 +3856,7 @@
             document.getElementById('message-modal').classList.remove('active');
         }
 
-        async function loadLogs() {
-            const container = document.getElementById('messages-list');
-            if (!container) return;
-            
-            try {
-                const res = await fetch(`/api/messages?location=${currentCity}`);
-                const logs = await res.json();
-            } catch (e) { console.error(e); }
-        }
+
 
         let currentMsgBase64 = null;
 
@@ -4374,106 +4366,7 @@
         }
 
 
-        function formatMinutes(totalMinutes) {
-            const h = Math.floor(totalMinutes / 60) % 24;
-            const m = totalMinutes % 60;
-            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-        }
 
-        function calculateBreaks(allSessions) {
-            let thekeScore  = new Array(1440).fill(0);
-            let einlassScore = new Array(1440).fill(0);
-
-            // Work window boundaries
-            let thekeStart    = 1440; // earliest theke busy minute (= first rush begins)
-            let thekeEnd      = 0;    // latest theke busy minute  (= last rush ends)
-            let einlassStart  = 1440; // earliest einlass busy minute
-            let einlassEnd    = 0;    // latest einlass busy minute (incl. cleanup)
-
-            allSessions.forEach(s => {
-                if (!s.time || !s.time.includes(':')) return;
-                const [h, m] = s.time.split(':').map(Number);
-                const startMin = h * 60 + m;
-                const endMin   = startMin + (s.duration || 90);
-
-                // Theke: busy from start-30 to start+5
-                const tBusyStart = Math.max(0, startMin - 30);
-                const tBusyEnd   = Math.min(1439, startMin + 5);
-                for (let i = tBusyStart; i <= tBusyEnd; i++) thekeScore[i]++;
-                if (tBusyStart < thekeStart) thekeStart = tBusyStart;
-                if (tBusyEnd   > thekeEnd)   thekeEnd   = tBusyEnd;
-
-                // Einlass entry: start-20 to start+10
-                const eBusyStart = Math.max(0, startMin - 20);
-                const eBusyEnd   = Math.min(1439, startMin + 10);
-                for (let i = eBusyStart; i <= eBusyEnd; i++) einlassScore[i]++;
-                if (eBusyStart < einlassStart) einlassStart = eBusyStart;
-
-                // Einlass cleanup (Auslass): end to end+15
-                const eCleanEnd = Math.min(1439, endMin + 15);
-                for (let i = Math.max(0, endMin); i <= eCleanEnd; i++) einlassScore[i]++;
-                if (eCleanEnd > einlassEnd) einlassEnd = eCleanEnd;
-            });
-
-            // Safety: if no sessions found, return empty
-            if (thekeStart >= thekeEnd || einlassStart >= einlassEnd) {
-                return { thekeGaps: [], einlassGaps: [] };
-            }
-
-            function findGaps(scoreArray, searchFrom, searchTo, minDuration) {
-                const results = [];
-                const windowSize = minDuration;
-                
-                // 1. Calculate "Load Score" for every possible window
-                const windows = [];
-                for (let start = searchFrom; start <= searchTo - windowSize; start++) {
-                    let totalLoad = 0;
-                    let peakLoad = 0;
-                    for (let i = 0; i < windowSize; i++) {
-                        const s = scoreArray[start + i] || 0;
-                        totalLoad += s;
-                        if (s > peakLoad) peakLoad = s;
-                    }
-                    // Weighting: peak load is penalized heavily to avoid suggesting breaks during a rush
-                    // Score: lower is better. 
-                    const weightedScore = (totalLoad * 2) + (peakLoad * 20);
-                    windows.push({ start, end: start + windowSize - 1, score: weightedScore, peak: peakLoad });
-                }
-
-                if (windows.length === 0) return [];
-
-                // 2. Sort windows by best score (lowest first)
-                windows.sort((a, b) => a.score - b.score || a.start - b.start);
-
-                // 3. Pick top 3 non-overlapping windows
-                const finalGaps = [];
-                for (const w of windows) {
-                    const overlaps = finalGaps.some(g => {
-                        // Allow small overlap of 5 mins or none? Let's say none for clarity.
-                        return (w.start <= g.end && w.end >= g.start);
-                    });
-                    
-                    if (!overlaps) {
-                        finalGaps.push({
-                            start: w.start,
-                            end: w.end,
-                            duration: windowSize,
-                            isPerfect: w.score === 0,
-                            loadLevel: w.peak
-                        });
-                    }
-                    if (finalGaps.length >= 3) break;
-                }
-
-                // Sort by time for display
-                return finalGaps.sort((a, b) => a.start - b.start);
-            }
-
-            return {
-                thekeGaps:   findGaps(thekeScore,   thekeStart,   thekeEnd,   30),
-                einlassGaps: findGaps(einlassScore, einlassStart, einlassEnd, 30)
-            };
-        }
 
 
         function renderStats(hallsGrouped) {
@@ -4582,78 +4475,7 @@
                 chart.appendChild(barWrapper);
             });
 
-            // --- AI BREAK RECOMMENDATIONS ---
-            const breaks = calculateBreaks(allSessions);
-            const formatGaps = (gaps) => {
-                if (gaps.length === 0) return '<div style="color: var(--text-muted); font-size: 0.85rem; font-style: italic;">Keine Gaps gefunden</div>';
-                const labels = ['Plan A', 'Plan B', 'Plan C'];
-                return gaps.map((g, idx) => {
-                    let badgeColor = 'rgba(46, 204, 113, 0.1)';
-                    let badgeText  = 'Optimal';
-                    let textColor  = '#2ecc71';
 
-                    if (g.isPerfect) {
-                        badgeText = 'Perfekt';
-                    } else if (g.loadLevel === 1) {
-                        badgeText = 'Geringe Last';
-                        badgeColor = 'rgba(52, 152, 219, 0.1)';
-                        textColor = '#3498db';
-                    } else if (g.loadLevel === 2) {
-                        badgeText = 'Mittlere Last';
-                        badgeColor = 'rgba(241, 196, 15, 0.1)';
-                        textColor = '#f1c40f';
-                    } else {
-                        badgeText = 'Hohe Last';
-                        badgeColor = 'rgba(229, 9, 20, 0.1)';
-                        textColor = '#e50914';
-                    }
-
-                    return `
-                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 0.6rem 0.8rem; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                        <div style="display: flex; flex-direction: column;">
-                            <span style="font-size: 0.7rem; font-weight: 800; color: var(--primary-blue); text-transform: uppercase; letter-spacing: 0.05em;">${labels[idx] || 'Option'}</span>
-                            <span style="font-size: 1rem; color: #fff; font-weight: 700;">${formatMinutes(g.start)} — ${formatMinutes(g.end + 1)}</span>
-                        </div>
-                        <div style="background: ${badgeColor}; color: ${textColor}; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">${badgeText}</div>
-                    </div>
-                `;
-                }).join('');
-            };
-
-            grid.innerHTML += `
-                <div class="stat-card" style="grid-column: 1 / -1; align-items: flex-start; background: rgba(0, 120, 255, 0.05); border: 1px solid rgba(0, 120, 255, 0.1);">
-                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
-                        <span style="font-size: 1.5rem;">☕</span>
-                        <span class="stat-label" style="font-size: 1.1rem; color: #fff; margin: 0; text-transform: none; font-weight: 800;">KI-Pausen-Empfehlungen</span>
-                    </div>
-                    
-                    <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
-                        <div style="background: rgba(255,255,255,0.03); padding: 1.25rem; border-radius: 18px; border: 1px solid rgba(0, 120, 255, 0.2); border-left: 5px solid var(--primary-blue); box-shadow: 0 8px 32px rgba(0,0,0,0.24); backdrop-filter: blur(10px);">
-                            <div style="font-weight: 800; color: white; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.6rem; font-size: 1.05rem;">
-                                <span>🍿</span> Theken-Personal
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                                ${formatGaps(breaks.thekeGaps)}
-                            </div>
-                            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 1rem; font-style: italic; display: flex; align-items: center; gap: 0.4rem;">
-                                <span style="font-size: 1rem;">💡</span> Bester Slot ohne nahen Filmstart
-                            </div>
-                        </div>
-                        
-                        <div style="background: rgba(255,255,255,0.03); padding: 1.25rem; border-radius: 18px; border: 1px solid rgba(229, 9, 20, 0.2); border-left: 5px solid var(--primary-red); box-shadow: 0 8px 32px rgba(0,0,0,0.24); backdrop-filter: blur(10px);">
-                            <div style="font-weight: 800; color: white; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.6rem; font-size: 1.05rem;">
-                                <span>🎟️</span> Einlass & Saal
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                                ${formatGaps(breaks.einlassGaps)}
-                            </div>
-                            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 1rem; font-style: italic; display: flex; align-items: center; gap: 0.4rem;">
-                                <span style="font-size: 1rem;">💡</span> Bester Slot ohne Einlass-Ströme oder Reinigung
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
         }
 
         function calculateEndTime(startTime, duration) {
