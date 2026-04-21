@@ -140,11 +140,29 @@
         <div class="admin-header">
             <div>
                 <h1>Admin Portal</h1>
-                <p style="font-size: 0.8rem; color: var(--text-muted);">Kinopolis Darmstadt Automation</p>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Kinopolis Automation</p>
             </div>
-            <a href="index.html" class="back-link">
-                <span>🏠</span> Dashboard
-            </a>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <select id="admin-city" onchange="onCityChange()" style="background: rgba(255,255,255,0.06); border: 1px solid var(--surface-border); color: var(--text-main); padding: 0.5rem 2rem 0.5rem 0.85rem; border-radius: 50px; font-weight: 600; font-size: 0.85rem; outline: none; cursor: pointer; appearance: none; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right 0.75rem center;">
+                    <option value="kp">Darmstadt</option>
+                    <option value="ab">Aschaffenburg</option>
+                    <option value="bn">Bad Godesberg</option>
+                    <option value="bh">Bad Homburg</option>
+                    <option value="fr">Freiberg</option>
+                    <option value="gi">Gießen</option>
+                    <option value="hh">Hamburg</option>
+                    <option value="hu">Hanau</option>
+                    <option value="ka">Karlsruhe</option>
+                    <option value="ko">Koblenz</option>
+                    <option value="lh">Landshut</option>
+                    <option value="ro">Rosenheim</option>
+                    <option value="su">Sulzbach</option>
+                    <option value="vi">Viernheim</option>
+                </select>
+                <a href="index.html" class="back-link">
+                    <span>🏠</span> Dashboard
+                </a>
+            </div>
         </div>
 
         <!-- Login Gate -->
@@ -290,11 +308,22 @@
             { id: 'feedback', name: 'Feedback an BL', icon: '📩' }
         ];
 
-        let currentCity = localStorage.getItem('kinopolis_city') || 'kp';
+        let currentCity = localStorage.getItem('admin_city') || 'kp';
         let adminMsgBase64 = null;
+
+        function onCityChange() {
+            currentCity = document.getElementById('admin-city').value;
+            localStorage.setItem('admin_city', currentCity);
+            if (localStorage.getItem('is_admin') === 'true') loadAdminMessages();
+        }
 
         // Check Auth
         window.addEventListener('load', () => {
+            // Restore saved city
+            const savedCity = localStorage.getItem('admin_city') || 'kp';
+            currentCity = savedCity;
+            document.getElementById('admin-city').value = savedCity;
+
             if (localStorage.getItem('is_admin') === 'true') {
                 showAdminPanel();
             }

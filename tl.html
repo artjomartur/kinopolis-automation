@@ -53,15 +53,18 @@
 
         .logo-box {
             background: #fff;
-            padding: 0.5rem;
-            border-radius: 12px;
+            padding: 0.4rem 0.75rem;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
+            height: 44px;
         }
 
         .logo-box img {
-            height: 24px;
+            height: 28px;
+            width: auto;
+            display: block;
         }
 
         .portal-title {
@@ -352,11 +355,23 @@
             <h1 class="portal-title">Kommandozentrale (TL)</h1>
         </div>
         <select class="location-select" id="location-selector" onchange="changeCity()">
-            <option value="kp">Darmstadt</option>
-            <option value="gk">Gießen</option>
-            <option value="hanau">Hanau</option>
-            <option value="wiesen">Wiesbaden</option>
-            <option value="main">Main-Taunus</option>
+            <option value="kp">Darmstadt (KP)</option>
+            <option value="cd">Darmstadt (CD)</option>
+            <option value="rx">Darmstadt (RX)</option>
+            <option value="ab">Aschaffenburg</option>
+            <option value="bn">Bad Godesberg</option>
+            <option value="bh">Bad Homburg</option>
+            <option value="fr">Freiberg</option>
+            <option value="gi">Gießen</option>
+            <option value="kg">Gießen (KG)</option>
+            <option value="hh">Hamburg</option>
+            <option value="hu">Hanau</option>
+            <option value="ka">Karlsruhe</option>
+            <option value="ko">Koblenz</option>
+            <option value="lh">Landshut</option>
+            <option value="ro">Rosenheim</option>
+            <option value="su">Sulzbach</option>
+            <option value="vi">Viernheim</option>
         </select>
     </header>
 
@@ -589,32 +604,61 @@
 
         function calculateAIBreaks(sessions) {
             if (sessions.length === 0) return [];
-            
-            // Map end times
-            const events = [];
-            sessions.forEach(s => {
-                if (s.end_time) events.push({ time: s.end_time, type: 'end' });
-                if (s.start_time) events.push({ time: s.start_time, type: 'start' });
-            });
 
-            // Sort by time
-            events.sort((a,b) => a.time.localeCompare(b.time));
-
-            const recs = [];
             const now = new Date();
-            const nowStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            const nowMin = now.getHours() * 60 + now.getMinutes();
 
-            // Strategy: Find gaps of at least 30 mins between "heavy" events
-            // For simplicity in this dashboard, we show upcoming ends to help TLs plan
-            const upcomingEnds = sessions
-                .filter(s => s.end_time > nowStr)
-                .sort((a,b) => a.end_time.localeCompare(b.end_time))
-                .slice(0, 3);
-            
-            return upcomingEnds.map(s => ({
-                time: s.end_time,
-                label: `Abspann: ${s.movie.substring(0,25)}... (Kino ${s.hallId})`
+            // Helper: convert "HH:MM" to minutes since midnight
+            function toMin(timeStr) {
+                if (!timeStr || !timeStr.includes(':')) return -1;
+                const [h, m] = timeStr.split(':').map(Number);
+                return h * 60 + m;
+            }
+
+            // Helper: minutes to "HH:MM" string
+            function minToStr(min) {
+                const h = Math.floor(min / 60) % 24;
+                const m = min % 60;
+                return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+            }
+
+            // Build session end times from start time + duration
+            const sessionsWithEnd = sessions
+                .filter(s => s.time && s.time.includes(':') && s.duration)
+                .map(s => ({
+                    ...s,
+                    startMin: toMin(s.time),
+                    endMin: toMin(s.time) + (s.duration || 0),
+                    endStr: minToStr(toMin(s.time) + (s.duration || 0))
+                }));
+
+            // Show upcoming ends (next 3 movies ending after now)
+            const upcoming = sessionsWithEnd
+                .filter(s => s.endMin > nowMin)
+                .sort((a, b) => a.endMin - b.endMin)
+                .slice(0, 4);
+
+            if (upcoming.length === 0) return [];
+
+            const recs = upcoming.map(s => ({
+                time: s.endStr,
+                label: `Abspann: ${(s.title || s.movie || 'Film').substring(0, 28)} (${s.hallId || s.hallName || ''})`
             }));
+
+            // Try to find a 30-min gap as the best break window
+            const endTimes = sessionsWithEnd.map(s => s.endMin).sort((a,b)=>a-b);
+            for (let i = 0; i < endTimes.length - 1; i++) {
+                const gap = endTimes[i+1] - endTimes[i];
+                if (gap >= 30 && endTimes[i] > nowMin) {
+                    recs.unshift({
+                        time: `${minToStr(endTimes[i])} – ${minToStr(endTimes[i+1])}`,
+                        label: `⭐ Ideales Pausenfenster (${gap} Min. Ruhe)`
+                    });
+                    break;
+                }
+            }
+
+            return recs;
         }
 
         function formatTime(isoStr) {

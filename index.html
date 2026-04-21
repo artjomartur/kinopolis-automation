@@ -2625,28 +2625,6 @@
             </div>
         </div>
 
-        <!-- Daten & Backup Export -->
-        <div class="card-container glass einstellungen-section" id="export-section" style="margin-bottom: 1rem; border-color: rgba(46, 204, 113, 0.3);">
-            <div class="card-header" style="padding: 1.25rem;">
-                <div style="display: flex; align-items: center; gap: 1rem; width: 100%;">
-                    <div style="background: rgba(46, 204, 113, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📊</div>
-                    <div style="flex: 1;">
-                        <h2 style="font-size: 1.25rem; margin-bottom: 0.2rem; color: #fff;">Daten & Backup</h2>
-                        <span style="font-size: 0.85rem; color: var(--text-muted);">Alle Logs, Checklisten und Fundgegenstände als Excel exportieren.</span>
-                    </div>
-                </div>
-            </div>
-            <div style="padding: 0 1.5rem 1.5rem;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <button onclick="exportToExcel()" class="btn-primary" style="padding: 1rem; border-radius: 12px; background: linear-gradient(135deg, #2ecc71, #27ae60); border: none; font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);">
-                        <span>📥</span> Excel
-                    </button>
-                    <button onclick="exportToPDF()" class="btn-primary" style="padding: 1rem; border-radius: 12px; background: linear-gradient(135deg, #e74c3c, #c0392b); border: none; font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);">
-                        <span>📄</span> PDF
-                    </button>
-                </div>
-            </div>
-        </div>
 
         <!-- Interner Kontakt (BL) -->
         <div class="card-container glass einstellungen-section" id="feedback-section" style="margin-bottom: 1rem; border-color: rgba(0, 120, 255, 0.4); background: linear-gradient(135deg, rgba(0, 120, 255, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
@@ -2663,15 +2641,15 @@
         </div>
 
         <!-- Team Leader Portal -->
-        <div class="card-container glass einstellungen-section" style="margin-bottom: 2rem; border-color: rgba(0, 120, 255, 0.4); background: linear-gradient(135deg, rgba(0, 120, 255, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
+        <div class="card-container glass einstellungen-section" style="margin-bottom: 2rem; border-color: rgba(168, 85, 247, 0.4); background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
             <div class="card-header" style="padding: 1.25rem;">
                 <a href="tl.html" target="_blank" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem; width: 100%;">
-                    <div style="background: rgba(0, 120, 255, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🚨</div>
+                    <div style="background: rgba(168, 85, 247, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🚨</div>
                     <div style="flex: 1;">
                         <h2 style="font-size: 1.25rem; margin-bottom: 0.2rem; color: #fff;">Teamleiter-Portal</h2>
                         <span style="font-size: 0.85rem; color: var(--text-muted);">Echtzeit-Übersicht für Funk & Transfers, sowie KI-Pausenempfehlungen.</span>
                     </div>
-                    <div style="color: var(--primary-blue); font-weight: bold;">Portal öffnen ❯</div>
+                    <div style="color: #a855f7; font-weight: bold;">Portal öffnen ❯</div>
                 </a>
             </div>
         </div>
@@ -3321,7 +3299,8 @@
         }
 
         async function triggerRestock(item) {
-            const city = document.getElementById('cinema-selector').value;
+            const cityEl = document.getElementById('cinema-selector');
+            const city = (cityEl && cityEl.value) ? cityEl.value : currentCity;
             try {
                 const res = await fetch('/api/push/restock', {
                     method: 'POST',
@@ -3860,9 +3839,6 @@
                             <span class="news-title">${item.title}</span>
                             <div style="display: flex; align-items: center; gap: 1rem;">
                                 <span class="news-meta">${new Date(item.created_at).toLocaleString('de-DE')} von ${item.author}</span>
-                                <button class="delete-btn" onclick="deleteMessage(${item.id})" style="background: none; border: none; color: #ff4d4d; cursor: pointer; padding: 4px;" title="Löschen">
-                                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19V4M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" /></svg>
-                                </button>
                             </div>
                         </div>
                         ${galleryHtml}
@@ -4115,8 +4091,18 @@
             halls.forEach(hall => {
                 const hallName = hall.name;
                 const sessions = hall.sessions;
+
+                // Skip halls where the last session ended more than 60 minutes ago
+                const lastEndMin = sessions.reduce((max, s) => {
+                    if (s.time && s.time.includes(':')) {
+                        const [h, m] = s.time.split(':').map(Number);
+                        return Math.max(max, h * 60 + m + (s.duration || 0));
+                    }
+                    return max;
+                }, 0);
+                if (lastEndMin > 0 && currentMinutes > lastEndMin + 60) return; // skip stale hall
+
                 const card = document.createElement('div');
-                card.className = 'hall-card glass';
                 
                 let sessionsHtml = sessions.map(s => {
                     const capacity = s.capacity || 1; // Prevent division by zero
@@ -5106,65 +5092,6 @@
             if (icon) icon.innerText = isLight ? '☀️' : '🌙';
         }
 
-        // --- PDF EXPORT ---
-        async function exportToPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const today = new Date().toLocaleDateString('de-DE');
-            const city = currentCity.toUpperCase();
-            
-            // Add Logo
-            const logoImg = document.getElementById('brand-logo');
-            if (logoImg) {
-                try {
-                    doc.addImage(logoImg, 'PNG', 160, 10, 35, 12);
-                } catch (e) { console.error('Logo export error:', e); }
-            }
-            doc.setFontSize(22);
-            doc.setTextColor(0, 120, 255);
-            doc.text(`Kinopolis Dashboard Export - ${city}`, 14, 20);
-            
-            doc.setFontSize(10);
-            doc.setTextColor(100, 100, 100);
-            doc.text(`Datum: ${today} | Exportiert für: ${localStorage.getItem('kinopolis_shift_name') || 'Unbekannt'}`, 14, 28);
-            
-            // Checklists Table
-            const savedChecklist = JSON.parse(localStorage.getItem('kinopolis_shift_checklist') || '{}');
-            const checklistData = [];
-            
-            Object.keys(shiftChecklist).forEach(key => {
-                shiftChecklist[key].forEach(item => {
-                    checklistData.push([
-                        key.toUpperCase(),
-                        item.text,
-                        savedChecklist[item.id] ? 'ERLEDIGT' : 'OFFEN'
-                    ]);
-                });
-            });
-            
-            doc.autoTable({
-                startY: 35,
-                head: [['Bereich', 'Aufgabe', 'Status']],
-                body: checklistData,
-                theme: 'striped',
-                headStyles: { fillColor: [0, 120, 255] }
-            });
-            
-            // Fundbüro Table
-            const lfItems = JSON.parse(localStorage.getItem('kinopolis_lf_items') || '[]');
-            if (lfItems.length > 0) {
-                doc.addPage();
-                doc.text(`Fundbüro - Aktuelle Liste`, 14, 20);
-                doc.autoTable({
-                    startY: 30,
-                    head: [['Gegenstand', 'Kategorie', 'Fundort', 'Personal']],
-                    body: lfItems.map(i => [i.what, i.category, i.where, i.who]),
-                    theme: 'grid'
-                });
-            }
-            doc.save(`Kinopolis_Export_${city}_${today.replace(/\./g, '-')}.pdf`);
-        }
-        
         // --- DATA VISIBILITY & UTILS ---
         const MODULES = [
             { id: 'live-dashboard', name: 'Live Display', target: '#dashboard', isTab: false },
@@ -5227,61 +5154,6 @@
             }
         }
 
-        async function exportToExcel() {
-            if (typeof XLSX === 'undefined') {
-                alert('SheetJS Bibliothek konnte nicht geladen werden.');
-                return;
-            }
-            try {
-                const wb = XLSX.utils.book_new();
-                const now = new Date();
-                const dateStr = now.toLocaleDateString('de-DE').replace(/\./g, '-');
-                const location = currentCity.toUpperCase();
-
-                let logs = [];
-                try {
-                    const res = await fetch(`/api/logs?location=${currentCity}`);
-                    if (res.ok) logs = await res.json();
-                } catch(e) {}
-                
-                const wsLogs = XLSX.utils.json_to_sheet(logs.map(l => ({ 
-                    Datum: new Date(l.created_at).toLocaleString('de-DE'), 
-                    Autor: l.author, 
-                    Nachricht: l.message, 
-                    Priorität: l.priority 
-                })));
-                XLSX.utils.book_append_sheet(wb, wsLogs, "Übergabe-Logs");
-
-                const lfItems = JSON.parse(localStorage.getItem('kinopolis_lf_items') || '[]');
-                const wsLf = XLSX.utils.json_to_sheet(lfItems.map(i => ({ 
-                    Was: i.what, Kategorie: i.category, Wo: i.where, Wer: i.who, Zeit: i.time 
-                })));
-                XLSX.utils.book_append_sheet(wb, wsLf, "Fundbüro");
-
-                const checklistState = JSON.parse(localStorage.getItem('kinopolis_shift_checklist') || '{}');
-                const checklistData = [];
-                for (const [group, items] of Object.entries(shiftChecklist)) {
-                    items.forEach(item => {
-                        checklistData.push({ 
-                            Bereich: group.toUpperCase(), 
-                            Aufgabe: item.text, 
-                            Status: checklistState[item.id] ? "ERLEDIGT ✅" : "OFFEN ⭕" 
-                        });
-                    });
-                }
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(checklistData), "Checklisten");
-                
-                const meta = [
-                    { Kategorie: "Export-Zeitpunkt", Inhalt: now.toLocaleString('de-DE') }, 
-                    { Kategorie: "Standort", Inhalt: location }, 
-                    { Kategorie: "Schicht-Name", Inhalt: localStorage.getItem('kinopolis_shift_name') || "" },
-                    { Kategorie: "Notizen", Inhalt: localStorage.getItem('staff_notes') || "" }
-                ];
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(meta), "Info & Notizen");
-
-                XLSX.writeFile(wb, `Kinopolis_Export_${location}_${dateStr}.xlsx`);
-            } catch (err) { alert("Fehler beim Erstellen der Excel-Datei: " + err.message); }
-        }
     </script>
     <!-- Welcome Modal -->
     <div id="welcome-modal" class="modal">
