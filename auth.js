@@ -40,7 +40,11 @@ const AUTH = {
         
         const modalHtml = `
             <div id="auth-modal" class="modal">
-                <div class="modal-content glass" style="max-width: 400px; padding: 2.5rem;">
+                <div class="modal-content glass" id="auth-modal-content" style="max-width: 400px; padding: 2.5rem; position: relative;">
+                    <div id="auth-error-msg" style="display: none; background: rgba(229, 9, 20, 0.15); border: 1px solid rgba(229, 9, 20, 0.3); color: #ff4d4d; padding: 12px; border-radius: 12px; margin-bottom: 1.5rem; font-size: 0.85rem; text-align: center; font-weight: 600; animation: fadeIn 0.3s;">
+                        ❌ Fehlermeldung
+                    </div>
+
                     <div style="text-align: center; margin-bottom: 2rem;">
                         <div style="width: 80px; height: 80px; background: rgba(229, 9, 20, 0.1); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
                             <span style="font-size: 2.5rem;">🍿</span>
@@ -105,6 +109,7 @@ const AUTH = {
         `;
         
         const modalContainer = document.createElement('div');
+        modalContainer.id = 'auth-modal-container';
         modalContainer.innerHTML = modalHtml;
         document.body.appendChild(modalContainer);
 
@@ -118,24 +123,42 @@ const AUTH = {
             .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(229, 9, 20, 0.5); filter: brightness(1.1); }
             .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
             .glass-input:focus { border-color: #e50914 !important; background: rgba(255,255,255,0.08) !important; outline: none; }
+            @keyframes auth-shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+            .shake { animation: auth-shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
         `;
         document.head.appendChild(style);
         this.modalInjected = true;
+    },
+
+    showError(msg) {
+        const errorEl = document.getElementById('auth-error-msg');
+        const contentEl = document.getElementById('auth-modal-content');
+        if (errorEl) {
+            errorEl.innerText = '❌ ' + msg;
+            errorEl.style.display = 'block';
+        }
+        if (contentEl) {
+            contentEl.classList.add('shake');
+            setTimeout(() => contentEl.classList.remove('shake'), 400);
+        }
     },
 
     async handleLogin() {
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
         const btn = document.getElementById('login-btn');
+        const errorEl = document.getElementById('auth-error-msg');
         
-        if (!email || !password) return alert('Bitte alle Felder ausfüllen');
+        if (errorEl) errorEl.style.display = 'none';
+        if (!email || !password) return this.showError('Bitte E-Mail und Passwort ausfüllen');
         
         btn.disabled = true;
         btn.innerText = 'Wird angemeldet...';
         
         const res = await this.login(email, password);
         if (!res.success) {
-            alert('Anmeldung fehlgeschlagen: ' + res.error);
+            this.showError(res.error || 'Anmeldung fehlgeschlagen');
             btn.disabled = false;
             btn.innerText = 'Anmelden';
         }
@@ -148,18 +171,20 @@ const AUTH = {
         const location = document.getElementById('reg-location').value;
         const password = document.getElementById('reg-password').value;
         const btn = document.getElementById('reg-btn');
+        const errorEl = document.getElementById('auth-error-msg');
         
-        if (!email || !password || !firstName || !lastName) return alert('Bitte alle Felder ausfüllen');
+        if (errorEl) errorEl.style.display = 'none';
+        if (!email || !password || !firstName || !lastName) return this.showError('Bitte alle Pflichtfelder ausfüllen');
         
         btn.disabled = true;
         btn.innerText = 'Wird erstellt...';
         
         const res = await this.register(email, firstName, lastName, location, '', password);
         if (res.success) {
-            alert('Konto erstellt! Bitte melde dich jetzt an.');
+            alert('Konto erfolgreich erstellt! Du kannst dich jetzt anmelden.');
             this.showLogin();
         } else {
-            alert('Fehler: ' + res.error);
+            this.showError(res.error || 'Registrierung fehlgeschlagen');
         }
         btn.disabled = false;
         btn.innerText = 'Konto erstellen';
