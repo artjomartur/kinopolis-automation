@@ -209,6 +209,63 @@ app.post('/api/auth/login', async (c) => {
     }
 });
 
+// --- PASSWORD RESET FLOW ---
+
+app.post('/api/auth/forgot-password', async (c) => {
+    const { email } = await c.req.json();
+    if (!email) return c.json({ error: 'E-Mail erforderlich' }, 400);
+
+    const user = await c.env.DB.prepare('SELECT id, first_name FROM users WHERE email = ?')
+        .bind(email.toLowerCase()).first();
+    
+    if (!user) {
+        // Obfuscate user existence for security
+        return c.json({ success: true, message: 'Falls die E-Mail existiert, wurde ein Link gesendet.' });
+    }
+
+    const resetToken = await sign({ 
+        userId: user.id, 
+        email: email.toLowerCase(),
+        exp: Math.floor(Date.now() / 1000) + (15 * 60) // 15 min
+    }, JWT_SECRET);
+
+    const resetLink = `https://kinopolis.artjombecker.com/reset-password.html?token=${resetToken}`;
+    const resendKey = c.env.RESEND_API_KEY;
+
+    if (resendKey) {
+        try {
+            await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${resendKey}` },
+                body: JSON.stringify({
+                    from: 'Kinopolis Security <hi@artjombecker.com>',
+                    to: email.toLowerCase(),
+                    subject: 'Passwort zurücksetzen',
+                    html: `
+                        <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: 0 auto; background: #0f1014; color: #ffffff; border-radius: 24px; padding: 40px; border: 1px solid rgba(255,255,255,0.08);">
+                            <div style="text-align: center; margin-bottom: 30px;"><img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" style="width: 150px;" /></div>
+                            <h1 style="font-size: 22px; text-align: center; margin-bottom: 24px;">Passwort zurücksetzen</h1>
+                            <p style="color: #94a3b8; line-height: 1.6; text-align: center; margin-bottom: 32px;">Hallo ${user.first_name}, klicke auf den Button unten, um dein Passwort zu ändern. Der Link ist 15 Minuten gültig.</p>
+                            <div style="text-align: center; margin-bottom: 32px;"><a href="${resetLink}" style="background:#E50914; color:#fff; text-decoration:none; padding:16px 32px; border-radius:12px; font-weight:800;">Passwort ändern</a></div>
+                        </div>
+                    `
+                })
+            });
+        } catch (err) { console.error("Resend Reset Error:", err); }
+    }
+    return c.json({ success: true });
+});
+
+app.post('/api/auth/reset-password', async (c) => {
+    const { token, newPassword } = await c.req.json();
+    try {
+        const payload = await verify(token, JWT_SECRET);
+        const hash = await hashPassword(newPassword);
+        await c.env.DB.prepare('UPDATE users SET password_hash = ? WHERE id = ?').bind(hash, payload.userId).run();
+        return c.json({ success: true });
+    } catch (e) { return c.json({ error: 'Ungültig oder abgelaufen' }, 401); }
+});
+
 app.get('/api/auth/me', async (c) => {
     const authHeader = c.req.header('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

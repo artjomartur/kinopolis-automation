@@ -70,7 +70,7 @@ const AUTH = {
                         <div style="margin-bottom: 2rem; position: relative;">
                             <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase;">Passwort</label>
                             <input type="password" id="login-password" class="glass-input" placeholder="••••••••" style="width: 100%; padding: 1rem; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;">
-                            <button onclick="alert('Bitte wende dich an den Administrator (Artjom), um dein Passwort zurückzusetzen.')" style="position: absolute; right: 0; bottom: -20px; background: none; border: none; color: var(--text-muted); font-size: 0.75rem; cursor: pointer;">Passwort vergessen?</button>
+                            <button onclick="AUTH.showForgotPassword()" style="position: absolute; right: 0; bottom: -20px; background: none; border: none; color: var(--text-muted); font-size: 0.75rem; cursor: pointer; font-weight: 600;">Passwort vergessen?</button>
                         </div>
                         
                         <button onclick="AUTH.handleLogin()" id="login-btn" class="btn-primary" style="width: 100%; padding: 1rem; border-radius: 12px; font-weight: 800; font-size: 1rem; margin-bottom: 1rem;">
@@ -290,6 +290,42 @@ const AUTH = {
     hideLoginModal() {
         const modal = document.getElementById('auth-modal');
         if (modal) modal.classList.remove('active');
+    },
+
+    showForgotPassword() {
+        const modal = document.getElementById('auth-modal');
+        const content = modal.querySelector('.modal-content');
+        content.innerHTML = `
+            <div style="text-align:center;">
+                <h2 style="font-family:'Outfit',sans-serif;margin-bottom:12px;">Passwort vergessen?</h2>
+                <p style="color:#8E8E93;font-size:0.9rem;margin-bottom:24px;">Gib deine E-Mail ein, um einen Reset-Link zu erhalten.</p>
+                <input type="email" id="forgot-email" placeholder="E-Mail Adresse" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:14px;border-radius:12px;color:white;margin-bottom:16px;outline:none;">
+                <button onclick="AUTH.requestPasswordReset()" style="width:100%;background:#E50914;color:white;border:none;padding:14px;border-radius:12px;font-weight:800;cursor:pointer;">Link anfordern</button>
+                <p onclick="location.reload()" style="color:#E50914;margin-top:20px;cursor:pointer;font-size:0.9rem;font-weight:600;">Abbrechen</p>
+            </div>
+        `;
+    },
+
+    async requestPasswordReset() {
+        const email = document.getElementById('forgot-email').value;
+        if (!email) return alert('Bitte E-Mail eingeben');
+        try {
+            const res = await fetch('/api/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            if (res.ok) {
+                document.querySelector('.modal-content').innerHTML = `
+                    <div style="text-align:center;padding:20px;">
+                        <div style="font-size:3rem;margin-bottom:20px;">📧</div>
+                        <h2>Link gesendet!</h2>
+                        <p style="color:#8E8E93;margin-top:12px;">Prüfe dein Postfach (und den Spam-Ordner).</p>
+                        <button onclick="location.reload()" style="margin-top:24px;background:rgba(255,255,255,0.1);color:white;border:none;padding:12px 24px;border-radius:12px;font-weight:700;cursor:pointer;">Schließen</button>
+                    </div>
+                `;
+            }
+        } catch (e) { alert('Fehler'); }
     },
 
     updateUI() {
