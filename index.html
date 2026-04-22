@@ -3356,7 +3356,18 @@
         }
 
         // --- APP START ---
-        window.addEventListener('load', async () => {
+        // 1. IMMEDIATE SPLASH SCREEN FAILSAFE
+        setTimeout(() => {
+            const splash = document.getElementById('splash-screen');
+            if (splash) {
+                splash.classList.add('fade-out');
+                console.log('SPLASH: Failsafe triggered');
+            }
+        }, 3000);
+
+        // 2. IMMEDIATE INITIALIZATION (Don't wait for all images/assets)
+        (async function init() {
+            console.log('APP: Starting initialization...');
             try {
                 // Theme Init
                 const savedTheme = localStorage.getItem('theme');
@@ -3368,18 +3379,10 @@
                     if (sIcon) sIcon.innerText = '☀️';
                 }
 
-                // Splash Screen Fade Out - Independent and immediate
-                setTimeout(() => {
-                    const splash = document.getElementById('splash-screen');
-                    if (splash) splash.classList.add('fade-out');
-                    console.log('Splash screen fade-out triggered');
-                }, 3000); 
-
-                // Auth Init - Block until checked (but with timeout safety if possible)
+                // Auth Init - Should be fast and non-blocking now
                 if (window.AUTH) {
                     await AUTH.init().catch(e => console.error("Auth init failed:", e));
                     
-                    // Auto-fill checklist names and hide if logged in
                     if (AUTH.user) {
                         const nameInputs = document.querySelectorAll('input[placeholder="Name eingeben..."]');
                         nameInputs.forEach(input => {
@@ -3387,22 +3390,20 @@
                             const parent = input.closest('.mb-4') || input.parentElement;
                             if (parent && parent.innerText.includes('Dein Name')) parent.style.display = 'none';
                         });
-                        updateGamification(); // Initial XP calc
+                        if (window.updateGamification) updateGamification();
                     }
                 }
 
-                // Play jingle if permitted
                 playStartupSound();
 
                 // Core Data
-                await fetchLocations(); // Should be awaited if others depend on it
+                await fetchLocations().catch(e => console.error("Locations failed:", e));
                 
-                // Initialize UI modules independently to be robust
                 const runSafe = async (fn, name) => {
                     try { await fn(); } catch (e) { console.error(`Failed to init ${name}:`, e); }
                 };
 
-                // Mobile Header Scroll Effect
+                // Mobile Header
                 let lastScrollTop = 0;
                 window.addEventListener('scroll', () => {
                     if (window.innerWidth <= 768) {
@@ -3418,7 +3419,6 @@
                     }
                 }, { passive: true });
 
-
                 await Promise.all([
                     runSafe(fetchSessions, 'Sessions'),
                     runSafe(fetchWeather, 'Weather'),
@@ -3429,17 +3429,19 @@
                     runSafe(loadContacts, 'Contacts')
                 ]);
 
-                // Force initial tab to Live
-                const tabLive = document.getElementById('tab-live');
+                // Default Tab
+                const tabLive = document.querySelector('.mobile-nav-item[onclick*="live"]');
                 if (tabLive) switchTab('live', tabLive);
 
                 // Setup toggle for Auslässe
                 const auslaesseBtn = document.getElementById('auslaesse-toggle-btn');
                 if (auslaesseBtn) {
                     auslaesseBtn.addEventListener('click', () => {
-                        const content = document.getElementById('auslaesse-list');
-                        content.classList.toggle('collapsed');
-                        auslaesseBtn.classList.toggle('collapsed');
+                        const content = document.getElementById('auslaesse-content');
+                        if (content) {
+                            content.classList.toggle('collapsed');
+                            auslaesseBtn.classList.toggle('collapsed');
+                        }
                     });
                 }
 
@@ -3453,7 +3455,7 @@
                 }, 60000);
 
                 // Restore check-in state on load
-                updateShiftCheckinUI();
+                if (window.updateShiftCheckinUI) updateShiftCheckinUI();
 
                 // Cloud Sync Refresh (Checklist / L&F)
                 setInterval(() => {
@@ -3471,18 +3473,22 @@
                 if (localStorage.getItem('welcome_seen_beta') !== 'true' && document.getElementById('welcome-modal')) {
                     document.getElementById('welcome-modal').classList.add('active');
                 }
-                updateGamification();
-                tickAllCountdowns();
-                updateLiveAlertBanner();
+                
+                if (window.updateGamification) updateGamification();
+                if (window.tickAllCountdowns) tickAllCountdowns();
+                if (window.updateLiveAlertBanner) updateLiveAlertBanner();
                 
                 // Initialize default tab
-                const activeBtn = document.querySelector('.mobile-nav-item.active') || document.querySelector('.tab-btn.active');
+                const activeBtn = document.querySelector('.mobile-nav-item.active') || document.querySelector('.tab-btn.active') || document.getElementById('tab-live');
                 if (activeBtn) switchTab('live', activeBtn);
-                
-            } catch (err) {
-                console.error("Critical Dashboard Init Error:", err);
+
+            } catch (error) {
+                console.error('APP: Fatal Init Error:', error);
+                // Last resort: hide splash screen
+                const splash = document.getElementById('splash-screen');
+                if (splash) splash.classList.add('fade-out');
             }
-        });
+        })();
 
         // ============================================================
         // FEATURE: COUNTDOWN TIMERS
@@ -6133,12 +6139,6 @@
             </a>
         </nav>
     <script>
-        window.addEventListener('load', async () => {
-            if (window.AUTH) {
-                await AUTH.init();
-                document.body.classList.add('auth-loaded');
-            }
-        });
     </script>
 </body>
 </html>
