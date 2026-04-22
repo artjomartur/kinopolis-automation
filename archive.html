@@ -6,6 +6,7 @@
     <title>Archiv | Kinopolis</title>
     <link rel="icon" type="image/x-icon" href="https://www.kinopolis.de/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="auth.js"></script>
     <style>
         :root {
             --bg-color: #0a0a0d;
@@ -172,10 +173,12 @@
             margin-top: 0.5rem;
             border: 1px solid rgba(255,255,255,0.1);
         }
+    <style>
+        #archive-container { display: none; }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div id="archive-container" class="container">
         <header>
             <div class="header-title">
                 <span>🗃️</span>
@@ -233,7 +236,13 @@
         let currentCity = localStorage.getItem('last_city') || 'kp';
         document.getElementById('location-select').value = currentCity;
 
-        window.addEventListener('load', loadArchive);
+        window.addEventListener('load', async () => {
+            if (window.AUTH) {
+                await AUTH.init();
+                document.getElementById('archive-container').style.display = 'block';
+                loadArchive();
+            }
+        });
 
         function formatTime(isoStr) {
             const date = new Date(isoStr);

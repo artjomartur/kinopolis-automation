@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="auth.js"></script>
     <style>
         :root {
             --primary-red: #e50914;
@@ -401,17 +402,7 @@
     </style>
 </head>
 <body>
-    <div id="tl-login-gate">
-        <div class="login-box">
-            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🚨</div>
-            <h2>Teamleiter-Portal</h2>
-            <p>Zugang nur für Teamleiter</p>
-            <input type="text" class="login-input" id="tl-user" placeholder="Benutzername">
-            <input type="password" class="login-input" id="tl-pass" placeholder="Passwort" onkeypress="if(event.key==='Enter') tlLogin()">
-            <button class="login-btn" onclick="tlLogin()">Einloggen</button>
-            <p id="tl-login-err" style="color: #ff6b6b; margin-top: 1rem; font-size: 0.85rem; display: none;">❌ Zugangsdaten inkorrekt.</p>
-        </div>
-    </div>
+    <!-- Login handled by auth.js -->
 
     <div id="tl-main">
     <div class="loading-progress" id="loading-bar"></div>
@@ -622,34 +613,27 @@
     </div>
 
     <script>
-        // --- TL LOGIN ---
-        function tlLogin() {
-            const user = document.getElementById('tl-user').value.trim().toUpperCase();
-            const pass = document.getElementById('tl-pass').value.trim().toUpperCase();
-            if ((user === 'TL' && pass === 'TL123') || (user === 'ADMIN' && pass === 'ADMIN123')) {
-                localStorage.setItem('is_tl', 'true');
-                showTlPortal();
-            } else {
-                document.getElementById('tl-login-err').style.display = 'block';
-            }
-        }
-
-        function showTlPortal() {
-            document.getElementById('tl-login-gate').style.display = 'none';
-            document.getElementById('tl-main').style.display = 'block';
-            refreshDashboard();
-        }
-
-        function tlLogout() {
-            localStorage.removeItem('is_tl');
-            location.reload();
-        }
-
-        window.addEventListener('load', () => {
-            if (localStorage.getItem('is_tl') === 'true') {
-                showTlPortal();
+        // --- AUTH & GUARD ---
+        window.addEventListener('load', async () => {
+            if (window.AUTH) {
+                await AUTH.init();
+                // Check if TL or BL or Admin
+                if (!AUTH.user || (AUTH.user.role !== 'TL' && AUTH.user.role !== 'BL' && AUTH.user.role !== 'admin')) {
+                    if (AUTH.user) {
+                        alert('Zugriff verweigert: Nur für Teamleiter reserviert.');
+                        window.location.href = 'index.html';
+                    }
+                    return; // Login modal will show via AUTH.init()
+                }
+                
+                document.getElementById('tl-main').style.display = 'block';
+                refreshDashboard();
             }
         });
+
+        function tlLogout() {
+            AUTH.logout();
+        }
 
         let currentCity = localStorage.getItem('last_city') || 'kp';
         document.getElementById('location-selector').value = currentCity;

@@ -6,6 +6,7 @@
     <title>CinemaxX Archiv | Kinopolis</title>
     <link rel="icon" type="image/x-icon" href="https://www.kinopolis.de/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="auth.js"></script>
     <style>
         :root {
             --bg-dark: #0f0f13;
@@ -177,10 +178,13 @@
         }
         .source-link:hover { text-decoration: underline; }
 
+    <style>
+        /* Hidden until Auth */
+        #archive-main { display: none; }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div id="archive-main" class="container">
         <header>
             <div class="header-title">
                 <span>🍿</span>
@@ -222,29 +226,6 @@
                     <div class="gallery-caption">Das fertige Gebäude bei Nacht (2000)</div>
                 </div>
 
-                <!-- NEW IMAGE: Querschnitt -->
-                <div class="gallery-item">
-                    <img src="media/archiv/querschnitt_brauerei.png" alt="Querschnitt Brauerei" class="gallery-img" onclick="window.open(this.src)">
-                    <div class="gallery-caption">Architektur-Sensation: Kino über der Brauerei</div>
-                </div>
-
-                <!-- NEW IMAGE: Rohbau 1 -->
-                <div class="gallery-item">
-                    <img src="media/archiv/rohbau_bahnhofsblick.png" alt="Rohbau 1999" class="gallery-img" onclick="window.open(this.src)">
-                    <div class="gallery-caption">Rohbau 1999: Blick vom Foyer auf den Bahnhof</div>
-                </div>
-
-                <!-- NEW IMAGE: Rohbau Foyer -->
-                <div class="gallery-item">
-                    <img src="media/archiv/glasfassade_bau.png" alt="Rohbau Foyer" class="gallery-img" onclick="window.open(this.src)">
-                    <div class="gallery-caption">Bau der Glasfassade & Innenausbau</div>
-                </div>
-
-                <!-- NEW IMAGE: Rolltreppe -->
-                <div class="gallery-item">
-                    <img src="media/archiv/rolltreppe_montage.png" alt="Rolltreppe im Bau" class="gallery-img" onclick="window.open(this.src)">
-                    <div class="gallery-caption">Montage der großen Rolltreppen</div>
-                </div>
 
                 <!-- Architect Gallery -->
                 <div class="gallery-item">
@@ -265,5 +246,14 @@
             </div>
         </div>
     </div>
+    <script>
+        window.addEventListener('load', async () => {
+            if (window.AUTH) {
+                await AUTH.init();
+                // Guests are allowed to see history, but we still check session
+                document.getElementById('archive-main').style.display = 'block';
+            }
+        });
+    </script>
 </body>
 </html>

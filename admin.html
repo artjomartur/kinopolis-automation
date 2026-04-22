@@ -9,6 +9,7 @@
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="auth.js"></script>
     <style>
         :root {
             --bg-color: #0a0a0d;
@@ -203,19 +204,33 @@
             </div>
         </div>
 
-        <!-- Login Gate -->
-        <div id="admin-login-gate" style="padding: 4rem 2.5rem;">
-            <div style="font-size: 3rem; margin-bottom: 1.5rem;">🔒</div>
-            <h2 style="margin-bottom: 0.5rem;">Zugang erforderlich</h2>
-            <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem;">Administrator-Zugang für Einstellungen und Mitteilungen.</p>
-            <input type="text" id="admin-user" placeholder="Benutzername" class="input-field">
-            <input type="password" id="admin-pass" placeholder="Passwort" class="input-field" onkeypress="if(event.key === 'Enter') handleLogin()">
-            <button class="btn-primary" onclick="handleLogin()">Einloggen</button>
-            <p id="login-error" style="color: #ff4d4d; font-size: 0.8rem; margin-top: 1rem; display: none;">❌ Zugangsdaten inkorrekt.</p>
-        </div>
 
         <!-- Admin Content -->
         <div id="admin-main-content" class="admin-content" style="display: none;">
+            
+            <!-- NEW: Staff Management Section -->
+            <div class="admin-section">
+                <h2><span>👥</span> Mitarbeiter Verwaltung</h2>
+                <p>Hier kannst du alle registrierten Mitarbeiter für deinen Standort sehen, ihre Rollen verwalten oder den Zugang entziehen.</p>
+                <div class="card" style="padding: 0; overflow: hidden; background: rgba(0,0,0,0.2);">
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                            <thead>
+                                <tr style="background: rgba(255,255,255,0.05); text-align: left; border-bottom: 1px solid var(--surface-border);">
+                                    <th style="padding: 1rem;">Name</th>
+                                    <th style="padding: 1rem;">E-Mail</th>
+                                    <th style="padding: 1rem;">Rolle</th>
+                                    <th style="padding: 1rem;">Nr.</th>
+                                    <th style="padding: 1rem; text-align: right;">Aktion</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staff-table-body">
+                                <!-- Dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
             
             <!-- Welcome Disclaimer -->
             <div style="background: rgba(0, 120, 255, 0.05); border: 1px solid rgba(0, 120, 255, 0.1); border-radius: 20px; padding: 1.5rem; display: flex; gap: 1rem; align-items: flex-start;">
@@ -851,6 +866,108 @@
                 console.error('PDF error:', e);
                 alert('PDF Fehler: ' + e.message);
             }
+        }
+    </script>
+    <script>
+        // --- AUTH & GUARD ---
+        window.addEventListener('load', async () => {
+            if (window.AUTH) {
+                await AUTH.init();
+                // Check if admin/TL/BL
+                if (!AUTH.user || (AUTH.user.role !== 'BL' && AUTH.user.role !== 'admin' && AUTH.user.role !== 'TL')) {
+                    if (AUTH.user) {
+                        alert('Zugriff verweigert: Du hast keine Admin-Rechte.');
+                        window.location.href = 'index.html';
+                    }
+                    return; // Login modal will show via AUTH.init() if no user
+                }
+                
+                // Show content and load data
+                document.getElementById('admin-main-content').style.display = 'block';
+                loadStaff();
+            }
+        });
+
+        async function loadStaff() {
+            const container = document.getElementById('staff-table-body');
+            container.innerHTML = '<tr><td colspan="5" style="padding: 2rem; text-align: center; color: var(--text-muted);">Lade Mitarbeiter...</td></tr>';
+            
+            try {
+                const res = await fetch('/api/admin/users', {
+                    headers: { 'Authorization': `Bearer ${AUTH.token}` }
+                });
+                const users = await res.json();
+                
+                if (!res.ok) throw new Error(users.error || 'Fehler beim Laden');
+                
+                container.innerHTML = users.map(u => `
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                        <td style="padding: 1rem;"><strong>${u.first_name} ${u.last_name}</strong></td>
+                        <td style="padding: 1rem; color: var(--text-muted);">${u.email}</td>
+                        <td style="padding: 1rem;">
+                            <select onchange="updateUserRole(${u.id}, this.value)" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--surface-border); border-radius: 6px; padding: 0.2rem 0.5rem; font-size: 0.8rem;">
+                                <option value="user" ${u.role === 'user' ? 'selected' : ''}>Mitarbeiter</option>
+                                <option value="TL" ${u.role === 'TL' ? 'selected' : ''}>TL</option>
+                                <option value="BL" ${u.role === 'BL' ? 'selected' : ''}>BL</option>
+                            </select>
+                        </td>
+                        <td style="padding: 1rem; color: var(--text-muted);">${u.employee_number || '-'}</td>
+                        <td style="padding: 1rem; text-align: right;">
+                            <button onclick="kickUser(${u.id}, '${u.first_name}')" class="btn-delete" style="padding: 0.3rem 0.6rem;">Kicken</button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+            } catch (e) {
+                container.innerHTML = `<tr><td colspan="5" style="padding: 2rem; text-align: center; color: var(--primary-red);">${e.message}</td></tr>`;
+            }
+        }
+
+        async function updateUserRole(userId, newRole) {
+            try {
+                const res = await fetch(`/api/admin/users/${userId}/role`, {
+                    method: 'PATCH',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${AUTH.token}` 
+                    },
+                    body: JSON.stringify({ role: newRole })
+                });
+                if (res.ok) {
+                    showToast('Rolle aktualisiert');
+                } else {
+                    const data = await res.json();
+                    alert('Fehler: ' + data.error);
+                    loadStaff(); // Reset
+                }
+            } catch (e) {
+                alert('Netzwerkfehler');
+            }
+        }
+
+        async function kickUser(userId, name) {
+            if (!confirm(`Möchtest du ${name} wirklich vom Standort entfernen?`)) return;
+            
+            try {
+                const res = await fetch(`/api/admin/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${AUTH.token}` }
+                });
+                if (res.ok) {
+                    showToast(`${name} entfernt`);
+                    loadStaff();
+                } else {
+                    const data = await res.json();
+                    alert('Fehler: ' + data.error);
+                }
+            } catch (e) {
+                alert('Netzwerkfehler');
+            }
+        }
+
+        function showToast(msg) {
+            // Reusing toast logic if available or just alert
+            console.log("Admin Toast:", msg);
         }
     </script>
 </body>

@@ -70,6 +70,15 @@ app.post('/api/auth/register', async (c) => {
             'INSERT INTO users (email, first_name, last_name, location, employee_number, password_hash) VALUES (?, ?, ?, ?, ?, ?)'
         ).bind(email.toLowerCase(), first_name, last_name, location, employee_number || null, password_hash).run();
 
+        // Auto-subscribe to email newsletter
+        try {
+            await c.env.DB.prepare(
+                'INSERT OR IGNORE INTO email_subscriptions (email, location) VALUES (?, ?)'
+            ).bind(email.toLowerCase(), location).run();
+        } catch (e) {
+            console.error('Auto-subscribe error:', e);
+        }
+
         return c.json({ success: true });
     } catch (e) {
         if (e.message.includes('UNIQUE constraint failed')) {
@@ -128,6 +137,66 @@ app.get('/api/auth/me', async (c) => {
         return c.json({ user: payload });
     } catch (e) {
         return c.json({ error: 'Ungültiger Token' }, 401);
+    }
+});
+
+// --- ADMIN / USER MANAGEMENT API ---
+app.get('/api/admin/users', async (c) => {
+    const authHeader = c.req.header('Authorization');
+    if (!authHeader) return c.json({ error: 'Nicht autorisiert' }, 401);
+    
+    try {
+        const payload = await verify(authHeader.split(' ')[1], JWT_SECRET);
+        if (payload.role !== 'BL' && payload.role !== 'admin') {
+            return c.json({ error: 'Admin-Rechte erforderlich' }, 403);
+        }
+
+        const users = await c.env.DB.prepare(
+            'SELECT id, email, first_name, last_name, location, employee_number, role, created_at FROM users WHERE location = ?'
+        ).bind(payload.location).all();
+
+        return c.json(users.results);
+    } catch (e) {
+        return c.json({ error: 'Authentifizierungsfehler' }, 401);
+    }
+});
+
+app.patch('/api/admin/users/:id/role', async (c) => {
+    const id = c.req.param('id');
+    const { role } = await c.req.json();
+    const authHeader = c.req.header('Authorization');
+    
+    try {
+        const payload = await verify(authHeader.split(' ')[1], JWT_SECRET);
+        if (payload.role !== 'BL' && payload.role !== 'admin') {
+            return c.json({ error: 'Admin-Rechte erforderlich' }, 403);
+        }
+
+        await c.env.DB.prepare('UPDATE users SET role = ? WHERE id = ? AND location = ?')
+            .bind(role, id, payload.location).run();
+        
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: 'Fehler beim Aktualisieren der Rolle' }, 500);
+    }
+});
+
+app.delete('/api/admin/users/:id', async (c) => {
+    const id = c.req.param('id');
+    const authHeader = c.req.header('Authorization');
+    
+    try {
+        const payload = await verify(authHeader.split(' ')[1], JWT_SECRET);
+        if (payload.role !== 'BL' && payload.role !== 'admin') {
+            return c.json({ error: 'Admin-Rechte erforderlich' }, 403);
+        }
+
+        await c.env.DB.prepare('DELETE FROM users WHERE id = ? AND location = ?')
+            .bind(id, payload.location).run();
+        
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: 'Fehler beim Löschen des Nutzers' }, 500);
     }
 });
 

@@ -2350,10 +2350,11 @@
         }
         .contact-dial.bg-green { background: rgba(46,204,113,0.2); border: 1px solid rgba(46,204,113,0.4); }
         
-                .tools-section, .info-section, .stats-section, .kontakte-section, .intern-section, .einstellungen-section, .admin-section, .live-section, .auslaesse-section { display: none !important; }
+                .tools-section, .info-section, .stats-section, .kontakte-section, .intern-section, .einstellungen-section, .admin-section, .live-section, .auslaesse-section, .funk-section { display: none !important; }
         
                 body.live-active .live-section, body.live-active .auslaesse-section { display: block !important; }
-        body.tools-active .tools-section { display: block !important; }
+                body.tools-active .tools-section { display: block !important; }
+                body.funk-active .funk-section { display: block !important; }
         body.intern-active .intern-section { display: block !important; }
         body.info-active .info-section { display: block !important; }
         body.stats-active .stats-section { display: block !important; }
@@ -2626,7 +2627,7 @@
         </div>
 
         <!-- DIGITALER FUNK (Nachschub-Ruf) -->
-        <div class="card-container glass tools-section" id="restock-section" style="display: none; margin-bottom: 2rem;">
+        <div class="card-container glass funk-section" id="restock-section" style="display: none; margin-bottom: 2rem;">
             <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem;">
                     <span class="alert-icon-small" style="font-size: 1.5rem;">📡</span>
@@ -2959,19 +2960,26 @@
             </div>
         </div>
 
-        <!-- NEW: Email Newsletter Subscription -->
-        <div class="card-container glass einstellungen-section" style="margin-bottom: 1rem; border-color: rgba(0, 120, 255, 0.2);">
-            <div style="padding: 1.25rem;">
+        <!-- NEW: Info / Pitch Card -->
+        <div class="card-container glass einstellungen-section" style="margin-bottom: 2rem;">
+            <div style="padding: 1.5rem; border-left: 4px solid var(--primary-red); background: rgba(229, 9, 20, 0.03); border-radius: 20px;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                    <span class="alert-icon-small">📧</span>
-                    <h2 style="font-size: 1.25rem;">Email Newsletter</h2>
+                    <span style="font-size: 1.5rem;">🚀</span>
+                    <h2 style="font-size: 1.25rem;">Über Kinopolis Automation</h2>
                 </div>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Erhalte eine E-Mail bei neuen internen Mitteilungen für deinen Standort.</p>
-                <div style="display: flex; gap: 0.5rem; flex-direction: column;">
-                    <input type="email" id="newsletter-email" placeholder="Deine E-Mail Adresse" class="input-field" style="width: 100%;">
-                    <button onclick="subscribeNewsletter()" class="btn-primary" style="width: 100%; justify-content: center;">Abonnieren</button>
+                <p style="font-size: 0.95rem; line-height: 1.6; color: #fff; margin-bottom: 1rem;">
+                    <strong>Das Betriebssystem für dein Kino.</strong> Vernetzt, effizient und modern. 
+                </p>
+                <p style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+                    Von Mitarbeitern für Mitarbeiter entwickelt, um den Kinobetrieb ins 21. Jahrhundert zu heben. 
+                    Echtzeit-Kommunikation, intelligente Aufgabenplanung und ein digitales Gedächtnis für jeden Standort. 
+                    Kinopolis Automation ist nicht nur ein Tool – es ist die Zentrale für einen reibungslosen Ablauf hinter den Kulissen.
+                </p>
+                <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; font-size: 0.75rem; color: rgba(255,255,255,0.3);">
+                    <span>Version 2.0 (April 2026)</span>
+                    <span>•</span>
+                    <span>Made with ❤️ for Kinopolis</span>
                 </div>
-                <div id="newsletter-status" style="margin-top: 1rem; font-size: 0.8rem; display: none; padding: 0.6rem; border-radius: 8px;"></div>
             </div>
         </div>
 
@@ -3378,6 +3386,10 @@
                     runSafe(applyModuleVisibility, 'Visibility'),
                     runSafe(loadContacts, 'Contacts')
                 ]);
+
+                // Force initial tab to Live
+                const tabLive = document.getElementById('tab-live');
+                if (tabLive) switchTab('live', tabLive);
 
                 // Setup toggle for Auslässe
                 const auslaesseBtn = document.getElementById('auslaesse-toggle-btn');
@@ -6134,5 +6146,13 @@
                 <span>📂</span> Mehr
             </a>
         </nav>
+    <script>
+        window.addEventListener('load', async () => {
+            if (window.AUTH) {
+                await AUTH.init();
+                document.body.classList.add('auth-loaded');
+            }
+        });
+    </script>
 </body>
 </html>
