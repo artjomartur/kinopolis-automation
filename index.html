@@ -2460,6 +2460,18 @@
     </style>
 </head>
 <body class="dark-mode">
+    <!-- ULTIMATE SPLASH FAILSAFE -->
+    <script>
+        setTimeout(function() {
+            var s = document.getElementById('splash-screen');
+            if (s) {
+                s.style.transition = 'opacity 0.8s ease';
+                s.style.opacity = '0';
+                setTimeout(function() { s.style.display = 'none'; }, 800);
+                console.log('SPLASH: Early failsafe triggered');
+            }
+        }, 4000);
+    </script>
     <div id="splash-screen">
         <div class="splash-glow"></div>
         <div class="splash-logo-container">
@@ -3360,8 +3372,10 @@
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
             if (splash) {
-                splash.classList.add('fade-out');
-                console.log('SPLASH: Failsafe triggered');
+                splash.style.opacity = '0';
+                splash.style.pointerEvents = 'none';
+                setTimeout(() => splash.style.display = 'none', 1000);
+                console.log('SPLASH: Main failsafe triggered');
             }
         }, 3000);
 
