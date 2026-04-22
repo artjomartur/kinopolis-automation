@@ -275,13 +275,35 @@ app.post('/api/auth/forgot-password', async (c) => {
 });
 
 app.post('/api/auth/reset-password', async (c) => {
-    const { token, newPassword } = await c.req.json();
     try {
-        const payload = await verify(token, JWT_SECRET);
+        const { token, newPassword } = await c.req.json();
+        if (!token || !newPassword) return c.json({ error: 'Token und Passwort erforderlich' }, 400);
+
+        let payload;
+        try {
+            payload = await verify(token, JWT_SECRET);
+        } catch (verifyErr) {
+            console.error('JWT Verify Error:', verifyErr.message);
+            return c.json({ error: 'Der Link ist ungültig oder abgelaufen (JWT Error)' }, 401);
+        }
+
+        if (!payload.userId) {
+            return c.json({ error: 'Ungültiger Token-Inhalt' }, 401);
+        }
+
         const hash = await hashPassword(newPassword);
-        await c.env.DB.prepare('UPDATE users SET password_hash = ? WHERE id = ?').bind(hash, payload.userId).run();
+        const result = await c.env.DB.prepare('UPDATE users SET password_hash = ? WHERE id = ?')
+            .bind(hash, payload.userId).run();
+
+        if (result.meta.changes === 0) {
+            return c.json({ error: 'Nutzer nicht gefunden' }, 404);
+        }
+
         return c.json({ success: true });
-    } catch (e) { return c.json({ error: 'Ungültig oder abgelaufen' }, 401); }
+    } catch (e) { 
+        console.error('Reset Password Fatal Error:', e.message);
+        return c.json({ error: 'Interner Serverfehler: ' + e.message }, 500); 
+    }
 });
 
 app.get('/api/auth/me', async (c) => {
