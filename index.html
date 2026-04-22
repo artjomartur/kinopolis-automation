@@ -3345,6 +3345,12 @@
                 // Auth Init - Block until checked
                 if (window.AUTH) {
                     await AUTH.init();
+                    
+                    // Auto-Start Shift on Login (if not guest and no shift active)
+                    if (AUTH.user && !localStorage.getItem('kp_guest_mode') && !localStorage.getItem('shift_start_time')) {
+                        console.log("AUTH: Auto-starting shift for", AUTH.user.name);
+                        shiftCheckin();
+                    }
                 }
 
                 // Play jingle if permitted
@@ -3528,31 +3534,55 @@
             showToast('Schicht gestartet!');
         }
 
-        function shiftCheckout() {
+        async function shiftCheckout(silent = false) {
             if (!shiftStartTime) return;
             const now = new Date();
             const durationMs = now - shiftStartTime;
             const durationMin = Math.round(durationMs / 60000);
             const hours = Math.floor(durationMin / 60);
             const mins = durationMin % 60;
+            const durationStr = `${hours}h ${mins}m`;
 
             const auslaesseCount = completedAuslaesse.size;
             const cleaningCount = completedCleaning.size;
             const xpTotal = (auslaesseCount * 50) + (cleaningCount * 30);
 
-            const modal = document.getElementById('shift-summary-modal');
-            if (modal) {
-                document.getElementById('shift-summary-duration').textContent = `${hours}h ${mins}m`;
-                document.getElementById('shift-summary-auslaesse').textContent = auslaesseCount;
-                document.getElementById('shift-summary-cleaning').textContent = cleaningCount;
-                document.getElementById('shift-summary-xp').textContent = xpTotal;
-                modal.classList.add('active');
+            // Send Report to API
+            if (window.AUTH && AUTH.token) {
+                try {
+                    await fetch('/api/auth/shift-report', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${AUTH.token}`
+                        },
+                        body: JSON.stringify({
+                            duration: durationStr,
+                            auslaesse: auslaesseCount,
+                            cleaning: cleaningCount,
+                            xp: xpTotal
+                        })
+                    });
+                } catch (e) { console.error("Report failed", e); }
+            }
+
+            if (!silent) {
+                const modal = document.getElementById('shift-summary-modal');
+                if (modal) {
+                    document.getElementById('shift-summary-duration').textContent = durationStr;
+                    document.getElementById('shift-summary-auslaesse').textContent = auslaesseCount;
+                    document.getElementById('shift-summary-cleaning').textContent = cleaningCount;
+                    document.getElementById('shift-summary-xp').textContent = xpTotal;
+                    modal.classList.add('active');
+                }
             }
 
             shiftStartTime = null;
             localStorage.removeItem('shift_start_time');
             updateShiftCheckinUI();
         }
+        window.shiftCheckin = shiftCheckin;
+        window.shiftCheckout = shiftCheckout;
 
         function updateShiftCheckinUI() {
             const buttons = document.querySelectorAll('.shift-btn');

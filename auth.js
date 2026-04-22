@@ -267,7 +267,8 @@ const AUTH = {
         }
     },
 
-    logout(reload = true) {
+    async logout(reload = true) {
+        if (window.shiftCheckout) await window.shiftCheckout(true);
         localStorage.removeItem('kp_auth_token');
         localStorage.removeItem('kp_user');
         localStorage.removeItem('kp_guest_mode');

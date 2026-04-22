@@ -224,6 +224,69 @@ app.get('/api/auth/me', async (c) => {
     }
 });
 
+app.post('/api/auth/shift-report', async (c) => {
+    const authHeader = c.req.header('Authorization');
+    if (!authHeader) return c.json({ error: 'Nicht autorisiert' }, 401);
+
+    try {
+        const payload = await verify(authHeader.split(' ')[1], JWT_SECRET);
+        const { duration, auslaesse, cleaning, xp } = await c.req.json();
+        const resendKey = c.env.RESEND_API_KEY;
+
+        if (resendKey) {
+            await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${resendKey}`
+                },
+                body: JSON.stringify({
+                    from: 'Kinopolis Automation <hi@artjombecker.com>',
+                    to: payload.email,
+                    subject: `Schicht-Report: ${new Date().toLocaleDateString('de-DE')}`,
+                    html: `
+                        <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: 0 auto; background: #0f1014; color: #ffffff; border-radius: 24px; padding: 40px; border: 1px solid rgba(255,255,255,0.08);">
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" style="width: 150px;" />
+                            </div>
+                            <h1 style="font-size: 24px; text-align: center; margin-bottom: 32px;">Dein Schicht-Report</h1>
+                            
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; margin-bottom: 24px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                    <div>
+                                        <div style="color: #64748b; font-size: 12px; text-transform: uppercase;">Dauer</div>
+                                        <div style="font-size: 18px; font-weight: 800;">${duration}</div>
+                                    </div>
+                                    <div>
+                                        <div style="color: #64748b; font-size: 12px; text-transform: uppercase;">Gesammeltes XP</div>
+                                        <div style="font-size: 18px; font-weight: 800; color: #00ff66;">+${xp} XP</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 24px;">
+                                <h3 style="font-size: 14px; color: #94a3b8; margin-bottom: 16px;">ABGESCHLOSSENE AUFGABEN</h3>
+                                <div style="display: flex; gap: 12px; margin-bottom: 8px;">
+                                    <div style="background: rgba(229, 9, 20, 0.1); color: #e50914; padding: 4px 12px; border-radius: 20px; font-size: 13px;">${auslaesse} Auslässe</div>
+                                    <div style="background: rgba(0, 120, 255, 0.1); color: #0078ff; padding: 4px 12px; border-radius: 20px; font-size: 13px;">${cleaning} Reinigungen</div>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 40px; text-align: center; color: #475569; font-size: 12px;">
+                                Vielen Dank für deinen Einsatz heute!<br>
+                                © 2026 Kinopolis Automation
+                            </div>
+                        </div>
+                    `
+                })
+            });
+        }
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: 'Fehler beim Senden des Reports' }, 500);
+    }
+});
+
 // --- ADMIN / USER MANAGEMENT API ---
 app.get('/api/admin/users', async (c) => {
     const authHeader = c.req.header('Authorization');
