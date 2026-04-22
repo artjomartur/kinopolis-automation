@@ -20,25 +20,22 @@ const AUTH = {
             console.log("AUTH: Token found, forcing UI unlock...");
             this.updateUI(); // IMMEDIATELY SHOW CONTENT
             
-            try {
-                const res = await fetch('/api/auth/me', {
-                    headers: { 'Authorization': `Bearer ${this.token}` }
-                });
+            // Background verification - do not await to prevent blocking the UI
+            fetch('/api/auth/me', {
+                headers: { 'Authorization': `Bearer ${this.token}` }
+            }).then(async res => {
                 if (res.ok) {
                     const data = await res.json();
                     this.user = data.user;
                     localStorage.setItem('kp_user', JSON.stringify(this.user));
-                } else {
-                    const errData = await res.json().catch(() => ({}));
-                    console.error('AUTH: Token verification failed:', res.status, errData.message);
-                    // Only logout if it's definitely an invalid token, not a server hiccup
-                    if (res.status === 401) {
-                        // this.logout(false); // DISABLED FOR NOW TO PREVENT LOOPS
-                    }
+                    this.updateUI(); // Update again with fresh user data
+                } else if (res.status === 401) {
+                    console.error('AUTH: Token expired or invalid');
+                    // Optional: this.logout(false);
                 }
-            } catch (e) {
+            }).catch(e => {
                 console.error('AUTH: Background check failed', e);
-            }
+            });
         } else {
             this.showLoginModal();
         }

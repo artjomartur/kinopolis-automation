@@ -3368,9 +3368,16 @@
                     if (sIcon) sIcon.innerText = '☀️';
                 }
 
-                // Auth Init - Block until checked
+                // Splash Screen Fade Out - Independent and immediate
+                setTimeout(() => {
+                    const splash = document.getElementById('splash-screen');
+                    if (splash) splash.classList.add('fade-out');
+                    console.log('Splash screen fade-out triggered');
+                }, 3000); 
+
+                // Auth Init - Block until checked (but with timeout safety if possible)
                 if (window.AUTH) {
-                    await AUTH.init();
+                    await AUTH.init().catch(e => console.error("Auth init failed:", e));
                     
                     // Auto-fill checklist names and hide if logged in
                     if (AUTH.user) {
@@ -3411,11 +3418,6 @@
                     }
                 }, { passive: true });
 
-                // Splash Screen Fade Out
-                setTimeout(() => {
-                    const splash = document.getElementById('splash-screen');
-                    if (splash) splash.classList.add('fade-out');
-                }, 3500);
 
                 await Promise.all([
                     runSafe(fetchSessions, 'Sessions'),
@@ -4788,6 +4790,11 @@
                 const locations = await response.json();
                 const selector = document.getElementById('cinema-selector');
                 
+                if (!Array.isArray(locations)) {
+                    console.error('fetchLocations: Expected array but got:', locations);
+                    return;
+                }
+
                 locations.forEach(loc => {
                     const option = document.createElement('option');
                     option.value = loc.slug;
@@ -4799,10 +4806,15 @@
                 selector.addEventListener('change', (e) => {
                     currentCity = e.target.value;
                     const cityName = e.target.options[e.target.selectedIndex].text;
-                    document.getElementById('location-name').innerText = cityName;
-                    document.getElementById('dashboard').innerHTML = '<div class="loading-state"><div class="spinner"></div><div class="loading-text">Aktualisiere Daten...</div></div>';
-                    completedAuslaesse.clear();
-                    updateKurzwahlVisibility();
+                    const locNameEl = document.getElementById('location-name');
+                    if (locNameEl) locNameEl.innerText = cityName;
+                    
+                    const dashboard = document.getElementById('dashboard');
+                    if (dashboard) dashboard.innerHTML = '<div class="loading-state"><div class="spinner"></div><div class="loading-text">Aktualisiere Daten...</div></div>';
+                    
+                    if (completedAuslaesse && typeof completedAuslaesse.clear === 'function') completedAuslaesse.clear();
+                    
+                    if (typeof updateKurzwahlVisibility === 'function') updateKurzwahlVisibility();
                     fetchSessions();
                     fetchWeather();
                 });
@@ -4891,6 +4903,7 @@
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
+            if (!halls || !Array.isArray(halls)) { dashboard.innerHTML = "Keine Daten"; return; }
             halls.forEach(hall => {
                 const hallName = hall.name;
                 const sessions = hall.sessions;
