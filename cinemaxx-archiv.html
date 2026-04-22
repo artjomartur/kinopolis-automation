@@ -71,8 +71,7 @@
             border: 1px solid var(--surface-border);
             border-radius: 16px;
             padding: 1.5rem;
-            margin-bottom: 1rem;
-            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 2rem;
         }
 
         .btn-primary {
@@ -94,7 +93,7 @@
 
         .gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.5rem;
             margin-top: 1.5rem;
         }
@@ -116,14 +115,15 @@
 
         .gallery-img {
             width: 100%;
-            height: 250px;
+            height: 200px;
             object-fit: cover;
             border-bottom: 1px solid var(--surface-border);
+            cursor: pointer;
         }
 
         .gallery-caption {
-            padding: 1rem;
-            font-size: 0.9rem;
+            padding: 0.75rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
             text-align: center;
         }
@@ -138,9 +138,44 @@
             font-size: 0.95rem;
         }
         
-        .info-box strong {
+        .info-box strong { color: #fff; }
+
+        .article-section {
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+
+        .article-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-gold);
+            border-left: 4px solid var(--primary-gold);
+            padding-left: 1rem;
+        }
+
+        .article-section p {
+            margin-bottom: 1.25rem;
+            color: #d1d1d6;
+        }
+
+        .quote-box {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border: 1px dashed rgba(255,255,255,0.1);
+            font-style: italic;
             color: #fff;
         }
+
+        .source-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+        .source-link:hover { text-decoration: underline; }
 
     </style>
 </head>
@@ -157,29 +192,70 @@
         </header>
 
         <div class="info-box">
-            <strong>Historie (2000 - 2013):</strong> Das heutige Kinopolis Darmstadt in der Goebelstraße 11 wurde ursprünglich im Jahr 2000 als <strong>CinemaxX Darmstadt</strong> erbaut und betrieben. Nachdem die Cinemaxx-Gruppe das Haus abgab, wurde es Ende 2013 offiziell von der Kinopolis-Gruppe übernommen und in <strong>"Kinopolis Darmstadt"</strong> umbenannt. Die charakteristische Architektur mit der gläsernen Front am Hauptbahnhof stammt noch aus der Cinemaxx-Ära.
+            <strong>Historie (2000 - 2013):</strong> Das heutige Kinopolis Darmstadt in der Goebelstraße 11 wurde am 10. Februar 2000 als <strong>CinemaxX Darmstadt</strong> eröffnet. Nach einem intensiven Wettbewerb um den Standort am Hauptbahnhof übernahm die Theile-Gruppe (Kinopolis) im September 2000 den Betrieb und benannte das Haus Ende 2013 offiziell in <strong>"Kinopolis Darmstadt"</strong> um.
+        </div>
+
+        <div class="card article-section">
+            <h2>Der Darmstädter „Kino-Krieg“ – Ein Rückblick</h2>
+            <p>Vor genau 25 Jahren stand Darmstadt im Zeichen eines architektonischen und wirtschaftlichen Zweikampfs: Zwei Kino-Giganten kämpften um den besten Platz am Hauptbahnhof. Während die Theile-Gruppe (heute Kinopolis) ursprünglich auf der Westseite bauen wollte, sicherte sich die Hamburger CinemaxX-Gruppe von Hans-Joachim Flebbe den Standort auf der Ostseite – direkt über der Darmstädter Brauerei.</p>
+            
+            <div class="quote-box">
+                „Krieg der Kinos: Es ging darum, dem Gegner die Hosenknöpfe abzuschneiden.“ <br>
+                <small>— Klaus Staat, ehem. ECHO-Lokalredaktion</small>
+            </div>
+
+            <p>Das Gebäude war eine immobilientechnische Sensation: Der Brauerei-Besitzer Wolfgang Koehler verkaufte dabei lediglich den <strong>Luftraum</strong> über seinem Betrieb. So entstand das Kino mit seinen acht Sälen direkt über dem Braukeller, der Abfüllanlage und dem Ladehof. Die charakteristische, 26 Meter hohe Glasfassade sorgt bis heute für die spektakuläre Optik des Gebäudes.</p>
+            
+            <p>Die Eröffnung am 10. Februar 2000 wurde mit Uwe Ochsenknecht und 460 Ehrengästen gefeiert, die alle einen neun Zentimeter großen „Marzipan-Oscar“ erhielten. Doch der Start verlief holprig: Die Soundsysteme waren so brillant, dass Wassertropfen wie Dynamit klangen, und die ersten Leinwände zeigten Köpfe „im Format von Lastwagen“.</p>
+            
+            <a href="https://www.echo-online.de/lokales/darmstadt/was-es-mit-dem-darmstaedter-kino-krieg-auf-sich-hatte-4351475" target="_blank" class="source-link">Quelle: Echo Online - "Was es mit dem Darmstädter Kino-Krieg auf sich hatte"</a>
         </div>
 
         <div class="card">
-            <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Bildergalerie</h2>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Erhaltene Aufnahmen aus der Zeit vor der Übernahme zur Kinopolis-Gruppe.</p>
+            <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Bildergalerie: Bau & Eröffnung</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Historische Aufnahmen aus der Echo-Chronik und privaten Sammlungen.</p>
             
             <div class="gallery">
-                <!-- Bild 1 -->
+                <!-- User Uploaded (The one from before) -->
                 <div class="gallery-item">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/48/CinemaxX_Darmstadt_1.JPG" alt="Cinemaxx Darmstadt Außenansicht" class="gallery-img">
-                    <div class="gallery-caption">Außenansicht des CinemaxX Darmstadt (wikimedia.org)</div>
-                </div>
-                
-                <!-- User Uploaded -->
-                <div class="gallery-item">
-                    <img src="https://img.echo-online.de/incoming/lcwy1b-A-1-22277601.JPG/alternates/LANDSCAPE_2960/A-1-22277601.JPG.webp" alt="Cinemaxx Darmstadt User Upload" class="gallery-img">
-                    <div class="gallery-caption">Historische Aufnahme (Mitgracht von TL)</div>
+                    <img src="https://img.echo-online.de/incoming/lcwy1b-A-1-22277601.JPG/alternates/LANDSCAPE_2960/A-1-22277601.JPG.webp" alt="Cinemaxx Nacht" class="gallery-img" onclick="window.open(this.src)">
+                    <div class="gallery-caption">Das fertige Gebäude bei Nacht (2000)</div>
                 </div>
 
+                <!-- NEW IMAGE: Querschnitt -->
                 <div class="gallery-item">
-                    <img src="https://www.echo-online.de/storage/image/3/2/6/6/156623_default_1uEwO7_W4Z1eC.jpg" alt="Cinemaxx Echo" class="gallery-img" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&q=80&w=800'; this.onerror=null; this.parentElement.querySelector('.gallery-caption').innerText='Symbolbild Kinosaal'">
-                    <div class="gallery-caption">Zeitungsbericht & Impressionen (Echo Online)</div>
+                    <img src="media__1776812171374.png" alt="Querschnitt Brauerei" class="gallery-img" onclick="window.open(this.src)">
+                    <div class="gallery-caption">Architektur-Sensation: Kino über der Brauerei</div>
+                </div>
+
+                <!-- NEW IMAGE: Rohbau 1 -->
+                <div class="gallery-item">
+                    <img src="media__1776812149724.png" alt="Rohbau 1999" class="gallery-img" onclick="window.open(this.src)">
+                    <div class="gallery-caption">Rohbau 1999: Blick vom Foyer auf den Bahnhof</div>
+                </div>
+
+                <!-- NEW IMAGE: Rohbau Foyer -->
+                <div class="gallery-item">
+                    <img src="media__1776812791149.png" alt="Rohbau Foyer" class="gallery-img" onclick="window.open(this.src)">
+                    <div class="gallery-caption">Bau der Glasfassade & Innenausbau</div>
+                </div>
+
+                <!-- NEW IMAGE: Rolltreppe -->
+                <div class="gallery-item">
+                    <img src="media__1776812374534.png" alt="Rolltreppe im Bau" class="gallery-img" onclick="window.open(this.src)">
+                    <div class="gallery-caption">Montage der großen Rolltreppen</div>
+                </div>
+
+                <!-- NEW IMAGE: Andrang -->
+                <div class="gallery-item">
+                    <img src="media__1776812807553.png" alt="Andrang Eröffnung" class="gallery-img" onclick="window.open(this.src)">
+                    <div class="gallery-caption">Riesiger Andrang bei der Premierennacht</div>
+                </div>
+
+                <!-- Original Wikimedia -->
+                <div class="gallery-item">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/48/CinemaxX_Darmstadt_1.JPG" alt="Wikimedia Fassade" class="gallery-img" onclick="window.open(this.src)">
+                    <div class="gallery-caption">Archiv-Außenansicht (Wikimedia)</div>
                 </div>
             </div>
         </div>
