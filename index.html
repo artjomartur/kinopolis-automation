@@ -210,6 +210,57 @@
             border-radius: 24px;
         }
 
+        /* Splash Screen */
+        #splash-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #0a0a0d;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s ease, visibility 0.8s;
+        }
+        #splash-screen.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .splash-logo {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--primary-red), #ff4d4d);
+            border-radius: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            color: white;
+            box-shadow: 0 0 50px rgba(229, 9, 20, 0.3);
+            animation: splash-pulse 2s infinite ease-in-out, splash-entry 1s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+        }
+        @keyframes splash-pulse {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.05); filter: brightness(1.2); }
+        }
+        @keyframes splash-entry {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .splash-text {
+            margin-top: 1.5rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+            animation: fade-in 1s forwards 0.5s;
+        }
+
         header {
             padding: 0.6rem 4rem;
             border-bottom: 1px solid var(--surface-border);
@@ -2334,7 +2385,7 @@
 
             <!-- SHIFT CHECK-IN -->
             <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.5rem;">
-                <button id="shift-checkin-btn" onclick="shiftCheckin()" style="padding:0.5rem 1.1rem;border-radius:10px;border:1px solid #2ecc71;background:rgba(46,204,113,0.15);color:var(--text-main);cursor:pointer;font-weight:700;font-size:0.85rem;transition:all 0.3s;">🟢 Schicht starten</button>
+                <button id="shift-checkin-btn" class="shift-btn" onclick="shiftCheckin()" style="padding:0.5rem 1.1rem;border-radius:10px;border:1px solid #2ecc71;background:rgba(46,204,113,0.15);color:var(--text-main);cursor:pointer;font-weight:700;font-size:0.85rem;transition:all 0.3s;">🟢 Schicht starten</button>
                 <span id="shift-status-text" style="font-size:0.8rem;color:var(--text-muted);"></span>
             </div>
         </div>
@@ -2702,6 +2753,25 @@
 
 
         <!-- Interner Kontakt (BL) -->
+        <!-- SCHICHT-VERWALTUNG (IN EINSTELLUNGEN) -->
+        <div class="card-container glass einstellungen-section" style="margin-bottom: 1.5rem; border-color: rgba(46, 204, 113, 0.4); background: linear-gradient(135deg, rgba(46, 204, 113, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
+            <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span class="alert-icon-small">🕒</span>
+                    <h2 style="font-size: 1.25rem;">Schicht-Verwaltung</h2>
+                </div>
+            </div>
+            <div style="padding: 1rem 1.5rem 1.5rem;">
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Starte oder beende deinen Dienst, um die Arbeitszeit im Blick zu behalten.</p>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <button class="shift-btn btn-primary" onclick="shiftCheckin()" style="width: 100%; padding: 1rem; border-radius: 12px; font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+                        🟢 Schicht starten
+                    </button>
+                    <div id="shift-status-text-alt" style="text-align: center; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600;"></div>
+                </div>
+            </div>
+        </div>
+
         <div class="card-container glass einstellungen-section" id="feedback-section" style="margin-bottom: 1rem; border-color: rgba(0, 120, 255, 0.4); background: linear-gradient(135deg, rgba(0, 120, 255, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
             <div class="card-header" style="padding: 1.25rem;">
                 <a href="#" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem; width: 100%;" onclick="openFeedback('bl'); return false;">
@@ -3138,6 +3208,12 @@
                     }
                 }, { passive: true });
 
+                // Splash Screen Fade Out
+                setTimeout(() => {
+                    const splash = document.getElementById('splash-screen');
+                    if (splash) splash.classList.add('fade-out');
+                }, 1500);
+
                 await Promise.all([
                     runSafe(fetchSessions, 'Sessions'),
                     runSafe(fetchWeather, 'Weather'),
@@ -3304,26 +3380,36 @@
         }
 
         function updateShiftCheckinUI() {
-            const btn = document.getElementById('shift-checkin-btn');
+            const buttons = document.querySelectorAll('.shift-btn');
             const statusEl = document.getElementById('shift-status-text');
-            if (!btn) return;
+            const statusElAlt = document.getElementById('shift-status-text-alt');
+            if (buttons.length === 0) return;
 
             if (shiftStartTime) {
                 const now = new Date();
                 const mins = Math.round((now - shiftStartTime) / 60000);
                 const h = Math.floor(mins / 60);
                 const m = mins % 60;
-                btn.textContent = '🔴 Schicht beenden';
-                btn.style.background = 'rgba(231,76,60,0.25)';
-                btn.style.borderColor = '#e74c3c';
-                btn.onclick = shiftCheckout;
-                if (statusEl) statusEl.textContent = `Schicht läuft seit ${h > 0 ? h + 'h ' : ''}${m}m`;
+                const statusStr = `Schicht läuft seit ${h > 0 ? h + 'h ' : ''}${m}m`;
+                
+                buttons.forEach(btn => {
+                    btn.textContent = '🔴 Schicht beenden';
+                    btn.style.background = 'rgba(231,76,60,0.25)';
+                    btn.style.borderColor = '#e74c3c';
+                    btn.onclick = shiftCheckout;
+                });
+                
+                if (statusEl) statusEl.textContent = statusStr;
+                if (statusElAlt) statusElAlt.textContent = statusStr;
             } else {
-                btn.textContent = '🟢 Schicht starten';
-                btn.style.background = 'rgba(46,204,113,0.15)';
-                btn.style.borderColor = '#2ecc71';
-                btn.onclick = shiftCheckin;
+                buttons.forEach(btn => {
+                    btn.textContent = '🟢 Schicht starten';
+                    btn.style.background = 'rgba(46,204,113,0.15)';
+                    btn.style.borderColor = '#2ecc71';
+                    btn.onclick = shiftCheckin;
+                });
                 if (statusEl) statusEl.textContent = '';
+                if (statusElAlt) statusElAlt.textContent = '';
             }
         }
 
