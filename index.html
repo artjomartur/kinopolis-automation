@@ -3443,81 +3443,6 @@
             }
         });
 
-        // --- AUTH UI LOGIC ---
-        function switchAuthTab(type) {
-            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-            
-            document.getElementById(`tab-${type}`).classList.add('active');
-            document.getElementById(`form-${type}`).classList.add('active');
-        }
-
-        async function handleAuthLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const pass = document.getElementById('login-pass').value;
-            const error = document.getElementById('login-error');
-            
-            error.style.display = 'none';
-            const res = await AUTH.login(email, pass);
-            if (!res.success) {
-                error.innerText = `❌ ${res.error}`;
-                error.style.display = 'block';
-            }
-        }
-
-        async function handleAuthRegister(e) {
-            e.preventDefault();
-            const fname = document.getElementById('reg-fname').value;
-            const lname = document.getElementById('reg-lname').value;
-            const email = document.getElementById('reg-email').value;
-            const location = document.getElementById('reg-location').value;
-            const empNum = document.getElementById('reg-emp-num').value;
-            const pass = document.getElementById('reg-pass').value;
-            const error = document.getElementById('reg-error');
-            
-            error.style.display = 'none';
-            const res = await AUTH.register(email, fname, lname, location, empNum, pass);
-            if (res.success) {
-                alert('Account erfolgreich erstellt! Bitte melde dich jetzt an.');
-                switchAuthTab('login');
-                document.getElementById('login-email').value = email;
-            } else {
-                error.innerText = `❌ ${res.error}`;
-                error.style.display = 'block';
-            }
-        }
-
-        async function populateAuthLocations() {
-            const select = document.getElementById('reg-location');
-            if (!select) return;
-            try {
-                const res = await fetch('/api/locations');
-                const locations = await res.json();
-                locations.forEach(loc => {
-                    const opt = document.createElement('option');
-                    opt.value = loc.slug;
-                    opt.textContent = loc.name;
-                    select.appendChild(opt);
-                });
-            } catch (e) {
-                console.error('Failed to load locations for auth:', e);
-            }
-        }
-
-        function continueAsGuest() {
-            const modal = document.getElementById('auth-modal');
-            if (modal) modal.classList.remove('active');
-            localStorage.setItem('kp_guest_mode', 'true');
-            // Update profile button to show Guest
-            const profileBtn = document.getElementById('user-profile-btn');
-            if (profileBtn) profileBtn.innerHTML = '<span>👤</span> Gast (Anmelden)';
-            profileBtn.onclick = () => {
-                localStorage.removeItem('kp_guest_mode');
-                location.reload();
-            };
-        }
-
         // ============================================================
         // FEATURE: COUNTDOWN TIMERS
         // ============================================================
@@ -5974,45 +5899,6 @@
 
     </script>
 
-    <!-- Auth Modal -->
-    <div id="auth-modal" class="modal">
-        <div class="modal-content glass">
-            <div class="auth-tabs">
-                <div id="tab-login" class="auth-tab active" onclick="switchAuthTab('login')">Login</div>
-                <div id="tab-register" class="auth-tab" onclick="switchAuthTab('register')">Registrieren</div>
-            </div>
-
-            <!-- Login Form -->
-            <form id="form-login" class="auth-form active" onsubmit="handleAuthLogin(event)">
-                <input type="email" id="login-email" class="input-field" placeholder="E-Mail" required>
-                <input type="password" id="login-pass" class="input-field" placeholder="Passwort" required>
-                <div id="login-error" class="auth-error">❌ Ungültige Anmeldedaten</div>
-                <button type="submit" class="btn-primary" style="margin-top: 1rem; padding: 1rem;">Anmelden</button>
-            </form>
-
-            <!-- Register Form -->
-            <form id="form-register" class="auth-form" onsubmit="handleAuthRegister(event)">
-                <div style="display: flex; gap: 0.75rem;">
-                    <input type="text" id="reg-fname" class="input-field" placeholder="Vorname" required>
-                    <input type="text" id="reg-lname" class="input-field" placeholder="Nachname" required>
-                </div>
-                <input type="email" id="reg-email" class="input-field" placeholder="E-Mail" required>
-                <select id="reg-location" class="input-field" required>
-                    <option value="" disabled selected>Standort wählen...</option>
-                </select>
-                <input type="text" id="reg-emp-num" class="input-field" placeholder="Mitarbeiternummer (opt.)">
-                <input type="password" id="reg-pass" class="input-field" placeholder="Passwort wählen" required>
-                <div id="reg-error" class="auth-error">❌ Fehler bei der Registrierung</div>
-                <button type="submit" class="btn-primary" style="margin-top: 1rem; padding: 1rem;">Account erstellen</button>
-            </form>
-
-            <div style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem; text-align: center;">
-                <button onclick="continueAsGuest()" class="btn-secondary" style="background: transparent; color: var(--primary-blue); border: 1px solid var(--primary-blue); width: 100%; padding: 0.75rem; border-radius: 12px; font-weight: 600;">
-                    Weiter als Gast
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- Welcome Modal -->
     <div id="welcome-modal" class="modal">

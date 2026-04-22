@@ -79,6 +79,54 @@ app.post('/api/auth/register', async (c) => {
             console.error('Auto-subscribe error:', e);
         }
 
+        // Send Welcome Email
+        const resendKey = c.env.RESEND_API_KEY;
+        if (resendKey) {
+            try {
+                await fetch('https://api.resend.com/emails', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${resendKey}`
+                    },
+                    body: JSON.stringify({
+                        from: 'Kinopolis Automation <noreply@artjombecker.com>',
+                        to: email.toLowerCase(),
+                        subject: 'Willkommen im Kinopolis Automation Dashboard!',
+                        html: `
+                            <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; background: #ffffff; border-radius: 16px; border: 1px solid #eef2f6;">
+                                <div style="text-align: center; margin-bottom: 30px;">
+                                    <div style="font-size: 40px;">🍿</div>
+                                    <h1 style="color: #0f172a; margin-top: 10px;">Willkommen, ${first_name}!</h1>
+                                </div>
+                                <p style="color: #475569; line-height: 1.6; font-size: 16px;">
+                                    Dein Account für das <strong>Kinopolis Automation Dashboard</strong> wurde erfolgreich erstellt. Du bist jetzt für den Standort <strong>${location}</strong> registriert.
+                                </p>
+                                <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin: 25px 0;">
+                                    <h3 style="margin-top: 0; color: #1e293b; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em;">Deine Vorteile:</h3>
+                                    <ul style="color: #64748b; padding-left: 20px; line-height: 1.8;">
+                                        <li>Echtzeit-Updates zu Filmen & Schichten</li>
+                                        <li>Digitaler Funk & Team-Mitteilungen</li>
+                                        <li>Zugriff auf Handbücher & Dokumente</li>
+                                        <li>Integrierter Newsletter für Schicht-News</li>
+                                    </ul>
+                                </div>
+                                <p style="color: #475569; line-height: 1.6;">
+                                    Du kannst dich ab sofort unter <a href="https://kinopolis.artjombecker.com" style="color: #e50914; text-decoration: none; font-weight: 600;">kinopolis.artjombecker.com</a> anmelden.
+                                </p>
+                                <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 30px 0;">
+                                <p style="color: #94a3b8; font-size: 12px; text-align: center;">
+                                    Dies ist eine automatisch generierte E-Mail. Bitte antworte nicht direkt auf diese Nachricht.
+                                </p>
+                            </div>
+                        `
+                    })
+                });
+            } catch (emailErr) {
+                console.error('Welcome Email Error:', emailErr);
+            }
+        }
+
         return c.json({ success: true });
     } catch (e) {
         if (e.message.includes('UNIQUE constraint failed')) {

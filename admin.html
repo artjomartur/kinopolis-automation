@@ -11,6 +11,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="auth.js"></script>
     <style>
+        /* Hidden until Auth */
+        body:not(.auth-loaded) > *:not(script):not(style):not(.modal) { display: none !important; }
+    </style>
+    <style>
         :root {
             --bg-color: #0a0a0d;
             --surface-color: rgba(20, 20, 25, 0.7);
@@ -969,6 +973,20 @@
             // Reusing toast logic if available or just alert
             console.log("Admin Toast:", msg);
         }
+
+        window.addEventListener('load', async () => {
+            if (window.AUTH) {
+                await AUTH.init();
+                // Check if Admin
+                if (AUTH.user?.role !== 'admin') {
+                    alert('Zugriff verweigert: Nur für Administratoren.');
+                    window.location.href = 'index.html';
+                    return;
+                }
+                document.body.classList.add('auth-loaded');
+                loadStaff();
+            }
+        });
     </script>
 </body>
 </html>

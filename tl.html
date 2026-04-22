@@ -9,6 +9,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <script src="auth.js"></script>
     <style>
+        /* Hidden until Auth */
+        body:not(.auth-loaded) > *:not(script):not(style):not(.modal) { display: none !important; }
+    </style>
+    <style>
         :root {
             --primary-red: #e50914;
             --primary-blue: #0078ff;
@@ -626,7 +630,8 @@
                     return; // Login modal will show via AUTH.init()
                 }
                 
-                document.getElementById('tl-main').style.display = 'block';
+                document.body.classList.add('auth-loaded');
+                if (document.getElementById('tl-main')) document.getElementById('tl-main').style.display = 'block';
                 refreshDashboard();
             }
         });
