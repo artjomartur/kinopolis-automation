@@ -17,24 +17,26 @@ const AUTH = {
         }
 
         if (this.token) {
+            // Optimistic render: show UI if we have a token
+            this.updateUI();
+            
             try {
                 const res = await fetch('/api/auth/me', {
                     headers: { 'Authorization': `Bearer ${this.token}` }
                 });
-                console.log('AUTH: /me response', res.status);
                 if (res.ok) {
                     const data = await res.json();
                     this.user = data.user;
                     localStorage.setItem('kp_user', JSON.stringify(this.user));
-                    this.updateUI();
-                } else {
-                    console.warn('AUTH: Token invalid, clearing...');
+                    this.updateUI(); // Refresh with real user data
+                } else if (res.status === 401) {
+                    console.warn('AUTH: Token invalid, logging out...');
                     this.logout(false);
                     this.showLoginModal();
                 }
             } catch (e) {
-                console.error('AUTH: Network error during init', e);
-                // Don't show modal on network error, might be offline
+                console.error('AUTH: Init verification error', e);
+                // Keep UI showing if network error, don't kick user out
             }
         } else {
             this.showLoginModal();
@@ -64,9 +66,10 @@ const AUTH = {
                             <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase;">E-Mail Adresse</label>
                             <input type="email" id="login-email" class="glass-input" placeholder="name@kinopolis.de" style="width: 100%; padding: 1rem; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;">
                         </div>
-                        <div style="margin-bottom: 2rem;">
+                        <div style="margin-bottom: 2rem; position: relative;">
                             <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase;">Passwort</label>
                             <input type="password" id="login-password" class="glass-input" placeholder="••••••••" style="width: 100%; padding: 1rem; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;">
+                            <button onclick="alert('Bitte wende dich an den Administrator (Artjom), um dein Passwort zurückzusetzen.')" style="position: absolute; right: 0; bottom: -20px; background: none; border: none; color: var(--text-muted); font-size: 0.75rem; cursor: pointer;">Passwort vergessen?</button>
                         </div>
                         
                         <button onclick="AUTH.handleLogin()" id="login-btn" class="btn-primary" style="width: 100%; padding: 1rem; border-radius: 12px; font-weight: 800; font-size: 1rem; margin-bottom: 1rem;">
@@ -289,6 +292,10 @@ const AUTH = {
     },
 
     updateUI() {
+        // Essential: Allow content to be seen
+        document.body.classList.add('auth-loaded');
+        this.hideLoginModal();
+
         const userBtn = document.getElementById('user-profile-btn');
         if (!userBtn) return;
 

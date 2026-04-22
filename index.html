@@ -3228,6 +3228,12 @@
             'technik': 'Technik'
         };
 
+        // --- GAMIFICATION STUB ---
+        function updateGamification() {
+            // Placeholder for progress tracking / XP
+            console.log("Gamification initialized");
+        }
+
         // --- RESET LOGIC ---
         function checkAndResetDailyTasks() {
             const today = new Date().toISOString().split('T')[0];
@@ -5554,10 +5560,10 @@
         function playStartupSound() {
             try {
                 const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-cinematic-mystery-single-whoosh-1496.mp3');
-                audio.volume = 0.5;
+                audio.volume = 0.4;
                 audio.play().catch(e => console.log("Audio blockiert"));
             } catch (e) {
-                console.log("Audio feedback muted or blocked");
+                console.log("Audio muted");
             }
         }
 

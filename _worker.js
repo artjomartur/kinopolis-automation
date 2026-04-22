@@ -220,7 +220,8 @@ app.get('/api/auth/me', async (c) => {
         const payload = await verify(token, JWT_SECRET);
         return c.json({ user: payload });
     } catch (e) {
-        return c.json({ error: 'Ungültiger Token' }, 401);
+        console.error('JWT Verification Failed:', e.message);
+        return c.json({ error: 'Ungültiger Token', message: e.message }, 401);
     }
 });
 
