@@ -3230,9 +3230,28 @@
 
         // --- GAMIFICATION STUB ---
         function updateGamification() {
-            // Placeholder for progress tracking / XP
-            console.log("Gamification initialized");
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            const xp = checkboxes.length * 15; // 15 XP per task
+            
+            const xpDisplay = document.getElementById('user-xp');
+            const levelDisplay = document.getElementById('user-level');
+            const progress = document.getElementById('xp-progress');
+            
+            if (xpDisplay) xpDisplay.innerText = `${xp} XP`;
+            if (progress) progress.style.width = `${Math.min(100, (xp % 100))}%`;
+            
+            if (levelDisplay) {
+                if (xp < 50) levelDisplay.innerText = 'Anfänger';
+                else if (xp < 150) levelDisplay.innerText = 'Fortgeschrittener';
+                else if (xp < 300) levelDisplay.innerText = 'Profi';
+                else levelDisplay.innerText = 'Meister';
+            }
         }
+        
+        // Listen for checkbox changes to update XP live
+        document.addEventListener('change', (e) => {
+            if (e.target.type === 'checkbox') updateGamification();
+        });
 
         // --- RESET LOGIC ---
         function checkAndResetDailyTasks() {
@@ -3352,10 +3371,15 @@
                 if (window.AUTH) {
                     await AUTH.init();
                     
-                    // Auto-Start Shift on Login (if not guest and no shift active)
-                    if (AUTH.user && !localStorage.getItem('kp_guest_mode') && !localStorage.getItem('shift_start_time')) {
-                        console.log("AUTH: Auto-starting shift for", AUTH.user.name);
-                        shiftCheckin();
+                    // Auto-fill checklist names and hide if logged in
+                    if (AUTH.user) {
+                        const nameInputs = document.querySelectorAll('input[placeholder="Name eingeben..."]');
+                        nameInputs.forEach(input => {
+                            input.value = AUTH.user.name || (AUTH.user.first_name + ' ' + (AUTH.user.last_name || ''));
+                            const parent = input.closest('.mb-4') || input.parentElement;
+                            if (parent && parent.innerText.includes('Dein Name')) parent.style.display = 'none';
+                        });
+                        updateGamification(); // Initial XP calc
                     }
                 }
 
