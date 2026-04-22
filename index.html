@@ -332,7 +332,7 @@
             .feedback-tab {
                 position: fixed;
                 right: 20px !important;
-                bottom: 20px !important;
+                bottom: 110px !important;
                 top: auto !important;
                 left: auto !important;
                 transform: none !important;
@@ -1657,14 +1657,7 @@
                 gap: 1rem;
             }
             .nav-tabs {
-                padding: 0.5rem !important;
-                gap: 0.5rem !important;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                display: flex;
-                justify-content: flex-start;
-                background: var(--surface-color);
-                border: 1px solid var(--surface-border);
+                display: none !important;
             }
             .tab-btn {
                 white-space: nowrap;
@@ -2239,9 +2232,6 @@
                     <span id="weather-icon"></span>
                     <span id="weather-temp"></span>
                 </div>
-                <button onclick="toggleTheme()" class="glass" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--surface-border); background: var(--surface-color); color: var(--text-main); transition: all 0.3s ease;">
-                    <span id="theme-icon">🌙</span>
-                </button>
                 <select id="cinema-selector" class="location-select glass"></select>
 
             </div>
@@ -3008,7 +2998,9 @@
                 if (savedTheme === 'light') {
                     document.body.classList.add('light-mode');
                     const icon = document.getElementById('theme-icon');
+                    const sIcon = document.getElementById('settings-theme-icon');
                     if (icon) icon.innerText = '☀️';
+                    if (sIcon) sIcon.innerText = '☀️';
                 }
 
                 // Core Data
@@ -5212,10 +5204,12 @@
         function toggleTheme() {
             const body = document.body;
             const icon = document.getElementById('theme-icon');
+            const settingsIcon = document.getElementById('settings-theme-icon');
             body.classList.toggle('light-mode');
             const isLight = body.classList.contains('light-mode');
             localStorage.setItem('theme', isLight ? 'light' : 'dark');
             if (icon) icon.innerText = isLight ? '☀️' : '🌙';
+            if (settingsIcon) settingsIcon.innerText = isLight ? '☀️' : '🌙';
         }
 
         // --- DATA VISIBILITY & UTILS ---
