@@ -3,6 +3,10 @@ const AUTH = {
     user: JSON.parse(localStorage.getItem('kp_user') || 'null'),
 
     async init() {
+        if (localStorage.getItem('kp_guest_mode') === 'true') {
+            this.updateUI();
+            return;
+        }
         if (this.token) {
             try {
                 const res = await fetch('/api/auth/me', {
@@ -88,8 +92,19 @@ const AUTH = {
 
     updateUI() {
         const userBtn = document.getElementById('user-profile-btn');
-        if (userBtn && this.user) {
+        if (!userBtn) return;
+
+        if (this.user) {
             userBtn.innerHTML = `<span>👤</span> ${this.user.name}`;
+            userBtn.onclick = () => this.logout();
+            userBtn.title = 'Abmelden';
+        } else if (localStorage.getItem('kp_guest_mode') === 'true') {
+            userBtn.innerHTML = '<span>👤</span> Gast (Anmelden)';
+            userBtn.onclick = () => {
+                localStorage.removeItem('kp_guest_mode');
+                location.reload();
+            };
+            userBtn.title = 'Klick zum Anmelden';
         }
     }
 };

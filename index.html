@@ -3367,7 +3367,7 @@
                 setTimeout(() => {
                     const splash = document.getElementById('splash-screen');
                     if (splash) splash.classList.add('fade-out');
-                }, 1500);
+                }, 2500);
 
                 await Promise.all([
                     runSafe(fetchSessions, 'Sessions'),
@@ -3490,6 +3490,19 @@
             } catch (e) {
                 console.error('Failed to load locations for auth:', e);
             }
+        }
+
+        function continueAsGuest() {
+            const modal = document.getElementById('auth-modal');
+            if (modal) modal.classList.remove('active');
+            localStorage.setItem('kp_guest_mode', 'true');
+            // Update profile button to show Guest
+            const profileBtn = document.getElementById('user-profile-btn');
+            if (profileBtn) profileBtn.innerHTML = '<span>👤</span> Gast (Anmelden)';
+            profileBtn.onclick = () => {
+                localStorage.removeItem('kp_guest_mode');
+                location.reload();
+            };
         }
 
         // ============================================================
@@ -5979,6 +5992,12 @@
                 <div id="reg-error" class="auth-error">❌ Fehler bei der Registrierung</div>
                 <button type="submit" class="btn-primary" style="margin-top: 1rem; padding: 1rem;">Account erstellen</button>
             </form>
+
+            <div style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem; text-align: center;">
+                <button onclick="continueAsGuest()" class="btn-secondary" style="background: transparent; color: var(--primary-blue); border: 1px solid var(--primary-blue); width: 100%; padding: 0.75rem; border-radius: 12px; font-weight: 600;">
+                    Weiter als Gast
+                </button>
+            </div>
         </div>
     </div>
 
