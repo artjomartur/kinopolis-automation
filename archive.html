@@ -202,30 +202,54 @@
             localStorage.setItem('last_city', city); // Sync with other pages
 
             try {
-                // Assuming /api/logs also returns historical logs if we don't have a specific archive endpoint
-                // Since this is just a quick feature, we'll fetch logs and display them all
-                const res = await fetch(`/api/logs?location=${city}`);
-                if (!res.ok) throw new Error("Fehler beim Laden");
-                const logs = await res.json();
+                // Fetch both Logs and Archived Internal Messages
+                const [logsRes, msgsRes] = await Promise.all([
+                    fetch(`/api/logs?location=${city}`),
+                    fetch(`/api/messages/archived?location=${city}`)
+                ]);
 
-                if (!logs || logs.length === 0) {
+                if (!logsRes.ok || !msgsRes.ok) throw new Error("Fehler beim Laden");
+                
+                const logs = await logsRes.json();
+                const archivedMsgs = await msgsRes.json();
+
+                // Combine and sort by date
+                let combined = [
+                    ...logs.map(l => ({ ...l, type: 'log' })),
+                    ...archivedMsgs.map(m => ({ ...m, type: 'message' }))
+                ];
+
+                combined.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                if (combined.length === 0) {
                     list.innerHTML = '<div class="empty-state">Keine Einträge im Archiv gefunden.</div>';
                     return;
                 }
 
-                // Show all logs in a continuous list
-                list.innerHTML = logs.map(item => {
+                list.innerHTML = combined.map(item => {
+                    if (item.type === 'message') {
+                        return `
+                            <div class="feed-item" style="border-left-color: var(--primary-blue); background: rgba(0,120,255,0.05);">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <strong>📢 [INTERN] ${item.title}</strong>
+                                    <span class="feed-time">${formatTime(item.created_at)}</span>
+                                </div>
+                                <div style="font-size: 0.95rem; white-space: pre-wrap; margin-bottom: 0.5rem;">${item.content}</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">Von: ${item.author}</div>
+                                ${item.image_url ? `<br><img src="${item.image_url}" class="log-image" loading="lazy">` : ''}
+                            </div>
+                        `;
+                    }
+
                     const isFunk = item.message.includes('[FUNK]');
                     const priorityClass = item.priority ? `priority-${item.priority}` : '';
                     let cleanMsg = item.message.replace('[FUNK]', '').replace('[TRANSFERLISTE]', '').replace('[IN_PROGRESS]', '').trim();
                     let imgHtml = '';
                     
-                    // If log items ever get image URLs saved (future proofing)
                     if (item.image_url) {
                         imgHtml = `<br><img src="${item.image_url}" class="log-image" loading="lazy">`;
                     }
-                    // Simple regex to check if a URL to an image is within the message text
-                    const urlRegex = /(https?:\\/\\/[^\\s]+(?:jpg|jpeg|png|gif|webp))/ig;
+                    const urlRegex = /(https?:\/\/[^\s]+(?:jpg|jpeg|png|gif|webp))/ig;
                     if (cleanMsg.match(urlRegex)) {
                         const urls = cleanMsg.match(urlRegex);
                         for(let url of urls) {

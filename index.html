@@ -2119,8 +2119,9 @@
         }
         .contact-dial.bg-green { background: rgba(46,204,113,0.2); border: 1px solid rgba(46,204,113,0.4); }
         
-        .tools-section, .info-section, .stats-section, .kontakte-section, .intern-section, .einstellungen-section, .admin-section { display: none !important; }
+        .tools-section, .info-section, .stats-section, .kontakte-section, .intern-section, .einstellungen-section, .admin-section, .live-section { display: none !important; }
         
+        body.live-active .live-section { display: block !important; }
         body.tools-active .tools-section { display: block !important; }
         body.intern-active .intern-section { display: block !important; }
         body.info-active .info-section { display: block !important; }
@@ -2453,18 +2454,6 @@
                         </div>
                     </div>
 
-                    <!-- Eis Category -->
-                    <div style="display: contents;">
-                        <button onclick="toggleFunkGlobal('eis')" class="restock-btn funk-main-btn" style="background: rgba(155, 89, 182, 0.1); border: 1px solid rgba(155, 89, 182, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
-                            <span style="font-size: 2rem;">🍦</span>
-                            <span style="font-weight: 600; font-size: 0.9rem;">Eis</span>
-                        </button>
-                        <div id="funk-eis-options" style="display: none; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(155, 89, 182, 0.2); margin-top: -0.5rem;">
-                            <button onclick="triggerRestock('🍦 Magnum')" class="btn-secondary" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(155, 89, 182, 0.3); color: #9b59b6;">🍦 Magnum</button>
-                            <button onclick="triggerRestock('🍦 Eiskonfekt')" class="btn-secondary" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(155, 89, 182, 0.3); color: #9b59b6;">🍦 Konfekt</button>
-                            <button onclick="resetFunkView()" class="btn-secondary" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem; color: #fff;">Zurück / Abbrechen</button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -2499,7 +2488,7 @@
         <div id="poster-alerts-container" class="live-section">
 
         <!-- EIS-TRANSFERLISTE -->
-        <div class="card-container glass tools-section" id="eis-transfer-section" style="display: none; margin-bottom: 1rem; border-color: rgba(52, 152, 219, 0.3);">
+        <div class="card-container glass tools-section" id="eis-transfer-section" style="margin-bottom: 1rem; border-color: rgba(52, 152, 219, 0.3);">
             <div class="card-header" style="padding: 1rem 1.25rem 0.5rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem;">
                     <span class="alert-icon-small">🍦</span>
@@ -2992,7 +2981,7 @@
                 document.body.classList.add('live-active');
             } else if (view === 'funk') {
                 document.body.classList.add('tools-active', 'funk-active');
-                if (document.getElementById('transfer-items').children.length === 0) initTransferList();
+                fetchInventory();
             } else if (view === 'action') {
                 document.body.classList.add('action-active', 'intern-active', 'tools-active');
             } else if (view === 'mehr') {
@@ -3476,34 +3465,55 @@
             return outputArray;
         }
 
-        const TRANSFER_ITEMS = [
-            { name: "Ai Tee White Peach",  target: 12 },
-            { name: "Ai Tee Lemon",        target: 12 },
-            { name: "Bionade Orange",       target: 8 },
-            { name: "Bionade Holunder",     target: 8 },
-            { name: "M&M Schoko",           target: 14 },
-            { name: "M&M Peanut",           target: 14 },
-            { name: "Wasser (still)",       target: 12 },
+        let TRANSFER_ITEMS = [
+            { name: "🍿 Popcorn Süß", target: 40 },
+            { name: "🧂 Popcorn Salz", target: 20 },
+            { name: "🧀 Nachos", target: 50 },
+            { name: "🥤 Becher 1.0L", target: 100 },
+            { name: "🥤 Becher 0.5L", target: 100 },
+            { name: "🥤 Becher Deckel", target: 150 },
+            { name: "🥤 Strohhalme", target: 200 }
         ];
 
-        const EIS_TRANSFER_ITEMS = [
-            { name: "Magnum", target: 20 },
-            { name: "Eiskonfekt", target: 20 }
+        let EIS_TRANSFER_ITEMS = [
+            { name: "🍦 Magnum Classic", target: 20 },
+            { name: "🍦 Magnum Mandel", target: 20 },
+            { name: "🍦 Magnum White", target: 20 },
+            { name: "🍦 Eiskonfekt", target: 15 }
         ];
+
+        async function fetchInventory() {
+            try {
+                const res = await fetch('/api/inventory');
+                const data = await res.json();
+                if (data.waren && data.waren.length > 0) TRANSFER_ITEMS = data.waren;
+                if (data.eis && data.eis.length > 0) EIS_TRANSFER_ITEMS = data.eis;
+                initTransferList();
+            } catch (e) {
+                console.error("Failed to fetch inventory", e);
+                initTransferList();
+            }
+        }
 
         function initTransferList() {
             const container = document.getElementById('transfer-items');
             if (!container) return;
             container.innerHTML = TRANSFER_ITEMS.map((item, index) => `
-                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
-                    <div style="display: flex; flex-direction: column; gap: 0.1rem;">
-                        <span style="font-size: 0.95rem; color: #fff;">${item.name}</span>
-                        <span style="font-size: 0.7rem; color: var(--text-muted);">Soll: ${item.target} Stück</span>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; flex-direction: column; gap: 0.1rem;">
+                            <span style="font-size: 0.95rem; color: #fff; font-weight: 600;">${item.name}</span>
+                            <span style="font-size: 0.7rem; color: var(--text-muted);">Soll: ${item.target} Stück</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <button class="btn-secondary" onclick="updateTransferCount(${index}, -1)" style="width: 32px; height: 32px; padding: 0; border-radius: 8px; font-weight: bold; background: rgba(229, 9, 20, 0.2); border-color: rgba(229, 9, 20, 0.4); color: #ff4d4d; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">-</button>
+                            <input type="number" id="transfer-count-${index}" min="0" value="0" style="width: 45px; height: 32px; text-align: center; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: var(--primary-blue); font-weight: bold; font-size: 1rem; padding: 0; appearance: textfield;" />
+                            <button class="btn-secondary" onclick="updateTransferCount(${index}, 1)" style="width: 32px; height: 32px; padding: 0; border-radius: 8px; font-weight: bold; background: rgba(46, 204, 113, 0.2); border-color: rgba(46, 204, 113, 0.4); color: #2ecc71; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">+</button>
+                        </div>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <button class="btn-secondary" onclick="updateTransferCount(${index}, -1)" style="width: 32px; height: 32px; padding: 0; border-radius: 8px; font-weight: bold; background: rgba(229, 9, 20, 0.2); border-color: rgba(229, 9, 20, 0.4); color: #ff4d4d; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">-</button>
-                        <input type="number" id="transfer-count-${index}" min="0" value="0" style="width: 45px; height: 32px; text-align: center; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: var(--primary-blue); font-weight: bold; font-size: 1rem; padding: 0; appearance: textfield;" />
-                        <button class="btn-secondary" onclick="updateTransferCount(${index}, 1)" style="width: 32px; height: 32px; padding: 0; border-radius: 8px; font-weight: bold; background: rgba(46, 204, 113, 0.2); border-color: rgba(46, 204, 113, 0.4); color: #2ecc71; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">+</button>
+                    <div style="display: flex; align-items: center; gap: 0.75rem; background: rgba(0,0,0,0.2); padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                        <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Frühstes MHD:</span>
+                        <input type="date" id="transfer-mhd-${index}" style="flex: 1; background: transparent; border: none; color: #fff; font-size: 0.85rem; outline: none; font-family: 'Outfit'; cursor: pointer;" />
                     </div>
                 </div>
             `).join('');
@@ -3512,14 +3522,21 @@
             const eisContainer = document.getElementById('eis-transfer-items');
             if (eisContainer) {
                 eisContainer.innerHTML = EIS_TRANSFER_ITEMS.map((item, index) => `
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(52, 152, 219, 0.05); padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid rgba(52, 152, 219, 0.15);">
-                        <div style="display: flex; flex-direction: column; gap: 0.1rem;">
-                            <span style="font-size: 0.95rem; color: #fff;">${item.name}</span>
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem; background: rgba(52, 152, 219, 0.05); padding: 1rem; border-radius: 12px; border: 1px solid rgba(52, 152, 219, 0.15);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; flex-direction: column; gap: 0.1rem;">
+                                <span style="font-size: 0.95rem; color: #fff; font-weight: 600;">${item.name}</span>
+                                <span style="font-size: 0.7rem; color: var(--text-muted);">Soll: ${item.target} Stück</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <button class="btn-secondary" onclick="updateEisTransferCount(${index}, -1)" style="width: 32px; height: 32px; padding: 0; border-radius: 8px; font-weight: bold; background: rgba(229, 9, 20, 0.2); border-color: rgba(229, 9, 20, 0.4); color: #ff4d4d; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">-</button>
+                                <input type="number" id="eis-transfer-count-${index}" min="0" value="0" style="width: 45px; height: 32px; text-align: center; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #3498db; font-weight: bold; font-size: 1rem; padding: 0; appearance: textfield;" />
+                                <button class="btn-secondary" onclick="updateEisTransferCount(${index}, 1)" style="width: 32px; height: 32px; padding: 0; border-radius: 8px; font-weight: bold; background: rgba(46, 204, 113, 0.2); border-color: rgba(46, 204, 113, 0.4); color: #2ecc71; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">+</button>
+                            </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <button class="btn-secondary" onclick="updateEisTransferCount(${index}, -1)" style="width: 32px; height: 32px; padding: 0; border-radius: 8px; font-weight: bold; background: rgba(229, 9, 20, 0.2); border-color: rgba(229, 9, 20, 0.4); color: #ff4d4d; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">-</button>
-                            <input type="number" id="eis-transfer-count-${index}" min="0" value="0" style="width: 45px; height: 32px; text-align: center; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #3498db; font-weight: bold; font-size: 1rem; padding: 0; appearance: textfield;" />
-                            <button class="btn-secondary" onclick="updateEisTransferCount(${index}, 1)" style="width: 32px; height: 32px; padding: 0; border-radius: 8px; font-weight: bold; background: rgba(46, 204, 113, 0.2); border-color: rgba(46, 204, 113, 0.4); color: #2ecc71; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">+</button>
+                        <div style="display: flex; align-items: center; gap: 0.75rem; background: rgba(0,0,0,0.2); padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid rgba(52, 152, 219, 0.1);">
+                            <span style="font-size: 0.75rem; color: rgba(255,255,255,0.5); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Frühstes MHD:</span>
+                            <input type="date" id="eis-transfer-mhd-${index}" style="flex: 1; background: transparent; border: none; color: #fff; font-size: 0.85rem; outline: none; font-family: 'Outfit'; cursor: pointer;" />
                         </div>
                     </div>
                 `).join('');
@@ -3546,7 +3563,12 @@
             let itemsNeeded = [];
             TRANSFER_ITEMS.forEach((item, index) => {
                 const count = parseInt(document.getElementById('transfer-count-' + index).value) || 0;
-                if (count > 0) itemsNeeded.push(`${count}x ${item.name} (Soll: ${item.target})`);
+                const mhd = document.getElementById('transfer-mhd-' + index).value;
+                if (count > 0) {
+                    let desc = `${count}x ${item.name} (Soll: ${item.target})`;
+                    if (mhd) desc += ` [MHD: ${mhd}]`;
+                    itemsNeeded.push(desc);
+                }
             });
 
             const customVal = document.getElementById('transfer-custom').value.trim();
@@ -3591,7 +3613,12 @@
             let itemsNeeded = [];
             EIS_TRANSFER_ITEMS.forEach((item, index) => {
                 const count = parseInt(document.getElementById('eis-transfer-count-' + index).value) || 0;
-                if (count > 0) itemsNeeded.push(`${count}x ${item.name}`);
+                const mhd = document.getElementById('eis-transfer-mhd-' + index).value;
+                if (count > 0) {
+                    let desc = `${count}x ${item.name}`;
+                    if (mhd) desc += ` [MHD: ${mhd}]`;
+                    itemsNeeded.push(desc);
+                }
             });
 
             const customVal = document.getElementById('eis-transfer-custom').value.trim();

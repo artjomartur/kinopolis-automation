@@ -207,6 +207,34 @@
                 </div>
             </div>
 
+            <!-- Inventory Management -->
+            <div class="admin-section">
+                <h2><span>📋</span> Transfer-Artikel & Soll-Werte</h2>
+                <div class="card">
+                    <p style="margin-bottom: 1.25rem;">Verwalte die Artikel in der Waren- und Eis-Transferliste sowie deren Ziel-Bestände (Soll).</p>
+                    
+                    <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 14px; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                        <input type="text" id="inv-name" placeholder="Artikelname (z.B. Popcorn Süß)" class="input-field" style="margin-bottom: 0;">
+                        <input type="number" id="inv-target" placeholder="Soll-Wert (Stück)" class="input-field" style="margin-bottom: 0;">
+                        <select id="inv-type" class="input-field" style="margin-bottom: 0;">
+                            <option value="waren">Waren-Transfer</option>
+                            <option value="eis">Eis-Transfer</option>
+                        </select>
+                        <button class="btn-primary" onclick="addInventoryItem()" style="padding: 0.75rem;">Artikel Hinzufügen</button>
+                    </div>
+
+                    <h3 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; text-transform: uppercase;">Waren-Artikel</h3>
+                    <div id="admin-inv-waren" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem;">
+                        <p style="color: var(--text-muted); font-size: 0.85rem;">Lade Artikel...</p>
+                    </div>
+
+                    <h3 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; text-transform: uppercase;">Eis-Artikel</h3>
+                    <div id="admin-inv-eis" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <p style="color: var(--text-muted); font-size: 0.85rem;">Lade Artikel...</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Contacts Management -->
             <div class="admin-section">
                 <h2><span>📞</span> Telefonliste verwalten</h2>
@@ -434,13 +462,14 @@
 
         function showAdminPanel() {
             document.getElementById('admin-login-gate').style.display = 'none';
-            document.getElementById('admin-main-content').style.display = 'flex';
-            renderModules();
+            document.getElementById('admin-main-content').style.display = 'block';
             loadAdminMessages();
             loadAdminContacts();
+            initModuleManagement();
+            loadInventory();
         }
 
-        function renderModules() {
+        function initModuleManagement() {
             const container = document.getElementById('module-management-list');
             const disabledModules = JSON.parse(localStorage.getItem('disabled_modules') || '[]');
             
@@ -467,33 +496,85 @@
 
         // Message Management
         async function loadAdminMessages() {
-            const container = document.getElementById('admin-msg-list');
+            const list = document.getElementById('admin-msg-list');
             try {
-                const res = await fetch(`/api/messages?location=${currentCity}&limit=20`);
-                if (!res.ok) { container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">Keine Verbindung zur Datenbank.</p>'; return; }
-                const msgs = await res.json();
-                if (!msgs.length) { container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">Keine aktiven Mitteilungen.</p>'; return; }
-                container.innerHTML = msgs.map(m => `
-                    <div class="msg-item">
-                        <div class="msg-item-body">
-                            <div class="msg-item-title">${m.title}</div>
-                            <div class="msg-item-meta">${m.author || 'Anonym'} · ${new Date(m.created_at).toLocaleString('de-DE', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'})}</div>
+                const res = await fetch(`/api/messages?location=${currentCity}`);
+                const data = await res.json();
+                list.innerHTML = data.map(m => `
+                    <div style="background: rgba(255,255,255,0.03); padding: 0.75rem 1rem; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="overflow: hidden;">
+                            <div style="font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.title}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">${new Date(m.created_at).toLocaleDateString('de-DE')} von ${m.author}</div>
                         </div>
-                        <button class="btn-delete" onclick="deleteAdminMsg(${m.id})">🗑️ Löschen</button>
+                        <button onclick="deleteMessage(${m.id})" style="background: rgba(229, 9, 20, 0.1); color: #e50914; border: none; padding: 0.4rem 0.6rem; border-radius: 8px; font-size: 0.75rem; cursor: pointer;">Löschen (Archiv)</button>
                     </div>
-                `).join('');
+                `).join('') || '<p style="color: var(--text-muted); font-size: 0.85rem;">Keine Mitteilungen vorhanden.</p>';
             } catch (e) {
-                container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">Fehler beim Laden.</p>';
+                list.innerHTML = 'Fehler beim Laden.';
             }
         }
 
-        async function deleteAdminMsg(id) {
-            if (!confirm('Diese Mitteilung wirklich löschen?')) return;
+        async function deleteMessage(id) {
+            if (!confirm('Diese Nachricht wirklich archivieren?')) return;
             try {
                 const res = await fetch(`/api/messages/${id}`, { method: 'DELETE' });
                 if (res.ok) loadAdminMessages();
-                else alert('Fehler beim Löschen.');
-            } catch(e) { alert('Netzwerkfehler.'); }
+            } catch (e) { alert('Fehler beim Archivieren.'); }
+        }
+
+        // --- INVENTORY MANAGEMENT ---
+        async function loadInventory() {
+            const warenList = document.getElementById('admin-inv-waren');
+            const eisList = document.getElementById('admin-inv-eis');
+            try {
+                const res = await fetch('/api/inventory');
+                const data = await res.json();
+                
+                const renderItem = (i) => `
+                    <div style="background: rgba(255,255,255,0.03); padding: 0.6rem 0.8rem; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05);">
+                        <div>
+                            <div style="font-weight: 600; font-size: 0.85rem;">${i.name}</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">Soll: ${i.target} Stück</div>
+                        </div>
+                        <button onclick="deleteInventoryItem(${i.id})" style="background: rgba(229, 9, 20, 0.1); color: #ff4d4d; border: none; padding: 0.35rem 0.5rem; border-radius: 6px; font-size: 0.7rem; cursor: pointer;">Entfernen</button>
+                    </div>
+                `;
+
+                warenList.innerHTML = data.waren.map(renderItem).join('') || '<p style="color: var(--text-muted); font-size: 0.8rem;">Keine Waren-Artikel.</p>';
+                eisList.innerHTML = data.eis.map(renderItem).join('') || '<p style="color: var(--text-muted); font-size: 0.8rem;">Keine Eis-Artikel.</p>';
+            } catch (e) {
+                warenList.innerHTML = 'Fehler beim Laden.';
+                eisList.innerHTML = 'Fehler beim Laden.';
+            }
+        }
+
+        async function addInventoryItem() {
+            const name = document.getElementById('inv-name').value.trim();
+            const target = parseInt(document.getElementById('inv-target').value) || 0;
+            const type = document.getElementById('inv-type').value;
+            
+            if (!name) return alert('Bitte Name eingeben.');
+            
+            try {
+                const res = await fetch('/api/inventory', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, target, type })
+                });
+                if (res.ok) {
+                    document.getElementById('inv-name').value = '';
+                    document.getElementById('inv-target').value = '';
+                    loadInventory();
+                }
+            } catch (e) { alert('Fehler beim Hinzufügen.'); }
+        }
+
+        async function deleteInventoryItem(id) {
+            if (!confirm('Artikel wirklich löschen?')) return;
+            try {
+                const res = await fetch(`/api/inventory/${id}`, { method: 'DELETE' });
+                if (res.ok) loadInventory();
+            } catch (e) { alert('Fehler beim Löschen.'); }
         }
 
         // Contacts Management

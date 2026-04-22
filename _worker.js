@@ -338,11 +338,11 @@ app.get('/api/messages', async (c) => {
     if (!c.env.DB) return c.json(STATIC_MESSAGES);
     try {
         const location = c.req.query('location');
-        let query = 'SELECT * FROM messages';
+        let query = 'SELECT * FROM messages WHERE is_archived = 0';
         let params = [];
         
         if (location) {
-            query += ' WHERE location = ? OR location IS NULL';
+            query += ' AND (location = ? OR location IS NULL)';
             params.push(location);
         }
         query += ' ORDER BY created_at DESC LIMIT 20';
@@ -350,13 +350,33 @@ app.get('/api/messages', async (c) => {
         const { results } = await c.env.DB.prepare(query).bind(...params).all();
         return c.json(results.length ? results : STATIC_MESSAGES);
     } catch (e) {
-        // Fallback for older DB versions without location column
+        // Fallback for older DB versions
         try {
-            const { results } = await c.env.DB.prepare('SELECT * FROM messages ORDER BY created_at DESC LIMIT 20').all();
+            const { results } = await c.env.DB.prepare('SELECT * FROM messages WHERE is_archived = 0 ORDER BY created_at DESC LIMIT 20').all();
             return c.json(results.length ? results : STATIC_MESSAGES);
         } catch (e2) {
             return c.json(STATIC_MESSAGES);
         }
+    }
+});
+
+app.get('/api/messages/archived', async (c) => {
+    if (!c.env.DB) return c.json([]);
+    try {
+        const location = c.req.query('location');
+        let query = 'SELECT * FROM messages WHERE is_archived = 1';
+        let params = [];
+        
+        if (location) {
+            query += ' AND (location = ? OR location IS NULL)';
+            params.push(location);
+        }
+        query += ' ORDER BY created_at DESC LIMIT 50';
+        
+        const { results } = await c.env.DB.prepare(query).bind(...params).all();
+        return c.json(results);
+    } catch (e) {
+        return c.json([]);
     }
 });
 
@@ -394,7 +414,47 @@ app.post('/api/messages', async (c) => {
 app.delete('/api/messages/:id', async (c) => {
     const id = c.req.param('id');
     if (c.env.DB) {
-        await c.env.DB.prepare('DELETE FROM messages WHERE id = ?').bind(id).run();
+        // Soft delete: set is_archived to 1
+        await c.env.DB.prepare('UPDATE messages SET is_archived = 1 WHERE id = ?').bind(id).run();
+    }
+    return c.json({ success: true });
+});
+
+// --- INVENTORY API ---
+app.get('/api/inventory', async (c) => {
+    if (!c.env.DB) return c.json({ waren: [], eis: [] });
+    try {
+        const { results } = await c.env.DB.prepare('SELECT * FROM inventory_items ORDER BY type, name').all();
+        return c.json({
+            waren: results.filter(i => i.type === 'waren'),
+            eis: results.filter(i => i.type === 'eis')
+        });
+    } catch (e) {
+        // Table might not exist yet, try to create it
+        try {
+            await c.env.DB.prepare('CREATE TABLE IF NOT EXISTS inventory_items (id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, name TEXT, target INTEGER, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)').run();
+        } catch(e2) {}
+        return c.json({ waren: [], eis: [] });
+    }
+});
+
+app.post('/api/inventory', async (c) => {
+    try {
+        const { type, name, target } = await c.req.json();
+        if (!type || !name) return c.json({ error: 'Type and name required' }, 400);
+        if (c.env.DB) {
+            await c.env.DB.prepare('INSERT INTO inventory_items (type, name, target) VALUES (?, ?, ?)').bind(type, name, target || 0).run();
+        }
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+app.delete('/api/inventory/:id', async (c) => {
+    const id = c.req.param('id');
+    if (c.env.DB) {
+        await c.env.DB.prepare('DELETE FROM inventory_items WHERE id = ?').bind(id).run();
     }
     return c.json({ success: true });
 });
