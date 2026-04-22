@@ -8,34 +8,41 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #0f0f13;
-            --surface-color: #1a1a24;
-            --surface-border: rgba(255,255,255,0.08);
-            --text-main: #f8f9fa;
-            --text-muted: #8b8b9a;
-            --primary-blue: #0078ff;
-            --primary-gold: #ffb900;
+            --bg-color: #0a0a0d;
+            --surface-color: rgba(20, 20, 25, 0.7);
+            --surface-border: rgba(255, 255, 255, 0.1);
+            --text-main: #F2F2F2;
+            --text-muted: #8E8E93;
+            --primary-blue: #0078FF;
+            --accent-blue: #00d2ff;
+            --card-radius: 24px;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
+        }
         
         body {
-            font-family: 'Outfit', -apple-system, sans-serif;
-            background-color: var(--bg-dark);
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(0, 120, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(229, 9, 20, 0.05) 0%, transparent 50%);
             color: var(--text-main);
             line-height: 1.5;
-            -webkit-font-smoothing: antialiased;
-            display: flex;
-            flex-direction: column;
             min-height: 100vh;
         }
+
+        h1, h2 { font-family: 'Outfit', sans-serif; }
 
         .container {
             max-width: 1000px;
             margin: 0 auto;
-            padding: 2rem 1.5rem;
+            padding: 3rem 1.5rem;
             width: 100%;
-            flex: 1;
         }
 
         header {
@@ -105,46 +112,41 @@
         }
 
         .btn-primary {
-            background: rgba(255,255,255,0.1);
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
             color: white;
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
+            padding: 0.6rem 1.25rem;
+            border-radius: 12px;
             cursor: pointer;
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 0.9rem;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(0, 120, 255, 0.2);
         }
 
         .btn-primary:hover {
-            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 120, 255, 0.4);
+            filter: brightness(1.1);
         }
 
-        .log-image {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin-top: 0.5rem;
-            border: 1px solid rgba(255,255,255,0.1);
-            max-height: 300px;
-            object-fit: cover;
-        }
-        
-        .filter-bar {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
         .filter-select {
-            background: var(--surface-color);
+            background: rgba(255, 255, 255, 0.05);
             color: white;
             border: 1px solid var(--surface-border);
             padding: 0.6rem 1rem;
-            border-radius: 8px;
+            border-radius: 12px;
             font-family: inherit;
             outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .filter-select:focus {
+            border-color: var(--primary-blue);
         }
 
     </style>
@@ -168,10 +170,10 @@
                 <option value="rx">Darmstadt (RX)</option>
                 <option value="ab">Aschaffenburg</option>
             </select>
-            <button class="btn-primary" onclick="loadArchive()" style="border-color: var(--primary-blue); color: var(--primary-blue); background: rgba(0,120,255,0.1);">
+            <button class="btn-primary" onclick="loadArchive()">
                 🔄 Aktualisieren
             </button>
-            <a href="cinemaxx-archiv.html" class="btn-primary" style="background: rgba(255, 185, 0, 0.1); color: var(--primary-gold); border-color: rgba(255, 185, 0, 0.3); margin-left: auto;">🍿 CinemaxX Archiv (2000-2013)</a>
+            <a href="cinemaxx-archiv.html" class="btn-primary" style="margin-left: auto; background: linear-gradient(135deg, #ffb900, #ff8c00); border: none;">🍿 CinemaxX Archiv (2000-2013)</a>
         </div>
 
         <div class="card">
