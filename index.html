@@ -3413,10 +3413,6 @@
                 // Core Data
                 await fetchLocations().catch(e => console.error("Locations failed:", e));
                 
-                const runSafe = async (fn, name) => {
-                    try { await fn(); } catch (e) { console.error(`Failed to init ${name}:`, e); }
-                };
-
                 // Mobile Header
                 let lastScrollTop = 0;
                 window.addEventListener('scroll', () => {
@@ -4505,7 +4501,7 @@
             document.getElementById('lf-modal').classList.add('active');
         }
         function closeLfModal() {
-            document.getElementById('lf-modal').classList.active = false;
+            document.getElementById('lf-modal').classList.remove('active');
             document.getElementById('lf-what').value = '';
             document.getElementById('lf-category').value = '';
             document.getElementById('lf-where').value = '';
@@ -5639,22 +5635,19 @@
             try {
                 const audio = new Audio('./startup.mp3');
                 audio.volume = 0.5;
-                audio.play().catch(e => console.log('Audio play blocked by browser:', e));
+                audio.play().then(() => {
+                    console.log("AUDIO: Harmonious Chime played");
+                    // Visual feedback for Test Button
+                    const btn = document.querySelector('button[onclick="playStartupSound()"]');
+                    if (btn) {
+                        const originalText = btn.innerText;
+                        btn.innerText = '✨ Harmonisch!';
+                        setTimeout(() => btn.innerText = originalText, 1500);
+                    }
+                }).catch(e => console.log('Audio play blocked by browser:', e));
             } catch (e) {
                 console.error('Error playing startup sound:', e);
             }
-        }
-
-                console.log("AUDIO: Harmonious Chime played");
-                
-                // Visual feedback for Test Button
-                const btn = document.querySelector('button[onclick="playStartupSound()"]');
-                if (btn) {
-                    const originalText = btn.innerText;
-                    btn.innerText = '✨ Harmonisch!';
-                    setTimeout(() => btn.innerText = originalText, 1500);
-                }
-            } catch (e) { console.warn("Audio Context blocked", e); }
         }
 
         document.getElementById('brand-logo').onload = function() {
