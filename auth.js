@@ -17,11 +17,12 @@ const AUTH = {
                     this.user = data.user;
                     localStorage.setItem('kp_user', JSON.stringify(this.user));
                     this.updateUI();
-                } else {
+                } else if (res.status === 401) {
                     this.logout();
                 }
             } catch (e) {
                 console.error('Auth init failed:', e);
+                // Don't logout on network error to avoid loops
             }
         } else {
             this.showLoginModal();
@@ -40,13 +41,14 @@ const AUTH = {
             this.user = data.user;
             localStorage.setItem('kp_auth_token', this.token);
             localStorage.setItem('kp_user', JSON.stringify(this.user));
+            localStorage.removeItem('kp_guest_mode'); // Clear guest mode on successful login
+            
             // Update local city if different
             if (this.user.location) {
                 localStorage.setItem('kinopolis_city', this.user.location);
                 if (window.currentCity) window.currentCity = this.user.location;
             }
             this.hideLoginModal();
-            this.updateUI();
             location.reload(); // Reload to apply all states
             return { success: true };
         } else {
@@ -75,6 +77,7 @@ const AUTH = {
     logout() {
         localStorage.removeItem('kp_auth_token');
         localStorage.removeItem('kp_user');
+        localStorage.removeItem('kp_guest_mode');
         this.token = null;
         this.user = null;
         location.reload();
