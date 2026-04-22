@@ -5,7 +5,11 @@ const AUTH = {
 
     async init() {
         this.injectModal();
-        console.log('AUTH: Initializing...', { hasToken: !!this.token, guest: localStorage.getItem('kp_guest_mode') });
+        console.log('AUTH: Initializing...', { 
+            hasToken: !!this.token, 
+            guest: localStorage.getItem('kp_guest_mode'),
+            lsToken: localStorage.getItem('kp_auth_token')
+        });
         
         if (localStorage.getItem('kp_guest_mode') === 'true') {
             this.updateUI();
@@ -17,18 +21,20 @@ const AUTH = {
                 const res = await fetch('/api/auth/me', {
                     headers: { 'Authorization': `Bearer ${this.token}` }
                 });
+                console.log('AUTH: /me response', res.status);
                 if (res.ok) {
                     const data = await res.json();
                     this.user = data.user;
                     localStorage.setItem('kp_user', JSON.stringify(this.user));
                     this.updateUI();
-                } else if (res.status === 401) {
-                    console.warn('AUTH: Token expired or invalid');
-                    this.logout(false); // Logout without reload to avoid loops
+                } else {
+                    console.warn('AUTH: Token invalid, clearing...');
+                    this.logout(false);
                     this.showLoginModal();
                 }
             } catch (e) {
                 console.error('AUTH: Network error during init', e);
+                // Don't show modal on network error, might be offline
             }
         } else {
             this.showLoginModal();
@@ -151,14 +157,27 @@ const AUTH = {
         const btn = document.getElementById('login-btn');
         const errorEl = document.getElementById('auth-error-msg');
         
-        if (errorEl) errorEl.style.display = 'none';
+        if (errorEl) {
+            errorEl.style.display = 'none';
+            errorEl.style.background = 'rgba(229, 9, 20, 0.15)';
+            errorEl.style.color = '#ff4d4d';
+        }
+
         if (!email || !password) return this.showError('Bitte E-Mail und Passwort ausfüllen');
         
         btn.disabled = true;
         btn.innerText = 'Wird angemeldet...';
         
         const res = await this.login(email, password);
-        if (!res.success) {
+        if (res.success) {
+            if (errorEl) {
+                errorEl.innerText = '✅ Anmeldung erfolgreich! Dashboard wird geladen...';
+                errorEl.style.background = 'rgba(0, 255, 100, 0.1)';
+                errorEl.style.color = '#00ff66';
+                errorEl.style.display = 'block';
+            }
+            setTimeout(() => location.reload(), 800);
+        } else {
             this.showError(res.error || 'Anmeldung fehlgeschlagen');
             btn.disabled = false;
             btn.innerText = 'Anmelden';
@@ -209,24 +228,27 @@ const AUTH = {
 
     async login(email, password) {
         try {
+            console.log('AUTH: Attempting login for', email);
             const res = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
             });
             const data = await res.json();
+            console.log('AUTH: Login response', data);
+            
             if (data.success) {
                 this.token = data.token;
                 this.user = data.user;
                 localStorage.setItem('kp_auth_token', this.token);
                 localStorage.setItem('kp_user', JSON.stringify(this.user));
                 localStorage.removeItem('kp_guest_mode');
-                location.reload();
                 return { success: true };
             } else {
                 return { success: false, error: data.error };
             }
         } catch (e) {
+            console.error('AUTH: Login error', e);
             return { success: false, error: 'Server nicht erreichbar' };
         }
     },
