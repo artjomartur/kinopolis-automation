@@ -94,31 +94,60 @@ app.post('/api/auth/register', async (c) => {
                         to: email.toLowerCase(),
                         subject: 'Willkommen im Kinopolis Automation Dashboard!',
                         html: `
-                            <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; background: #ffffff; border-radius: 16px; border: 1px solid #eef2f6;">
-                                <div style="text-align: center; margin-bottom: 30px;">
-                                    <div style="font-size: 40px;">🍿</div>
-                                    <h1 style="color: #0f172a; margin-top: 10px;">Willkommen, ${first_name}!</h1>
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                                <meta charset="utf-8">
+                                <style>
+                                    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #0f1014; color: #ffffff; }
+                                    .container { max-width: 600px; margin: 0 auto; background-color: #1a1b1f; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
+                                    .header { padding: 40px 20px; text-align: center; background: linear-gradient(135deg, #1a1b1f 0%, #0a0a0d 100%); }
+                                    .logo { width: 180px; margin-bottom: 20px; }
+                                    .content { padding: 40px; }
+                                    .hero-text { font-size: 24px; font-weight: 800; color: #ffffff; margin-bottom: 16px; letter-spacing: -0.02em; }
+                                    .body-text { color: #94a3b8; line-height: 1.6; font-size: 16px; margin-bottom: 32px; }
+                                    .feature-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; margin-bottom: 32px; }
+                                    .feature-title { color: #e50914; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
+                                    .feature-list { list-style: none; padding: 0; margin: 0; }
+                                    .feature-item { color: #f1f5f9; margin-bottom: 8px; display: flex; align-items: center; }
+                                    .btn { display: inline-block; background: linear-gradient(135deg, #e50914, #ff3d47); color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 14px; font-weight: 800; font-size: 16px; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3); }
+                                    .footer { padding: 32px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
+                                    .footer-text { color: #475569; font-size: 12px; }
+                                </style>
+                            </head>
+                            <body>
+                                <div style="padding: 20px;">
+                                    <div class="container">
+                                        <div class="header">
+                                            <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" alt="Kinopolis" class="logo">
+                                        </div>
+                                        <div class="content">
+                                            <h1 class="hero-text">Willkommen, ${first_name}!</h1>
+                                            <p class="body-text">
+                                                Dein Account für das <strong>Kinopolis Automation Dashboard</strong> ist jetzt aktiv. Wir freuen uns, dich am Standort <strong>${location}</strong> im Team zu haben.
+                                            </p>
+                                            
+                                            <div class="feature-card">
+                                                <div class="feature-title">Deine neuen Tools</div>
+                                                <div class="feature-item">🚀 Echtzeit-Updates & Schichtpläne</div>
+                                                <div class="feature-item">📱 Digitaler Funk & Messenger</div>
+                                                <div class="feature-item">📖 Handbücher & Checklisten</div>
+                                            </div>
+
+                                            <div style="text-align: center;">
+                                                <a href="https://kinopolis.artjombecker.com" class="btn">Zum Dashboard</a>
+                                            </div>
+                                        </div>
+                                        <div class="footer">
+                                            <p class="footer-text">
+                                                Dies ist eine automatische Benachrichtigung.<br>
+                                                © 2026 Kinopolis Automation
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <p style="color: #475569; line-height: 1.6; font-size: 16px;">
-                                    Dein Account für das <strong>Kinopolis Automation Dashboard</strong> wurde erfolgreich erstellt. Du bist jetzt für den Standort <strong>${location}</strong> registriert.
-                                </p>
-                                <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin: 25px 0;">
-                                    <h3 style="margin-top: 0; color: #1e293b; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em;">Deine Vorteile:</h3>
-                                    <ul style="color: #64748b; padding-left: 20px; line-height: 1.8;">
-                                        <li>Echtzeit-Updates zu Filmen & Schichten</li>
-                                        <li>Digitaler Funk & Team-Mitteilungen</li>
-                                        <li>Zugriff auf Handbücher & Dokumente</li>
-                                        <li>Integrierter Newsletter für Schicht-News</li>
-                                    </ul>
-                                </div>
-                                <p style="color: #475569; line-height: 1.6;">
-                                    Du kannst dich ab sofort unter <a href="https://kinopolis.artjombecker.com" style="color: #e50914; text-decoration: none; font-weight: 600;">kinopolis.artjombecker.com</a> anmelden.
-                                </p>
-                                <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 30px 0;">
-                                <p style="color: #94a3b8; font-size: 12px; text-align: center;">
-                                    Dies ist eine automatisch generierte E-Mail. Bitte antworte nicht direkt auf diese Nachricht.
-                                </p>
-                            </div>
+                            </body>
+                            </html>
                         `
                     })
                 });
@@ -619,17 +648,55 @@ app.post('/api/messages', async (c) => {
 
                     if (subscribers.results && subscribers.results.length > 0) {
                         const emailContent = `
-                            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                                <h2 style="color: #0078FF;">📢 Neue Mitteilung</h2>
-                                <h3 style="color: #333; margin-top: 0;">${title}</h3>
-                                <p style="color: #666; font-size: 0.9rem; margin-bottom: 20px;">Von: <strong>${author || 'System'}</strong></p>
-                                <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; white-space: pre-wrap; line-height: 1.6;">${content}</div>
-                                ${image_url ? `<img src="${image_url}" style="width: 100%; margin-top: 20px; border-radius: 8px;" />` : ''}
-                                <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
-                                <p style="font-size: 0.8rem; color: #999;">
-                                    Du erhältst diese E-Mail, weil du den Kinopolis Newsletter für den Standort <strong>${location || 'kp'}</strong> abonniert hast.
-                                </p>
-                            </div>
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                                <meta charset="utf-8">
+                                <style>
+                                    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #0f1014; color: #ffffff; }
+                                    .container { max-width: 600px; margin: 0 auto; background-color: #1a1b1f; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
+                                    .header { padding: 40px 20px; text-align: center; background: linear-gradient(135deg, #1a1b1f 0%, #0a0a0d 100%); }
+                                    .logo { width: 180px; margin-bottom: 20px; }
+                                    .content { padding: 40px; }
+                                    .label { color: #e50914; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+                                    .title { font-size: 24px; font-weight: 800; color: #ffffff; margin-bottom: 8px; letter-spacing: -0.02em; }
+                                    .meta { color: #64748b; font-size: 14px; margin-bottom: 32px; }
+                                    .message-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; color: #f1f5f9; line-height: 1.6; white-space: pre-wrap; font-size: 16px; }
+                                    .image { width: 100%; border-radius: 16px; margin-top: 24px; border: 1px solid rgba(255,255,255,0.1); }
+                                    .btn { display: inline-block; background: rgba(255,255,255,0.05); color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 14px; border: 1px solid rgba(255,255,255,0.1); margin-top: 32px; }
+                                    .footer { padding: 32px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
+                                    .footer-text { color: #475569; font-size: 12px; }
+                                </style>
+                            </head>
+                            <body>
+                                <div style="padding: 20px;">
+                                    <div class="container">
+                                        <div class="header">
+                                            <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" alt="Kinopolis" class="logo">
+                                        </div>
+                                        <div class="content">
+                                            <div class="label">Neue Mitteilung</div>
+                                            <h1 class="title">${title}</h1>
+                                            <div class="meta">Von: <strong>${author || 'System'}</strong> • Standort: ${location || 'Alle'}</div>
+                                            
+                                            <div class="message-box">${content}</div>
+                                            
+                                            ${image_url ? `<img src="${image_url}" class="image" />` : ''}
+
+                                            <div style="text-align: center;">
+                                                <a href="https://kinopolis.artjombecker.com" class="btn">Dashboard öffnen</a>
+                                            </div>
+                                        </div>
+                                        <div class="footer">
+                                            <p class="footer-text">
+                                                Du erhältst diese E-Mail als Mitarbeiter von Kinopolis.<br>
+                                                © 2026 Kinopolis Automation
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </body>
+                            </html>
                         `;
 
                         for (const sub of subscribers.results) {
