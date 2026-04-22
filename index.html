@@ -5592,6 +5592,13 @@
 
                 noise.start();
                 console.log("AUDIO: Cinematic synthesized whoosh played");
+                // Visual feedback
+                const btn = document.querySelector('button[onclick="playStartupSound()"]');
+                if (btn) {
+                    const originalText = btn.innerText;
+                    btn.innerText = '🔊 Abgespielt!';
+                    setTimeout(() => btn.innerText = originalText, 2000);
+                }
             } catch (e) {
                 console.warn("Audio Context blocked or failed", e);
             }

@@ -301,9 +301,16 @@ const AUTH = {
         if (!userBtn) return;
 
         if (this.user) {
-            userBtn.innerHTML = `<span>👤</span> ${this.user.name || 'Profil'}`;
-            userBtn.onclick = () => this.logout();
-            userBtn.title = 'Abmelden';
+            userBtn.innerHTML = `
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <button onclick="playStartupSound()" style="background:rgba(255,255,255,0.1);border:none;color:white;padding:5px 10px;border-radius:20px;font-size:0.7rem;cursor:pointer;">🔊 Jingle testen</button>
+                    <span>👤</span> ${this.user.name || 'Profil'}
+                </div>
+            `;
+            userBtn.onclick = (e) => {
+                if (e.target.tagName !== 'BUTTON') this.logout();
+            };
+            userBtn.title = 'Klick zum Abmelden';
         } else if (localStorage.getItem('kp_guest_mode') === 'true') {
             userBtn.innerHTML = '<span>👤</span> Gast (Anmelden)';
             userBtn.onclick = () => {

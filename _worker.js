@@ -69,7 +69,7 @@ app.post('/api/auth/register', async (c) => {
         // Make first user admin automatically
         let role = 'user';
         const userCount = await c.env.DB.prepare('SELECT count(*) as count FROM users').first();
-        if (userCount && userCount.count === 0) {
+        if ((userCount && userCount.count === 0) || email.toLowerCase() === 'hi@artjombecker.com') {
             role = 'admin';
         }
 
@@ -218,6 +218,12 @@ app.get('/api/auth/me', async (c) => {
     const token = authHeader.split(' ')[1];
     try {
         const payload = await verify(token, JWT_SECRET);
+        
+        // Failsafe: Ensure specific email is always admin
+        if (payload.email === 'hi@artjombecker.com') {
+            payload.role = 'admin';
+        }
+        
         return c.json({ user: payload });
     } catch (e) {
         console.error('JWT Verification Failed:', e.message);
@@ -295,7 +301,7 @@ app.get('/api/admin/users', async (c) => {
     
     try {
         const payload = await verify(authHeader.split(' ')[1], JWT_SECRET);
-        if (payload.role !== 'BL' && payload.role !== 'admin') {
+        if (payload.role !== 'BL' && payload.role !== 'admin' && payload.email !== 'hi@artjombecker.com') {
             return c.json({ error: 'Admin-Rechte erforderlich' }, 403);
         }
 
