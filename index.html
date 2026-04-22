@@ -5637,7 +5637,6 @@
                 audio.volume = 0.5;
                 audio.play().then(() => {
                     console.log("AUDIO: Harmonious Chime played");
-                    // Visual feedback for Test Button
                     const btn = document.querySelector('button[onclick="playStartupSound()"]');
                     if (btn) {
                         const originalText = btn.innerText;
@@ -5649,6 +5648,7 @@
                 console.error('Error playing startup sound:', e);
             }
         }
+        window.playStartupSound = playStartupSound;
 
         document.getElementById('brand-logo').onload = function() {
             this.style.display = 'block';

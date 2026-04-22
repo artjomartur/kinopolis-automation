@@ -229,7 +229,7 @@ app.post('/api/auth/forgot-password', async (c) => {
         exp: Math.floor(Date.now() / 1000) + (15 * 60) // 15 min
     }, JWT_SECRET);
 
-    const resetLink = `https://kinopolis.artjombecker.com/reset-password.html?token=${resetToken}`;
+    const resetLink = `https://kinopolis.artjombecker.com/reset-password.html?token=${encodeURIComponent(resetToken)}`;
     const resendKey = c.env.RESEND_API_KEY;
 
     if (resendKey) {
@@ -242,27 +242,17 @@ app.post('/api/auth/forgot-password', async (c) => {
                     to: email.toLowerCase(),
                     subject: 'Passwort zurücksetzen',
                     html: `
-                        <div style="background-color: #0a0a0d; padding: 40px 20px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
-                            <div style="max-width: 600px; margin: 0 auto; background: #141419; border: 1px solid rgba(255,255,255,0.08); border-radius: 32px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
-                                <div style="padding: 40px; text-align: center; background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);">
-                                    <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" style="width: 180px; margin-bottom: 30px; filter: drop-shadow(0 0 10px rgba(229, 9, 20, 0.2));" />
-                                    <h1 style="color: #ffffff; font-size: 28px; font-weight: 800; margin-bottom: 16px; letter-spacing: -0.02em;">Passwort zurücksetzen</h1>
-                                    <p style="color: #94a3b8; font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
-                                        Hallo ${user.first_name},<br>
-                                        du hast eine Anfrage zum Zurücksetzen deines Passworts gestellt. Klicke auf den Button unten, um ein neues Passwort festzulegen.
-                                    </p>
-                                    <a href="${resetLink}" style="display: inline-block; background: linear-gradient(135deg, #e50914 0%, #ff3d47 100%); color: #ffffff; text-decoration: none; padding: 18px 36px; border-radius: 16px; font-weight: 800; font-size: 16px; box-shadow: 0 10px 25px rgba(229, 9, 20, 0.4);">
-                                        Passwort jetzt ändern
-                                    </a>
-                                    <p style="color: #475569; font-size: 13px; margin-top: 32px;">
-                                        Der Link ist aus Sicherheitsgründen nur <strong>15 Minuten</strong> gültig.<br>
-                                        Falls du dies nicht angefragt hast, kannst du diese E-Mail ignorieren.
-                                    </p>
+                        <div style="background-color:#f1f5f9;padding:40px 20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+                            <div style="max-width:580px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:24px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+                                <div style="padding:48px 40px;text-align:center;">
+                                    <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" style="width:150px;margin-bottom:32px;" />
+                                    <h1 style="color:#0f172a;font-size:26px;font-weight:800;margin:0 0 16px;letter-spacing:-0.02em;">Passwort zur&uuml;cksetzen</h1>
+                                    <p style="color:#475569;font-size:16px;line-height:1.7;margin:0 0 32px;">Hallo ${user.first_name},<br>du hast eine Anfrage zum Zur&uuml;cksetzen deines Passworts gestellt. Klicke auf den Button unten, um ein neues Passwort festzulegen.</p>
+                                    <a href="${resetLink}" style="display:inline-block;background:linear-gradient(135deg,#e50914,#ff3d47);color:#ffffff;text-decoration:none;padding:16px 40px;border-radius:14px;font-weight:800;font-size:16px;letter-spacing:0.01em;box-shadow:0 8px 20px rgba(229,9,20,0.3);">Passwort jetzt &auml;ndern</a>
+                                    <p style="color:#94a3b8;font-size:13px;margin:28px 0 0;line-height:1.6;">Der Link ist nur <strong style="color:#64748b;">15 Minuten</strong> g&uuml;ltig.<br>Falls du dies nicht angefragt hast, ignoriere diese E-Mail.</p>
                                 </div>
-                                <div style="padding: 20px; text-align: center; background: rgba(0,0,0,0.2); border-top: 1px solid rgba(255,255,255,0.05);">
-                                    <p style="color: #475569; font-size: 11px; margin: 0; text-transform: uppercase; letter-spacing: 0.1em;">
-                                        © 2026 Kinopolis Automation Dashboard
-                                    </p>
+                                <div style="padding:20px 40px;background:#f8fafc;border-top:1px solid #e2e8f0;text-align:center;">
+                                    <p style="color:#94a3b8;font-size:11px;margin:0;text-transform:uppercase;letter-spacing:0.1em;">&copy; 2026 Kinopolis Automation Dashboard</p>
                                 </div>
                             </div>
                         </div>
