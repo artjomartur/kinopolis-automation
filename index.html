@@ -308,7 +308,8 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.2s;
+            transform: scale(1);
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.2s;
         }
 
         #splash-screen.fade-out {
@@ -2525,7 +2526,7 @@
         </div>
 
         <!-- LIVE ALERT BANNER -->
-        <div id="live-alert-banner" class="live-section" style="display:none; flex-direction:column; gap:0.5rem; margin-bottom:1rem; padding:0.75rem 1rem; background:rgba(231,76,60,0.1); border:1px solid rgba(231,76,60,0.4); border-radius:12px;">
+        <div id="live-alert-banner" style="display:none; flex-direction:column; gap:0.5rem; margin-bottom:1rem; padding:0.75rem 1rem; background:rgba(231,76,60,0.1); border:1px solid rgba(231,76,60,0.4); border-radius:12px;">
         </div>
 
         <div class="nav-tabs">
@@ -3375,7 +3376,7 @@
                 setTimeout(() => {
                     const splash = document.getElementById('splash-screen');
                     if (splash) splash.classList.add('fade-out');
-                }, 2500);
+                }, 3500);
 
                 await Promise.all([
                     runSafe(fetchSessions, 'Sessions'),

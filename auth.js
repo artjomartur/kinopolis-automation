@@ -3,28 +3,34 @@ const AUTH = {
     user: JSON.parse(localStorage.getItem('kp_user') || 'null'),
 
     async init() {
+        console.log('AUTH: Initializing...', { hasToken: !!this.token, guest: localStorage.getItem('kp_guest_mode') });
         if (localStorage.getItem('kp_guest_mode') === 'true') {
             this.updateUI();
             return;
         }
         if (this.token) {
             try {
+                console.log('AUTH: Checking session...');
                 const res = await fetch('/api/auth/me', {
                     headers: { 'Authorization': `Bearer ${this.token}` }
                 });
                 if (res.ok) {
                     const data = await res.json();
+                    console.log('AUTH: Session valid', data.user.email);
                     this.user = data.user;
                     localStorage.setItem('kp_user', JSON.stringify(this.user));
                     this.updateUI();
-                } else if (res.status === 401) {
-                    this.logout();
+                } else {
+                    console.warn('AUTH: Session invalid or expired', res.status);
+                    if (res.status === 401) {
+                        this.logout();
+                    }
                 }
             } catch (e) {
-                console.error('Auth init failed:', e);
-                // Don't logout on network error to avoid loops
+                console.error('AUTH: Init error', e);
             }
         } else {
+            console.log('AUTH: No token, showing login');
             this.showLoginModal();
         }
     },
