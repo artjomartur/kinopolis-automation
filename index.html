@@ -3347,6 +3347,9 @@
                     await AUTH.init();
                 }
 
+                // Play jingle if permitted
+                playStartupSound();
+
                 // Core Data
                 await fetchLocations(); // Should be awaited if others depend on it
                 
@@ -5517,6 +5520,49 @@
         }
         
         // Ensure image visibility fallback
+        // --- CINEMATIC AUDIO JINGLE ---
+        function playStartupSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                // 1. Cinematic Deep Boom
+                const osc1 = audioCtx.createOscillator();
+                const gain1 = audioCtx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(40, audioCtx.currentTime);
+                osc1.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 3);
+                gain1.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                gain1.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3.5);
+                osc1.connect(gain1).connect(audioCtx.destination);
+
+                // 2. Rising Synth Whoosh
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.type = 'sawtooth';
+                const lowPass = audioCtx.createBiquadFilter();
+                lowPass.type = 'lowpass';
+                lowPass.frequency.setValueAtTime(200, audioCtx.currentTime);
+                lowPass.frequency.exponentialRampToValueAtTime(2000, audioCtx.currentTime + 2.5);
+
+                osc2.frequency.setValueAtTime(60, audioCtx.currentTime);
+                osc2.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 2.5);
+                
+                gain2.gain.setValueAtTime(0, audioCtx.currentTime);
+                gain2.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 1.2);
+                gain2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3);
+                
+                osc2.connect(lowPass).connect(gain2).connect(audioCtx.destination);
+
+                osc1.start();
+                osc2.start();
+                osc1.stop(audioCtx.currentTime + 4);
+                osc2.stop(audioCtx.currentTime + 4);
+            } catch (e) {
+                console.log("Audio feedback muted or blocked");
+            }
+        }
+
         document.getElementById('brand-logo').onload = function() {
             this.style.display = 'block';
             this.style.background = 'transparent';

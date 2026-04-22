@@ -66,9 +66,16 @@ app.post('/api/auth/register', async (c) => {
 
         const password_hash = await hashPassword(password);
         
+        // Make first user admin automatically
+        let role = 'user';
+        const userCount = await c.env.DB.prepare('SELECT count(*) as count FROM users').first();
+        if (userCount && userCount.count === 0) {
+            role = 'admin';
+        }
+
         await c.env.DB.prepare(
-            'INSERT INTO users (email, first_name, last_name, location, employee_number, password_hash) VALUES (?, ?, ?, ?, ?, ?)'
-        ).bind(email.toLowerCase(), first_name, last_name, location, employee_number || null, password_hash).run();
+            'INSERT INTO users (email, first_name, last_name, location, employee_number, password_hash, role) VALUES (?, ?, ?, ?, ?, ?, ?)'
+        ).bind(email.toLowerCase(), first_name, last_name, location, employee_number || null, password_hash, role).run();
 
         // Auto-subscribe to email newsletter
         try {
