@@ -5556,14 +5556,44 @@
         }
         
         // Ensure image visibility fallback
-        // --- CINEMATIC AUDIO JINGLE ---
+        // --- CINEMATIC REAL-TIME AUDIO JINGLE ---
         function playStartupSound() {
             try {
-                const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-cinematic-mystery-single-whoosh-1496.mp3');
-                audio.volume = 0.4;
-                audio.play().catch(e => console.log("Audio blockiert"));
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                // Create noise buffer
+                const bufferSize = audioCtx.sampleRate * 1.5;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+
+                // Cinematic Sweep Filter
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.Q.value = 8;
+                filter.frequency.setValueAtTime(3000, audioCtx.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 1.2);
+
+                // Volume Envelope
+                const gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                noise.start();
+                console.log("AUDIO: Cinematic synthesized whoosh played");
             } catch (e) {
-                console.log("Audio muted");
+                console.warn("Audio Context blocked or failed", e);
             }
         }
 
