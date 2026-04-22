@@ -186,15 +186,28 @@
             </div>
         </header>
 
-        <div class="filter-bar" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center;">
+        <div class="filter-bar" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
             <select class="filter-select" id="location-select" onchange="loadArchive()">
-                <option value="kp">Darmstadt (KP)</option>
-                <option value="cd">Darmstadt (CD)</option>
-                <option value="rx">Darmstadt (RX)</option>
-                <option value="ab">Aschaffenburg</option>
+                <option value="kp">Darmstadt: KINOPOLIS</option>
+                <option value="cd">Darmstadt: Citydome</option>
+                <option value="rx">Darmstadt: Rex</option>
+                <option value="ab">Aschaffenburg: KINOPOLIS</option>
+                <option value="bn">Bad Godesberg: KINOPOLIS</option>
+                <option value="bh">Bad Homburg: KINOPOLIS</option>
+                <option value="fr">Freiberg: KINOPOLIS</option>
+                <option value="gi">Gießen: Kinocenter</option>
+                <option value="kg">Gießen: KINOPOLIS</option>
+                <option value="hh">Hamburg HafenCity: KINOPOLIS</option>
+                <option value="hu">Hanau: KINOPOLIS</option>
+                <option value="ka">Karlsruhe: Universum-City</option>
+                <option value="ko">Koblenz: KINOPOLIS</option>
+                <option value="lh">Landshut: KINOPOLIS</option>
+                <option value="ro">Rosenheim: KINOPOLIS</option>
+                <option value="su">Sulzbach / MTZ: KINOPOLIS</option>
+                <option value="vi">Viernheim / RNZ: KINOPOLIS</option>
             </select>
             <button class="btn-primary" onclick="loadArchive()">🔄 Aktualisieren</button>
-            <a href="cinemaxx-archiv.html" class="btn-primary" style="margin-left: auto; background: linear-gradient(135deg, #ffb900, #ff8c00); border: none;">🍿 CinemaxX Archiv</a>
+            <a href="cinemaxx-archiv.html" id="cinemaxx-btn" class="btn-primary" style="margin-left: auto; background: linear-gradient(135deg, #ffb900, #ff8c00); border: none; display: none;">🍿 CinemaxX Archiv</a>
         </div>
 
         <div class="category-bar">
@@ -233,6 +246,14 @@
             
             const city = document.getElementById('location-select').value;
             localStorage.setItem('last_city', city); 
+
+            // Show/Hide CinemaxX button only for KP Darmstadt
+            const cxBtn = document.getElementById('cinemaxx-btn');
+            if (city === 'kp') {
+                cxBtn.style.display = 'inline-flex';
+            } else {
+                cxBtn.style.display = 'none';
+            }
 
             try {
                 const [logsRes, msgsRes] = await Promise.all([

@@ -57,3 +57,10 @@ CREATE TABLE IF NOT EXISTS shift_logs (
 
 CREATE INDEX IF NOT EXISTS idx_shift_logs_location ON shift_logs(location);
 CREATE INDEX IF NOT EXISTS idx_shift_logs_created_at ON shift_logs(created_at);
+
+CREATE TABLE IF NOT EXISTS email_subscriptions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL UNIQUE,
+    location TEXT DEFAULT 'kp',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);

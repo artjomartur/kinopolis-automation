@@ -34,6 +34,7 @@
 
         /* LIGHT MODE OVERRIDES - PREMIUM COMPLETE REWRITE */
         body.light-mode {
+            --bg-color: #f1f5f9;
             --bg-dark: #f1f5f9;
             --surface-color: #ffffff;
             --surface-border: #e2e8f0;
@@ -49,6 +50,20 @@
             --alert-text-h2: #0f172a;
             --alert-text-p: #64748b;
             --preview-bg: #f8fafc;
+        }
+
+        body.light-mode {
+            background-image: none !important;
+        }
+        
+        body.light-mode .appearance-toggle {
+            background: #e2e8f0 !important;
+            border-color: #cbd5e1 !important;
+        }
+        
+        body.light-mode .appearance-toggle .toggle-knob {
+            background: white !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
         }
 
         /* Essential Light Mode Contrast Overrides */
@@ -2826,6 +2841,22 @@
             </div>
         </div>
 
+        <!-- NEW: Email Newsletter Subscription -->
+        <div class="card-container glass einstellungen-section" style="margin-bottom: 1rem; border-color: rgba(0, 120, 255, 0.2);">
+            <div style="padding: 1.25rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                    <span class="alert-icon-small">📧</span>
+                    <h2 style="font-size: 1.25rem;">Email Newsletter</h2>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Erhalte eine E-Mail bei neuen internen Mitteilungen für deinen Standort.</p>
+                <div style="display: flex; gap: 0.5rem; flex-direction: column;">
+                    <input type="email" id="newsletter-email" placeholder="Deine E-Mail Adresse" class="input-field" style="width: 100%;">
+                    <button onclick="subscribeNewsletter()" class="btn-primary" style="width: 100%; justify-content: center;">Abonnieren</button>
+                </div>
+                <div id="newsletter-status" style="margin-top: 1rem; font-size: 0.8rem; display: none; padding: 0.6rem; border-radius: 8px;"></div>
+            </div>
+        </div>
+
         <div class="card-container glass einstellungen-section" style="margin-bottom: 1rem;">
             <div class="card-header" onclick="toggleSection('links-content', 'links-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
@@ -5488,6 +5519,42 @@
             localStorage.setItem('theme', isLight ? 'light' : 'dark');
             if (icon) icon.innerText = isLight ? '☀️' : '🌙';
             if (settingsIcon) settingsIcon.innerText = isLight ? '☀️' : '🌙';
+        }
+
+        async function subscribeNewsletter() {
+            const email = document.getElementById('newsletter-email').value.trim();
+            const status = document.getElementById('newsletter-status');
+            const city = document.getElementById('location-select').value;
+
+            if (!email || !email.includes('@')) {
+                status.innerText = '❌ Bitte eine gültige E-Mail Adresse eingeben.';
+                status.style.background = 'rgba(229, 9, 20, 0.1)';
+                status.style.color = '#ff6b6b';
+                status.style.display = 'block';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/email/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, location: city })
+                });
+
+                if (res.ok) {
+                    status.innerText = '✅ Erfolgreich abonniert! Du erhältst nun Updates.';
+                    status.style.background = 'rgba(46, 204, 113, 0.1)';
+                    status.style.color = '#2ecc71';
+                    document.getElementById('newsletter-email').value = '';
+                } else {
+                    status.innerText = '❌ Fehler beim Abonnieren. Versuche es später erneut.';
+                    status.style.background = 'rgba(229, 9, 20, 0.1)';
+                    status.style.color = '#ff6b6b';
+                }
+            } catch (e) {
+                status.innerText = '❌ Netzwerkfehler.';
+            }
+            status.style.display = 'block';
         }
 
         // --- DATA VISIBILITY & UTILS ---

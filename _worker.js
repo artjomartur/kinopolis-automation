@@ -402,7 +402,51 @@ app.post('/api/messages', async (c) => {
                 title: 'Konfidentielle Mitteilung: ' + title,
                 body: content.length > 100 ? content.substring(0, 97) + '...' : content,
                 tag: 'internal-message'
-            });
+            }, location);
+
+            // Broadcast email newsletter
+            const resendKey = c.env.RESEND_API_KEY;
+            if (resendKey) {
+                try {
+                    const subscribers = await c.env.DB.prepare(
+                        'SELECT email FROM email_subscriptions WHERE location = ? OR location IS NULL'
+                    ).bind(location || 'kp').all();
+
+                    if (subscribers.results && subscribers.results.length > 0) {
+                        const emailContent = `
+                            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                                <h2 style="color: #0078FF;">📢 Neue Mitteilung</h2>
+                                <h3 style="color: #333; margin-top: 0;">${title}</h3>
+                                <p style="color: #666; font-size: 0.9rem; margin-bottom: 20px;">Von: <strong>${author || 'System'}</strong></p>
+                                <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; white-space: pre-wrap; line-height: 1.6;">${content}</div>
+                                ${image_url ? `<img src="${image_url}" style="width: 100%; margin-top: 20px; border-radius: 8px;" />` : ''}
+                                <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+                                <p style="font-size: 0.8rem; color: #999;">
+                                    Du erhältst diese E-Mail, weil du den Kinopolis Newsletter für den Standort <strong>${location || 'kp'}</strong> abonniert hast.
+                                </p>
+                            </div>
+                        `;
+
+                        for (const sub of subscribers.results) {
+                            await fetch('https://api.resend.com/emails', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${resendKey}`
+                                },
+                                body: JSON.stringify({
+                                    from: 'Kinopolis Dashboard <newsletter@artjombecker.com>',
+                                    to: sub.email,
+                                    subject: `[Kinopolis] ${title}`,
+                                    html: emailContent
+                                })
+                            }).catch(e => console.error('Resend Newsletter Error:', e));
+                        }
+                    }
+                } catch (emailErr) {
+                    console.error('Email broadcast error:', emailErr);
+                }
+            }
         }
 
         return c.json({ success: true });
@@ -619,6 +663,44 @@ async function encryptPayload(sub, payload) {
     
     return body;
 }
+
+// --- EMAIL NEWSLETTER API ---
+app.post('/api/email/subscribe', async (c) => {
+    try {
+        const { email, location } = await c.req.json();
+        if (!email) return c.json({ error: 'Email required' }, 400);
+
+        if (c.env.DB) {
+            await c.env.DB.prepare(`
+                INSERT INTO email_subscriptions (email, location)
+                VALUES (?, ?)
+                ON CONFLICT(email) DO UPDATE SET
+                location = excluded.location,
+                created_at = CURRENT_TIMESTAMP
+            `).bind(email.toLowerCase(), location || 'kp').run();
+        }
+
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+app.post('/api/email/unsubscribe', async (c) => {
+    try {
+        const { email } = await c.req.json();
+        if (!email) return c.json({ error: 'Email required' }, 400);
+
+        if (c.env.DB) {
+            await c.env.DB.prepare('DELETE FROM email_subscriptions WHERE email = ?')
+                .bind(email.toLowerCase()).run();
+        }
+
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
 
 // --- PUSH API ENDPOINTS ---
 app.post('/api/push/subscribe', async (c) => {
