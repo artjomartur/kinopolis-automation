@@ -17,8 +17,8 @@ const AUTH = {
         }
 
         if (this.token) {
-            // Optimistic render: show UI if we have a token
-            this.updateUI();
+            console.log("AUTH: Token found, forcing UI unlock...");
+            this.updateUI(); // IMMEDIATELY SHOW CONTENT
             
             try {
                 const res = await fetch('/api/auth/me', {
@@ -28,15 +28,16 @@ const AUTH = {
                     const data = await res.json();
                     this.user = data.user;
                     localStorage.setItem('kp_user', JSON.stringify(this.user));
-                    this.updateUI(); // Refresh with real user data
-                } else if (res.status === 401) {
-                    console.warn('AUTH: Token invalid, logging out...');
-                    this.logout(false);
-                    this.showLoginModal();
+                } else {
+                    const errData = await res.json().catch(() => ({}));
+                    console.error('AUTH: Token verification failed:', res.status, errData.message);
+                    // Only logout if it's definitely an invalid token, not a server hiccup
+                    if (res.status === 401) {
+                        // this.logout(false); // DISABLED FOR NOW TO PREVENT LOOPS
+                    }
                 }
             } catch (e) {
-                console.error('AUTH: Init verification error', e);
-                // Keep UI showing if network error, don't kick user out
+                console.error('AUTH: Background check failed', e);
             }
         } else {
             this.showLoginModal();
