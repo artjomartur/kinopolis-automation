@@ -242,11 +242,29 @@ app.post('/api/auth/forgot-password', async (c) => {
                     to: email.toLowerCase(),
                     subject: 'Passwort zurücksetzen',
                     html: `
-                        <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: 0 auto; background: #0f1014; color: #ffffff; border-radius: 24px; padding: 40px; border: 1px solid rgba(255,255,255,0.08);">
-                            <div style="text-align: center; margin-bottom: 30px;"><img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" style="width: 150px;" /></div>
-                            <h1 style="font-size: 22px; text-align: center; margin-bottom: 24px;">Passwort zurücksetzen</h1>
-                            <p style="color: #94a3b8; line-height: 1.6; text-align: center; margin-bottom: 32px;">Hallo ${user.first_name}, klicke auf den Button unten, um dein Passwort zu ändern. Der Link ist 15 Minuten gültig.</p>
-                            <div style="text-align: center; margin-bottom: 32px;"><a href="${resetLink}" style="background:#E50914; color:#fff; text-decoration:none; padding:16px 32px; border-radius:12px; font-weight:800;">Passwort ändern</a></div>
+                        <div style="background-color: #0a0a0d; padding: 40px 20px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
+                            <div style="max-width: 600px; margin: 0 auto; background: #141419; border: 1px solid rgba(255,255,255,0.08); border-radius: 32px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+                                <div style="padding: 40px; text-align: center; background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);">
+                                    <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" style="width: 180px; margin-bottom: 30px; filter: drop-shadow(0 0 10px rgba(229, 9, 20, 0.2));" />
+                                    <h1 style="color: #ffffff; font-size: 28px; font-weight: 800; margin-bottom: 16px; letter-spacing: -0.02em;">Passwort zurücksetzen</h1>
+                                    <p style="color: #94a3b8; font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
+                                        Hallo ${user.first_name},<br>
+                                        du hast eine Anfrage zum Zurücksetzen deines Passworts gestellt. Klicke auf den Button unten, um ein neues Passwort festzulegen.
+                                    </p>
+                                    <a href="${resetLink}" style="display: inline-block; background: linear-gradient(135deg, #e50914 0%, #ff3d47 100%); color: #ffffff; text-decoration: none; padding: 18px 36px; border-radius: 16px; font-weight: 800; font-size: 16px; box-shadow: 0 10px 25px rgba(229, 9, 20, 0.4);">
+                                        Passwort jetzt ändern
+                                    </a>
+                                    <p style="color: #475569; font-size: 13px; margin-top: 32px;">
+                                        Der Link ist aus Sicherheitsgründen nur <strong>15 Minuten</strong> gültig.<br>
+                                        Falls du dies nicht angefragt hast, kannst du diese E-Mail ignorieren.
+                                    </p>
+                                </div>
+                                <div style="padding: 20px; text-align: center; background: rgba(0,0,0,0.2); border-top: 1px solid rgba(255,255,255,0.05);">
+                                    <p style="color: #475569; font-size: 11px; margin: 0; text-transform: uppercase; letter-spacing: 0.1em;">
+                                        © 2026 Kinopolis Automation Dashboard
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     `
                 })
@@ -288,6 +306,28 @@ app.get('/api/auth/me', async (c) => {
     }
 });
 
+app.post('/api/auth/change-password', async (c) => {
+    const authHeader = c.req.header('Authorization');
+    if (!authHeader) return c.json({ error: 'Nicht autorisiert' }, 401);
+
+    try {
+        const payload = await verify(authHeader.split(' ')[1], JWT_SECRET);
+        const { newPassword } = await c.req.json();
+        
+        if (!newPassword || newPassword.length < 6) {
+            return c.json({ error: 'Passwort muss mindestens 6 Zeichen lang sein' }, 400);
+        }
+
+        const hash = await hashPassword(newPassword);
+        await c.env.DB.prepare('UPDATE users SET password_hash = ? WHERE id = ?')
+            .bind(hash, payload.id).run();
+
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: 'Fehler beim Ändern des Passworts' }, 500);
+    }
+});
+
 app.post('/api/auth/shift-report', async (c) => {
     const authHeader = c.req.header('Authorization');
     if (!authHeader) return c.json({ error: 'Nicht autorisiert' }, 401);
@@ -309,36 +349,38 @@ app.post('/api/auth/shift-report', async (c) => {
                     to: payload.email,
                     subject: `Schicht-Report: ${new Date().toLocaleDateString('de-DE')}`,
                     html: `
-                        <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: 0 auto; background: #0f1014; color: #ffffff; border-radius: 24px; padding: 40px; border: 1px solid rgba(255,255,255,0.08);">
-                            <div style="text-align: center; margin-bottom: 30px;">
-                                <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" style="width: 150px;" />
-                            </div>
-                            <h1 style="font-size: 24px; text-align: center; margin-bottom: 32px;">Dein Schicht-Report</h1>
-                            
-                            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; margin-bottom: 24px;">
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                                    <div>
-                                        <div style="color: #64748b; font-size: 12px; text-transform: uppercase;">Dauer</div>
-                                        <div style="font-size: 18px; font-weight: 800;">${duration}</div>
+                        <div style="background-color: #0a0a0d; padding: 40px 20px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
+                            <div style="max-width: 600px; margin: 0 auto; background: #141419; border: 1px solid rgba(255,255,255,0.08); border-radius: 32px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+                                <div style="padding: 40px; text-align: center; background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);">
+                                    <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" style="width: 180px; margin-bottom: 30px;" />
+                                    <h1 style="color: #ffffff; font-size: 28px; font-weight: 800; margin-bottom: 32px; letter-spacing: -0.02em;">Dein Schicht-Report</h1>
+                                    
+                                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 24px; margin-bottom: 24px;">
+                                        <div style="display: flex; justify-content: center; gap: 40px;">
+                                            <div style="text-align: center;">
+                                                <div style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px;">Dauer</div>
+                                                <div style="font-size: 20px; font-weight: 800; color: white;">${duration}</div>
+                                            </div>
+                                            <div style="text-align: center;">
+                                                <div style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px;">Gesammeltes XP</div>
+                                                <div style="font-size: 20px; font-weight: 800; color: #00ff66;">+${xp} XP</div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div style="color: #64748b; font-size: 12px; text-transform: uppercase;">Gesammeltes XP</div>
-                                        <div style="font-size: 18px; font-weight: 800; color: #00ff66;">+${xp} XP</div>
+
+                                    <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 24px; text-align: left;">
+                                        <h3 style="font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;">Abgeschlossene Aufgaben</h3>
+                                        <div style="display: flex; gap: 12px; margin-bottom: 8px;">
+                                            <div style="background: rgba(229, 9, 20, 0.1); color: #e50914; padding: 6px 16px; border-radius: 50px; font-size: 13px; font-weight: 700;">${auslaesse} Auslässe</div>
+                                            <div style="background: rgba(0, 120, 255, 0.1); color: #0078ff; padding: 6px 16px; border-radius: 50px; font-size: 13px; font-weight: 700;">${cleaning} Reinigungen</div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
 
-                            <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 24px;">
-                                <h3 style="font-size: 14px; color: #94a3b8; margin-bottom: 16px;">ABGESCHLOSSENE AUFGABEN</h3>
-                                <div style="display: flex; gap: 12px; margin-bottom: 8px;">
-                                    <div style="background: rgba(229, 9, 20, 0.1); color: #e50914; padding: 4px 12px; border-radius: 20px; font-size: 13px;">${auslaesse} Auslässe</div>
-                                    <div style="background: rgba(0, 120, 255, 0.1); color: #0078ff; padding: 4px 12px; border-radius: 20px; font-size: 13px;">${cleaning} Reinigungen</div>
+                                    <p style="margin-top: 40px; color: #475569; font-size: 12px;">
+                                        Vielen Dank für deinen Einsatz heute!<br>
+                                        © 2026 Kinopolis Automation
+                                    </p>
                                 </div>
-                            </div>
-
-                            <div style="margin-top: 40px; text-align: center; color: #475569; font-size: 12px;">
-                                Vielen Dank für deinen Einsatz heute!<br>
-                                © 2026 Kinopolis Automation
                             </div>
                         </div>
                     `

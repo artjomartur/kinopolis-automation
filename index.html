@@ -2961,28 +2961,7 @@
             </div>
         </div>
 
-        <!-- NEW: Info / Pitch Card -->
-        <div class="card-container glass einstellungen-section" style="margin-bottom: 2rem;">
-            <div style="padding: 1.5rem; border-left: 4px solid var(--primary-red); background: rgba(229, 9, 20, 0.03); border-radius: 20px;">
-                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                    <span style="font-size: 1.5rem;">🚀</span>
-                    <h2 style="font-size: 1.25rem;">Über Kinopolis Automation</h2>
-                </div>
-                <p style="font-size: 0.95rem; line-height: 1.6; color: #fff; margin-bottom: 1rem;">
-                    <strong>Das Betriebssystem für dein Kino.</strong> Vernetzt, effizient und modern. 
-                </p>
-                <p style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
-                    Von Mitarbeitern für Mitarbeiter entwickelt, um den Kinobetrieb ins 21. Jahrhundert zu heben. 
-                    Echtzeit-Kommunikation, intelligente Aufgabenplanung und ein digitales Gedächtnis für jeden Standort. 
-                    Kinopolis Automation ist nicht nur ein Tool – es ist die Zentrale für einen reibungslosen Ablauf hinter den Kulissen.
-                </p>
-                <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; font-size: 0.75rem; color: rgba(255,255,255,0.3);">
-                    <span>Version 2.0 (April 2026)</span>
-                    <span>•</span>
-                    <span>Made with ❤️ for Kinopolis</span>
-                </div>
-            </div>
-        </div>
+
 
         <div class="card-container glass einstellungen-section" style="margin-bottom: 1rem;">
             <div class="card-header" onclick="toggleSection('links-content', 'links-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
@@ -3059,7 +3038,6 @@
             </div>
         </div>
 
-        <!-- Push Notifications Settings -->
         <div class="card-container glass einstellungen-section" style="margin-bottom: 1rem;">
             <div class="card-header" onclick="toggleSection('push-settings-content', 'push-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
@@ -3094,6 +3072,29 @@
                     <button id="push-test-btn" class="btn-secondary" style="width: 100%; height: 48px; border-radius: 14px; justify-content: center; display: none; border: 1px dashed rgba(255,255,255,0.1); background: rgba(255,255,255,0.02); font-size: 0.85rem;" onclick="sendTestPush()">
                         🚀 Test-Benachrichtigung senden
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info / Pitch Card -->
+        <div class="card-container glass einstellungen-section" style="margin-bottom: 2rem;">
+            <div style="padding: 1.5rem; border-left: 4px solid var(--primary-red); background: rgba(229, 9, 20, 0.03); border-radius: 20px;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                    <span style="font-size: 1.5rem;">🚀</span>
+                    <h2 style="font-size: 1.25rem;">Über Kinopolis Automation</h2>
+                </div>
+                <p style="font-size: 0.95rem; line-height: 1.6; color: #fff; margin-bottom: 1rem;">
+                    <strong>Das Betriebssystem für dein Kino.</strong> Vernetzt, effizient und modern. 
+                </p>
+                <p style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+                    Von Mitarbeitern für Mitarbeiter entwickelt, um den Kinobetrieb ins 21. Jahrhundert zu heben. 
+                    Echtzeit-Kommunikation, intelligente Aufgabenplanung und ein digitales Gedächtnis für jeden Standort. 
+                    Kinopolis Automation ist nicht nur ein Tool – es ist die Zentrale für einen reibungslosen Ablauf hinter den Kulissen.
+                </p>
+                <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; font-size: 0.75rem; color: rgba(255,255,255,0.3);">
+                    <span>Version 2.0 (April 2026)</span>
+                    <span>•</span>
+                    <span>Made with ❤️ for Kinopolis</span>
                 </div>
             </div>
         </div>
@@ -5583,24 +5584,13 @@
         // --- PREMIUM SOFT CHIME JINGLE ---
         function playStartupSound() {
             try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                const now = audioCtx.currentTime;
-
-                const notes = [392.00, 523.25, 659.25, 783.99]; // G4, C5, E5, G5
-                notes.forEach((freq, i) => {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(freq, now + (i * 0.08));
-                    gain.gain.setValueAtTime(0, now + (i * 0.08));
-                    gain.gain.linearRampToValueAtTime(0.15, now + (i * 0.08) + 0.03);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + (i * 0.08) + 1.2);
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-                    osc.start(now + (i * 0.08));
-                    osc.stop(now + (i * 0.08) + 1.2);
-                });
+                const audio = new Audio('./startup.mp3');
+                audio.volume = 0.5;
+                audio.play().catch(e => console.log('Audio play blocked by browser:', e));
+            } catch (e) {
+                console.error('Error playing startup sound:', e);
+            }
+        }
 
                 console.log("AUDIO: Harmonious Chime played");
                 
