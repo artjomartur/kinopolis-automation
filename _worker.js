@@ -90,7 +90,7 @@ app.post('/api/auth/register', async (c) => {
                         'Authorization': `Bearer ${resendKey}`
                     },
                     body: JSON.stringify({
-                        from: 'Kinopolis Automation <noreply@artjombecker.com>',
+                        from: 'Kinopolis Automation <hi@artjombecker.com>',
                         to: email.toLowerCase(),
                         subject: 'Willkommen im Kinopolis Automation Dashboard!',
                         html: `
@@ -707,7 +707,7 @@ app.post('/api/messages', async (c) => {
                                     'Authorization': `Bearer ${resendKey}`
                                 },
                                 body: JSON.stringify({
-                                    from: 'Kinopolis Dashboard <newsletter@artjombecker.com>',
+                                    from: 'Kinopolis Dashboard <hi@artjombecker.com>',
                                     to: sub.email,
                                     subject: `[Kinopolis] ${title}`,
                                     html: emailContent
