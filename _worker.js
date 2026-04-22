@@ -57,8 +57,8 @@ const JWT_SECRET = 'kinopolis-secret-2026'; // Ideally use c.env.JWT_SECRET
 // --- AUTHENTICATION API ---
 app.post('/api/auth/register', async (c) => {
     try {
-        const { email, name, location, employee_number, password } = await c.req.json();
-        if (!email || !name || !location || !password) {
+        const { email, first_name, last_name, location, employee_number, password } = await c.req.json();
+        if (!email || !first_name || !last_name || !location || !password) {
             return c.json({ error: 'Alle Pflichtfelder ausfüllen' }, 400);
         }
 
@@ -67,8 +67,8 @@ app.post('/api/auth/register', async (c) => {
         const password_hash = await hashPassword(password);
         
         await c.env.DB.prepare(
-            'INSERT INTO users (email, name, location, employee_number, password_hash) VALUES (?, ?, ?, ?, ?)'
-        ).bind(email.toLowerCase(), name, location, employee_number || null, password_hash).run();
+            'INSERT INTO users (email, first_name, last_name, location, employee_number, password_hash) VALUES (?, ?, ?, ?, ?, ?)'
+        ).bind(email.toLowerCase(), first_name, last_name, location, employee_number || null, password_hash).run();
 
         return c.json({ success: true });
     } catch (e) {
@@ -88,7 +88,7 @@ app.post('/api/auth/login', async (c) => {
 
         const password_hash = await hashPassword(password);
         const user = await c.env.DB.prepare(
-            'SELECT id, email, name, location, employee_number, role FROM users WHERE email = ? AND password_hash = ?'
+            'SELECT id, email, first_name, last_name, location, employee_number, role FROM users WHERE email = ? AND password_hash = ?'
         ).bind(email.toLowerCase(), password_hash).first();
 
         if (!user) return c.json({ error: 'Ungültige Anmeldedaten' }, 401);
@@ -96,7 +96,7 @@ app.post('/api/auth/login', async (c) => {
         const token = await sign({
             id: user.id,
             email: user.email,
-            name: user.name,
+            name: `${user.first_name} ${user.last_name}`,
             location: user.location,
             role: user.role,
             exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 7) // 7 days
@@ -106,7 +106,7 @@ app.post('/api/auth/login', async (c) => {
             success: true, 
             token,
             user: {
-                name: user.name,
+                name: `${user.first_name} ${user.last_name}`,
                 location: user.location,
                 role: user.role
             }

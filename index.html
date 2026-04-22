@@ -298,55 +298,75 @@
             border-radius: 24px;
         }
 
-        /* Splash Screen */
+        /* Cinematic Splash Screen */
         #splash-screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: #0a0a0d;
+            background: radial-gradient(circle at center, #1a1a24 0%, #0a0a0d 100%);
             z-index: 9999;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            transition: opacity 0.8s ease, visibility 0.8s;
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.2s;
         }
+
         #splash-screen.fade-out {
             opacity: 0;
             visibility: hidden;
+            transform: scale(1.1);
         }
-        .splash-logo {
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(135deg, var(--primary-red), #ff4d4d);
-            border-radius: 30px;
+
+        .splash-logo-container {
+            position: relative;
+            width: 280px;
+            height: 80px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 3rem;
-            color: white;
-            box-shadow: 0 0 50px rgba(229, 9, 20, 0.3);
-            animation: splash-pulse 2s infinite ease-in-out, splash-entry 1s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+            animation: cinematic-entry 1.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
         }
-        @keyframes splash-pulse {
-            0%, 100% { transform: scale(1); filter: brightness(1); }
-            50% { transform: scale(1.05); filter: brightness(1.2); }
+
+        .splash-logo-img {
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 0 20px rgba(229, 9, 20, 0.4));
         }
-        @keyframes splash-entry {
-            0% { transform: scale(0.5); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
+
+        .splash-glow {
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle at center, rgba(229, 9, 20, 0.2) 0%, transparent 70%);
+            animation: glow-pulse 3s infinite ease-in-out;
+            pointer-events: none;
         }
+
+        @keyframes cinematic-entry {
+            0% { transform: scale(0.8) translateY(20px); opacity: 0; filter: blur(10px); }
+            100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0); }
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+
         .splash-text {
-            margin-top: 1.5rem;
+            margin-top: 2rem;
             font-family: 'Outfit', sans-serif;
-            font-weight: 800;
-            font-size: 1.5rem;
-            letter-spacing: 0.2em;
+            font-weight: 500;
+            font-size: 0.9rem;
+            letter-spacing: 0.4em;
             text-transform: uppercase;
-            background: linear-gradient(135deg, #fff, #888);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: rgba(255, 255, 255, 0.5);
             opacity: 0;
-            animation: fade-in 1s forwards 0.5s;
+            animation: text-reveal 2s forwards 0.8s;
+        }
+
+        @keyframes text-reveal {
+            0% { opacity: 0; letter-spacing: 0.2em; filter: blur(5px); }
+            100% { opacity: 1; letter-spacing: 0.4em; filter: blur(0); }
         }
 
         header {
@@ -2439,8 +2459,11 @@
 </head>
 <body class="dark-mode">
     <div id="splash-screen">
-        <div class="splash-logo">🍿</div>
-        <div class="splash-text">Kinopolis</div>
+        <div class="splash-glow"></div>
+        <div class="splash-logo-container">
+            <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png?20260323" alt="Kinopolis" class="splash-logo-img">
+        </div>
+        <div class="splash-text">Automation Dashboard</div>
     </div>
     <header>
         <div class="header-inner">
@@ -3432,7 +3455,8 @@
 
         async function handleAuthRegister(e) {
             e.preventDefault();
-            const name = document.getElementById('reg-name').value;
+            const fname = document.getElementById('reg-fname').value;
+            const lname = document.getElementById('reg-lname').value;
             const email = document.getElementById('reg-email').value;
             const location = document.getElementById('reg-location').value;
             const empNum = document.getElementById('reg-emp-num').value;
@@ -3440,7 +3464,7 @@
             const error = document.getElementById('reg-error');
             
             error.style.display = 'none';
-            const res = await AUTH.register(email, name, location, empNum, pass);
+            const res = await AUTH.register(email, fname, lname, location, empNum, pass);
             if (res.success) {
                 alert('Account erfolgreich erstellt! Bitte melde dich jetzt an.');
                 switchAuthTab('login');
@@ -5942,7 +5966,10 @@
 
             <!-- Register Form -->
             <form id="form-register" class="auth-form" onsubmit="handleAuthRegister(event)">
-                <input type="text" id="reg-name" class="input-field" placeholder="Vollständiger Name" required>
+                <div style="display: flex; gap: 0.75rem;">
+                    <input type="text" id="reg-fname" class="input-field" placeholder="Vorname" required>
+                    <input type="text" id="reg-lname" class="input-field" placeholder="Nachname" required>
+                </div>
                 <input type="email" id="reg-email" class="input-field" placeholder="E-Mail" required>
                 <select id="reg-location" class="input-field" required>
                     <option value="" disabled selected>Standort wählen...</option>

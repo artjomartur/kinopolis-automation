@@ -68,7 +68,8 @@ CREATE TABLE IF NOT EXISTS email_subscriptions (
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT NOT NULL UNIQUE,
-    name TEXT NOT NULL,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
     location TEXT NOT NULL,
     employee_number TEXT,
     password_hash TEXT NOT NULL,

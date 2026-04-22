@@ -50,17 +50,21 @@ const AUTH = {
         }
     },
 
-    async register(email, name, location, employee_number, password) {
-        const res = await fetch('/api/auth/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, name, location, employee_number, password })
-        });
-        const data = await res.json();
-        if (data.success) {
-            return { success: true };
-        } else {
-            return { success: false, error: data.error };
+    async register(email, firstName, lastName, location, empNum, password) {
+        try {
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, first_name: firstName, last_name: lastName, location, employee_number: empNum, password })
+            });
+            const data = await res.json();
+            if (data.success) {
+                return { success: true };
+            } else {
+                return { success: false, error: data.error };
+            }
+        } catch (e) {
+            return { success: false, error: 'Registration failed' };
         }
     },
 
