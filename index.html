@@ -4854,15 +4854,25 @@
                 console.log('Fetching sessions for:', dateStr, url);
                 const response = await fetch(url);
                 
-                // Check if response is JSON
+                if (!response.ok) {
+                    const errorText = await response.text().catch(() => 'Keine Fehlerdetails');
+                    console.error(`API Error (${response.status}):`, errorText);
+                    document.getElementById('status-indicator').innerHTML = `<span style="color:#ff4d4d">❌ Fehler ${response.status}</span>`;
+                    throw new Error(`Server antwortet mit Status ${response.status}`);
+                }
+
                 const contentType = response.headers.get('content-type');
                 if (!contentType || !contentType.includes('application/json')) {
-                    const text = await response.text();
-                    console.error('Non-JSON response received:', text);
-                    throw new Error(`Ungültiges Datenformat vom Server (Status ${response.status}). Bitte lade die Seite neu.`);
+                    throw new Error('Server hat kein JSON gesendet (evtl. Wartungsmodus)');
                 }
 
                 const sessions = await response.json();
+                
+                if (!sessions || !Array.isArray(sessions)) {
+                    console.error('Invalid session data format:', sessions);
+                    throw new Error('Ungültiges Datenformat vom Server');
+                }
+
                 lastData = sessions;
                 lastUpdateTime = new Date();
                 
@@ -4923,10 +4933,20 @@
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-            if (!halls || !Array.isArray(halls)) { dashboard.innerHTML = "Keine Daten"; return; }
+            if (!halls || !Array.isArray(halls)) { 
+                dashboard.innerHTML = `
+                    <div class="glass" style="padding: 3rem; text-align: center; grid-column: 1/-1;">
+                        <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">📡</span>
+                        <h3>Keine Verbindung zu den Live-Daten</h3>
+                        <p style="color: var(--text-muted); margin-top: 1rem;">Der Server antwortet gerade nicht oder sendet fehlerhafte Daten.</p>
+                        <button onclick="fetchSessions()" class="btn-primary" style="margin-top: 1.5rem; padding: 0.8rem 2rem;">Erneut versuchen</button>
+                    </div>`;
+                return; 
+            }
+            
             halls.forEach(hall => {
                 const hallName = hall.name;
-                const sessions = hall.sessions;
+                const sessions = hall.sessions || []; // Safety fallback
 
                 // Skip halls where the last session ended more than 60 minutes ago
                 const lastEndMin = sessions.reduce((max, s) => {
