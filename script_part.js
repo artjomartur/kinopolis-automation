@@ -52,6 +52,12 @@
             
             initLostFound();
             initTransferList();
+
+            // Initialize Auth
+            if (window.AUTH) {
+                await AUTH.init();
+                populateAuthLocations();
+            }
             
             // Check for welcome modal logic if any
             if (localStorage.getItem('welcome_seen_beta') !== 'true' && document.getElementById('welcome-modal')) {
@@ -186,6 +192,67 @@
 
         function closeMovieDetail() {
             document.getElementById('movie-detail-modal').classList.remove('active');
+        }
+
+        // --- AUTH UI LOGIC ---
+        function switchAuthTab(type) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            document.getElementById(`tab-${type}`).classList.add('active');
+            document.getElementById(`form-${type}`).classList.add('active');
+        }
+
+        async function handleAuthLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-pass').value;
+            const error = document.getElementById('login-error');
+            
+            error.style.display = 'none';
+            const res = await AUTH.login(email, pass);
+            if (!res.success) {
+                error.innerText = `❌ ${res.error}`;
+                error.style.display = 'block';
+            }
+        }
+
+        async function handleAuthRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const location = document.getElementById('reg-location').value;
+            const empNum = document.getElementById('reg-emp-num').value;
+            const pass = document.getElementById('reg-pass').value;
+            const error = document.getElementById('reg-error');
+            
+            error.style.display = 'none';
+            const res = await AUTH.register(email, name, location, empNum, pass);
+            if (res.success) {
+                alert('Account erfolgreich erstellt! Bitte melde dich jetzt an.');
+                switchAuthTab('login');
+                document.getElementById('login-email').value = email;
+            } else {
+                error.innerText = `❌ ${res.error}`;
+                error.style.display = 'block';
+            }
+        }
+
+        async function populateAuthLocations() {
+            const select = document.getElementById('reg-location');
+            if (!select) return;
+            try {
+                const res = await fetch('/api/locations');
+                const locations = await res.json();
+                locations.forEach(loc => {
+                    const opt = document.createElement('option');
+                    opt.value = loc.slug;
+                    opt.textContent = loc.name;
+                    select.appendChild(opt);
+                });
+            } catch (e) {
+                console.error('Failed to load locations for auth:', e);
+            }
         }
 
 

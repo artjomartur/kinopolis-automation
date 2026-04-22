@@ -12,6 +12,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <script src="auth.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
@@ -30,6 +31,78 @@
             --card-radius: 24px;
             --button-radius: 14px;
             --shadow-premium: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Auth Modal Premium Styles */
+        #auth-modal .modal-content {
+            background: rgba(15, 15, 20, 0.95);
+            backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8);
+            position: relative;
+            overflow: hidden;
+            padding: 2.5rem;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.5rem;
+        }
+
+        .auth-tab {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .auth-tab.active {
+            color: #fff;
+        }
+
+        .auth-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -0.6rem; left: 0; width: 100%; height: 3px;
+            background: var(--primary-blue);
+            border-radius: 2px;
+            box-shadow: 0 0 15px var(--primary-blue);
+        }
+
+        .auth-form {
+            display: none;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .auth-form.active {
+            display: flex;
+        }
+
+        .user-profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #fff;
+        }
+
+        .user-profile-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
         /* LIGHT MODE OVERRIDES - PREMIUM COMPLETE REWRITE */
@@ -310,6 +383,12 @@
             width: 100%;
         }
 
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
         /* Buttons & Interactive Elements */
         .btn-primary, .btn-secondary {
             border-radius: var(--button-radius);
@@ -431,9 +510,16 @@
             color: #ffffff;
         }
 
-        .location-select:hover {
-            background-color: rgba(255, 255, 255, 0.15);
+        .location-select:hover {            background-color: rgba(255, 255, 255, 0.15);
             border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* --- AUTH UI --- */
+        .auth-error {
+            color: #ff4d4d;
+            font-size: 0.85rem;
+            margin-top: -0.5rem;
+            display: none;
         }
 
         /* Feedback Tab */
@@ -2359,13 +2445,18 @@
                     <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png?20260323" alt="Kinopolis" class="logo" id="brand-logo">
                 </div>
             </div>
-            <div class="controls">
+            <div class="header-right">
                 <div id="weather-widget" class="weather-badge glass" style="display: none;">
                     <span id="weather-icon"></span>
                     <span id="weather-temp"></span>
                 </div>
                 <select id="cinema-selector" class="location-select glass"></select>
-
+                <div id="user-profile-btn" class="user-profile-btn" onclick="AUTH.logout()" title="Klick zum Abmelden">
+                    <span>👤</span> Gast
+                </div>
+                <div class="appearance-toggle" onclick="toggleTheme()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                    <span id="theme-icon" style="font-size: 1.2rem;">🌙</span>
+                </div>
             </div>
         </div>
     </header>
@@ -5756,6 +5847,38 @@
 
 
     </script>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content glass">
+            <div class="auth-tabs">
+                <div id="tab-login" class="auth-tab active" onclick="switchAuthTab('login')">Login</div>
+                <div id="tab-register" class="auth-tab" onclick="switchAuthTab('register')">Registrieren</div>
+            </div>
+
+            <!-- Login Form -->
+            <form id="form-login" class="auth-form active" onsubmit="handleAuthLogin(event)">
+                <input type="email" id="login-email" class="input-field" placeholder="E-Mail" required>
+                <input type="password" id="login-pass" class="input-field" placeholder="Passwort" required>
+                <div id="login-error" class="auth-error">❌ Ungültige Anmeldedaten</div>
+                <button type="submit" class="btn-primary" style="margin-top: 1rem; padding: 1rem;">Anmelden</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="form-register" class="auth-form" onsubmit="handleAuthRegister(event)">
+                <input type="text" id="reg-name" class="input-field" placeholder="Vollständiger Name" required>
+                <input type="email" id="reg-email" class="input-field" placeholder="E-Mail" required>
+                <select id="reg-location" class="input-field" required>
+                    <option value="" disabled selected>Standort wählen...</option>
+                </select>
+                <input type="text" id="reg-emp-num" class="input-field" placeholder="Mitarbeiternummer (opt.)">
+                <input type="password" id="reg-pass" class="input-field" placeholder="Passwort wählen" required>
+                <div id="reg-error" class="auth-error">❌ Fehler bei der Registrierung</div>
+                <button type="submit" class="btn-primary" style="margin-top: 1rem; padding: 1rem;">Account erstellen</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Welcome Modal -->
     <div id="welcome-modal" class="modal">
         <div class="modal-content glass" style="max-height: 90vh; overflow-y: auto;">

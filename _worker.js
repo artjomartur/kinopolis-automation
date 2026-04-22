@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { sign, verify } from 'hono/jwt';
 import * as cheerio from 'cheerio';
 import { Buffer } from 'node:buffer';
 
@@ -41,6 +42,93 @@ app.get('/api/locations', (c) => {
         { name: 'Viernheim / RNZ: KINOPOLIS', slug: 'vi' }
     ];
     return c.json(locations);
+});
+
+// --- AUTHENTICATION HELPERS ---
+async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+const JWT_SECRET = 'kinopolis-secret-2026'; // Ideally use c.env.JWT_SECRET
+
+// --- AUTHENTICATION API ---
+app.post('/api/auth/register', async (c) => {
+    try {
+        const { email, name, location, employee_number, password } = await c.req.json();
+        if (!email || !name || !location || !password) {
+            return c.json({ error: 'Alle Pflichtfelder ausfüllen' }, 400);
+        }
+
+        if (!c.env.DB) return c.json({ error: 'Datenbank nicht verfügbar' }, 500);
+
+        const password_hash = await hashPassword(password);
+        
+        await c.env.DB.prepare(
+            'INSERT INTO users (email, name, location, employee_number, password_hash) VALUES (?, ?, ?, ?, ?)'
+        ).bind(email.toLowerCase(), name, location, employee_number || null, password_hash).run();
+
+        return c.json({ success: true });
+    } catch (e) {
+        if (e.message.includes('UNIQUE constraint failed')) {
+            return c.json({ error: 'Diese E-Mail Adresse wird bereits verwendet' }, 400);
+        }
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+app.post('/api/auth/login', async (c) => {
+    try {
+        const { email, password } = await c.req.json();
+        if (!email || !password) return c.json({ error: 'E-Mail und Passwort erforderlich' }, 400);
+
+        if (!c.env.DB) return c.json({ error: 'Datenbank nicht verfügbar' }, 500);
+
+        const password_hash = await hashPassword(password);
+        const user = await c.env.DB.prepare(
+            'SELECT id, email, name, location, employee_number, role FROM users WHERE email = ? AND password_hash = ?'
+        ).bind(email.toLowerCase(), password_hash).first();
+
+        if (!user) return c.json({ error: 'Ungültige Anmeldedaten' }, 401);
+
+        const token = await sign({
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            location: user.location,
+            role: user.role,
+            exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 7) // 7 days
+        }, JWT_SECRET);
+
+        return c.json({ 
+            success: true, 
+            token,
+            user: {
+                name: user.name,
+                location: user.location,
+                role: user.role
+            }
+        });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+app.get('/api/auth/me', async (c) => {
+    const authHeader = c.req.header('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return c.json({ error: 'Nicht autorisiert' }, 401);
+    }
+
+    const token = authHeader.split(' ')[1];
+    try {
+        const payload = await verify(token, JWT_SECRET);
+        return c.json({ user: payload });
+    } catch (e) {
+        return c.json({ error: 'Ungültiger Token' }, 401);
+    }
 });
 
 app.get('/api/movie-details', async (c) => {

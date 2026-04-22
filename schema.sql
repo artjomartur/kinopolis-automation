@@ -64,3 +64,14 @@ CREATE TABLE IF NOT EXISTS email_subscriptions (
     location TEXT DEFAULT 'kp',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    location TEXT NOT NULL,
+    employee_number TEXT,
+    password_hash TEXT NOT NULL,
+    role TEXT DEFAULT 'user',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
