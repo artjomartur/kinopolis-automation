@@ -716,16 +716,67 @@
                 width: 100%;
             }
             .nav-tabs {
-                flex-wrap: wrap;
+                display: none; /* Hidden on mobile, replaced by bottom bar */
+            }
+            body {
+                padding-bottom: 90px; /* Space for bottom nav */
+            }
+            .mobile-nav {
+                display: flex !important;
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                right: 20px;
+                height: 72px;
+                background: rgba(25, 25, 30, 0.85);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 36px;
+                z-index: 1000;
+                justify-content: space-around;
+                align-items: center;
+                padding: 0 10px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            }
+            .mobile-nav-item {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
                 justify-content: center;
+                color: var(--text-muted);
+                text-decoration: none;
+                font-size: 10px;
+                font-weight: 600;
+                gap: 4px;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .mobile-nav-item.active {
+                color: #fff;
+                transform: scale(1.1);
+            }
+            .mobile-nav-item span {
+                font-size: 24px;
+            }
+            .ios-card {
+                border-radius: 28px !important;
+                margin-bottom: 1.5rem !important;
+            }
+            header {
+                padding: 1rem !important;
+                border: none !important;
+                background: transparent !important;
+                margin-bottom: 0 !important;
+            }
+            .header-inner {
+                justify-content: flex-start !important;
                 gap: 0.5rem;
             }
-            .tab-btn {
-                flex: 1;
-                text-align: center;
-                padding: 0.75rem 1rem;
-                font-size: 0.95rem;
+            .dashboard-title {
+                font-size: 2.2rem !important;
             }
+            .brand { display: none !important; }
             .hall-card {
                 padding: 1rem;
             }
@@ -2071,25 +2122,27 @@
         .tools-section, .info-section, .stats-section, .kontakte-section, .intern-section, .einstellungen-section, .admin-section { display: none !important; }
         
         body.tools-active .tools-section { display: block !important; }
-        body.tools-active .kontakte-section { display: none !important; }
-        body.tools-active .intern-section { display: none !important; }
-        body.tools-active .live-section { display: none !important; }
-
-        body.kontakte-active .kontakte-section { display: block !important; }
-        body.kontakte-active .live-section { display: none !important; }
-
         body.intern-active .intern-section { display: block !important; }
-        body.intern-active .live-section { display: none !important; }
-
+        body.info-active .info-section { display: block !important; }
+        body.stats-active .stats-section { display: block !important; }
+        body.kontakte-active .kontakte-section { display: block !important; }
         body.einstellungen-active .einstellungen-section { display: block !important; }
         body.admin-active .admin-section { display: block !important; }
-        body.einstellungen-active .live-section { display: none !important; }
 
-        body.info-active .info-section { display: block !important; }
-        body.info-active .live-section { display: none !important; }
+        /* Actions/Tools Group */
+        body.action-active .intern-section, 
+        body.action-active .tools-section, 
+        body.action-active .auslaesse-section { display: block !important; }
+        
+        /* Mehr/More Group */
+        body.mehr-active .stats-section, body.mehr-active .kontakte-section, 
+        body.mehr-active .info-section, body.mehr-active .einstellungen-section { display: block !important; }
 
-        body.stats-active .stats-section { display: block !important; }
-        body.stats-active .live-section { display: none !important; }
+        /* Mobil-Specific Header Adjustments */
+        @media (max-width: 768px) {
+            .dashboard-header-left { width: 100%; border-bottom: 1px solid var(--surface-border); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+            .location-badge { font-size: 0.7rem; padding: 0.2rem 0.75rem; }
+        }
 
         /* Welcome Modal Styles */
         .modal {
@@ -2486,7 +2539,7 @@
         </div>
 
         <!-- Tasks Section (Auslässe & Posterwechsel) -->
-        <div id="auslaesse-section-container" class="card-container auslaesse-container glass live-section" style="display: none;">
+        <div id="auslaesse-section-container" class="card-container auslaesse-container glass auslaesse-section" style="display: none;">
             <div class="card-header" style="flex-wrap: wrap; gap: 1rem; padding: 1rem 1.5rem;">
                 <div class="header-left auslass-header-small" style="min-width: 200px;">
                     <span class="alert-icon-small">📋</span>
@@ -2923,28 +2976,38 @@
         };
 
         function switchTab(view, btn) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            // Update UI State for both Desktop and Mobile
+            document.querySelectorAll('.tab-btn, .mobile-nav-item').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
-            document.body.classList.remove('tools-active', 'info-active', 'stats-active', 'kontakte-active', 'intern-active', 'einstellungen-active', 'funk-active');
+            // Clean view classes
+            document.body.classList.remove(
+                'tools-active', 'info-active', 'stats-active', 
+                'kontakte-active', 'intern-active', 'einstellungen-active', 
+                'funk-active', 'mehr-active', 'action-active', 'live-active'
+            );
             
-            if (view === 'tools') {
-                document.body.classList.add('tools-active');
-                if (document.getElementById('transfer-items').children.length === 0) initTransferList();
-            } else if (view === 'info') {
-                document.body.classList.add('info-active');
-                loadUpcomingMovies();
-            } else if (view === 'stats') {
-                document.body.classList.add('stats-active');
-            } else if (view === 'kontakte') {
-                document.body.classList.add('kontakte-active');
-            } else if (view === 'intern') {
-                document.body.classList.add('intern-active');
+            // Apply new view state
+            if (view === 'live') {
+                document.body.classList.add('live-active');
             } else if (view === 'funk') {
-                document.body.classList.add('tools-active');
+                document.body.classList.add('tools-active', 'funk-active');
                 if (document.getElementById('transfer-items').children.length === 0) initTransferList();
-            } else if (view === 'einstellungen') {
-                document.body.classList.add('einstellungen-active');
+            } else if (view === 'action') {
+                document.body.classList.add('action-active', 'intern-active', 'tools-active');
+            } else if (view === 'mehr') {
+                document.body.classList.add('mehr-active', 'stats-active', 'kontakte-active', 'info-active', 'einstellungen-active');
+                loadUpcomingMovies();
+            } else {
+                // Direct fallback for Desktop single-tab clicks
+                document.body.classList.add(view + '-active');
+                if (view === 'info') loadUpcomingMovies();
+                if (view === 'tools') if (document.getElementById('transfer-items').children.length === 0) initTransferList();
+            }
+
+            // Scroll to top on mobile for better UX
+            if (window.innerWidth <= 768) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
 
@@ -5445,5 +5508,20 @@
             </button>
         </div>
     </div>
+        <!-- MOBILE NAVIGATION (iOS Style) -->
+        <nav class="mobile-nav" id="mobile-tab-bar" style="display: none;">
+            <a href="#" class="mobile-nav-item active" onclick="switchTab('live', this); return false;">
+                <span>🎬</span> Live
+            </a>
+            <a href="#" class="mobile-nav-item" onclick="switchTab('funk', this); return false;">
+                <span>📡</span> Funk
+            </a>
+            <a href="#" class="mobile-nav-item" onclick="switchTab('action', this); return false;">
+                <span>🛠️</span> Action
+            </a>
+            <a href="#" class="mobile-nav-item" onclick="switchTab('mehr', this); return false;">
+                <span>📂</span> Mehr
+            </a>
+        </nav>
 </body>
 </html>
