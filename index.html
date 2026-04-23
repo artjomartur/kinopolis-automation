@@ -151,9 +151,50 @@
         function openHallMap(hallName) {
             const hallNum = hallName.replace(/\D/g, '');
             if (!hallNum) return;
+            
             const mapImg = document.getElementById('hall-map-img');
             const modal = document.getElementById('hall-map-modal');
+            const title = document.getElementById('hall-map-title');
+            const container = document.getElementById('hall-showtimes-container');
+            const copyBtn = document.getElementById('copy-hall-data-btn');
+            
+            title.innerText = `SAAL ${hallNum} - ÜBERSICHT`;
             mapImg.src = `https://trailer.kinopolis.de/media/img/saalplaene/darmstadt/saal${hallNum}.png`;
+            
+            // Find sessions for this hall in lastData
+            let sessions = [];
+            if (window.lastData) {
+                const hallObj = lastData.find(h => h.name.includes(hallNum));
+                if (hallObj) sessions = hallObj.sessions;
+            }
+            
+            let html = '<div style="color:var(--primary-blue);font-weight:700;margin-bottom:10px;font-size:0.8rem;">HEUTIGE VORSTELLUNGEN:</div>';
+            let copyText = `--- SAAL ${hallNum} (${currentCity.toUpperCase()}) ---\n`;
+            
+            if (sessions.length > 0) {
+                sessions.forEach(s => {
+                    html += `
+                    <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:0.85rem;background:rgba(255,255,255,0.03);padding:8px;border-radius:8px;">
+                        <span style="font-weight:700;color:white;">${s.time}</span>
+                        <span style="flex:1;margin-left:10px;color:rgba(255,255,255,0.8);">${s.title}</span>
+                        <span style="color:var(--text-muted);">${s.sold}/${s.capacity}</span>
+                    </div>`;
+                    copyText += `${s.time} - ${s.title} (${s.sold}/${s.capacity})\n`;
+                });
+            } else {
+                html += '<div style="color:var(--text-muted);font-size:0.85rem;">Keine Vorstellungen für diesen Saal heute.</div>';
+                copyText += 'Keine Vorstellungen heute.';
+            }
+            
+            container.innerHTML = html;
+            
+            // Setup copy button
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(copyText).then(() => {
+                    showToast('📋 Daten kopiert (Batman-Style)');
+                });
+            };
+            
             modal.classList.add('active');
             setTimeout(() => modal.style.opacity = '1', 50);
         }
@@ -6352,22 +6393,31 @@
     </script>
 
 
-    <!-- Welcome Modal -->
     <!-- Hall Map Modal -->
     <div id="hall-map-modal" class="modal" onclick="this.classList.remove('active')">
-        <div class="modal-content glass" style="max-width: 90%; padding: 10px; background: rgba(10,10,15,0.9); border-radius: 20px;">
-            <img id="hall-map-img" src="" style="width: 100%; border-radius: 15px; display: block;">
-            <div style="padding: 15px; text-align: center; color: var(--text-muted); font-size: 0.8rem;">
-                Tippe zum Schließen
+        <div class="modal-content glass" style="max-width: 90%; padding: 10px; background: rgba(10,10,15,0.9); border-radius: 20px;" onclick="event.stopPropagation()">
+            <div id="hall-map-header" style="padding: 10px 15px; font-weight: 800; color: white; display: flex; justify-content: space-between; align-items: center;">
+                <span id="hall-map-title">Saalplan</span>
+                <span onclick="document.getElementById('hall-map-modal').classList.remove('active')" style="cursor: pointer; opacity: 0.7;">✕</span>
+            </div>
+            <img id="hall-map-img" src="" style="width: 100%; border-radius: 15px; display: block; background: #000;">
+            <div id="hall-showtimes-container" style="padding: 15px; max-height: 200px; overflow-y: auto; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px;">
+                <!-- Dynamically filled -->
+            </div>
+            <div style="padding: 15px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1);">
+                <button id="copy-hall-data-btn" class="btn-secondary" style="width: 100%; border-radius: 12px; padding: 12px;">📋 Daten kopieren (Batman-Style)</button>
+                <div style="margin-top: 10px; color: var(--text-muted); font-size: 0.75rem;">Tippe außerhalb zum Schließen</div>
             </div>
         </div>
     </div>
+
+    <!-- Welcome Modal -->
+    <div id="welcome-modal" class="modal">
         <div class="modal-content glass" style="max-height: 90vh; overflow-y: auto;">
             <span class="welcome-icon">🍿</span>
             <h2 class="modal-title">Willkommen V1.0!</h2>
             <div style="margin-bottom: 2rem; color: var(--text-main); font-size: 0.95rem; text-align: left;">
                 <p style="margin-bottom: 1.5rem; line-height: 1.5; text-align: center;">Das Kinopolis Automation Dashboard ist deine zentrale Anlaufstelle für einen reibungslosen Kinobetrieb.</p>
-                
                 <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.8rem; text-align: center;">Deine Vorteile:</h3>
                 <ul style="list-style: none; padding: 0; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.6;">
                     <li style="margin-bottom: 12px; display: flex; gap: 10px;"><span style="font-size: 1.2rem;">🎯</span> <span><strong>Bereichs-Fokus:</strong> Personalisiere deine Ansicht je nach Einsatzbereich (Kasse, Theke, Einlass).</span></li>
@@ -6375,7 +6425,6 @@
                     <li style="margin-bottom: 12px; display: flex; gap: 10px;"><span style="font-size: 1.2rem;">📱</span> <span><strong>Mobile First:</strong> Nutze alle Funktionen bequem auf deinem Smartphone während der Schicht.</span></li>
                     <li style="margin-bottom: 12px; display: flex; gap: 10px;"><span style="font-size: 1.2rem;">📧</span> <span><strong>Schicht-Reports:</strong> Erhalte nach jeder Schicht eine Zusammenfassung deiner Erfolge per E-Mail.</span></li>
                 </ul>
-
                 <div style="background: rgba(0, 120, 255, 0.08); border: 1px solid rgba(0, 120, 255, 0.15); padding: 1rem; border-radius: 16px; text-align: center;">
                     <p style="line-height: 1.5; margin: 0; color: var(--primary-blue); font-size: 0.85rem;"><strong>Tipp:</strong> Starte deine Schicht im Profil-Menü, um XP zu sammeln!</p>
                 </div>
