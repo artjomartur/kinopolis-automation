@@ -294,7 +294,7 @@ app.post('/api/auth/reset-password', async (c) => {
 
         let payload;
         try {
-            payload = await verify(token, JWT_SECRET);
+            payload = await verify(token, JWT_SECRET, 'HS256');
         } catch (verifyErr) {
             const msg = verifyErr.message?.toLowerCase() || '';
             if (msg.includes('expired')) {
@@ -330,7 +330,7 @@ app.get('/api/auth/me', async (c) => {
 
     const token = authHeader.split(' ')[1];
     try {
-        const payload = await verify(token, JWT_SECRET);
+        const payload = await verify(token, JWT_SECRET, 'HS256');
         
         // Failsafe: Ensure specific email is always admin
         if (payload.email === 'hi@artjombecker.com') {
@@ -349,7 +349,7 @@ app.post('/api/auth/change-password', async (c) => {
     if (!authHeader) return c.json({ error: 'Nicht autorisiert' }, 401);
 
     try {
-        const payload = await verify(authHeader.split(' ')[1], JWT_SECRET);
+        const payload = await verify(authHeader.split(' ')[1], JWT_SECRET, 'HS256');
         const { newPassword } = await c.req.json();
         
         if (!newPassword || newPassword.length < 6) {
@@ -371,7 +371,7 @@ app.post('/api/auth/shift-report', async (c) => {
     if (!authHeader) return c.json({ error: 'Nicht autorisiert' }, 401);
 
     try {
-        const payload = await verify(authHeader.split(' ')[1], JWT_SECRET);
+        const payload = await verify(authHeader.split(' ')[1], JWT_SECRET, 'HS256');
         const { duration, auslaesse, cleaning, posters, xp, theme } = await c.req.json();
         const resendKey = c.env.RESEND_API_KEY;
 
@@ -473,7 +473,7 @@ app.get('/api/admin/users', async (c) => {
     if (!authHeader) return c.json({ error: 'Nicht autorisiert' }, 401);
     
     try {
-        const payload = await verify(authHeader.split(' ')[1], JWT_SECRET);
+        const payload = await verify(authHeader.split(' ')[1], JWT_SECRET, 'HS256');
         if (payload.role !== 'BL' && payload.role !== 'admin' && payload.email !== 'hi@artjombecker.com') {
             return c.json({ error: 'Admin-Rechte erforderlich' }, 403);
         }
@@ -494,7 +494,7 @@ app.patch('/api/admin/users/:id/role', async (c) => {
     const authHeader = c.req.header('Authorization');
     
     try {
-        const payload = await verify(authHeader.split(' ')[1], JWT_SECRET);
+        const payload = await verify(authHeader.split(' ')[1], JWT_SECRET, 'HS256');
         if (payload.role !== 'BL' && payload.role !== 'admin') {
             return c.json({ error: 'Admin-Rechte erforderlich' }, 403);
         }
@@ -513,7 +513,7 @@ app.delete('/api/admin/users/:id', async (c) => {
     const authHeader = c.req.header('Authorization');
     
     try {
-        const payload = await verify(authHeader.split(' ')[1], JWT_SECRET);
+        const payload = await verify(authHeader.split(' ')[1], JWT_SECRET, 'HS256');
         if (payload.role !== 'BL' && payload.role !== 'admin') {
             return c.json({ error: 'Admin-Rechte erforderlich' }, 403);
         }
