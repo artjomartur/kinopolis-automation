@@ -13,84 +13,90 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
     <script>
-        // --- EPIC CINEMATIC JINGLE (Synthesized) ---
+        // --- ULTRA EPIC CINEMATIC JINGLE V2 (More Bass) ---
         window.playStartupSound = function() {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const now = ctx.currentTime;
 
-                const playEpicNotes = () => {
-                    // 1. DEEP SUB BASS PULSE (The "Foundation")
-                    const bass = ctx.createOscillator();
-                    const bassGain = ctx.createGain();
-                    bass.type = 'triangle';
-                    bass.frequency.setValueAtTime(41.20, now); // E1 (Deep Bass)
-                    bass.connect(bassGain);
-                    bassGain.connect(ctx.destination);
-                    bassGain.gain.setValueAtTime(0, now);
-                    bassGain.gain.linearRampToValueAtTime(0.4, now + 0.1);
-                    bassGain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
-                    bass.start(now);
-                    bass.stop(now + 2.5);
+                const playUltraEpic = () => {
+                    // 1. MASSIVE SUB-BASS (Dual Layer)
+                    [32.70, 41.20].forEach(freq => { // C1 and E1
+                        const bass = ctx.createOscillator();
+                        const bassGain = ctx.createGain();
+                        bass.type = 'triangle';
+                        bass.frequency.setValueAtTime(freq, now);
+                        bass.connect(bassGain);
+                        bassGain.connect(ctx.destination);
+                        bassGain.gain.setValueAtTime(0, now);
+                        bassGain.gain.linearRampToValueAtTime(0.7, now + 0.2); // Powerful entry
+                        bassGain.gain.exponentialRampToValueAtTime(0.001, now + 3.0);
+                        bass.start(now);
+                        bass.stop(now + 3.0);
+                    });
 
-                    // 2. SHIMMERING CHORD SWELL (The "Magic")
-                    // E Major Chord: E4, G#4, B4, E5
-                    const frequencies = [329.63, 415.30, 493.88, 659.25];
+                    // 2. CINEMATIC UNISON SWELL (Detuned for thickness)
+                    const frequencies = [164.81, 207.65, 246.94, 329.63]; // E3 Major Chord
                     
                     frequencies.forEach((freq, i) => {
-                        // Main Oscillator (Warm Sawtooth)
-                        const osc = ctx.createOscillator();
-                        const filter = ctx.createBiquadFilter();
-                        const gain = ctx.createGain();
-                        
-                        osc.type = 'sawtooth';
-                        osc.frequency.setValueAtTime(freq, now);
-                        
-                        // Filter to make it soft/brassy instead of harsh
-                        filter.type = 'lowpass';
-                        filter.frequency.setValueAtTime(200, now);
-                        filter.frequency.exponentialRampToValueAtTime(2000, now + 1.2);
-                        
-                        osc.connect(filter);
-                        filter.connect(gain);
-                        gain.connect(ctx.destination);
-                        
-                        const start = now + (i * 0.1); // Staggered entry
-                        gain.gain.setValueAtTime(0, start);
-                        gain.gain.linearRampToValueAtTime(0.15, start + 0.8); // Slow swell
-                        gain.gain.exponentialRampToValueAtTime(0.001, start + 3.0); // Long decay
-                        
-                        osc.start(start);
-                        osc.stop(start + 3.0);
-
-                        // Shimmer Oscillator (Higher Harmony, Sine)
-                        const shim = ctx.createOscillator();
-                        const shimGain = ctx.createGain();
-                        shim.type = 'sine';
-                        shim.frequency.setValueAtTime(freq * 2, now); // Octave up
-                        shim.connect(shimGain);
-                        shimGain.connect(ctx.destination);
-                        shimGain.gain.setValueAtTime(0, start);
-                        shimGain.gain.linearRampToValueAtTime(0.05, start + 1.2);
-                        shimGain.gain.exponentialRampToValueAtTime(0.001, start + 3.5);
-                        shim.start(start);
-                        shim.stop(start + 3.5);
+                        [-2, 0, 2].forEach(detune => { // 3 oscillators per note for Unison
+                            const osc = ctx.createOscillator();
+                            const filter = ctx.createBiquadFilter();
+                            const gain = ctx.createGain();
+                            
+                            osc.type = 'sawtooth';
+                            osc.frequency.setValueAtTime(freq, now);
+                            osc.detune.setValueAtTime(detune * 1.5, now);
+                            
+                            // Epic Frequency Sweep
+                            osc.frequency.exponentialRampToValueAtTime(freq * 1.02, now + 1.5);
+                            
+                            filter.type = 'lowpass';
+                            filter.frequency.setValueAtTime(100, now);
+                            filter.frequency.exponentialRampToValueAtTime(1500, now + 1.5);
+                            
+                            osc.connect(filter);
+                            filter.connect(gain);
+                            gain.connect(ctx.destination);
+                            
+                            const start = now + (i * 0.12);
+                            gain.gain.setValueAtTime(0, start);
+                            gain.gain.linearRampToValueAtTime(0.2, start + 1.0);
+                            gain.gain.exponentialRampToValueAtTime(0.001, start + 3.5);
+                            
+                            osc.start(start);
+                            osc.stop(start + 4.0);
+                        });
                     });
+
+                    // 3. HIGH CRYSTAL FINISH
+                    const chime = ctx.createOscillator();
+                    const chimeGain = ctx.createGain();
+                    chime.type = 'sine';
+                    chime.frequency.setValueAtTime(1318.51, now + 1.5); // E6
+                    chime.connect(chimeGain);
+                    chimeGain.connect(ctx.destination);
+                    chimeGain.gain.setValueAtTime(0, now + 1.5);
+                    chimeGain.gain.linearRampToValueAtTime(0.1, now + 1.6);
+                    chimeGain.gain.exponentialRampToValueAtTime(0.001, now + 4.0);
+                    chime.start(now + 1.5);
+                    chime.stop(now + 4.0);
 
                     // Visual feedback
                     const btns = document.querySelectorAll('[onclick*="playStartupSound"], [onclick*="window.playStartupSound"]');
                     btns.forEach(btn => {
                         const orig = btn.innerText;
-                        btn.innerText = '✨ Episch!';
+                        btn.innerText = '🔊 MEGA BASS!';
                         setTimeout(() => btn.innerText = orig, 1500);
                     });
                 };
 
                 if (ctx.state === 'suspended') {
-                    ctx.resume().then(playEpicNotes);
+                    ctx.resume().then(playUltraEpic);
                 } else {
-                    playEpicNotes();
+                    playUltraEpic();
                 }
+                console.log("EPIC JINGLE V2: Massive Bass engaged.");
             } catch (e) { console.error('Epic Jingle error:', e); }
         };
     </script>
