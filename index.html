@@ -3831,7 +3831,8 @@
                             auslaesse: auslaesseCount,
                             cleaning: cleaningCount,
                             posters: postersCount,
-                            xp: xpTotal
+                            xp: xpTotal,
+                            theme: localStorage.getItem('theme') || 'dark'
                         })
                     });
                     const data = await res.json();

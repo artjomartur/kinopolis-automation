@@ -315,7 +315,10 @@ const AUTH = {
             const res = await fetch('/api/auth/forgot-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
+                body: JSON.stringify({ 
+                    email, 
+                    theme: localStorage.getItem('theme') || 'dark'
+                })
             });
             if (res.ok) {
                 const content = document.getElementById('auth-modal-content');
