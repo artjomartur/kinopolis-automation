@@ -1753,18 +1753,27 @@ app.post('/api/scan-plan', async (c) => {
     try {
         const body = await c.req.parseBody();
         const imageFile = body.image;
-        if (!imageFile) return c.json({ error: 'No image uploaded' }, 400);
+        const type = body.type || 'plan'; // 'plan' or 'seatmap'
 
-        const imageArrayBuffer = await imageFile.arrayBuffer();
-        const imageData = new Uint8Array(imageArrayBuffer);
-
-        const prompt = `Du bist ein spezialisierter Assistent für Kinobetriebe. 
-        Analysiere dieses Foto eines gedruckten Auslassplans/Dienstplans.
-        Extrahiere die Tabelle mit den Auslasszeiten (Credits).
-        WICHTIG: Gib NUR ein raues JSON-Array zurück im Format: 
-        [{"hall": "Kino 1", "movie": "Film Titel", "credits_time": "HH:MM"}, ...]
-        Suche nach Spalten wie 'Saal', 'Film', 'Credits' oder 'Ende'.
-        Ignoriere alle anderen Texte.`;
+        let prompt;
+        if (type === 'seatmap') {
+            prompt = `Du bist ein Sitzplan-Analyst. Analysiere diesen Screenshot eines Kinosaal-Buchungsplans.
+            REGELN:
+            1. Zähle die belegten Plätze (dunkelgrau oder mit Icon/Männchen markiert).
+            2. Zähle die freien Plätze (farbig markiert: blau, beige oder grün).
+            3. Berechne die prozentuale Auslastung.
+            4. Gib NUR JSON zurück: {"occupied": X, "available": Y, "occupancy_percent": Z}`;
+        } else {
+            prompt = `Du bist ein hochpräziser OCR-Assistent für Kinobetriebe. 
+            Analysiere das beigefügte Foto eines gedruckten Plans.
+            AUFGABE: Extrahiere NUR die tatsächlich im Bild sichtbaren Daten für Saal, Film und Credits-Zeit.
+            REGELN:
+            1. Halluziniere NIEMALS Filmtitel wie "The Matrix", "Batman" oder andere Klassiker, wenn sie nicht im Bild stehen.
+            2. Wenn du einen Titel nicht lesen kannst, schreibe "UNBEKANNT".
+            3. Gib NUR ein valides JSON-Array zurück.
+            Format: [{"hall": "1", "movie": "Titel", "credits_time": "HH:MM"}, ...]
+            4. Wenn kein Plan erkennbar ist, gib ein leeres Array [] zurück.`;
+        }
 
         let result;
         let usedModel = '@cf/meta/llama-3.2-11b-vision-instruct';
@@ -1781,16 +1790,16 @@ app.post('/api/scan-plan', async (c) => {
             throw e;
         }
 
-        const jsonMatch = result.match(/\[\s*\{[\s\S]*\}\s*\]/);
+        const jsonMatch = result.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
         if (!jsonMatch) {
-            return c.json({ error: 'KI konnte keine gültige Tabelle finden.', raw: result }, 500);
+            return c.json({ error: 'KI konnte keine gültige Datenstruktur finden.', raw: result }, 500);
         }
 
         const data = JSON.parse(jsonMatch[0]);
 
         const todayStr = new Date().toISOString().split('T')[0];
         try {
-            if (c.env.DB) {
+            if (c.env.DB && Array.isArray(data)) {
                 for (const item of data) {
                     await c.env.DB.prepare(`
                         INSERT INTO scanned_plans (date, hall, movie, credits_time)

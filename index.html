@@ -159,7 +159,9 @@
             const copyBtn = document.getElementById('copy-hall-data-btn');
             
             title.innerText = `SAAL ${hallNum} - ÜBERSICHT`;
-            mapImg.src = `https://trailer.kinopolis.de/media/img/saalplaene/darmstadt/saal${hallNum}.png`;
+            // Updated URL pattern for Kinopolis assets
+            mapImg.src = `https://www.kinopolis.de/media/img/saalplaene/darmstadt/saal${hallNum}.png`;
+            mapImg.onerror = () => { mapImg.src = 'https://trailer.kinopolis.de/media/img/logos/kinopolis.png'; };
             
             // Find sessions for this hall in lastData
             let sessions = [];
@@ -188,7 +190,6 @@
             
             container.innerHTML = html;
             
-            // Setup copy button
             copyBtn.onclick = () => {
                 navigator.clipboard.writeText(copyText).then(() => {
                     showToast('📋 Daten kopiert (Batman-Style)');
@@ -197,6 +198,38 @@
             
             modal.classList.add('active');
             setTimeout(() => modal.style.opacity = '1', 50);
+        }
+
+        async function handleSeatMapScan(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const btn = document.getElementById('seat-scan-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⌛ KI analysiert Sitzplätze...';
+            btn.disabled = true;
+
+            try {
+                const compressedFile = await compressImage(file, 800, 0.7);
+                const formData = new FormData();
+                formData.append('image', compressedFile);
+                formData.append('type', 'seatmap');
+
+                const res = await fetch('/api/scan-plan', { method: 'POST', body: formData });
+                const result = await res.json();
+
+                if (result.success) {
+                    const data = result.data;
+                    alert(`KI-ANALYSE ERGEBNIS:\n\n👥 Belegte Plätze: ${data.occupied}\n🪑 Frei: ${data.available}\n📊 Auslastung: ${data.occupancy_percent}%`);
+                } else {
+                    alert('Fehler: ' + (result.error || 'KI konnte Bild nicht lesen.'));
+                }
+            } catch (err) {
+                alert('Netzwerkfehler: ' + err.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                input.value = '';
+            }
         }
 
         function checkAndPromptDepartment() {
@@ -6404,9 +6437,11 @@
             <div id="hall-showtimes-container" style="padding: 15px; max-height: 200px; overflow-y: auto; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px;">
                 <!-- Dynamically filled -->
             </div>
-            <div style="padding: 15px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1);">
-                <button id="copy-hall-data-btn" class="btn-secondary" style="width: 100%; border-radius: 12px; padding: 12px;">📋 Daten kopieren (Batman-Style)</button>
-                <div style="margin-top: 10px; color: var(--text-muted); font-size: 0.75rem;">Tippe außerhalb zum Schließen</div>
+            <div style="padding: 15px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; gap: 10px;">
+                <input type="file" id="seat-scan-input" accept="image/*" style="display: none;" onchange="handleSeatMapScan(this)">
+                <button id="seat-scan-btn" onclick="document.getElementById('seat-scan-input').click()" class="btn-primary" style="width: 100%; border-radius: 12px; padding: 12px; background: linear-gradient(135deg, #0078ff, #00d2ff);">📸 Screenshot analysieren (KI)</button>
+                <button id="copy-hall-data-btn" class="btn-secondary" style="width: 100%; border-radius: 12px; padding: 12px;">📋 Schicht-Daten kopieren</button>
+                <div style="margin-top: 5px; color: var(--text-muted); font-size: 0.7rem;">Tippe außerhalb zum Schließen</div>
             </div>
         </div>
     </div>
