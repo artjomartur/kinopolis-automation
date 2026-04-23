@@ -2512,6 +2512,13 @@
             .location-badge { font-size: 0.7rem; padding: 0.2rem 0.75rem; }
         }
 
+        /* Role-based Visibility Control */
+        body.role-user .tl-only, body.role-user .bl-only { display: none !important; }
+        body.role-tl .bl-only { display: none !important; }
+        
+        /* Mobile Nav Role-based Visibility */
+        body.role-user .nav-stats { display: none !important; }
+
         /* Welcome Modal Styles */
         .modal {
             position: fixed;
@@ -2605,27 +2612,41 @@
 
         .global-toast {
             position: fixed;
-            top: 20px;
+            top: 24px;
             left: 50%;
-            transform: translateX(-50%) translateY(-20px);
-            background: rgba(46, 204, 113, 0.9);
-            backdrop-filter: blur(10px);
+            transform: translateX(-50%) translateY(-30px);
+            background: rgba(15, 15, 20, 0.8);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             color: white;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-weight: 600;
             z-index: 10000;
             opacity: 0;
             pointer-events: none;
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 12px;
+            font-size: 0.88rem;
+            letter-spacing: -0.01em;
         }
         .global-toast.show {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
+        }
+        #toast-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            font-size: 1rem;
         }
     </style>
 </head>
@@ -2735,7 +2756,7 @@
 
         <div class="nav-tabs">
             <button class="tab-btn active tab-live" id="tab-live" onclick="switchTab('live', this)">🎬 Live</button>
-            <button class="tab-btn stats-tab-btn tab-stats" id="tab-stats" onclick="switchTab('stats', this)">📊 Statistik</button>
+            <button class="tab-btn stats-tab-btn tab-stats tl-only" id="tab-stats" onclick="switchTab('stats', this)">📊 Statistik</button>
             <button class="tab-btn tab-kontakte" id="tab-kontakte" onclick="switchTab('kontakte', this)">📞 Kontakte</button>
             <button class="tab-btn tools-tab-btn tab-funk" id="tab-funk" onclick="switchTab('funk', this)">📡 Funk</button>
             <button class="tab-btn tab-intern" id="tab-intern" onclick="switchTab('intern', this)">🛠️ Tools</button>
@@ -3304,7 +3325,7 @@
         </div>
 
         <!-- Statistics Section -->
-        <section id="stats-section-container" class="stats-section" style="display: none; margin-bottom: 4rem; padding: 0;">
+        <section id="stats-section-container" class="stats-section tl-only" style="display: none; margin-bottom: 4rem; padding: 0;">
             <!-- GAMIFICATION: PROGRESS BAR -->
             <div id="gamification-summary" class="glass" style="margin: 1.5rem; padding: 1.2rem; border-radius: 16px; border: 1px solid rgba(0, 120, 255, 0.2); background: linear-gradient(135deg, rgba(0, 120, 255, 0.05) 0%, rgba(0,0,0,0.2) 100%);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
@@ -3377,7 +3398,10 @@
             if(!t) return;
             document.getElementById('toast-msg').innerText = msg;
             document.getElementById('toast-icon').innerText = isError ? '❌' : '✅';
-            t.style.background = isError ? 'rgba(231, 76, 60, 0.95)' : 'rgba(46, 204, 113, 0.95)';
+            
+            const iconBg = isError ? 'rgba(231, 76, 60, 0.2)' : 'rgba(46, 204, 113, 0.2)';
+            document.getElementById('toast-icon').style.background = iconBg;
+            
             t.classList.add('show');
             setTimeout(() => { t.classList.remove('show'); }, 3500);
         }
@@ -3590,6 +3614,9 @@
                     await AUTH.init().catch(e => console.error("Auth init failed:", e));
                     
                     if (AUTH.user) {
+                        // Apply Role class for RBAC
+                        document.body.classList.add(`role-${AUTH.user.role.toLowerCase()}`);
+
                         const nameInputs = document.querySelectorAll('input[placeholder="Name eingeben..."]');
                         nameInputs.forEach(input => {
                             input.value = AUTH.user.name || (AUTH.user.first_name + ' ' + (AUTH.user.last_name || ''));
