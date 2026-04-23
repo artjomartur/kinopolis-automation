@@ -13,90 +13,102 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
     <script>
-        // --- ULTRA EPIC CINEMATIC JINGLE V2 (More Bass) ---
+        // --- HANS ZIMMER STYLE EPIC JINGLE (Maximum Power) ---
         window.playStartupSound = function() {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const now = ctx.currentTime;
 
-                const playUltraEpic = () => {
-                    // 1. MASSIVE SUB-BASS (Dual Layer)
-                    [32.70, 41.20].forEach(freq => { // C1 and E1
+                const playFinalEpic = () => {
+                    // 1. MASSIVE ORGAN BASS (Sub + Harmonics)
+                    [32.70, 65.41, 98.00].forEach((freq, i) => { // C1, C2, G2
                         const bass = ctx.createOscillator();
                         const bassGain = ctx.createGain();
-                        bass.type = 'triangle';
+                        const lfo = ctx.createOscillator();
+                        const lfoGain = ctx.createGain();
+                        
+                        bass.type = i === 0 ? 'triangle' : 'sine';
                         bass.frequency.setValueAtTime(freq, now);
+                        
+                        // LFO for a "throbbing" life-like feel
+                        lfo.frequency.setValueAtTime(4, now); // 4Hz throb
+                        lfoGain.gain.setValueAtTime(1.5, now); // subtle freq shift
+                        lfo.connect(lfoGain);
+                        lfoGain.connect(bass.frequency);
+                        lfo.start(now);
+                        
                         bass.connect(bassGain);
                         bassGain.connect(ctx.destination);
                         bassGain.gain.setValueAtTime(0, now);
-                        bassGain.gain.linearRampToValueAtTime(0.7, now + 0.2); // Powerful entry
-                        bassGain.gain.exponentialRampToValueAtTime(0.001, now + 3.0);
+                        bassGain.gain.linearRampToValueAtTime(0.8, now + 0.3);
+                        bassGain.gain.exponentialRampToValueAtTime(0.001, now + 4.0);
                         bass.start(now);
-                        bass.stop(now + 3.0);
+                        bass.stop(now + 4.0);
+                        lfo.stop(now + 4.0);
                     });
 
-                    // 2. CINEMATIC UNISON SWELL (Detuned for thickness)
-                    const frequencies = [164.81, 207.65, 246.94, 329.63]; // E3 Major Chord
+                    // 2. THE CONVERGING SWELL (Hans Zimmer Style Chord)
+                    // C Major 9: C3, G3, C4, E4, G4, B4, D5
+                    const chord = [130.81, 196.00, 261.63, 329.63, 392.00, 493.88, 587.33];
                     
-                    frequencies.forEach((freq, i) => {
-                        [-2, 0, 2].forEach(detune => { // 3 oscillators per note for Unison
+                    chord.forEach((freq, i) => {
+                        [-3, 0, 3].forEach(detune => { // Heavy Unison
                             const osc = ctx.createOscillator();
                             const filter = ctx.createBiquadFilter();
                             const gain = ctx.createGain();
                             
                             osc.type = 'sawtooth';
-                            osc.frequency.setValueAtTime(freq, now);
-                            osc.detune.setValueAtTime(detune * 1.5, now);
-                            
-                            // Epic Frequency Sweep
-                            osc.frequency.exponentialRampToValueAtTime(freq * 1.02, now + 1.5);
+                            osc.frequency.setValueAtTime(freq * 0.98, now); // Start slightly low
+                            osc.frequency.exponentialRampToValueAtTime(freq, now + 2.0); // Resolve up
+                            osc.detune.setValueAtTime(detune * 2, now);
                             
                             filter.type = 'lowpass';
-                            filter.frequency.setValueAtTime(100, now);
-                            filter.frequency.exponentialRampToValueAtTime(1500, now + 1.5);
+                            filter.frequency.setValueAtTime(50, now);
+                            filter.frequency.exponentialRampToValueAtTime(2500, now + 1.8);
+                            filter.Q.setValueAtTime(5, now);
                             
                             osc.connect(filter);
                             filter.connect(gain);
                             gain.connect(ctx.destination);
                             
-                            const start = now + (i * 0.12);
+                            const start = now + (i * 0.1);
                             gain.gain.setValueAtTime(0, start);
-                            gain.gain.linearRampToValueAtTime(0.2, start + 1.0);
-                            gain.gain.exponentialRampToValueAtTime(0.001, start + 3.5);
+                            gain.gain.linearRampToValueAtTime(0.25, start + 1.5); // Very slow swell
+                            gain.gain.exponentialRampToValueAtTime(0.001, start + 5.0);
                             
                             osc.start(start);
-                            osc.stop(start + 4.0);
+                            osc.stop(start + 5.0);
                         });
                     });
 
-                    // 3. HIGH CRYSTAL FINISH
-                    const chime = ctx.createOscillator();
-                    const chimeGain = ctx.createGain();
-                    chime.type = 'sine';
-                    chime.frequency.setValueAtTime(1318.51, now + 1.5); // E6
-                    chime.connect(chimeGain);
-                    chimeGain.connect(ctx.destination);
-                    chimeGain.gain.setValueAtTime(0, now + 1.5);
-                    chimeGain.gain.linearRampToValueAtTime(0.1, now + 1.6);
-                    chimeGain.gain.exponentialRampToValueAtTime(0.001, now + 4.0);
-                    chime.start(now + 1.5);
-                    chime.stop(now + 4.0);
+                    // 3. CRYSTAL SHIMMER FINISH
+                    const shimmer = ctx.createOscillator();
+                    const shimmerGain = ctx.createGain();
+                    shimmer.type = 'sine';
+                    shimmer.frequency.setValueAtTime(2093.00, now + 1.8); // C7
+                    shimmer.connect(shimmerGain);
+                    shimmerGain.connect(ctx.destination);
+                    shimmerGain.gain.setValueAtTime(0, now + 1.8);
+                    shimmerGain.gain.linearRampToValueAtTime(0.08, now + 2.0);
+                    shimmerGain.gain.exponentialRampToValueAtTime(0.001, now + 5.5);
+                    shimmer.start(now + 1.8);
+                    shimmer.stop(now + 5.5);
 
                     // Visual feedback
                     const btns = document.querySelectorAll('[onclick*="playStartupSound"], [onclick*="window.playStartupSound"]');
                     btns.forEach(btn => {
                         const orig = btn.innerText;
-                        btn.innerText = '🔊 MEGA BASS!';
+                        btn.innerText = '🎭 KINO PUR!';
                         setTimeout(() => btn.innerText = orig, 1500);
                     });
                 };
 
                 if (ctx.state === 'suspended') {
-                    ctx.resume().then(playUltraEpic);
+                    ctx.resume().then(playFinalEpic);
                 } else {
-                    playUltraEpic();
+                    playFinalEpic();
                 }
-                console.log("EPIC JINGLE V2: Massive Bass engaged.");
+                console.log("FINAL EPIC JINGLE: Interstellar Edition.");
             } catch (e) { console.error('Epic Jingle error:', e); }
         };
     </script>
