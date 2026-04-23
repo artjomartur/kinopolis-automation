@@ -349,76 +349,87 @@ app.post('/api/auth/shift-report', async (c) => {
         const { duration, auslaesse, cleaning, posters, xp } = await c.req.json();
         const resendKey = c.env.RESEND_API_KEY;
 
-        if (resendKey) {
-            await fetch('https://api.resend.com/emails', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${resendKey}`
-                },
-                body: JSON.stringify({
-                    from: 'Kinopolis Automation <hi@artjombecker.com>',
-                    to: payload.email,
-                    subject: `Schicht-Zusammenfassung: ${new Date().toLocaleDateString('de-DE')}`,
-                    html: `
-                        <div style="background-color: #050507; padding: 40px 20px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: #ffffff;">
-                            <div style="max-width: 600px; margin: 0 auto; background: #0f0f13; border: 1px solid rgba(255,255,255,0.05); border-radius: 28px; overflow: hidden;">
-                                <!-- Header -->
-                                <div style="padding: 40px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                                    <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" style="width: 140px; margin-bottom: 24px; opacity: 0.9;" />
-                                    <h1 style="font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.02em;">Gute Arbeit, ${payload.first_name || 'Teammitglied'}!</h1>
-                                    <p style="color: #8e8e93; font-size: 14px; margin-top: 8px;">Hier ist die Auswertung deiner heutigen Schicht.</p>
+        if (!resendKey) {
+            console.error("AUTH: Missing RESEND_API_KEY");
+            return c.json({ error: 'E-Mail Dienst ist nicht konfiguriert (Key fehlt)' }, 500);
+        }
+
+        const mailRes = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${resendKey}`
+            },
+            body: JSON.stringify({
+                from: 'Kinopolis Automation <hi@artjombecker.com>',
+                to: payload.email,
+                subject: `Kinopolis Schicht-Report: ${new Date().toLocaleDateString('de-DE')}`,
+                html: `
+                    <div style="background-color: #050507; padding: 40px 20px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: #ffffff;">
+                        <div style="max-width: 600px; margin: 0 auto; background: #0f0f13; border: 1px solid rgba(255,255,255,0.05); border-radius: 28px; overflow: hidden;">
+                            <!-- Header -->
+                            <div style="padding: 40px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" style="width: 140px; margin-bottom: 24px; opacity: 0.9;" />
+                                <h1 style="font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.02em;">Gute Arbeit, ${payload.first_name || 'Teammitglied'}!</h1>
+                                <p style="color: #8e8e93; font-size: 14px; margin-top: 8px;">Hier ist die Auswertung deiner heutigen Schicht.</p>
+                            </div>
+
+                            <!-- Stats Grid -->
+                            <div style="padding: 30px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px;">
+                                    <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 18px; text-align: center; border: 1px solid rgba(255,255,255,0.05);">
+                                        <div style="color: #8e8e93; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px;">Schichtdauer</div>
+                                        <div style="font-size: 20px; font-weight: 800; color: #ffffff;">${duration || '0h 0m'}</div>
+                                    </div>
+                                    <div style="background: rgba(0, 255, 128, 0.05); padding: 20px; border-radius: 18px; text-align: center; border: 1px solid rgba(0, 255, 128, 0.1);">
+                                        <div style="color: #00ff80; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px;">Gesammeltes XP</div>
+                                        <div style="font-size: 20px; font-weight: 800; color: #00ff80;">+${xp || 0} XP</div>
+                                    </div>
                                 </div>
 
-                                <!-- Stats Grid -->
-                                <div style="padding: 30px;">
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px;">
-                                        <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 18px; text-align: center; border: 1px solid rgba(255,255,255,0.05);">
-                                            <div style="color: #8e8e93; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px;">Schichtdauer</div>
-                                            <div style="font-size: 20px; font-weight: 800; color: #ffffff;">${duration || 'N/A'}</div>
-                                        </div>
-                                        <div style="background: rgba(0, 255, 128, 0.05); padding: 20px; border-radius: 18px; text-align: center; border: 1px solid rgba(0, 255, 128, 0.1);">
-                                            <div style="color: #00ff80; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px;">Gesammeltes XP</div>
-                                            <div style="font-size: 20px; font-weight: 800; color: #00ff80;">+${xp || 0} XP</div>
-                                        </div>
+                                <!-- Details -->
+                                <div style="background: rgba(255,255,255,0.02); border-radius: 18px; padding: 24px; border: 1px solid rgba(255,255,255,0.05);">
+                                    <h3 style="font-size: 12px; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; margin-top: 0;">Erledigte Aufgaben</h3>
+                                    
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                                        <span style="color: #ffffff; font-size: 14px; font-weight: 500;">📽️ Auslässe</span>
+                                        <span style="background: rgba(229, 9, 20, 0.15); color: #ff3d47; padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: 800;">${auslaesse || 0}</span>
+                                    </div>
+                                    
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                                        <span style="color: #ffffff; font-size: 14px; font-weight: 500;">🧹 Reinigungen</span>
+                                        <span style="background: rgba(0, 120, 255, 0.15); color: #00d2ff; padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: 800;">${cleaning || 0}</span>
                                     </div>
 
-                                    <!-- Details -->
-                                    <div style="background: rgba(255,255,255,0.02); border-radius: 18px; padding: 24px; border: 1px solid rgba(255,255,255,0.05);">
-                                        <h3 style="font-size: 12px; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; margin-top: 0;">Erledigte Aufgaben</h3>
-                                        
-                                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                                            <span style="color: #ffffff; font-size: 14px; font-weight: 500;">📽️ Auslässe</span>
-                                            <span style="background: rgba(229, 9, 20, 0.15); color: #ff3d47; padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: 800;">${auslaesse || 0}</span>
-                                        </div>
-                                        
-                                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                                            <span style="color: #ffffff; font-size: 14px; font-weight: 500;">🧹 Reinigungen</span>
-                                            <span style="background: rgba(0, 120, 255, 0.15); color: #00d2ff; padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: 800;">${cleaning || 0}</span>
-                                        </div>
-
-                                        <div style="display: flex; align-items: center; justify-content: space-between;">
-                                            <span style="color: #ffffff; font-size: 14px; font-weight: 500;">🖼️ Poster-Checks</span>
-                                            <span style="background: rgba(255, 171, 0, 0.15); color: #ffab00; padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: 800;">${posters || 0}</span>
-                                        </div>
+                                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                                        <span style="color: #ffffff; font-size: 14px; font-weight: 500;">🖼️ Poster-Checks</span>
+                                        <span style="background: rgba(255, 171, 0, 0.15); color: #ffab00; padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: 800;">${posters || 0}</span>
                                     </div>
+                                </div>
 
-                                    <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.05);">
-                                        <p style="color: #48484a; font-size: 11px; line-height: 1.6;">
-                                            Diese Zusammenfassung wurde automatisch von der Kinopolis Automation Platform erstellt.<br>
-                                            Viel Erfolg für deine nächste Schicht!
-                                        </p>
-                                    </div>
+                                <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.05);">
+                                    <p style="color: #48484a; font-size: 11px; line-height: 1.6;">
+                                        Diese Zusammenfassung wurde automatisch von der Kinopolis Automation Platform erstellt.<br>
+                                        Viel Erfolg für deine nächste Schicht!
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                    `
-                })
-            });
+                    </div>
+                `
+            })
+        });
+
+        if (!mailRes.ok) {
+            const errorBody = await mailRes.text();
+            console.error("AUTH: Resend API Error:", errorBody);
+            return c.json({ error: 'E-Mail konnte nicht gesendet werden', detail: errorBody }, 500);
         }
+
         return c.json({ success: true });
     } catch (e) {
-        return c.json({ error: 'Fehler beim Senden des Reports' }, 500);
+        console.error("AUTH: Shift report error:", e);
+        return c.json({ error: 'Interner Server-Fehler beim Report' }, 500);
     }
 });
 

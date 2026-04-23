@@ -3820,7 +3820,7 @@
             // Send Report to API
             if (window.AUTH && AUTH.token) {
                 try {
-                    await fetch('/api/auth/shift-report', {
+                    const res = await fetch('/api/auth/shift-report', {
                         method: 'POST',
                         headers: { 
                             'Content-Type': 'application/json',
@@ -3834,7 +3834,17 @@
                             xp: xpTotal
                         })
                     });
-                } catch (e) { console.error("Report failed", e); }
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('📧 Schicht-Report wurde gesendet!');
+                    } else {
+                        console.error("Report API error:", data.error);
+                        showToast('⚠️ E-Mail Fehler: ' + (data.error || 'Unbekannt'), true);
+                    }
+                } catch (e) { 
+                    console.error("Report network error", e); 
+                    showToast('📡 Netzwerk-Fehler beim Report', true);
+                }
             }
 
             if (!silent) {
