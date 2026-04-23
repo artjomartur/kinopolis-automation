@@ -1778,16 +1778,25 @@ app.post('/api/scan-plan', async (c) => {
         let result;
         let usedModel = '@cf/meta/llama-3.2-11b-vision-instruct';
 
+        console.log(`Starting AI Scan (${type}) with model ${usedModel}...`);
+
         try {
             const response = await c.env.AI.run(usedModel, {
                 prompt,
                 image: [...imageData],
                 max_tokens: 1024
             });
+            
+            if (!response || !response.response) {
+                console.error("AI returned empty response");
+                return c.json({ error: 'KI hat keine Antwort geliefert. Bitte versuche es erneut.' }, 500);
+            }
+            
             result = response.response;
+            console.log(`AI Response (${type}):`, result.substring(0, 100) + "...");
         } catch (e) {
-            console.warn("Llama 3.2 Vision failed", e);
-            throw e;
+            console.error(`AI Run Error (${usedModel}):`, e);
+            return c.json({ error: `KI-Verarbeitungsfehler: ${e.message}. Möglicherweise ist das Bild zu groß oder die KI überlastet.` }, 500);
         }
 
         const jsonMatch = result.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
