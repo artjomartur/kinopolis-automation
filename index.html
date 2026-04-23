@@ -13,19 +13,45 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
     <script>
-        // Define early so auth.js can call it before the main script block is parsed
+        // Synthesized cinematic chime — no external file needed
         window.playStartupSound = function() {
             try {
-                const audio = new Audio('./startup.mp3');
-                audio.volume = 0.5;
-                audio.play().then(() => {
-                    const btn = document.querySelector('button[onclick="playStartupSound()"]');
-                    if (btn) {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // 3-note ascending cinematic arpeggio: E4 → G#4 → B4
+                const notes = [329.63, 415.30, 493.88];
+                
+                notes.forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                    
+                    const start = ctx.currentTime + i * 0.18;
+                    const end = start + 0.8;
+                    
+                    gain.gain.setValueAtTime(0, start);
+                    gain.gain.linearRampToValueAtTime(0.35, start + 0.03);
+                    gain.gain.exponentialRampToValueAtTime(0.001, end);
+                    
+                    osc.start(start);
+                    osc.stop(end);
+                });
+
+                // Visual feedback
+                setTimeout(() => {
+                    const btns = document.querySelectorAll('[onclick*="playStartupSound"]');
+                    btns.forEach(btn => {
                         const orig = btn.innerText;
                         btn.innerText = '✨ Harmonisch!';
                         setTimeout(() => btn.innerText = orig, 1500);
-                    }
-                }).catch(e => console.log('Audio blocked:', e));
+                    });
+                }, 50);
+
             } catch (e) { console.error('Jingle error:', e); }
         };
     </script>
