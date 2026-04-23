@@ -12,6 +12,23 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <script>
+        // Define early so auth.js can call it before the main script block is parsed
+        window.playStartupSound = function() {
+            try {
+                const audio = new Audio('./startup.mp3');
+                audio.volume = 0.5;
+                audio.play().then(() => {
+                    const btn = document.querySelector('button[onclick="playStartupSound()"]');
+                    if (btn) {
+                        const orig = btn.innerText;
+                        btn.innerText = '✨ Harmonisch!';
+                        setTimeout(() => btn.innerText = orig, 1500);
+                    }
+                }).catch(e => console.log('Audio blocked:', e));
+            } catch (e) { console.error('Jingle error:', e); }
+        };
+    </script>
     <script src="auth.js?v=3.0"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
