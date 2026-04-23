@@ -410,6 +410,17 @@ const AUTH = {
                         <span style="color: var(--text-muted); font-size: 0.85rem;">Standort</span>
                         <span style="font-weight: 600; font-size: 0.9rem;">${this.user.location.toUpperCase()}</span>
                     </div>
+                    <!-- DEPT SELECTOR -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.05);">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Aktiver Bereich</span>
+                        <select onchange="if(window.selectDept) window.selectDept(this.value)" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 4px 8px; font-size: 0.85rem; font-weight: 600; outline: none; cursor: pointer;">
+                            <option value="einlass" ${localStorage.getItem('kinopolis_selected_dept') === 'einlass' ? 'selected' : ''}>🎟️ Einlass</option>
+                            <option value="kasse" ${localStorage.getItem('kinopolis_selected_dept') === 'kasse' ? 'selected' : ''}>💰 Kasse</option>
+                            <option value="theke" ${localStorage.getItem('kinopolis_selected_dept') === 'theke' ? 'selected' : ''}>🍿 Theke</option>
+                            <option value="tl" ${localStorage.getItem('kinopolis_selected_dept') === 'tl' ? 'selected' : ''}>👔 TL / BL</option>
+                            <option value="alles" ${localStorage.getItem('kinopolis_selected_dept') === 'alles' ? 'selected' : ''}>🌐 Alles</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
