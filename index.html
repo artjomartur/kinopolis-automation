@@ -149,74 +149,8 @@
         }
 
         function openHallMap(hallName) {
-            const hallNum = hallName.replace(/\D/g, '');
-            if (!hallNum) return;
-            
-            const mapImg = document.getElementById('hall-map-img');
-            const placeholder = document.getElementById('hall-map-placeholder');
-            const modal = document.getElementById('hall-map-modal');
-            const title = document.getElementById('hall-map-title');
-            const container = document.getElementById('hall-showtimes-container');
-            const copyBtn = document.getElementById('copy-hall-data-btn');
-            
-            title.innerText = `SAAL ${hallNum} - ÜBERSICHT`;
-            
-            // Try to load static plan, but handle failure gracefully
-            mapImg.style.display = 'block';
-            placeholder.style.display = 'none';
-            mapImg.src = `https://www.kinopolis.de/media/img/saalplaene/darmstadt/saal${hallNum}.png`;
-            mapImg.onerror = () => { 
-                mapImg.style.display = 'none'; 
-                placeholder.style.display = 'block';
-            };
-            
-            // Find sessions for this hall in lastData
-            let sessions = [];
-            if (window.lastData) {
-                const hallObj = lastData.find(h => h.name.includes(hallNum));
-                if (hallObj) sessions = hallObj.sessions;
-            }
-            
-            let html = '<div style="color:var(--primary-blue);font-weight:700;margin-bottom:10px;font-size:0.8rem;">HEUTIGE VORSTELLUNGEN:</div>';
-            let copyText = `--- SAAL ${hallNum} (${currentCity.toUpperCase()}) ---\n`;
-            
-            // Center ID mapping (Darmstadt)
-            const centerId = "20000000014SPADYMD"; 
-
-            if (sessions.length > 0) {
-                sessions.forEach(s => {
-                    const seatingUrl = s.performanceId ? `https://iframe.ts.kinopolis.de/landingpage?center=${centerId}&page=seatingplan&performance=${s.performanceId}` : null;
-                    
-                    html += `
-                    <div style="margin-bottom:12px; background:rgba(255,255,255,0.03); border-radius:12px; padding:12px; border:1px solid rgba(255,255,255,0.05);">
-                        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-                            <span style="font-weight:800;color:white;font-size:1rem;">${s.time}</span>
-                            <span style="color:var(--primary-blue);font-weight:700;">${s.sold}/${s.capacity}</span>
-                        </div>
-                        <div style="color:rgba(255,255,255,0.9);font-size:0.9rem;margin-bottom:8px;font-weight:600;">${s.title}</div>
-                        ${seatingUrl ? `
-                            <a href="${seatingUrl}" target="_blank" class="btn-primary" style="display:inline-block; font-size:0.75rem; padding:6px 12px; background:rgba(0,120,255,0.1); border:1px solid rgba(0,120,255,0.3); text-decoration:none; color:var(--primary-blue); border-radius:8px;">
-                                🪑 Live-Sitzplan öffnen
-                            </a>
-                        ` : ''}
-                    </div>`;
-                    copyText += `${s.time} - ${s.title} (${s.sold}/${s.capacity})\n`;
-                });
-            } else {
-                html += '<div style="color:var(--text-muted);font-size:0.85rem;">Keine Vorstellungen für diesen Saal heute.</div>';
-                copyText += 'Keine Vorstellungen heute.';
-            }
-            
-            container.innerHTML = html;
-            
-            copyBtn.onclick = () => {
-                navigator.clipboard.writeText(copyText).then(() => {
-                    showToast('📋 Daten kopiert (Batman-Style)');
-                });
-            };
-            
-            modal.classList.add('active');
-            setTimeout(() => modal.style.opacity = '1', 50);
+            // Disabled per user request
+            showToast('Saalpläne aktuell deaktiviert.');
         }
 
         async function handleSeatMapScan(input) {
@@ -6057,9 +5991,14 @@
 
         // Initial load
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
+            document.addEventListener('DOMContentLoaded', () => {
+                init();
+                // Show Developer Info Popup on startup
+                setTimeout(() => openFeedback('artjom'), 2000);
+            });
         } else {
             init();
+            setTimeout(() => openFeedback('artjom'), 2000);
         }
         
 
@@ -6067,67 +6006,6 @@
             this.style.display = 'block';
             this.style.background = 'transparent';
         };
-        // --- SCANNER FUNCTIONS ---
-        async function handlePlanScan(input) {
-            const file = input.files[0];
-            if (!file) return;
-
-            const btn = document.querySelector('[onclick*="plan-scan-input"]');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '⌛ Komprimiere & Analysiere...';
-            btn.disabled = true;
-
-            try {
-                let compressedFile;
-                try {
-                    // Optimized for Llama 3.2 Vision performance (800px)
-                    compressedFile = await compressImage(file, 800, 0.7);
-                } catch (err) {
-                    console.warn('Compression failed, falling back to original file:', err);
-                    compressedFile = file;
-                }
-
-                const formData = new FormData();
-                formData.append('image', compressedFile);
-
-                const res = await fetch('/api/scan-plan', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const responseText = await res.text();
-                let result;
-                try {
-                    result = JSON.parse(responseText);
-                } catch (e) {
-                    console.error('Non-JSON response:', responseText);
-                    throw new Error(`Server lieferte kein gültiges JSON. Möglicherweise ein Timeout oder Fehler bei Cloudflare. Kurzbeschreibung: ${responseText.substring(0, 50)}...`);
-                }
-                
-                if (result.success && Array.isArray(result.data)) {
-                    scannedPlanData = result.data;
-                    localStorage.setItem('scanned_plan_data', JSON.stringify(scannedPlanData));
-                    alert(`Erfolg! ${result.data.length} Auslasszeiten wurden übernommen.`);
-                    if (lastData) renderTasks(lastData);
-                } else if (result.error && result.error.includes('5016')) {
-                    const agree = confirm('⚠️ KI-Analyse noch gesperrt: Das Modell benötigt eine einmalige Lizenz-Bestätigung (agree). Soll ich das jetzt für dich tun?');
-                    if (agree) unlockAI();
-                } else {
-                    let errStr = result.error || 'Unbekannter Fehler';
-                    if (result.raw) {
-                        errStr += '\n\nAntwort (Auszug):\n' + result.raw.substring(0, 150) + '...';
-                    }
-                    alert('Fehler beim Analysieren:\n' + errStr);
-                }
-            } catch (err) {
-                console.error('Scan fetch error:', err);
-                alert('Netzwerkfehler beim Scannen: ' + err.message);
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                input.value = ''; // Reset file input
-            }
-        }
 
         function compressImage(file, maxWidth, quality) {
             return new Promise((resolve, reject) => {
@@ -6445,32 +6323,6 @@
     </script>
 
 
-    <!-- Hall Map Modal -->
-    <div id="hall-map-modal" class="modal" onclick="this.classList.remove('active')">
-        <div class="modal-content glass" style="max-width: 90%; padding: 10px; background: rgba(10,10,15,0.9); border-radius: 20px;" onclick="event.stopPropagation()">
-            <div id="hall-map-header" style="padding: 10px 15px; font-weight: 800; color: white; display: flex; justify-content: space-between; align-items: center;">
-                <span id="hall-map-title">Saalplan</span>
-                <span onclick="document.getElementById('hall-map-modal').classList.remove('active')" style="cursor: pointer; opacity: 0.7;">✕</span>
-            </div>
-            
-            <div id="hall-map-container" style="position: relative; background: #000; border-radius: 12px; overflow: hidden; margin: 0 10px; border: 1px solid rgba(255,255,255,0.05); min-height: 120px; display: flex; align-items: center; justify-content: center;">
-                <img id="hall-map-img" src="" style="width: 100%; border-radius: 15px; display: block; background: #000; object-fit: contain;">
-                <div id="hall-map-placeholder" style="position: absolute; color: var(--text-muted); font-size: 0.8rem; text-align: center; padding: 20px; display: none;">
-                    📍 Statischer Plan nicht verfügbar.<br>Bitte nutze den <b>Live-Sitzplan</b> unten.
-                </div>
-            </div>
-
-            <div id="hall-showtimes-container" style="padding: 15px; max-height: 200px; overflow-y: auto; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px;">
-                <!-- Dynamically filled -->
-            </div>
-            <div style="padding: 15px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; gap: 10px;">
-                <input type="file" id="seat-scan-input" accept="image/*" style="display: none;" onchange="handleSeatMapScan(this)">
-                <button id="seat-scan-btn" onclick="document.getElementById('seat-scan-input').click()" class="btn-primary" style="width: 100%; border-radius: 12px; padding: 12px; background: linear-gradient(135deg, #0078ff, #00d2ff);">📸 Screenshot analysieren (KI)</button>
-                <button id="copy-hall-data-btn" class="btn-secondary" style="width: 100%; border-radius: 12px; padding: 12px;">📋 Schicht-Daten kopieren</button>
-                <div style="margin-top: 5px; color: var(--text-muted); font-size: 0.7rem;">Tippe außerhalb zum Schließen</div>
-            </div>
-        </div>
-    </div>
 
     <!-- Welcome Modal -->
     <div id="welcome-modal" class="modal">

