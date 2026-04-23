@@ -199,7 +199,7 @@ app.post('/api/auth/login', async (c) => {
         const password_hash = await hashPassword(password);
         
         // Master Admin bypass
-        if (email.toLowerCase() === 'master@kinopolis-automation.de' && password === 'admin123') {
+        if ((email.toLowerCase() === 'master@kinopolis-automation.de' || email.toLowerCase() === 'admin') && password === 'admin123') {
             const token = await sign({ 
                 id: 0,
                 email: 'master@kinopolis-automation.de', 

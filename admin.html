@@ -455,14 +455,31 @@
             }
         });
 
-        function handleLogin() {
-            const user = document.getElementById('admin-user').value.trim().toLowerCase();
-            const pass = document.getElementById('admin-pass').value;
-            if ((user === 'admin' || user === 'master@kinopolis-automation.de') && pass === 'admin123') {
-                localStorage.setItem('is_admin', 'true');
-                showAdminPanel();
-            } else {
-                document.getElementById('login-error').style.display = 'block';
+        async function handleLogin() {
+            const email = document.getElementById('admin-user').value.trim().toLowerCase();
+            const password = document.getElementById('admin-pass').value;
+            const errorEl = document.getElementById('login-error');
+            
+            if (errorEl) errorEl.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (data.token) {
+                    localStorage.setItem('kp_auth_token', data.token);
+                    localStorage.setItem('kp_user', JSON.stringify(data.user));
+                    localStorage.setItem('is_admin', 'true');
+                    showAdminPanel();
+                } else {
+                    if (errorEl) errorEl.style.display = 'block';
+                }
+            } catch (e) {
+                alert('Netzwerkfehler beim Login');
             }
         }
 
@@ -874,23 +891,6 @@
     </script>
     <script>
         // --- AUTH & GUARD ---
-        window.addEventListener('load', async () => {
-            if (window.AUTH) {
-                await AUTH.init();
-                // Check if admin/TL/BL
-                if (!AUTH.user || (AUTH.user.role !== 'BL' && AUTH.user.role !== 'admin' && AUTH.user.role !== 'TL')) {
-                    if (AUTH.user) {
-                        alert('Zugriff verweigert: Du hast keine Admin-Rechte.');
-                        window.location.href = 'index.html';
-                    }
-                    return; // Login modal will show via AUTH.init() if no user
-                }
-                
-                // Show content and load data
-                document.getElementById('admin-main-content').style.display = 'block';
-                loadStaff();
-            }
-        });
 
         async function loadStaff() {
             const container = document.getElementById('staff-table-body');
@@ -976,15 +976,17 @@
 
         window.addEventListener('load', async () => {
             if (window.AUTH) {
-                await AUTH.init();
-                // Check if Admin
-                if (AUTH.user?.role !== 'admin') {
-                    alert('Zugriff verweigert: Nur für Administratoren.');
-                    window.location.href = 'index.html';
-                    return;
+                // Initialize AUTH but don't show the default login modal yet
+                // since admin.html has its own login gate
+                const token = localStorage.getItem('kp_auth_token');
+                const user = JSON.parse(localStorage.getItem('kp_user') || 'null');
+                
+                if (token && user && user.role === 'admin') {
+                    document.body.classList.add('auth-loaded');
+                    showAdminPanel();
+                } else {
+                    document.getElementById('admin-login-gate').style.display = 'block';
                 }
-                document.body.classList.add('auth-loaded');
-                loadStaff();
             }
         });
     </script>
