@@ -458,7 +458,7 @@
         function handleLogin() {
             const user = document.getElementById('admin-user').value.trim().toLowerCase();
             const pass = document.getElementById('admin-pass').value;
-            if ((user === 'admin' || user === 'admin@kinopolis.de') && pass === 'admin123') {
+            if ((user === 'admin' || user === 'master@kinopolis-automation.de') && pass === 'admin123') {
                 localStorage.setItem('is_admin', 'true');
                 showAdminPanel();
             } else {

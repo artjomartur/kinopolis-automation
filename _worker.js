@@ -86,7 +86,7 @@ app.post('/api/auth/register', async (c) => {
         // Make first user admin automatically
         let role = 'user';
         const userCount = await c.env.DB.prepare('SELECT count(*) as count FROM users').first();
-        if ((userCount && userCount.count === 0) || email.toLowerCase() === 'hi@artjombecker.com') {
+        if ((userCount && userCount.count === 0) || email.toLowerCase() === 'admin@kinopolis-automation.de') {
             role = 'admin';
         }
 
@@ -114,7 +114,7 @@ app.post('/api/auth/register', async (c) => {
                         'Authorization': `Bearer ${resendKey}`
                     },
                     body: JSON.stringify({
-                        from: 'Kinopolis Automation <hi@artjombecker.com>',
+                        from: 'Kinopolis Automation <noreply@kinopolis-automation.de>',
                         to: email.toLowerCase(),
                         subject: 'Willkommen im Kinopolis Automation Dashboard!',
                         html: `
@@ -199,10 +199,10 @@ app.post('/api/auth/login', async (c) => {
         const password_hash = await hashPassword(password);
         
         // Master Admin bypass
-        if (email.toLowerCase() === 'admin@kinopolis.de' && password === 'admin123') {
+        if (email.toLowerCase() === 'master@kinopolis-automation.de' && password === 'admin123') {
             const token = await sign({ 
                 id: 0,
-                email: 'admin@kinopolis.de', 
+                email: 'master@kinopolis-automation.de', 
                 name: 'System Admin', 
                 role: 'admin', 
                 location: 'kp',
