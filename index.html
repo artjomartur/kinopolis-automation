@@ -3671,7 +3671,8 @@
 
             const auslaesseCount = completedAuslaesse.size;
             const cleaningCount = completedCleaning.size;
-            const xpTotal = (auslaesseCount * 50) + (cleaningCount * 30);
+            const postersCount = completedPosters.size;
+            const xpTotal = (auslaesseCount * 50) + (cleaningCount * 30) + (postersCount * 20);
 
             // Send Report to API
             if (window.AUTH && AUTH.token) {
@@ -3686,6 +3687,7 @@
                             duration: durationStr,
                             auslaesse: auslaesseCount,
                             cleaning: cleaningCount,
+                            posters: postersCount,
                             xp: xpTotal
                         })
                     });

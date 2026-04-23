@@ -414,6 +414,11 @@ const AUTH = {
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <!-- SHIFT CONTROL -->
+                <button id="modal-shift-btn" onclick="window.shiftCheckin ? (localStorage.getItem('shift_start_time') ? window.shiftCheckout() : window.shiftCheckin()) : null" class="btn-secondary" style="width: 100%; padding: 1rem; border-radius: 14px; font-weight: 700; background: ${localStorage.getItem('shift_start_time') ? 'rgba(231,76,60,0.15)' : 'rgba(46,204,113,0.15)'}; border: 1px solid ${localStorage.getItem('shift_start_time') ? '#e74c3c' : '#2ecc71'}; color: white; cursor: pointer; transition: all 0.2s;">
+                    ${localStorage.getItem('shift_start_time') ? '🔴 Schicht beenden' : '🟢 Schicht starten'}
+                </button>
+
                 <button onclick="AUTH.showChangePassword()" class="btn-secondary" style="width: 100%; padding: 1rem; border-radius: 14px; font-weight: 700; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; cursor: pointer; transition: all 0.2s;">
                     🔑 Passwort ändern
                 </button>
