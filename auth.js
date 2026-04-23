@@ -433,9 +433,6 @@ const AUTH = {
                 <button onclick="AUTH.showChangePassword()" class="btn-secondary" style="width: 100%; padding: 1rem; border-radius: 14px; font-weight: 700; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; cursor: pointer; transition: all 0.2s;">
                     🔑 Passwort ändern
                 </button>
-                <button onclick="window.playStartupSound()" class="btn-secondary" style="width: 100%; padding: 1rem; border-radius: 14px; font-weight: 700; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; cursor: pointer; transition: all 0.2s;">
-                    🔊 Jingle testen
-                </button>
                 <button onclick="AUTH.logout()" class="btn-primary" style="width: 100%; padding: 1rem; border-radius: 14px; font-weight: 800; background: linear-gradient(135deg, #e50914, #ff3d47); border: none; color: white; cursor: pointer; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);">
                     🚪 Abmelden
                 </button>
