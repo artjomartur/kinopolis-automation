@@ -208,6 +208,23 @@
             </div>
         </div>
 
+        <!-- Login Gate -->
+        <div id="admin-login-gate" style="display: none; padding: 4rem 2rem; text-align: center; max-width: 400px; margin: 0 auto;">
+            <div style="font-size: 3.5rem; margin-bottom: 1.5rem;">🔐</div>
+            <h2 style="margin-bottom: 0.5rem; font-weight: 800;">Admin Login</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem;">Zugang nur für berechtigtes Personal (BL/TL).</p>
+            
+            <div id="login-error" style="display: none; background: rgba(229, 9, 20, 0.1); color: #ff6b6b; padding: 0.75rem; border-radius: 10px; margin-bottom: 1.5rem; font-size: 0.85rem; font-weight: 600; border: 1px solid rgba(229, 9, 20, 0.2);">
+                ❌ Ungültige Zugangsdaten
+            </div>
+
+            <input type="text" id="admin-user" class="input-field" placeholder="E-Mail oder 'admin'">
+            <input type="password" id="admin-pass" class="input-field" placeholder="Passwort">
+            
+            <button onclick="handleLogin()" class="btn-primary" style="margin-top: 1rem;">
+                Anmelden
+            </button>
+        </div>
 
         <!-- Admin Content -->
         <div id="admin-main-content" class="admin-content" style="display: none;">
