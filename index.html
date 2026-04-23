@@ -98,8 +98,12 @@
         // --- DEPARTMENT FILTERING LOGIC ---
         function selectDept(dept) {
             const today = new Date().toISOString().split('T')[0];
-            localStorage.setItem('kinopolis_selected_dept', dept);
-            localStorage.setItem('kinopolis_selected_dept_date', today);
+            // Get current identity (Email or Guest)
+            const userId = (window.AUTH && AUTH.user && AUTH.user.email) ? AUTH.user.email : (localStorage.getItem('kp_guest_mode') === 'true' ? 'guest' : 'unknown');
+            
+            localStorage.setItem(`kp_dept_${userId}`, dept);
+            localStorage.setItem(`kp_dept_date_${userId}`, today);
+            localStorage.setItem('kinopolis_selected_dept', dept); // For global CSS access
             
             // Apply to body
             document.body.classList.remove('dept-einlass', 'dept-kasse', 'dept-theke', 'dept-tl', 'dept-alles');
@@ -112,19 +116,25 @@
                 setTimeout(() => modal.classList.remove('active'), 500);
             }
             
-            console.log(`Department selected: ${dept}`);
+            console.log(`Department selected for ${userId}: ${dept}`);
             showToast(`⚙️ Dashboard für "${dept.toUpperCase()}" optimiert.`);
         }
 
         function checkAndPromptDepartment() {
             const today = new Date().toISOString().split('T')[0];
-            const savedDate = localStorage.getItem('kinopolis_selected_dept_date');
-            const savedDept = localStorage.getItem('kinopolis_selected_dept');
+            const userId = (window.AUTH && AUTH.user && AUTH.user.email) ? AUTH.user.email : (localStorage.getItem('kp_guest_mode') === 'true' ? 'guest' : 'unknown');
+            
+            const savedDate = localStorage.getItem(`kp_dept_date_${userId}`);
+            const savedDept = localStorage.getItem(`kp_dept_${userId}`);
             
             if (savedDate === today && savedDept) {
                 document.body.classList.add(`dept-${savedDept}`);
+                localStorage.setItem('kinopolis_selected_dept', savedDept);
                 return;
             }
+            
+            // If we are in "unknown" state (not logged in and not guest), don't prompt yet
+            if (userId === 'unknown' && (!window.AUTH || !AUTH.token)) return;
             
             // Prompt after splash screen
             setTimeout(() => {
