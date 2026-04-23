@@ -5672,26 +5672,6 @@
             init();
         }
         
-        // Ensure image visibility fallback
-        // --- PREMIUM SOFT CHIME JINGLE ---
-        function playStartupSound() {
-            try {
-                const audio = new Audio('./startup.mp3');
-                audio.volume = 0.5;
-                audio.play().then(() => {
-                    console.log("AUDIO: Harmonious Chime played");
-                    const btn = document.querySelector('button[onclick="playStartupSound()"]');
-                    if (btn) {
-                        const originalText = btn.innerText;
-                        btn.innerText = '✨ Harmonisch!';
-                        setTimeout(() => btn.innerText = originalText, 1500);
-                    }
-                }).catch(e => console.log('Audio play blocked by browser:', e));
-            } catch (e) {
-                console.error('Error playing startup sound:', e);
-            }
-        }
-        window.playStartupSound = playStartupSound;
 
         document.getElementById('brand-logo').onload = function() {
             this.style.display = 'block';
