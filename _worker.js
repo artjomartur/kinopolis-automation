@@ -242,7 +242,7 @@ app.post('/api/auth/forgot-password', async (c) => {
     const resetToken = await sign({ 
         userId: user.id, 
         email: email.toLowerCase(),
-        exp: Math.floor(Date.now() / 1000) + (15 * 60) // 15 min
+        exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour
     }, JWT_SECRET);
 
     const resetLink = `https://kinopolis.artjombecker.com/reset-password.html?token=${encodeURIComponent(resetToken)}`;
@@ -259,19 +259,25 @@ app.post('/api/auth/forgot-password', async (c) => {
                     to: email.toLowerCase(),
                     subject: 'Passwort zurücksetzen',
                     html: `
-                        <div style="background-color:${s.bgColor};padding:40px 20px;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:${s.textColor};">
-                            <div style="max-width:580px;margin:0 auto;background:${s.cardBg};border:1px solid ${s.borderColor};border-radius:28px;overflow:hidden;box-shadow:${s.shadow};">
-                                <div style="padding:48px 40px;text-align:center;">
-                                    <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" style="width:140px;margin-bottom:32px;opacity:${s.logoOpacity};" />
-                                    <h1 style="color:${s.headingColor};font-size:26px;font-weight:800;margin:0 0 16px;letter-spacing:-0.02em;">Passwort zur&uuml;cksetzen</h1>
-                                    <p style="color:${s.mutedColor};font-size:16px;line-height:1.7;margin:0 0 32px;">Hallo ${user.first_name},<br>du hast eine Anfrage zum Zur&uuml;cksetzen deines Passworts gestellt. Klicke auf den Button unten, um ein neues Passwort festzulegen.</p>
-                                    <a href="${resetLink}" style="display:inline-block;background:linear-gradient(135deg,#e50914,#ff3d47);color:#ffffff;text-decoration:none;padding:16px 40px;border-radius:14px;font-weight:800;font-size:16px;letter-spacing:0.01em;box-shadow:0 8px 20px rgba(229,9,20,0.3);">Passwort jetzt &auml;ndern</a>
-                                    <p style="color:${s.mutedColor};font-size:13px;margin:28px 0 0;line-height:1.6;">Der Link ist nur <strong style="color:${s.textColor};">15 Minuten</strong> g&uuml;ltig.<br>Falls du dies nicht angefragt hast, ignoriere diese E-Mail.</p>
-                                </div>
-                                <div style="padding:20px 40px;background:${s.footerBg};border-top:1px solid ${s.borderColor};text-align:center;">
-                                    <p style="color:${s.mutedColor};font-size:11px;margin:0;text-transform:uppercase;letter-spacing:0.1em;">&copy; 2026 Kinopolis Automation Dashboard</p>
-                                </div>
-                            </div>
+                        <div style="background-color:${s.bgColor};margin:0;padding:0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${s.bgColor}" style="margin:0;padding:0;width:100% !important;line-height:100% !important;">
+                                <tr>
+                                    <td align="center" style="padding:40px 20px;">
+                                        <div style="max-width:580px;margin:0 auto;background:${s.cardBg};border:1px solid ${s.borderColor};border-radius:28px;overflow:hidden;box-shadow:${s.shadow};text-align:left;">
+                                            <div style="padding:48px 40px;text-align:center;">
+                                                <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" style="width:140px;margin-bottom:32px;opacity:${s.logoOpacity};" />
+                                                <h1 style="color:${s.headingColor};font-size:26px;font-weight:800;margin:0 0 16px;letter-spacing:-0.02em;">Passwort zur&uuml;cksetzen</h1>
+                                                <p style="color:${s.mutedColor};font-size:16px;line-height:1.7;margin:0 0 32px;">Hallo ${user.first_name},<br>du hast eine Anfrage zum Zur&uuml;cksetzen deines Passworts gestellt. Klicke auf den Button unten, um ein neues Passwort festzulegen.</p>
+                                                <a href="${resetLink}" style="display:inline-block;background:linear-gradient(135deg,#e50914,#ff3d47);color:#ffffff;text-decoration:none;padding:16px 40px;border-radius:14px;font-weight:800;font-size:16px;letter-spacing:0.01em;box-shadow:0 8px 20px rgba(229,9,20,0.3);">Passwort jetzt &auml;ndern</a>
+                                                <p style="color:${s.mutedColor};font-size:13px;margin:28px 0 0;line-height:1.6;">Der Link ist nur <strong style="color:${s.textColor};">15 Minuten</strong> g&uuml;ltig.<br>Falls du dies nicht angefragt hast, ignoriere diese E-Mail.</p>
+                                            </div>
+                                            <div style="padding:20px 40px;background:${s.footerBg};border-top:1px solid ${s.borderColor};text-align:center;">
+                                                <p style="color:${s.mutedColor};font-size:11px;margin:0;text-transform:uppercase;letter-spacing:0.1em;">&copy; 2026 Kinopolis Automation Dashboard</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
                         </div>
                     `
                 })
@@ -290,11 +296,14 @@ app.post('/api/auth/reset-password', async (c) => {
         try {
             payload = await verify(token, JWT_SECRET);
         } catch (verifyErr) {
-            console.error('JWT Verify Error:', verifyErr.message);
-            return c.json({ error: 'Der Link ist ungültig oder abgelaufen (JWT Error)' }, 401);
+            const msg = verifyErr.message?.toLowerCase() || '';
+            if (msg.includes('expired')) {
+                return c.json({ error: 'Der Link ist abgelaufen (älter als 60 Min.). Bitte fordere einen neuen an.' }, 401);
+            }
+            return c.json({ error: 'Der Link ist ungültig. Bitte fordere einen neuen an.' }, 401);
         }
 
-        if (!payload.userId) {
+        if (!payload || !payload.userId) {
             return c.json({ error: 'Ungültiger Token-Inhalt' }, 401);
         }
 
@@ -384,56 +393,62 @@ app.post('/api/auth/shift-report', async (c) => {
                 to: payload.email,
                 subject: `Kinopolis Schicht-Report: ${new Date().toLocaleDateString('de-DE')}`,
                 html: `
-                    <div style="background-color:${s.bgColor};padding:40px 20px;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:${s.textColor};">
-                        <div style="max-width:600px;margin:0 auto;background:${s.cardBg};border:1px solid ${s.borderColor};border-radius:28px;overflow:hidden;box-shadow:${s.shadow};">
-                            <!-- Header -->
-                            <div style="padding:40px;text-align:center;border-bottom:1px solid ${s.borderColor};">
-                                <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" style="width:140px;margin-bottom:24px;opacity:${s.logoOpacity};" />
-                                <h1 style="font-size:24px;font-weight:800;margin:0;letter-spacing:-0.02em;color:${s.headingColor};">Gute Arbeit, ${payload.first_name || 'Teammitglied'}!</h1>
-                                <p style="color:${s.mutedColor};font-size:14px;margin-top:8px;">Hier ist die Auswertung deiner heutigen Schicht.</p>
-                            </div>
+                    <div style="background-color:${s.bgColor};margin:0;padding:0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${s.bgColor}" style="margin:0;padding:0;width:100% !important;line-height:100% !important;">
+                            <tr>
+                                <td align="center" style="padding:40px 20px;">
+                                    <div style="max-width:600px;margin:0 auto;background:${s.cardBg};border:1px solid ${s.borderColor};border-radius:28px;overflow:hidden;box-shadow:${s.shadow};text-align:left;">
+                                        <!-- Header -->
+                                        <div style="padding:40px;text-align:center;border-bottom:1px solid ${s.borderColor};">
+                                            <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" style="width:140px;margin-bottom:24px;opacity:${s.logoOpacity};" />
+                                            <h1 style="font-size:24px;font-weight:800;margin:0;letter-spacing:-0.02em;color:${s.headingColor};">Gute Arbeit, ${payload.first_name || 'Teammitglied'}!</h1>
+                                            <p style="color:${s.mutedColor};font-size:14px;margin-top:8px;">Hier ist die Auswertung deiner heutigen Schicht.</p>
+                                        </div>
 
-                            <!-- Stats Grid -->
-                            <div style="padding:30px;">
-                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:30px;">
-                                    <div style="background:rgba(255,255,255,0.03);padding:20px;border-radius:18px;text-align:center;border:1px solid ${s.borderColor};">
-                                        <div style="color:${s.mutedColor};font-size:10px;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;">Schichtdauer</div>
-                                        <div style="font-size:20px;font-weight:800;color:${s.textColor};">${duration || '0h 0m'}</div>
-                                    </div>
-                                    <div style="background:rgba(0, 255, 128, 0.05);padding:20px;border-radius:18px;text-align:center;border:1px solid rgba(0, 255, 128, 0.1);">
-                                        <div style="color:#00ff80;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;">Gesammeltes XP</div>
-                                        <div style="font-size:20px;font-weight:800;color:#00ff80;">+${xp || 0} XP</div>
-                                    </div>
-                                </div>
+                                        <!-- Stats Grid -->
+                                        <div style="padding:30px;">
+                                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:30px;">
+                                                <div style="background:rgba(255,255,255,0.03);padding:20px;border-radius:18px;text-align:center;border:1px solid ${s.borderColor};">
+                                                    <div style="color:${s.mutedColor};font-size:10px;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;">Schichtdauer</div>
+                                                    <div style="font-size:20px;font-weight:800;color:${s.textColor};">${duration || '0h 0m'}</div>
+                                                </div>
+                                                <div style="background:rgba(0, 255, 128, 0.05);padding:20px;border-radius:18px;text-align:center;border:1px solid rgba(0, 255, 128, 0.1);">
+                                                    <div style="color:#00ff80;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;">Gesammeltes XP</div>
+                                                    <div style="font-size:20px;font-weight:800;color:#00ff80;">+${xp || 0} XP</div>
+                                                </div>
+                                            </div>
 
-                                <!-- Details -->
-                                <div style="background:rgba(255,255,255,0.02);border-radius:18px;padding:24px;border:1px solid ${s.borderColor};">
-                                    <h3 style="font-size:12px;color:${s.mutedColor};text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;margin-top:0;">Erledigte Aufgaben</h3>
-                                    
-                                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                                        <span style="color:${s.textColor};font-size:14px;font-weight:500;">📽️ Auslässe</span>
-                                        <span style="background:rgba(229, 9, 20, 0.15);color:#ff3d47;padding:4px 12px;border-radius:50px;font-size:12px;font-weight:800;">${auslaesse || 0}</span>
-                                    </div>
-                                    
-                                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                                        <span style="color:${s.textColor};font-size:14px;font-weight:500;">🧹 Reinigungen</span>
-                                        <span style="background:rgba(0, 120, 255, 0.15);color:#00d2ff;padding:4px 12px;border-radius:50px;font-size:12px;font-weight:800;">${cleaning || 0}</span>
-                                    </div>
+                                            <!-- Details -->
+                                            <div style="background:rgba(255,255,255,0.02);border-radius:18px;padding:24px;border:1px solid ${s.borderColor};">
+                                                <h3 style="font-size:12px;color:${s.mutedColor};text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;margin-top:0;">Erledigte Aufgaben</h3>
+                                                
+                                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                                                    <span style="color:${s.textColor};font-size:14px;font-weight:500;">📽️ Auslässe</span>
+                                                    <span style="background:rgba(229, 9, 20, 0.15);color:#ff3d47;padding:4px 12px;border-radius:50px;font-size:12px;font-weight:800;">${auslaesse || 0}</span>
+                                                </div>
+                                                
+                                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                                                    <span style="color:${s.textColor};font-size:14px;font-weight:500;">🧹 Reinigungen</span>
+                                                    <span style="background:rgba(0, 120, 255, 0.15);color:#00d2ff;padding:4px 12px;border-radius:50px;font-size:12px;font-weight:800;">${cleaning || 0}</span>
+                                                </div>
 
-                                    <div style="display:flex;align-items:center;justify-content:space-between;">
-                                        <span style="color:${s.textColor};font-size:14px;font-weight:500;">🖼️ Poster-Checks</span>
-                                        <span style="background:rgba(255, 171, 0, 0.15);color:#ffab00;padding:4px 12px;border-radius:50px;font-size:12px;font-weight:800;">${posters || 0}</span>
-                                    </div>
-                                </div>
+                                                <div style="display:flex;align-items:center;justify-content:space-between;">
+                                                    <span style="color:${s.textColor};font-size:14px;font-weight:500;">🖼️ Poster-Checks</span>
+                                                    <span style="background:rgba(255, 171, 0, 0.15);color:#ffab00;padding:4px 12px;border-radius:50px;font-size:12px;font-weight:800;">${posters || 0}</span>
+                                                </div>
+                                            </div>
 
-                                <div style="text-align:center;margin-top:40px;padding-top:30px;border-top:1px solid ${s.borderColor};">
-                                    <p style="${s.isLight ? 'color:#48484a;' : 'color:#48484a;'} font-size:11px;line-height:1.6;">
-                                        Diese Zusammenfassung wurde automatisch von der Kinopolis Automation Platform erstellt.<br>
-                                        Viel Erfolg für deine nächste Schicht!
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                                            <div style="text-align:center;margin-top:40px;padding-top:30px;border-top:1px solid ${s.borderColor};">
+                                                <p style="color:#48484a; font-size:11px;line-height:1.6;">
+                                                    Diese Zusammenfassung wurde automatisch von der Kinopolis Automation Platform erstellt.<br>
+                                                    Viel Erfolg für deine nächste Schicht!
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                 `
             })
@@ -448,7 +463,7 @@ app.post('/api/auth/shift-report', async (c) => {
         return c.json({ success: true });
     } catch (e) {
         console.error("AUTH: Shift report error:", e);
-        return c.json({ error: 'Interner Server-Fehler beim Report' }, 500);
+        return c.json({ error: 'Server-Fehler: ' + e.message }, 500);
     }
 });
 
