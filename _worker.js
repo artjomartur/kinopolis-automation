@@ -114,7 +114,7 @@ app.post('/api/auth/register', async (c) => {
                         'Authorization': `Bearer ${resendKey}`
                     },
                     body: JSON.stringify({
-                        from: 'Kinopolis Automation <noreply@kinopolis-automation.de>',
+                        from: 'Kinopolis Automation <hi@artjombecker.com>',
                         to: email.toLowerCase(),
                         subject: 'Willkommen im Kinopolis Automation Dashboard!',
                         html: `
