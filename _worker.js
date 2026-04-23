@@ -826,6 +826,23 @@ app.get('/api/sessions', async (c) => {
             const sorted = halls[name].sort((a, b) => a.time.localeCompare(b.time));
             return { name, sessions: sorted };
         });
+        // --- DATA ARCHIVING (MAX-VALUE LOGIC) ---
+        if (c.env.DB && sessions.length > 0) {
+            try {
+                // Bulk archive current sold counts (only keep the max)
+                for (const s of sessions) {
+                    const archiveKey = `${s.date}|${s.time}|${s.hall}|${s.title}`;
+                    await c.env.DB.prepare(`
+                        INSERT INTO occupancy_archive (key, title, time, hall, date, max_sold, capacity)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT(key) DO UPDATE SET max_sold = MAX(max_sold, EXCLUDED.max_sold)
+                    `).bind(archiveKey, s.title, s.time, s.hall, s.date, s.sold || 0, s.capacity || 0).run();
+                }
+            } catch (archiveErr) {
+                console.error("Archive process failed:", archiveErr);
+            }
+        }
+
         c.header('Cache-Control', 'public, max-age=120');
         return c.json(sortedHalls);
     } catch (error) {
@@ -834,19 +851,31 @@ app.get('/api/sessions', async (c) => {
     }
 });
 
-// Internal Messages API (Simplified: Static for now)
-const STATIC_MESSAGES = [
-    {
-        id: 1,
-        title: "Mario Menü & Merch Verkauf",
-        content: "Hallo zusammen,\n\nmit dem Start des neuen Mario Films gehen wir mit mehreren Menüs und Merch-Artikeln in den Verkauf.\n\nWICHTIG: Der 'Yoshi-Eimer' darf von Mitarbeitenden nicht gekauft werden. (Kein Mitarbeiterinnengeschenk, kein Einkaufspreis und auch nicht als Vollpreis).\n\nGrund dafür ist die schon jetzt sehr hohe Nachfrage von Gästen gepaart mit der Tatsache, dass wir nur sehr wenige zugesendet bekommen haben.\n\nAlles ist, wie immer, buchbar über etwaige Barcodes auf den Produkten oder über das Touchscreen unter 'Packages' oder 'Merch'.",
-        author: "Betriebsleitung",
-        created_at: "2026-03-24T16:30:00Z",
-        images: [
-            "./mario-poster.jpg"
-        ]
+// Announcements / Handover API
+app.get('/api/announcements/latest', async (c) => {
+    try {
+        if (!c.env.DB) return c.json(STATIC_MESSAGES[0]);
+        const result = await c.env.DB.prepare('SELECT id, content, author, created_at FROM announcements ORDER BY created_at DESC LIMIT 1').first();
+        return c.json(result || STATIC_MESSAGES[0]);
+    } catch (e) {
+        return c.json(STATIC_MESSAGES[0]);
     }
-];
+});
+
+app.post('/api/announcements', async (c) => {
+    const authHeader = c.req.header('Authorization');
+    try {
+        const payload = await verify(authHeader.split(' ')[1], JWT_SECRET, 'HS256');
+        if (payload.role !== 'BL' && payload.role !== 'admin') {
+            return c.json({ error: 'Nur BL/Admin dürfen Nachrichten pinnen' }, 403);
+        }
+        const { content } = await c.req.json();
+        await c.env.DB.prepare('INSERT INTO announcements (content, author) VALUES (?, ?)').bind(content, payload.first_name).run();
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: 'Fehler beim Pinnen' }, 500);
+    }
+});
 
 app.get('/api/messages', async (c) => {
     if (!c.env.DB) return c.json(STATIC_MESSAGES);

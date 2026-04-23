@@ -98,26 +98,64 @@
         // --- DEPARTMENT FILTERING LOGIC ---
         function selectDept(dept) {
             const today = new Date().toISOString().split('T')[0];
-            // Get current identity (Email or Guest)
             const userId = (window.AUTH && AUTH.user && AUTH.user.email) ? AUTH.user.email : (localStorage.getItem('kp_guest_mode') === 'true' ? 'guest' : 'unknown');
             
             localStorage.setItem(`kp_dept_${userId}`, dept);
             localStorage.setItem(`kp_dept_date_${userId}`, today);
-            localStorage.setItem('kinopolis_selected_dept', dept); // For global CSS access
+            localStorage.setItem('kinopolis_selected_dept', dept);
             
-            // Apply to body
             document.body.classList.remove('dept-einlass', 'dept-kasse', 'dept-theke', 'dept-tl', 'dept-alles');
             document.body.classList.add(`dept-${dept}`);
             
-            // Close modal
             const modal = document.getElementById('dept-modal');
             if (modal) {
                 modal.style.opacity = '0';
                 setTimeout(() => modal.classList.remove('active'), 500);
             }
-            
-            console.log(`Department selected for ${userId}: ${dept}`);
             showToast(`⚙️ Dashboard für "${dept.toUpperCase()}" optimiert.`);
+        }
+
+        function closeHandoverModal() {
+            const modal = document.getElementById('handover-modal');
+            if (modal) {
+                modal.style.opacity = '0';
+                setTimeout(() => modal.classList.remove('active'), 500);
+            }
+        }
+
+        async function checkAnnouncements() {
+            if (!window.AUTH || !AUTH.token) return;
+            try {
+                const res = await fetch('/api/announcements/latest', {
+                    headers: { 'Authorization': `Bearer ${AUTH.token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.content) {
+                        const lastSeen = localStorage.getItem('last_handover_id');
+                        if (lastSeen !== String(data.id)) {
+                            document.getElementById('handover-content').innerHTML = data.content;
+                            document.getElementById('handover-author').innerText = `VON: ${data.author || 'SYSTEM'}`;
+                            const modal = document.getElementById('handover-modal');
+                            if (modal) {
+                                modal.classList.add('active');
+                                setTimeout(() => modal.style.opacity = '1', 50);
+                                localStorage.setItem('last_handover_id', data.id);
+                            }
+                        }
+                    }
+                }
+            } catch (e) { console.error('Handover check failed:', e); }
+        }
+
+        function openHallMap(hallName) {
+            const hallNum = hallName.replace(/\D/g, '');
+            if (!hallNum) return;
+            const mapImg = document.getElementById('hall-map-img');
+            const modal = document.getElementById('hall-map-modal');
+            mapImg.src = `https://trailer.kinopolis.de/media/img/saalplaene/darmstadt/saal${hallNum}.png`;
+            modal.classList.add('active');
+            setTimeout(() => modal.style.opacity = '1', 50);
         }
 
         function checkAndPromptDepartment() {
@@ -152,19 +190,57 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <style>
         :root {
-            --bg-color: #0a0a0d;
-            --surface-color: rgba(20, 20, 25, 0.7);
-            --surface-border: rgba(255, 255, 255, 0.1);
+            --bg-color: #050507;
+            --surface-color: rgba(15, 15, 20, 0.7);
+            --surface-border: rgba(255, 255, 255, 0.08);
             --primary-red: #E50914;
             --primary-blue: #0078FF;
             --accent-blue: #00d2ff;
             --text-main: #F2F2F2;
             --text-muted: #8E8E93;
             --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.06);
             --card-radius: 24px;
             --button-radius: 14px;
-            --shadow-premium: 0 10px 40px rgba(0, 0, 0, 0.5);
+            --shadow-premium: 0 10px 40px rgba(0, 0, 0, 0.6);
+            --ambient-1: rgba(229, 9, 20, 0.08);
+            --ambient-2: rgba(0, 120, 255, 0.08);
+        }
+
+        /* --- AMBIENT DESIGN SYSTEM --- */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+            background: var(--bg-color);
+            pointer-events: none;
+        }
+        .ambient-mesh {
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            top: -25%;
+            left: -25%;
+            background-image: 
+                radial-gradient(circle at 20% 30%, var(--ambient-1) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, var(--ambient-2) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(229, 9, 20, 0.04) 0%, transparent 60%);
+            filter: blur(100px);
+            animation: meshFloat 30s infinite alternate ease-in-out;
+        }
+        @keyframes meshFloat {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(5deg) scale(1.1); }
+            100% { transform: rotate(-5deg) scale(1); }
+        }
+
+        body {
+            background-color: transparent !important;
+            min-height: 100vh;
         }
 
         /* Auth Modal Premium Styles */
@@ -2663,6 +2739,27 @@
             }
         }, 4000);
     </script>
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="ambient-mesh"></div>
+    </div>
+
+    <!-- Handover / Announcement Modal (Wichtige Info) -->
+    <div id="handover-modal" class="modal">
+        <div class="modal-content glass" style="max-width: 480px; padding: 2.5rem; text-align: center;">
+            <div style="background: rgba(255, 171, 0, 0.1); width: 64px; height: 64px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; border: 1px solid rgba(255, 171, 0, 0.2);">
+                <span style="font-size: 1.8rem;">📢</span>
+            </div>
+            <h2 class="modal-title" style="margin-bottom: 0.5rem;">Wichtige Schicht-Info</h2>
+            <p id="handover-author" style="color: var(--primary-blue); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1.5rem;">VON: BETRIEBSLEITUNG</p>
+            
+            <div id="handover-content" style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 18px; border: 1px solid var(--glass-border); margin-bottom: 2rem; text-align: left; line-height: 1.6; color: var(--text-main); font-size: 1rem;">
+                <!-- Content injected via JS -->
+            </div>
+
+            <button onclick="closeHandoverModal()" class="btn-primary" style="width: 100%; padding: 1.25rem; font-size: 1.1rem; border-radius: 16px; font-weight: 800; background: linear-gradient(135deg, #ffab00, #ffc107); border: none; color: #000;">Verstanden</button>
+        </div>
+    </div>
     <div id="splash-screen">
         <div class="splash-glow"></div>
         <div class="splash-logo-container">
@@ -2706,9 +2803,9 @@
                 </div>
             </div>
             <div class="header-right">
-                <div id="weather-widget" class="weather-badge glass" style="display: none;">
-                    <span id="weather-icon"></span>
-                    <span id="weather-temp"></span>
+                <div id="occupancy-widget" class="occupancy-badge glass" style="display: none; padding: 0 15px; height: 44px; border-radius: 12px; align-items: center; gap: 8px; font-weight: 700; color: #00ff80; border: 1px solid rgba(0, 255, 128, 0.15);">
+                    <span style="font-size: 1.1rem;">👥</span>
+                    <span id="live-occupancy">0</span>
                 </div>
                 <select id="cinema-selector" class="location-select glass"></select>
                 <div id="user-profile-btn" class="user-profile-btn" onclick="AUTH.showProfile()" title="Profil & Einstellungen">
@@ -5046,6 +5143,19 @@
 
                 locations.forEach(loc => {
                     const option = document.createElement('option');
+    function openHallMap(hallName) {
+        const hallNum = hallName.replace(/\D/g, '');
+        if (!hallNum) return;
+        
+        const mapImg = document.getElementById('hall-map-img');
+        const modal = document.getElementById('hall-map-modal');
+        
+        // Kinopolis Darmstadt Map URL Pattern
+        mapImg.src = `https://trailer.kinopolis.de/media/img/saalplaene/darmstadt/saal${hallNum}.png`;
+        
+        modal.classList.add('active');
+        setTimeout(() => modal.style.opacity = '1', 50);
+    }
                     option.value = loc.slug;
                     option.textContent = loc.name;
                     if (loc.slug === currentCity) option.selected = true;
@@ -5238,12 +5348,15 @@
                 }).join('');
 
                 card.innerHTML = `
-                    <div class="hall-header" onclick="toggleHall(this)">
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div class="hall-header">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;" onclick="toggleHall(this)">
                             <span class="hall-name">${hallName}</span>
                             <span class="session-count">${sessions.length} Vorstellungen</span>
                         </div>
-                        <svg class="toggle-icon" viewBox="0 0 24 24" width="20" height="20">
+                        <div onclick="openHallMap('${hallName}')" style="background: rgba(0, 120, 255, 0.1); border: 1px solid rgba(0, 120, 255, 0.2); color: var(--primary-blue); padding: 4px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <span>🗺️</span> Saalplan
+                        </div>
+                        <svg onclick="toggleHall(this.previousElementSibling.previousElementSibling)" class="toggle-icon" viewBox="0 0 24 24" width="20" height="20" style="margin-left: 10px; cursor: pointer;">
                             <path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
                         </svg>
                     </div>
@@ -6246,7 +6359,15 @@
 
 
     <!-- Welcome Modal -->
-    <div id="welcome-modal" class="modal">
+    <!-- Hall Map Modal -->
+    <div id="hall-map-modal" class="modal" onclick="this.classList.remove('active')">
+        <div class="modal-content glass" style="max-width: 90%; padding: 10px; background: rgba(10,10,15,0.9); border-radius: 20px;">
+            <img id="hall-map-img" src="" style="width: 100%; border-radius: 15px; display: block;">
+            <div style="padding: 15px; text-align: center; color: var(--text-muted); font-size: 0.8rem;">
+                Tippe zum Schließen
+            </div>
+        </div>
+    </div>
         <div class="modal-content glass" style="max-height: 90vh; overflow-y: auto;">
             <span class="welcome-icon">🍿</span>
             <h2 class="modal-title">Willkommen V1.0!</h2>
