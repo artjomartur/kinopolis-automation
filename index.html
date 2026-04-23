@@ -13,103 +13,86 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
     <script>
-        // --- HANS ZIMMER STYLE EPIC JINGLE (Maximum Power) ---
+        // --- PROFESSIONAL CINEMATIC JINGLE (High-End Texture) ---
         window.playStartupSound = function() {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const now = ctx.currentTime;
 
-                const playFinalEpic = () => {
-                    // 1. MASSIVE ORGAN BASS (Sub + Harmonics)
-                    [32.70, 65.41, 98.00].forEach((freq, i) => { // C1, C2, G2
-                        const bass = ctx.createOscillator();
-                        const bassGain = ctx.createGain();
-                        const lfo = ctx.createOscillator();
-                        const lfoGain = ctx.createGain();
-                        
-                        bass.type = i === 0 ? 'triangle' : 'sine';
-                        bass.frequency.setValueAtTime(freq, now);
-                        
-                        // LFO for a "throbbing" life-like feel
-                        lfo.frequency.setValueAtTime(4, now); // 4Hz throb
-                        lfoGain.gain.setValueAtTime(1.5, now); // subtle freq shift
-                        lfo.connect(lfoGain);
-                        lfoGain.connect(bass.frequency);
-                        lfo.start(now);
-                        
-                        bass.connect(bassGain);
-                        bassGain.connect(ctx.destination);
-                        bassGain.gain.setValueAtTime(0, now);
-                        bassGain.gain.linearRampToValueAtTime(0.8, now + 0.3);
-                        bassGain.gain.exponentialRampToValueAtTime(0.001, now + 4.0);
-                        bass.start(now);
-                        bass.stop(now + 4.0);
-                        lfo.stop(now + 4.0);
-                    });
+                const playProEpic = () => {
+                    // 1. SUBSONIC IMPACT (The "Taiko" Hit)
+                    const impact = ctx.createOscillator();
+                    const impactGain = ctx.createGain();
+                    impact.type = 'triangle';
+                    impact.frequency.setValueAtTime(40, now);
+                    impact.frequency.exponentialRampToValueAtTime(20, now + 0.1);
+                    impact.connect(impactGain);
+                    impactGain.connect(ctx.destination);
+                    impactGain.gain.setValueAtTime(0.6, now);
+                    impactGain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+                    impact.start(now);
+                    impact.stop(now + 1.2);
 
-                    // 2. THE CONVERGING SWELL (Hans Zimmer Style Chord)
-                    // C Major 9: C3, G3, C4, E4, G4, B4, D5
-                    const chord = [130.81, 196.00, 261.63, 329.63, 392.00, 493.88, 587.33];
+                    // 2. PROFESSIONAL TEXTURE (Open 5ths & Octaves - No "Happy" Major)
+                    // Frequencies: C2, G2, C3, G3, C4, G4 (Power Chord structure)
+                    const stack = [65.41, 98.00, 130.81, 196.00, 261.63, 392.00];
                     
-                    chord.forEach((freq, i) => {
-                        [-3, 0, 3].forEach(detune => { // Heavy Unison
+                    stack.forEach((freq, i) => {
+                        [-1, 0, 1].forEach(d => { // Subtle detune for thickness
                             const osc = ctx.createOscillator();
                             const filter = ctx.createBiquadFilter();
                             const gain = ctx.createGain();
                             
                             osc.type = 'sawtooth';
-                            osc.frequency.setValueAtTime(freq * 0.98, now); // Start slightly low
-                            osc.frequency.exponentialRampToValueAtTime(freq, now + 2.0); // Resolve up
-                            osc.detune.setValueAtTime(detune * 2, now);
+                            osc.frequency.setValueAtTime(freq, now);
+                            osc.detune.setValueAtTime(d * 1.2, now);
                             
                             filter.type = 'lowpass';
-                            filter.frequency.setValueAtTime(50, now);
-                            filter.frequency.exponentialRampToValueAtTime(2500, now + 1.8);
-                            filter.Q.setValueAtTime(5, now);
+                            filter.frequency.setValueAtTime(20, now);
+                            filter.frequency.exponentialRampToValueAtTime(1200, now + 2.0);
                             
                             osc.connect(filter);
                             filter.connect(gain);
                             gain.connect(ctx.destination);
                             
-                            const start = now + (i * 0.1);
+                            const start = now + (i * 0.08);
                             gain.gain.setValueAtTime(0, start);
-                            gain.gain.linearRampToValueAtTime(0.25, start + 1.5); // Very slow swell
-                            gain.gain.exponentialRampToValueAtTime(0.001, start + 5.0);
+                            gain.gain.linearRampToValueAtTime(0.12, start + 1.2);
+                            gain.gain.exponentialRampToValueAtTime(0.001, start + 4.5);
                             
                             osc.start(start);
-                            osc.stop(start + 5.0);
+                            osc.stop(start + 4.5);
                         });
                     });
 
-                    // 3. CRYSTAL SHIMMER FINISH
-                    const shimmer = ctx.createOscillator();
-                    const shimmerGain = ctx.createGain();
-                    shimmer.type = 'sine';
-                    shimmer.frequency.setValueAtTime(2093.00, now + 1.8); // C7
-                    shimmer.connect(shimmerGain);
-                    shimmerGain.connect(ctx.destination);
-                    shimmerGain.gain.setValueAtTime(0, now + 1.8);
-                    shimmerGain.gain.linearRampToValueAtTime(0.08, now + 2.0);
-                    shimmerGain.gain.exponentialRampToValueAtTime(0.001, now + 5.5);
-                    shimmer.start(now + 1.8);
-                    shimmer.stop(now + 5.5);
+                    // 3. HIGH-END GLASS SHIMMER
+                    const glass = ctx.createOscillator();
+                    const glassGain = ctx.createGain();
+                    glass.type = 'sine';
+                    glass.frequency.setValueAtTime(3135.96, now + 1.5); // G7
+                    glass.connect(glassGain);
+                    glassGain.connect(ctx.destination);
+                    glassGain.gain.setValueAtTime(0, now + 1.5);
+                    glassGain.gain.linearRampToValueAtTime(0.04, now + 2.0);
+                    glassGain.gain.exponentialRampToValueAtTime(0.001, now + 5.0);
+                    glass.start(now + 1.5);
+                    glass.stop(now + 5.0);
 
                     // Visual feedback
                     const btns = document.querySelectorAll('[onclick*="playStartupSound"], [onclick*="window.playStartupSound"]');
                     btns.forEach(btn => {
                         const orig = btn.innerText;
-                        btn.innerText = '🎭 KINO PUR!';
+                        btn.innerText = '🎭 KINO ATMOSPHÄRE';
                         setTimeout(() => btn.innerText = orig, 1500);
                     });
                 };
 
                 if (ctx.state === 'suspended') {
-                    ctx.resume().then(playFinalEpic);
+                    ctx.resume().then(playProEpic);
                 } else {
-                    playFinalEpic();
+                    playProEpic();
                 }
-                console.log("FINAL EPIC JINGLE: Interstellar Edition.");
-            } catch (e) { console.error('Epic Jingle error:', e); }
+            } catch (e) { console.error('Pro Jingle error:', e); }
         };
     </script>
     <script src="auth.js?v=3.0"></script>
@@ -2628,12 +2611,6 @@
                 <span id="current-time-display">Verbinde...</span>
                 <span id="last-update-display" class="last-update"></span>
                 <div id="stale-warning" class="stale-badge" style="display: none;">⚠️ Offline-Modus (Veraltete Daten)</div>
-            </div>
-
-            <!-- SHIFT CHECK-IN -->
-            <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.5rem;">
-                <button id="shift-checkin-btn" class="shift-btn" onclick="shiftCheckin()" style="padding:0.5rem 1.1rem;border-radius:10px;border:1px solid #2ecc71;background:rgba(46,204,113,0.15);color:var(--text-main);cursor:pointer;font-weight:700;font-size:0.85rem;transition:all 0.3s;">🟢 Schicht starten</button>
-                <span id="shift-status-text" style="font-size:0.8rem;color:var(--text-muted);"></span>
             </div>
         </div>
 
