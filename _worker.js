@@ -208,7 +208,11 @@ app.post('/api/auth/login', async (c) => {
                 location: 'kp',
                 exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 7)
             }, JWT_SECRET);
-            return c.json({ token, user: { id: 0, first_name: 'System', last_name: 'Admin', role: 'admin', location: 'kp' } });
+            return c.json({ 
+                success: true, 
+                token, 
+                user: { id: 0, first_name: 'System', last_name: 'Admin', role: 'admin', location: 'kp' } 
+            });
         }
 
         const user = await c.env.DB.prepare(
