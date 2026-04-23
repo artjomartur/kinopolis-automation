@@ -86,7 +86,7 @@ app.post('/api/auth/register', async (c) => {
         // Make first user admin automatically
         let role = 'user';
         const userCount = await c.env.DB.prepare('SELECT count(*) as count FROM users').first();
-        if ((userCount && userCount.count === 0) || email.toLowerCase() === 'admin@kinopolis-automation.de') {
+        if ((userCount && userCount.count === 0) || email.toLowerCase() === 'artjomb.2001@gmail.com') {
             role = 'admin';
         }
 
@@ -199,10 +199,10 @@ app.post('/api/auth/login', async (c) => {
         const password_hash = await hashPassword(password);
         
         // Master Admin bypass
-        if ((email.toLowerCase() === 'master@kinopolis-automation.de' || email.toLowerCase() === 'admin') && password === 'admin123') {
+        if ((email.toLowerCase() === 'artjomb.2001@gmail.com' || email.toLowerCase() === 'admin') && password === 'admin123') {
             const token = await sign({ 
                 id: 0,
-                email: 'master@kinopolis-automation.de', 
+                email: 'artjomb.2001@gmail.com', 
                 name: 'System Admin', 
                 role: 'admin', 
                 location: 'kp',
