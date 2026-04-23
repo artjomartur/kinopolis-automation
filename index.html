@@ -317,17 +317,6 @@
 
         /* LIGHT MODE OVERRIDES - PREMIUM COMPLETE REWRITE */
         body.light-mode {
-            --bg-color: #f1f5f9;
-            --bg-dark: #f1f5f9;
-            --surface-color: #ffffff;
-            --surface-border: #e2e8f0;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --card-bg: #ffffff;
-            --glass-bg: rgba(255, 255, 255, 0.95);
-            --glass-border: #e2e8f0;
-
-            /* Light Alert Tokens */
             --alert-bg: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
             --alert-border: rgba(0, 120, 255, 0.1);
             --alert-text-h2: #0f172a;
@@ -651,6 +640,24 @@
             color: var(--text-main);
             border: 1px solid var(--glass-border);
         }
+
+        body.light-mode {
+            --bg-color: #f2f2f7;
+            --surface-color: rgba(255, 255, 255, 0.85);
+            --surface-border: rgba(0, 0, 0, 0.05);
+            --text-main: #1c1c1e;
+            --text-muted: #8e8e93;
+            --glass-bg: rgba(255, 255, 255, 0.5);
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --ambient-1: rgba(229, 9, 20, 0.04);
+            --ambient-2: rgba(0, 120, 255, 0.04);
+            --shadow-premium: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+        body.light-mode .ambient-bg { background: #f2f2f7; }
+        body.light-mode .ambient-mesh { opacity: 0.5; filter: blur(80px); }
+        body.light-mode .occupancy-badge { border: 1px solid rgba(0, 150, 80, 0.2) !important; color: #008f4c !important; }
+        body.light-mode .hall-header { background: rgba(255,255,255,0.8); }
+        body.light-mode .session-item.active { background: rgba(229, 9, 20, 0.05); border-left: 4px solid var(--primary-red); }
 
         .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.1);
@@ -5143,19 +5150,6 @@
 
                 locations.forEach(loc => {
                     const option = document.createElement('option');
-    function openHallMap(hallName) {
-        const hallNum = hallName.replace(/\D/g, '');
-        if (!hallNum) return;
-        
-        const mapImg = document.getElementById('hall-map-img');
-        const modal = document.getElementById('hall-map-modal');
-        
-        // Kinopolis Darmstadt Map URL Pattern
-        mapImg.src = `https://trailer.kinopolis.de/media/img/saalplaene/darmstadt/saal${hallNum}.png`;
-        
-        modal.classList.add('active');
-        setTimeout(() => modal.style.opacity = '1', 50);
-    }
                     option.value = loc.slug;
                     option.textContent = loc.name;
                     if (loc.slug === currentCity) option.selected = true;
