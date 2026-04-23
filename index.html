@@ -65,18 +65,18 @@
                         });
                     });
 
-                    // 3. HIGH-END GLASS SHIMMER
-                    const glass = ctx.createOscillator();
-                    const glassGain = ctx.createGain();
-                    glass.type = 'sine';
-                    glass.frequency.setValueAtTime(3135.96, now + 1.5); // G7
-                    glass.connect(glassGain);
-                    glassGain.connect(ctx.destination);
-                    glassGain.gain.setValueAtTime(0, now + 1.5);
-                    glassGain.gain.linearRampToValueAtTime(0.04, now + 2.0);
-                    glassGain.gain.exponentialRampToValueAtTime(0.001, now + 5.0);
-                    glass.start(now + 1.5);
-                    glass.stop(now + 5.0);
+                    // 3. WARM CHIME RESOLUTION (Replaced high-pitch with warm C6)
+                    const chime = ctx.createOscillator();
+                    const chimeGain = ctx.createGain();
+                    chime.type = 'sine';
+                    chime.frequency.setValueAtTime(1046.50, now + 1.5); // C6 - Warmer
+                    chime.connect(chimeGain);
+                    chimeGain.connect(ctx.destination);
+                    chimeGain.gain.setValueAtTime(0, now + 1.5);
+                    chimeGain.gain.linearRampToValueAtTime(0.06, now + 1.8);
+                    chimeGain.gain.exponentialRampToValueAtTime(0.001, now + 5.0);
+                    chime.start(now + 1.5);
+                    chime.stop(now + 5.0);
 
                     // Visual feedback
                     const btns = document.querySelectorAll('[onclick*="playStartupSound"], [onclick*="window.playStartupSound"]');
@@ -94,6 +94,47 @@
                 }
             } catch (e) { console.error('Pro Jingle error:', e); }
         };
+
+        // --- DEPARTMENT FILTERING LOGIC ---
+        function selectDept(dept) {
+            const today = new Date().toISOString().split('T')[0];
+            localStorage.setItem('kinopolis_selected_dept', dept);
+            localStorage.setItem('kinopolis_selected_dept_date', today);
+            
+            // Apply to body
+            document.body.classList.remove('dept-einlass', 'dept-kasse', 'dept-theke', 'dept-tl', 'dept-alles');
+            document.body.classList.add(`dept-${dept}`);
+            
+            // Close modal
+            const modal = document.getElementById('dept-modal');
+            if (modal) {
+                modal.style.opacity = '0';
+                setTimeout(() => modal.classList.remove('active'), 500);
+            }
+            
+            console.log(`Department selected: ${dept}`);
+            showToast(`⚙️ Dashboard für "${dept.toUpperCase()}" optimiert.`);
+        }
+
+        function checkAndPromptDepartment() {
+            const today = new Date().toISOString().split('T')[0];
+            const savedDate = localStorage.getItem('kinopolis_selected_dept_date');
+            const savedDept = localStorage.getItem('kinopolis_selected_dept');
+            
+            if (savedDate === today && savedDept) {
+                document.body.classList.add(`dept-${savedDept}`);
+                return;
+            }
+            
+            // Prompt after splash screen
+            setTimeout(() => {
+                const modal = document.getElementById('dept-modal');
+                if (modal) {
+                    modal.classList.add('active');
+                    setTimeout(() => modal.style.opacity = '1', 50);
+                }
+            }, 3000);
+        }
     </script>
     <script src="auth.js?v=3.0"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
@@ -2516,6 +2557,42 @@
             font-size: 1.05rem;
         }
 
+        /* Department Filtering */
+        body.dept-einlass .tab-funk, body.dept-einlass .tab-stats, body.dept-einlass .tab-intern { display: none !important; }
+        body.dept-kasse .tab-funk, body.dept-kasse .tab-stats, body.dept-kasse .tab-intern, body.dept-kasse .tab-kontakte { display: none !important; }
+        body.dept-theke .tab-stats, body.dept-theke .tab-kontakte, body.dept-theke .tab-info { display: none !important; }
+        
+        /* Mobile Nav Filtering */
+        body.dept-einlass .nav-funk, body.dept-einlass .nav-stats { display: none !important; }
+        body.dept-kasse .nav-funk, body.dept-kasse .nav-stats { display: none !important; }
+        body.dept-theke .nav-stats { display: none !important; }
+
+        .dept-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 1.25rem 1rem;
+            border-radius: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .dept-btn:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+            border-color: var(--primary-blue);
+        }
+        .dept-btn.active {
+            background: rgba(0, 120, 255, 0.15);
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 15px rgba(0, 120, 255, 0.2);
+        }
+
         .global-toast {
             position: fixed;
             top: 20px;
@@ -2562,6 +2639,34 @@
         </div>
         <div class="splash-text">Automation Dashboard</div>
     </div>
+
+    <!-- DEPARTMENT SELECTION MODAL -->
+    <div id="dept-modal" class="modal">
+        <div class="modal-content glass" style="max-width: 500px; padding: 2.5rem 2rem;">
+            <span class="welcome-icon">🎬</span>
+            <h2 class="modal-title" style="font-size: 1.8rem;">Bereich wählen</h2>
+            <p class="modal-text" style="margin-bottom: 2rem;">Welche Station hast du heute? Wir bereiten deine Werkzeuge vor.</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+                <button class="dept-btn" onclick="selectDept('einlass')">
+                    <span style="font-size: 1.5rem;">🎟️</span> Einlass
+                </button>
+                <button class="dept-btn" onclick="selectDept('kasse')">
+                    <span style="font-size: 1.5rem;">💰</span> Kasse
+                </button>
+                <button class="dept-btn" onclick="selectDept('theke')">
+                    <span style="font-size: 1.5rem;">🍿</span> Theke
+                </button>
+                <button class="dept-btn" onclick="selectDept('tl')">
+                    <span style="font-size: 1.5rem;">👔</span> TL / BL
+                </button>
+                <button class="btn-primary" onclick="selectDept('alles')" style="grid-column: 1 / -1; margin-top: 0.5rem; padding: 1rem; border-radius: 14px; font-weight: 800; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); border: none; color: white; cursor: pointer;">
+                    🌐 Alles anzeigen
+                </button>
+            </div>
+        </div>
+    </div>
+
     <header>
         <div class="header-inner">
             <div class="brand">
@@ -2619,13 +2724,13 @@
         </div>
 
         <div class="nav-tabs">
-            <button class="tab-btn active" id="tab-live" onclick="switchTab('live', this)">🎬 Live</button>
-            <button class="tab-btn stats-tab-btn" id="tab-stats" onclick="switchTab('stats', this)">📊 Statistik</button>
-            <button class="tab-btn" id="tab-kontakte" onclick="switchTab('kontakte', this)">📞 Kontakte</button>
-            <button class="tab-btn tools-tab-btn" id="tab-funk" onclick="switchTab('funk', this)">📡 Funk</button>
-            <button class="tab-btn" id="tab-intern" onclick="switchTab('intern', this)">🛠️ Tools</button>
-            <button class="tab-btn" id="tab-info" onclick="switchTab('info', this)">🍿 Filme</button>
-            <button class="tab-btn" onclick="switchTab('einstellungen', this)">⚙️ Einstellungen</button>
+            <button class="tab-btn active tab-live" id="tab-live" onclick="switchTab('live', this)">🎬 Live</button>
+            <button class="tab-btn stats-tab-btn tab-stats" id="tab-stats" onclick="switchTab('stats', this)">📊 Statistik</button>
+            <button class="tab-btn tab-kontakte" id="tab-kontakte" onclick="switchTab('kontakte', this)">📞 Kontakte</button>
+            <button class="tab-btn tools-tab-btn tab-funk" id="tab-funk" onclick="switchTab('funk', this)">📡 Funk</button>
+            <button class="tab-btn tab-intern" id="tab-intern" onclick="switchTab('intern', this)">🛠️ Tools</button>
+            <button class="tab-btn tab-info" id="tab-info" onclick="switchTab('info', this)">🍿 Filme</button>
+            <button class="tab-btn tab-einstellungen" onclick="switchTab('einstellungen', this)">⚙️ Einstellungen</button>
         </div>
 
         <!-- UPCOMING MOVIES SECTION -->
@@ -3486,6 +3591,7 @@
                 }
 
                 playStartupSound();
+                if (window.checkAndPromptDepartment) checkAndPromptDepartment();
 
                 // Core Data
                 await fetchLocations().catch(e => console.error("Locations failed:", e));
@@ -6211,16 +6317,16 @@
     </div>
         <!-- MOBILE NAVIGATION (iOS Style) -->
         <nav class="mobile-nav" id="mobile-tab-bar" style="display: none;">
-            <a href="#" class="mobile-nav-item active" onclick="switchTab('live', this); return false;">
+            <a href="#" class="mobile-nav-item active nav-live" onclick="switchTab('live', this); return false;">
                 <span>🎬</span> Live
             </a>
-            <a href="#" class="mobile-nav-item" onclick="switchTab('funk', this); return false;">
+            <a href="#" class="mobile-nav-item nav-funk" onclick="switchTab('funk', this); return false;">
                 <span>📡</span> Funk
             </a>
-            <a href="#" class="mobile-nav-item" onclick="switchTab('action', this); return false;">
+            <a href="#" class="mobile-nav-item nav-action" onclick="switchTab('action', this); return false;">
                 <span>🛠️</span> Action
             </a>
-            <a href="#" class="mobile-nav-item" onclick="switchTab('mehr', this); return false;">
+            <a href="#" class="mobile-nav-item nav-mehr" onclick="switchTab('mehr', this); return false;">
                 <span>📂</span> Mehr
             </a>
         </nav>
