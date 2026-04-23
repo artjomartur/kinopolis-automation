@@ -295,6 +295,7 @@ app.post('/api/auth/forgot-password', async (c) => {
     </table>
 </body>
 </html>
+`
                 })
             });
         } catch (err) { console.error("Resend Reset Error:", err); }
