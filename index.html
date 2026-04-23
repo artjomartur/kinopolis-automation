@@ -3496,7 +3496,11 @@
                     }
                 }
 
-                playStartupSound();
+                // Only play jingle once per browser session to avoid annoyance on reloads
+                if (!sessionStorage.getItem('kp_jingle_played')) {
+                    playStartupSound();
+                    sessionStorage.setItem('kp_jingle_played', 'true');
+                }
 
                 // Core Data
                 await fetchLocations().catch(e => console.error("Locations failed:", e));

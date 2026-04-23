@@ -152,7 +152,6 @@ const AUTH = {
     },
 
     async handleLogin() {
-        if (window.playStartupSound) window.playStartupSound();
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
         const btn = document.getElementById('login-btn');
@@ -222,7 +221,6 @@ const AUTH = {
     },
 
     enableGuestMode() {
-        if (window.playStartupSound) window.playStartupSound();
         localStorage.setItem('kp_guest_mode', 'true');
         location.reload();
     },
