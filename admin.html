@@ -121,12 +121,12 @@
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0, 120, 255, 0.4); }
 
         /* Module States */
-        .admin-section { display: flex; flex-direction: column; gap: 1.25rem; }
+        .admin-section { display: flex; flex-direction: column; gap: 2rem; margin-bottom: 2rem; }
         .admin-section h2 { font-size: 1.4rem; color: var(--text-main); display: flex; align-items: center; gap: 1rem; font-weight: 800; margin-bottom: 0.5rem; }
         .admin-section h2 span { font-size: 1.6rem; }
         .admin-section p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; }
 
-        .card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--surface-border); border-radius: 20px; padding: 2rem; }
+        .card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--surface-border); border-radius: 24px; padding: 2.5rem; }
         
         .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
         .module-item { background: rgba(255,255,255,0.02); border: 1px solid var(--surface-border); padding: 0.85rem 1rem; border-radius: 14px; display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: all 0.2s; }
@@ -228,171 +228,202 @@
 
         <!-- Admin Content -->
         <div id="admin-main-content" class="admin-content" style="display: none;">
+        <!-- Admin Content -->
+        <div id="admin-main-content" class="admin-content" style="display: none;">
             
-            <!-- NEW: Staff Management Section -->
-            <div class="admin-section">
-                <h2><span>👥</span> Mitarbeiter Verwaltung</h2>
-                <p>Hier kannst du alle registrierten Mitarbeiter für deinen Standort sehen, ihre Rollen verwalten oder den Zugang entziehen.</p>
-                <div class="card" style="padding: 0; overflow: hidden; background: rgba(0,0,0,0.2);">
-                    <div style="overflow-x: auto;">
-                        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-                            <thead>
-                                <tr style="background: rgba(255,255,255,0.05); text-align: left; border-bottom: 1px solid var(--surface-border);">
-                                    <th style="padding: 1rem;">Name</th>
-                                    <th style="padding: 1rem;">E-Mail</th>
-                                    <th style="padding: 1rem;">Rolle</th>
-                                    <th style="padding: 1rem;">Nr.</th>
-                                    <th style="padding: 1rem; text-align: right;">Aktion</th>
-                                </tr>
-                            </thead>
-                            <tbody id="staff-table-body">
-                                <!-- Dynamic -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Welcome Disclaimer -->
-            <div style="background: rgba(0, 120, 255, 0.05); border: 1px solid rgba(0, 120, 255, 0.1); border-radius: 20px; padding: 1.5rem; display: flex; gap: 1rem; align-items: flex-start;">
-                <span style="font-size: 1.5rem;">👋</span>
-                <div>
-                    <h3 style="font-size: 1.1rem; margin-bottom: 0.4rem;">Entwickler-Information</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
-                        Diese App ist optimiert für <strong>Kinopolis Darmstadt</strong>. 
-                        Wünsche für andere Standorte bitte über das Feedback-Modul einreichen.
-                    </p>
-                </div>
+            <!-- Admin Tabs Navigation -->
+            <div class="admin-tabs" style="display: flex; gap: 0.5rem; background: rgba(255,255,255,0.03); padding: 0.5rem; border-radius: 18px; margin-bottom: 2rem; border: 1px solid var(--surface-border);">
+                <button class="admin-tab active" onclick="switchAdminTab('team', this)" style="flex: 1; padding: 0.85rem; border-radius: 14px; border: none; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                    <span>👥</span> Team & Support
+                </button>
+                <button class="admin-tab" onclick="switchAdminTab('content', this)" style="flex: 1; padding: 0.85rem; border-radius: 14px; border: none; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                    <span>📢</span> Inhalt & Inventar
+                </button>
+                <button class="admin-tab" onclick="switchAdminTab('system', this)" style="flex: 1; padding: 0.85rem; border-radius: 14px; border: none; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                    <span>⚙️</span> System & Export
+                </button>
             </div>
 
-            <!-- Interne Mitteilung (Create + Manage) -->
-            <div class="admin-section">
-                <h2><span>📢</span> Interne Mitteilungen</h2>
-                <div class="card">
-                    <p style="margin-bottom: 1rem;">Erstelle oder lösche Nachrichten für das gesamte Team.</p>
-                    <button class="btn-primary" style="background: linear-gradient(135deg, #0078FF, #00d2ff); margin-bottom: 1.5rem;" onclick="openNewsModal()">
-                        + Neue Mitteilung erstellen
-                    </button>
+            <style>
+                .admin-tab.active { background: var(--primary-blue) !important; color: white !important; box-shadow: 0 4px 15px rgba(0, 120, 255, 0.3); }
+                .admin-tab:not(.active):hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
+                .admin-tab-page { display: none; animation: fadeIn 0.4s ease; }
+                .admin-tab-page.active { display: flex; flex-direction: column; gap: 3rem; }
+            </style>
 
-                    <h3 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Aktive Mitteilungen</h3>
-                    <div class="msg-list" id="admin-msg-list">
-                        <p style="color: var(--text-muted); font-size: 0.85rem;">Lade Mitteilungen...</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Inventory Management -->
-            <div class="admin-section">
-                <h2><span>📋</span> Transfer-Artikel & Soll-Werte</h2>
-                <div class="card">
-                    <p style="margin-bottom: 1.25rem;">Verwalte die Artikel in der Waren- und Eis-Transferliste sowie deren Ziel-Bestände (Soll).</p>
-                    
-                    <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 14px; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
-                        <input type="text" id="inv-name" placeholder="Artikelname (z.B. Popcorn Süß)" class="input-field" style="margin-bottom: 0;">
-                        <input type="number" id="inv-target" placeholder="Soll-Wert (Stück)" class="input-field" style="margin-bottom: 0;">
-                        <select id="inv-type" class="input-field" style="margin-bottom: 0;">
-                            <option value="waren">Waren-Transfer</option>
-                            <option value="eis">Eis-Transfer</option>
-                        </select>
-                        <button class="btn-primary" onclick="addInventoryItem()" style="padding: 0.75rem;">Artikel Hinzufügen</button>
-                    </div>
-
-                    <h3 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; text-transform: uppercase;">Waren-Artikel</h3>
-                    <div id="admin-inv-waren" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem;">
-                        <p style="color: var(--text-muted); font-size: 0.85rem;">Lade Artikel...</p>
-                    </div>
-
-                    <h3 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; text-transform: uppercase;">Eis-Artikel</h3>
-                    <div id="admin-inv-eis" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                        <p style="color: var(--text-muted); font-size: 0.85rem;">Lade Artikel...</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Contacts Management -->
-            <div class="admin-section">
-                <h2><span>📞</span> Telefonliste verwalten</h2>
-                <div class="card">
-                    <p style="margin-bottom: 1.25rem;">Bearbeite die Notfall- und Dienstnummern für deinen Standort.</p>
-                    
-                    <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 14px; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
-                        <input type="text" id="contact-role" placeholder="Bezeichnung (z.B. TL 1, Security)" class="input-field" style="margin-bottom: 0;">
-                        <input type="text" id="contact-phone" placeholder="Nummer (z.B. +49...)" class="input-field" style="margin-bottom: 0;">
-                        <select id="contact-category" class="input-field" style="margin-bottom: 0;">
-                            <option value="leitung">Leitung (BL/TL)</option>
-                            <option value="einlass">Einlass</option>
-                            <option value="theke">Kasse/Theke</option>
-                            <option value="sicherheit">Sicherheit</option>
-                            <option value="popcornkueche">Popcornküche</option>
-                            <option value="putzfirma">Putzfirma</option>
-                        </select>
-                        <button class="btn-primary" onclick="addContact()" style="padding: 0.75rem;">Kontakt Hinzufügen</button>
-                    </div>
-
-                    <h3 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; text-transform: uppercase;">Gespeicherte Nummern</h3>
-                    <div id="admin-contacts-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
-                        <p style="color: var(--text-muted); font-size: 0.85rem;">Lade Kontakte...</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Module Management -->
-            <div class="admin-section">
-                <h2><span>🧩</span> Modul-Sichtbarkeit</h2>
-                <div class="card">
-                    <p style="margin-bottom: 1.25rem;">Wähle granular aus, welche Unterkategorien im Dashboard angezeigt werden.</p>
-                    <div id="module-management-list" class="module-grid">
-                        <!-- Filled by JS -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Export & Backup -->
-            <div class="admin-section">
-                <h2><span>📊</span> Daten & Backup</h2>
-                <div class="card">
-                    <p style="margin-bottom: 1.25rem;">Exportiere alle Logs und Daten für die Ablage.</p>
-                    <div style="margin-bottom: 1.5rem;">
-                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Wähle die Daten aus, die du als CSV exportieren möchtest:</p>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                <input type="checkbox" id="export-logs" checked> Dienstprotokolle
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                <input type="checkbox" id="export-lf" checked> Fundbüro
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                <input type="checkbox" id="export-contacts" checked> Kontakte
-                            </label>
+            <!-- TAB 1: TEAM & SUPPORT -->
+            <div id="tab-team" class="admin-tab-page active">
+                <!-- Staff Management Section -->
+                <div class="admin-section">
+                    <h2><span>👥</span> Mitarbeiter Verwaltung</h2>
+                    <p>Hier kannst du alle registrierten Mitarbeiter für deinen Standort sehen, ihre Rollen verwalten oder den Zugang entziehen.</p>
+                    <div class="card" style="padding: 0; overflow: hidden; background: rgba(0,0,0,0.2);">
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                                <thead>
+                                    <tr style="background: rgba(255,255,255,0.05); text-align: left; border-bottom: 1px solid var(--surface-border);">
+                                        <th style="padding: 1rem;">Name</th>
+                                        <th style="padding: 1rem;">E-Mail</th>
+                                        <th style="padding: 1rem;">Rolle</th>
+                                        <th style="padding: 1rem;">Nr.</th>
+                                        <th style="padding: 1rem; text-align: right;">Aktion</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="staff-table-body">
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                    <button onclick="handleCSVExport()" class="btn-primary" style="margin-bottom: 1rem; width: 100%; background: linear-gradient(135deg, #2ecc71, #27ae60);">
-                        🚀 CSV Export generieren
-                    </button>
-                    <hr style="border: 0; border-top: 1px solid var(--surface-border); margin: 1.5rem 0;">
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Oder als fertiges Dokument für Schichtberichte:</p>
-                    <div class="btn-group">
-                        <button onclick="exportToExcel()" class="btn-secondary" style="border-color: rgba(46, 204, 113, 0.3);">
-                            <span style="color: #2ecc71;">📊</span> Excel Export (Logs)
+                </div>
+
+                <!-- Contacts Management -->
+                <div class="admin-section">
+                    <h2><span>📞</span> Telefonliste verwalten</h2>
+                    <div class="card">
+                        <p style="margin-bottom: 1.25rem;">Bearbeite die Notfall- und Dienstnummern für deinen Standort.</p>
+                        
+                        <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 14px; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                            <input type="text" id="contact-role" placeholder="Bezeichnung (z.B. TL 1, Security)" class="input-field" style="margin-bottom: 0;">
+                            <input type="text" id="contact-phone" placeholder="Nummer (z.B. +49...)" class="input-field" style="margin-bottom: 0;">
+                            <select id="contact-category" class="input-field" style="margin-bottom: 0;">
+                                <option value="leitung">Leitung (BL/TL)</option>
+                                <option value="einlass">Einlass</option>
+                                <option value="theke">Kasse/Theke</option>
+                                <option value="sicherheit">Sicherheit</option>
+                                <option value="popcornkueche">Popcornküche</option>
+                                <option value="putzfirma">Putzfirma</option>
+                            </select>
+                            <button class="btn-primary" onclick="addContact()" style="padding: 0.75rem;">Kontakt Hinzufügen</button>
+                        </div>
+
+                        <h3 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; text-transform: uppercase;">Gespeicherte Nummern</h3>
+                        <div id="admin-contacts-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <p style="color: var(--text-muted); font-size: 0.85rem;">Lade Kontakte...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feedback & Support -->
+                <div class="admin-section">
+                    <h2><span>📩</span> Feedback & Support</h2>
+                    <div class="card" style="display: flex; flex-direction: column; gap: 1rem;">
+                        <p>Sende Feedback oder Feature-Wünsche direkt an den Entwickler.</p>
+                        <input type="text" id="fb-name" placeholder="Dein Name / Kürzel (optional)" class="input-field" style="margin-bottom: 0;">
+                        <textarea id="fb-message" placeholder="Beschreibe dein Anliegen oder einen Fehler..." style="width: 100%; min-height: 100px; background: rgba(255,255,255,0.05); border: 1px solid var(--surface-border); border-radius: 14px; color: var(--text-main); padding: 0.85rem 1rem; font-size: 0.95rem; outline: none; resize: vertical; font-family: 'Outfit', sans-serif;"></textarea>
+                        <button id="fb-send-btn" onclick="sendFeedback()" style="background: linear-gradient(135deg, var(--primary-blue), #00d2ff); border: none; color: white; font-weight: 800; padding: 0.9rem; border-radius: 14px; cursor: pointer; font-size: 0.95rem; transition: all 0.3s;">
+                            📧 Absenden
                         </button>
-                        <button onclick="exportToPDF()" class="btn-secondary" style="border-color: rgba(231, 76, 60, 0.3);">
-                            <span style="color: #e74c3c;">📄</span> PDF Export (Logs)
-                        </button>
+                        <div id="fb-status" style="display: none; padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600;"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Feedback & Support -->
-            <div class="admin-section">
-                <h2><span>💬</span> Feedback & Support</h2>
-                <div class="card" style="display: flex; flex-direction: column; gap: 1rem;">
-                    <p>Sende Feedback oder Feature-Wünsche direkt an den Entwickler.</p>
-                    <input type="text" id="fb-name" placeholder="Dein Name / Kürzel (optional)" class="input-field" style="margin-bottom: 0;">
-                    <textarea id="fb-message" placeholder="Beschreibe dein Anliegen oder einen Fehler..." style="width: 100%; min-height: 100px; background: rgba(255,255,255,0.05); border: 1px solid var(--surface-border); border-radius: 14px; color: var(--text-main); padding: 0.85rem 1rem; font-size: 0.95rem; outline: none; resize: vertical; font-family: 'Outfit', sans-serif;"></textarea>
-                    <button id="fb-send-btn" onclick="sendFeedback()" style="background: linear-gradient(135deg, var(--primary-blue), #00d2ff); border: none; color: white; font-weight: 800; padding: 0.9rem; border-radius: 14px; cursor: pointer; font-size: 0.95rem; transition: all 0.3s;">
-                        📧 Absenden
-                    </button>
-                    <div id="fb-status" style="display: none; padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600;"></div>
+            <!-- TAB 2: CONTENT & INVENTORY -->
+            <div id="tab-content" class="admin-tab-page">
+                <!-- Interne Mitteilung -->
+                <div class="admin-section">
+                    <h2><span>📢</span> Interne Mitteilungen</h2>
+                    <div class="card">
+                        <p style="margin-bottom: 1rem;">Erstelle oder lösche Nachrichten für das gesamte Team.</p>
+                        <button class="btn-primary" style="background: linear-gradient(135deg, #0078FF, #00d2ff); margin-bottom: 1.5rem;" onclick="openNewsModal()">
+                            + Neue Mitteilung erstellen
+                        </button>
+
+                        <h3 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Aktive Mitteilungen</h3>
+                        <div class="msg-list" id="admin-msg-list">
+                            <p style="color: var(--text-muted); font-size: 0.85rem;">Lade Mitteilungen...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inventory Management -->
+                <div class="admin-section">
+                    <h2><span>📋</span> Transfer-Artikel & Soll-Werte</h2>
+                    <div class="card" style="margin-top: 1.5rem;">
+                        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">Verwalte die Artikel in der Waren- und Eis-Transferliste sowie deren Ziel-Bestände (Soll).</p>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 1.25rem; background: rgba(255,255,255,0.02); padding: 2rem; border-radius: 16px; border: 1px solid var(--surface-border); margin-bottom: 3rem;">
+                            <input type="text" id="inv-name" placeholder="Artikelname (z.B. Popcorn Süß)" class="input-field" style="margin-bottom: 0;">
+                            <input type="number" id="inv-target" placeholder="Soll-Wert (Stück)" class="input-field" style="margin-bottom: 0;">
+                            <select id="inv-type" class="input-field" style="margin-bottom: 0;">
+                                <option value="ware">Waren-Transfer</option>
+                                <option value="eis">Eis-Transfer</option>
+                            </select>
+                            <button onclick="addInventoryItem()" class="btn-primary" style="margin-top: 0.5rem;">Artikel Hinzufügen</button>
+                        </div>
+
+                        <h4 style="margin-top: 2rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; margin-bottom: 1rem;">Waren-Artikel</h4>
+                        <div id="admin-inv-waren" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2.5rem;">
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Keine Waren-Artikel.</p>
+                        </div>
+
+                        <h4 style="margin-top: 2rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; margin-bottom: 1rem;">Eis-Artikel</h4>
+                        <div id="admin-inv-eis" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Keine Eis-Artikel.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: SYSTEM & EXPORT -->
+            <div id="tab-system" class="admin-tab-page">
+                <!-- Module Management -->
+                <div class="admin-section">
+                    <h2><span>🧩</span> Modul-Sichtbarkeit</h2>
+                    <div class="card">
+                        <p style="margin-bottom: 1.25rem;">Wähle granular aus, welche Unterkategorien im Dashboard angezeigt werden.</p>
+                        <div id="module-management-list" class="module-grid">
+                            <!-- Filled by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export & Backup -->
+                <div class="admin-section">
+                    <h2><span>📊</span> Daten & Backup</h2>
+                    <div class="card">
+                        <p style="margin-bottom: 1.25rem;">Exportiere alle Logs und Daten für die Ablage.</p>
+                        <div style="margin-bottom: 1.5rem;">
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Wähle die Daten aus, die du als CSV exportieren möchtest:</p>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" id="export-logs" checked> Dienstprotokolle
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" id="export-lf" checked> Fundbüro
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" id="export-contacts" checked> Kontakte
+                                </label>
+                            </div>
+                        </div>
+                        <button onclick="handleCSVExport()" class="btn-primary" style="margin-bottom: 1rem; width: 100%; background: linear-gradient(135deg, #2ecc71, #27ae60);">
+                            🚀 CSV Export generieren
+                        </button>
+                        <hr style="border: 0; border-top: 1px solid var(--surface-border); margin: 1.5rem 0;">
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Oder als fertiges Dokument für Schichtberichte:</p>
+                        <div class="btn-group">
+                            <button onclick="exportToExcel()" class="btn-secondary" style="border-color: rgba(46, 204, 113, 0.3);">
+                                <span style="color: #2ecc71;">📊</span> Excel Export (Logs)
+                            </button>
+                            <button onclick="exportToPDF()" class="btn-secondary" style="border-color: rgba(231, 76, 60, 0.3);">
+                                <span style="color: #e74c3c;">📄</span> PDF Export (Logs)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Welcome Disclaimer -->
+                <div style="background: rgba(0, 120, 255, 0.05); border: 1px solid rgba(0, 120, 255, 0.1); border-radius: 20px; padding: 1.5rem; display: flex; gap: 1rem; align-items: flex-start; margin-top: 2rem;">
+                    <span style="font-size: 1.5rem;">👋</span>
+                    <div>
+                        <h3 style="font-size: 1.1rem; margin-bottom: 0.4rem;">Entwickler-Information</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
+                            Diese App ist optimiert für <strong>Kinopolis Darmstadt</strong>. 
+                            Wünsche für andere Standorte bitte über das Feedback-Modul einreichen.
+                        </p>
+                    </div>
                 </div>
             </div>
 

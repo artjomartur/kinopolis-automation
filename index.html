@@ -3157,12 +3157,6 @@
                     <span id="auslass-count-badge" class="badge">0</span>
                     <span class="auslass-disclaimer" id="tasks-disclaimer">Auslässe: Ca. Ende + 30m | Poster: 20m nach Start</span>
                 </div>
-                <div style="display: flex; gap: 0.5rem; align-items: center; margin-left: auto;">
-                    <input type="file" id="plan-scan-input" accept="image/*" capture="environment" style="display: none;" onchange="handlePlanScan(this)">
-                    <button class="btn-primary" onclick="document.getElementById('plan-scan-input').click()" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 12px; background: linear-gradient(135deg, #0078FF, #00d2ff); box-shadow: 0 4px 15px rgba(0, 120, 255, 0.3); white-space: nowrap;">
-                        📸 Plan scannen
-                    </button>
-                </div>
                 <button class="toggle-btn" id="auslaesse-toggle-btn">
                     <svg viewBox="0 0 24 24" width="24" height="24">
                         <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
@@ -5374,9 +5368,6 @@
                             <span class="hall-name">${hallName}</span>
                             <span class="session-count">${sessions.length} Vorstellungen</span>
                         </div>
-                        <div onclick="openHallMap('${hallName}')" style="background: rgba(0, 120, 255, 0.1); border: 1px solid rgba(0, 120, 255, 0.2); color: var(--primary-blue); padding: 4px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                            <span>🗺️</span> Saalplan
-                        </div>
                         <svg onclick="toggleHall(this.previousElementSibling.previousElementSibling)" class="toggle-icon" viewBox="0 0 24 24" width="20" height="20" style="margin-left: 10px; cursor: pointer;">
                             <path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
                         </svg>
@@ -5993,8 +5984,8 @@
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
                 init();
-                // Show Developer Info Popup on startup
-                setTimeout(() => openFeedback('artjom'), 2000);
+                // Show Dev Info Popup on startup
+                setTimeout(() => document.getElementById('dev-info-modal').classList.add('active'), 2000);
             });
         } else {
             init();
@@ -6456,5 +6447,42 @@
         </nav>
     <script>
     </script>
+    <!-- Dev Info Modal (Welcome Style) -->
+    <div id="dev-info-modal" class="modal">
+        <div class="modal-content glass" style="max-height: 90vh; overflow-y: auto; text-align: center;">
+            <div style="width: 80px; height: 80px; background: rgba(0, 120, 255, 0.1); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2.5rem;">👨‍💻</div>
+            <h2 class="modal-title" style="margin-bottom: 0.5rem;">Entwickler Info</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">Hey! Ich bin Artjom, der Entwickler hinter diesem Dashboard. Schön, dass du es nutzt!</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 1rem; text-align: left; margin-bottom: 2rem;">
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--surface-border); padding: 1.25rem; border-radius: 16px; display: flex; align-items: center; gap: 1rem;">
+                    <div style="font-size: 1.5rem;">💡</div>
+                    <div>
+                        <div style="font-weight: 800; font-size: 0.9rem;">Ideen & Wünsche</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Hast du eine Idee für ein neues Tool? Schreib mir!</div>
+                    </div>
+                </div>
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--surface-border); padding: 1.25rem; border-radius: 16px; display: flex; align-items: center; gap: 1rem;">
+                    <div style="font-size: 1.5rem;">🐛</div>
+                    <div>
+                        <div style="font-weight: 800; font-size: 0.9rem;">Fehler gefunden?</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Falls etwas nicht funktioniert, gib mir kurz Bescheid.</div>
+                    </div>
+                </div>
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--surface-border); padding: 1.25rem; border-radius: 16px; display: flex; align-items: center; gap: 1rem;">
+                    <div style="font-size: 1.5rem;">🌐</div>
+                    <div>
+                        <div style="font-weight: 800; font-size: 0.9rem;">Portfolio & Kontakt</div>
+                        <a href="https://artjombecker.com" target="_blank" style="font-size: 0.8rem; color: var(--primary-blue); text-decoration: none;">artjombecker.com</a>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <button onclick="document.getElementById('dev-info-modal').classList.remove('active'); openFeedback('artjom')" class="btn-secondary" style="padding: 1rem; border-radius: 14px; font-weight: 700;">Feedback senden</button>
+                <button onclick="document.getElementById('dev-info-modal').classList.remove('active')" class="btn-primary" style="padding: 1rem; border-radius: 14px; font-weight: 800; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); border: none; color: white;">Alles klar!</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
