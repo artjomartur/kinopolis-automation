@@ -55,7 +55,7 @@ const AUTH = {
                         <div style="width: 80px; height: 80px; background: rgba(229, 9, 20, 0.1); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
                             <span style="font-size: 2.5rem;">🍿</span>
                         </div>
-                        <h2 style="font-size: 1.5rem; font-weight: 800;">Willkommen zurück</h2>
+                        <h2 style="font-size: 1.5rem; font-weight: 800;">Willkommen zurück <span style="font-size: 0.7rem; vertical-align: middle; opacity: 0.5;">V1.0</span></h2>
                         <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Bitte melde dich an, um fortzufahren.</p>
                     </div>
                     
@@ -356,6 +356,16 @@ const AUTH = {
     updateUI() {
         // Essential: Allow content to be seen
         document.body.classList.add('auth-loaded');
+        
+        // APPLY ROLE CLASSES FOR CSS VISIBILITY
+        if (this.user && this.user.role) {
+            // Clean up existing roles
+            document.body.classList.remove('role-user', 'role-tl', 'role-bl', 'role-admin');
+            // Add current role (lowercase)
+            document.body.classList.add('role-' + this.user.role.toLowerCase());
+            console.log('AUTH: Applied role class', 'role-' + this.user.role.toLowerCase());
+        }
+
         this.hideLoginModal();
 
         const userBtn = document.getElementById('user-profile-btn');

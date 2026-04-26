@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kinopolis Automation Dashboard</title>
+    <title>Kinopolis Dashboard V1.0</title>
     <!-- Favicon: Kinopolis Logo -->
     <link rel="icon" href="./icon.png" type="image/png">
     <link rel="apple-touch-icon" href="./icon.png">
@@ -2532,7 +2532,7 @@
             gap: 1.25rem;
             background: rgba(255,255,255,0.04);
             border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 14px;
+            border-radius: 24px;
             padding: 1rem 1.25rem;
             transition: all 0.2s ease;
             cursor: pointer;
@@ -2564,10 +2564,11 @@
             height: 32px;
             font-size: 1rem;
         }
-        .contact-icon.bg-red { background: rgba(229,9,20,0.15); border: 1px solid rgba(229,9,20,0.35); }
-        .contact-icon.bg-gold { background: rgba(241,196,15,0.15); border: 1px solid rgba(241,196,15,0.35); }
-        .contact-icon.bg-blue { background: rgba(0,120,255,0.15); border: 1px solid rgba(0,120,255,0.35); }
-        .contact-icon.bg-purple { background: rgba(155,89,182,0.15); border: 1px solid rgba(155,89,182,0.35); }
+        .contact-icon.bg-red { background: rgba(229,9,20,0.3); border: 1px solid rgba(229,9,20,0.5); }
+        .contact-icon.bg-gold { background: rgba(241,196,15,0.3); border: 1px solid rgba(241,196,15,0.5); }
+        .contact-icon.bg-blue { background: rgba(0,120,255,0.3); border: 1px solid rgba(0,120,255,0.5); }
+        .contact-icon.bg-purple { background: rgba(155,89,182,0.3); border: 1px solid rgba(155,89,182,0.5); }
+        .contact-icon.bg-green { background: rgba(46,204,113,0.3); border: 1px solid rgba(46,204,113,0.5); }
         
         .contact-info { display: flex; flex-direction: column; }
         .contact-name { font-weight: 600; font-size: 1rem; color: #fff; }
@@ -2653,7 +2654,7 @@
         .modal-content {
             background: linear-gradient(135deg, rgba(20, 20, 25, 0.95) 0%, rgba(10, 10, 15, 0.98) 100%);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 32px;
+            border-radius: 40px;
             padding: 3rem 2rem;
             max-width: 550px;
             width: 100%;
@@ -3743,7 +3744,7 @@
         }, 3000);
 
         // 2. IMMEDIATE INITIALIZATION (Don't wait for all images/assets)
-        (async function init() {
+        async function init() {
             console.log('APP: Starting initialization...');
             try {
                 // Theme Init
@@ -3865,7 +3866,7 @@
                 const splash = document.getElementById('splash-screen');
                 if (splash) splash.classList.add('fade-out');
             }
-        })();
+        }
 
         // ============================================================
         // FEATURE: COUNTDOWN TIMERS
@@ -6390,6 +6391,39 @@
         }
 
 
+        async function loadUpcomingMovies() {
+            const grid = document.getElementById('upcoming-grid');
+            const loader = document.getElementById('upcoming-loading');
+            if (!grid) return;
+
+            try {
+                const res = await fetch('/api/upcoming');
+                if (!res.ok) throw new Error();
+                const movies = await res.json();
+
+                if (movies.length === 0) {
+                    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">Momentan keine kommenden Highlights verfügbar.</div>';
+                } else {
+                    grid.innerHTML = movies.map(m => `
+                        <div class="session-item glass" style="padding: 0; overflow: hidden; border-radius: 20px; transition: transform 0.3s; cursor: pointer;" onclick="window.open('${m.movieLink}', '_blank')">
+                            <div style="position: relative; aspect-ratio: 2/3;">
+                                <img src="${m.poster}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&q=80'">
+                                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.9)); padding: 1.5rem 1rem 1rem;">
+                                    <h3 style="font-size: 1.1rem; font-weight: 800; color: white; margin: 0; line-height: 1.2;">${m.title}</h3>
+                                    <div style="font-size: 0.75rem; color: var(--primary-blue); font-weight: 700; text-transform: uppercase; margin-top: 0.5rem;">Demnächst</div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                if (loader) loader.style.display = 'none';
+                grid.style.display = 'grid';
+            } catch (e) {
+                console.error("Failed to load upcoming movies:", e);
+                if (loader) loader.innerHTML = '<div style="padding: 2rem; color: #ff4d4d;">Fehler beim Laden der Vorschau.</div>';
+            }
+        }
     </script>
 
 
