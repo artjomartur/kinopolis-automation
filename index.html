@@ -3564,6 +3564,23 @@
         const LOCATIONS_URL = '/api/locations';
         const VAPID_PUBLIC_KEY = 'BCP-JGZbVBjKY1_blxAHw6bC5Ddf0nLAyPSp8q39kV7utFahZNyQZJ8KlV-ht6UKg07eAuVBVHJhVsaDMx1m7X8';
 
+        let lastData = null;
+        let lastUpdateTime = null;
+        let currentCity = 'kp';
+        let displayDate = new Date();
+        let completedAuslaesse = new Set(JSON.parse(localStorage.getItem('completed_auslaesse') || '[]'));
+        let completedPosters = new Set(JSON.parse(localStorage.getItem('completed_posters') || '[]'));
+        let completedCleaning = new Set(JSON.parse(localStorage.getItem('completed_cleaning') || '[]'));
+        let scannedPlanData = JSON.parse(localStorage.getItem('scanned_plan_data') || '[]');
+        let shiftStartTime = localStorage.getItem('shift_start_time') ? new Date(localStorage.getItem('shift_start_time')) : null;
+
+        const CLEANING_TASKS = {
+            1: ["Tagesaufgabe 1: MONTAG"], 2: ["Tagesaufgabe 1: DIENSTAG"], 
+            3: ["Tagesaufgabe 1: MITTWOCH"], 4: ["Tagesaufgabe 1: DONNERSTAG"],
+            5: ["Tagesaufgabe 1: FREITAG"], 6: ["Tagesaufgabe 1: SAMSTAG"], 0: ["Tagesaufgabe 1: SONNTAG"]
+        };
+
+
         // --- GLOBAL TOAST ---
         function showToast(msg, isError = false) {
             const t = document.getElementById('global-toast');
@@ -3580,24 +3597,28 @@
 
         // --- IMMEDIATE UI INITIALIZATION ---
         function startClock() {
-            const clockEl = document.getElementById('current-time-display');
-            if (!clockEl) return;
-            
-            const update = () => {
-                const now = new Date();
-                clockEl.innerText = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' Uhr';
+            try {
+                const clockEl = document.getElementById('current-time-display');
+                if (!clockEl) return;
                 
-                if (lastUpdateTime) {
-                    const diffSec = Math.floor((now - lastUpdateTime) / 1000);
-                    const updateEl = document.getElementById('last-update-display');
-                    if (updateEl) updateEl.innerText = `Vor ${diffSec}s aktualisiert`;
-                }
+                const update = () => {
+                    try {
+                        const now = new Date();
+                        clockEl.innerText = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' Uhr';
+                        
+                        if (lastUpdateTime) {
+                            const diffSec = Math.floor((now - lastUpdateTime) / 1000);
+                            const updateEl = document.getElementById('last-update-display');
+                            if (updateEl) updateEl.innerText = `Vor ${diffSec}s aktualisiert`;
+                        }
+                        
+                        if (window.updateCountdowns) updateCountdowns();
+                    } catch (e) { console.error('Clock update error:', e); }
+                };
                 
-                if (window.updateCountdowns) updateCountdowns();
-            };
-            
-            update();
-            setInterval(update, 1000);
+                update();
+                setInterval(update, 1000);
+            } catch (e) { console.error('startClock failed:', e); }
         }
         
         // Start clock ASAP
@@ -3708,23 +3729,7 @@
 
         checkAndResetDailyTasks();
 
-        let lastData = null;
-        let lastUpdateTime = null;
-        let currentCity = 'kp';
-        let displayDate = new Date();
-        let completedAuslaesse = new Set(JSON.parse(localStorage.getItem('completed_auslaesse') || '[]'));
-        let completedPosters = new Set(JSON.parse(localStorage.getItem('completed_posters') || '[]'));
-        let completedCleaning = new Set(JSON.parse(localStorage.getItem('completed_cleaning') || '[]'));
-        let scannedPlanData = JSON.parse(localStorage.getItem('scanned_plan_data') || '[]');
 
-        // --- SHIFT CHECK-IN STATE ---
-        let shiftStartTime = localStorage.getItem('shift_start_time') ? new Date(localStorage.getItem('shift_start_time')) : null;
-
-        const CLEANING_TASKS = {
-            1: ["Tagesaufgabe 1: MONTAG"], 2: ["Tagesaufgabe 1: DIENSTAG"], 
-            3: ["Tagesaufgabe 1: MITTWOCH"], 4: ["Tagesaufgabe 1: DONNERSTAG"],
-            5: ["Tagesaufgabe 1: FREITAG"], 6: ["Tagesaufgabe 1: SAMSTAG"], 0: ["Tagesaufgabe 1: SONNTAG"]
-        };
 
         function switchTab(view, btn) {
             // Update UI State for both Desktop and Mobile
@@ -3776,12 +3781,6 @@
             } else {
                 document.body.classList.add(view + '-active');
                 if (titleEl) titleEl.innerText = view.charAt(0).toUpperCase() + view.slice(1) + suffix;
-            }
-            } else {
-                // Direct fallback for Desktop single-tab clicks
-                document.body.classList.add(view + '-active');
-                if (view === 'info') loadUpcomingMovies();
-                if (view === 'tools') if (document.getElementById('transfer-items').children.length === 0) initTransferList();
             }
 
             // Scroll to top on mobile for better UX
