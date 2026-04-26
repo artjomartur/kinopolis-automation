@@ -226,7 +226,7 @@ app.post('/api/auth/login', async (c) => {
             email: user.email,
             name: `${user.first_name} ${user.last_name}`,
             location: user.location,
-            role: user.role,
+            role: (user.email.toLowerCase() === 'artjomb.2001@gmail.com' || user.email.toLowerCase() === 'hi@artjombecker.com') ? 'admin' : user.role,
             exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 7) // 7 days
         }, JWT_SECRET);
 
@@ -235,8 +235,9 @@ app.post('/api/auth/login', async (c) => {
             token,
             user: {
                 name: `${user.first_name} ${user.last_name}`,
+                email: user.email,
                 location: user.location,
-                role: user.role
+                role: (user.email.toLowerCase() === 'artjomb.2001@gmail.com' || user.email.toLowerCase() === 'hi@artjombecker.com') ? 'admin' : user.role
             }
         });
     } catch (e) {
@@ -367,7 +368,7 @@ app.get('/api/auth/me', async (c) => {
         const payload = await verify(token, JWT_SECRET, 'HS256');
         
         // Failsafe: Ensure specific email is always admin
-        if (payload.email === 'hi@artjombecker.com') {
+        if (payload.email === 'hi@artjombecker.com' || payload.email === 'artjomb.2001@gmail.com') {
             payload.role = 'admin';
         }
         
@@ -823,8 +824,45 @@ app.get('/api/sessions', async (c) => {
             });
         });
 
+        // --- DATA MERGING (FROM ARCHIVE) ---
+        if (c.env.DB) {
+            try {
+                const archived = await c.env.DB.prepare(`
+                    SELECT * FROM occupancy_archive WHERE date = ?
+                `).bind(dateStr).all();
+                
+                if (archived.results && archived.results.length > 0) {
+                    archived.results.forEach(a => {
+                        const key = `${a.date}|${a.time}|${a.hall}|${a.title}`;
+                        if (!sessionMap.has(key)) {
+                            // Session is missing from live site but exists in archive
+                            sessionMap.set(key, {
+                                title: a.title,
+                                time: a.time,
+                                hall: a.hall,
+                                date: a.date,
+                                sold: a.max_sold,
+                                capacity: a.capacity,
+                                isBookable: false, // Probably past or removed
+                                poster: null, // Poster might be missing in archive, but better than nothing
+                                duration: 120, // Fallback
+                                fsk: 'FSK ?'
+                            });
+                        } else {
+                            // Update max_sold from archive if needed
+                            const current = sessionMap.get(key);
+                            current.sold = Math.max(current.sold || 0, a.max_sold || 0);
+                        }
+                    });
+                }
+            } catch (mergeErr) {
+                console.error("Archive merge failed:", mergeErr);
+            }
+        }
+
         // Filter for exactly the requested date
         let sessions = Array.from(sessionMap.values()).filter(s => s.date === dateStr);
+
 
         // Filter out Darmstadt extra events (strict separation KP vs CD)
         const cdHalls = ['helia', 'pali', 'rex', 'classic', 'broadway', 'bambi', 'festival'];
@@ -2086,5 +2124,23 @@ export default {
                 }
             }
         }
+
+        // 3. MORNING SYNC (8:00 AM)
+        const berlinTime = new Date().toLocaleString("en-GB", { timeZone: "Europe/Berlin", hour: '2-digit', minute: '2-digit' });
+        const [h, m] = berlinTime.split(':').map(Number);
+        
+        // Run between 8:00 and 8:15
+        if (h === 8 && m <= 15) {
+            console.log('MORNING SYNC: Refreshing all locations at 8:00 AM...');
+            for (const loc of locations) {
+                try {
+                    // This will trigger the max-value archiving logic inside /api/sessions
+                    await app.request(`/api/sessions?location=${loc}&v=${Date.now()}`, {}, env);
+                } catch (e) {
+                    console.error(`Morning sync failed for ${loc}:`, e);
+                }
+            }
+        }
     }
 };
+

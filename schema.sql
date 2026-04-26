@@ -76,3 +76,17 @@ CREATE TABLE IF NOT EXISTS users (
     role TEXT DEFAULT 'user',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS occupancy_archive (
+    key TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    time TEXT NOT NULL,
+    hall TEXT NOT NULL,
+    date TEXT NOT NULL,
+    max_sold INTEGER DEFAULT 0,
+    capacity INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_occupancy_date ON occupancy_archive(date);
+

@@ -218,20 +218,20 @@
     <style>
         :root {
             --bg-color: #050507;
-            --surface-color: rgba(15, 15, 20, 0.7);
+            --surface-color: rgba(15, 15, 20, 0.6);
             --surface-border: rgba(255, 255, 255, 0.08);
             --primary-red: #E50914;
             --primary-blue: #0078FF;
             --accent-blue: #00d2ff;
             --text-main: #F2F2F2;
-            --text-muted: #8E8E93;
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.06);
-            --card-radius: 24px;
-            --button-radius: 14px;
-            --shadow-premium: 0 10px 40px rgba(0, 0, 0, 0.6);
-            --ambient-1: rgba(229, 9, 20, 0.08);
-            --ambient-2: rgba(0, 120, 255, 0.08);
+            --text-muted: #94a3b8;
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.07);
+            --card-radius: 28px;
+            --button-radius: 16px;
+            --shadow-premium: 0 20px 50px rgba(0, 0, 0, 0.7);
+            --ambient-1: rgba(229, 9, 20, 0.1);
+            --ambient-2: rgba(0, 120, 255, 0.1);
         }
 
         /* --- AMBIENT DESIGN SYSTEM --- */
@@ -518,10 +518,11 @@
         }
 
         .glass {
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--surface-border);
-            border-radius: 24px;
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius);
+            background: var(--glass-bg);
         }
 
         /* Cinematic Splash Screen */
@@ -2556,6 +2557,7 @@
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
+            flex-shrink: 0;
         }
         .contact-icon.sm {
             width: 32px;
@@ -2580,6 +2582,7 @@
             justify-content: center;
             font-size: 1.1rem;
             margin-left: auto;
+            flex-shrink: 0;
         }
         .contact-dial-sm {
             width: 30px;
@@ -3442,7 +3445,7 @@
                     Kinopolis Automation ist nicht nur ein Tool – es ist die Zentrale für einen reibungslosen Ablauf hinter den Kulissen.
                 </p>
                 <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; font-size: 0.75rem; color: rgba(255,255,255,0.3);">
-                    <span>Version 2.0 (April 2026)</span>
+                    <span>Version 1.0 (April 2026)</span>
                     <span>•</span>
                     <span>Made with ❤️ for Kinopolis</span>
                 </div>
@@ -3490,6 +3493,25 @@
                 </div>
             </div>
         </section>
+
+        <!-- INTERNAL NEWS (Moved to Settings) -->
+        <div id="internal-news-container" class="card-container news-section glass einstellungen-section" style="display: none; margin-bottom: 1rem;">
+            <div class="card-header" onclick="toggleSection('news-content', 'news-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
+                    <span class="alert-icon-small">📢</span>
+                    <h2 style="font-size: 1.25rem;">Interne Mitteilungen</h2>
+                    <span id="news-badge" class="badge">0</span>
+                </div>
+                <button class="toggle-btn" id="news-toggle-btn" style="pointer-events: none;">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" /></svg>
+                </button>
+            </div>
+            <div id="news-content" class="collapsible-content" style="padding: 0 1.5rem 1.5rem;">
+                <div id="news-list">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+        </div>
 
         <!-- Staff Notes Section (Moved to Bottom) -->
         <div class="card-container notes-section glass intern-section" style="margin-top: 2rem; margin-bottom: 2rem; display: none;">
@@ -4987,16 +5009,25 @@
             if (btn) btn.classList.toggle('collapsed');
         }
 
-        // --- News Logic ---
+        let lastNewsCount = -1;
         async function fetchNews() {
             try {
                 const res = await fetch('/api/messages?v=' + Date.now());
                 const news = await res.json();
+                
+                if (lastNewsCount !== -1 && news.length > lastNewsCount) {
+                    // NEW MESSAGE!
+                    if (window.playFunkSound) playFunkSound();
+                    showToast("Neue Funk-Nachricht!");
+                }
+                lastNewsCount = news.length;
+                
                 renderNews(news);
             } catch (err) {
                 console.error('News fetch error', err);
             }
         }
+
 
         function renderNews(news) {
             const container = document.getElementById('internal-news-container');
@@ -5179,6 +5210,8 @@
 
                 selector.addEventListener('change', (e) => {
                     currentCity = e.target.value;
+                    localStorage.setItem('current_city', currentCity);
+                    
                     const cityName = e.target.options[e.target.selectedIndex].text;
                     const locNameEl = document.getElementById('location-name');
                     if (locNameEl) locNameEl.innerText = cityName;
@@ -5186,12 +5219,14 @@
                     const dashboard = document.getElementById('dashboard');
                     if (dashboard) dashboard.innerHTML = '<div class="loading-state"><div class="spinner"></div><div class="loading-text">Aktualisiere Daten...</div></div>';
                     
-                    if (completedAuslaesse && typeof completedAuslaesse.clear === 'function') completedAuslaesse.clear();
+                    // Reload state for new location
+                    loadTaskState();
                     
                     if (typeof updateKurzwahlVisibility === 'function') updateKurzwahlVisibility();
                     fetchSessions();
                     fetchWeather();
                 });
+
             } catch (err) {
                 console.error('Failed to load locations', err);
             }
@@ -5363,12 +5398,12 @@
                 }).join('');
 
                 card.innerHTML = `
-                    <div class="hall-header">
-                        <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;" onclick="toggleHall(this)">
+                    <div class="hall-header" onclick="toggleHall(this)">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;">
                             <span class="hall-name">${hallName}</span>
                             <span class="session-count">${sessions.length} Vorstellungen</span>
                         </div>
-                        <svg onclick="toggleHall(this.previousElementSibling.previousElementSibling)" class="toggle-icon" viewBox="0 0 24 24" width="20" height="20" style="margin-left: 10px; cursor: pointer;">
+                        <svg class="toggle-icon" viewBox="0 0 24 24" width="20" height="20">
                             <path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
                         </svg>
                     </div>
@@ -5380,11 +5415,29 @@
             });
         }
 
-        function saveTaskState() {
-            localStorage.setItem('completed_auslaesse', JSON.stringify(Array.from(completedAuslaesse)));
-            localStorage.setItem('completed_posters', JSON.stringify(Array.from(completedPosters)));
-            localStorage.setItem('completed_cleaning', JSON.stringify(Array.from(completedCleaning)));
+        function loadTaskState() {
+            try {
+                const auslaesse = localStorage.getItem(`completed_auslaesse_${currentCity}`);
+                const posters = localStorage.getItem(`completed_posters_${currentCity}`);
+                const cleaning = localStorage.getItem(`completed_cleaning_${currentCity}`);
+                
+                completedAuslaesse = new Set(auslaesse ? JSON.parse(auslaesse) : []);
+                completedPosters = new Set(posters ? JSON.parse(posters) : []);
+                completedCleaning = new Set(cleaning ? JSON.parse(cleaning) : []);
+            } catch (e) {
+                console.error("Error loading task state", e);
+                completedAuslaesse = new Set();
+                completedPosters = new Set();
+                completedCleaning = new Set();
+            }
         }
+
+        function saveTaskState() {
+            localStorage.setItem(`completed_auslaesse_${currentCity}`, JSON.stringify(Array.from(completedAuslaesse)));
+            localStorage.setItem(`completed_posters_${currentCity}`, JSON.stringify(Array.from(completedPosters)));
+            localStorage.setItem(`completed_cleaning_${currentCity}`, JSON.stringify(Array.from(completedCleaning)));
+        }
+
 
         function renderTasks(hallsGrouped) {
             const container = document.getElementById('auslaesse-section-container');
@@ -5470,10 +5523,22 @@
             }
 
             // Filter for tasks:
-            // - Auslaesse: ALWAYS show all for the day
+            // - Auslaesse: Only show if not done OR if it happened within the last 60 minutes
             // - Cleaning: ALWAYS show
             // - Posters: Only if done (historical view), but they are primarily in alerts
-            const liveTasks = allTasks.filter(t => t.type === 'auslass' || t.type === 'cleaning' || (t.type === 'poster' && completedPosters.has(t.id)));
+            const liveTasks = allTasks.filter(t => {
+                if (t.type === 'auslass') {
+                    const isDone = completedAuslaesse.has(t.id);
+                    const isOld = currentMinutes > (t.time + 60);
+                    // Hide if older than 1 hour (requested by user)
+                    if (isOld) return false;
+                    return true;
+                }
+                if (t.type === 'cleaning') return true;
+                if (t.type === 'poster') return completedPosters.has(t.id);
+                return true;
+            });
+
 
             // Sort by time (Cleaning -1 first, then by time)
             liveTasks.sort((a, b) => a.time - b.time);
@@ -5747,8 +5812,10 @@
         }
 
         function toggleHall(header) {
-            const sessionsList = header.nextElementSibling;
-            const isCollapsed = header.classList.toggle('collapsed');
+            if (!header) return;
+            const sessionsList = header.closest('.hall-card')?.querySelector('.sessions-list');
+            if (!sessionsList) return;
+            header.classList.toggle('collapsed');
             sessionsList.classList.toggle('collapsed');
         }
 
@@ -5862,19 +5929,31 @@
                             <div class="time">Start: ${nextMovie.time} ${isEndDay ? 'Uhr (Morgen)' : 'Uhr'}</div>
                         </div>
                     </div>
-                    <button class="alert-done-btn" onclick="markPosterDone('${alertId}')" title="Als erledigt markieren">
-                        <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" /></svg>
-                    </button>
-                </div>
-            `;
-            return alert;
-        }
-
-        function markPosterDone(id) {
+        function markPosterDone(id, btn) {
             completedPosters.add(id);
             saveTaskState();
+            
+            // Optimistic UI: Hide alert immediately
+            if (btn) {
+                const alert = btn.closest('.poster-change-alert');
+                if (alert) {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'scale(0.9)';
+                    alert.style.pointerEvents = 'none';
+                    setTimeout(() => {
+                        alert.remove();
+                        // Update badge count
+                        const alertsContainer = document.getElementById('poster-alerts');
+                        const count = alertsContainer.children.length;
+                        document.getElementById('alert-count-badge').textContent = count;
+                        if (count === 0) document.getElementById('poster-alerts-container').style.display = 'none';
+                    }, 300);
+                }
+            }
+            
             fetchSessions(); // Refresh UI
         }
+
 
         function addOccupancyAlerts(hallsGrouped, container) {
             const now = new Date();
