@@ -403,6 +403,47 @@ app.post('/api/auth/change-password', async (c) => {
     }
 });
 
+// --- EMAIL SUBSCRIPTIONS ---
+app.post('/api/email/subscribe', async (c) => {
+    try {
+        const { email, location } = await c.req.json();
+        if (!email) return c.json({ error: 'E-Mail erforderlich' }, 400);
+        if (!c.env.DB) return c.json({ error: 'DB nicht verfügbar' }, 500);
+
+        await c.env.DB.prepare(
+            'INSERT OR IGNORE INTO email_subscriptions (email, location) VALUES (?, ?)'
+        ).bind(email.toLowerCase(), location || 'kp').run();
+
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+app.get('/api/email/unsubscribe', async (c) => {
+    try {
+        const email = c.req.query('email');
+        if (!email) return c.text('E-Mail Adresse fehlt.');
+        if (!c.env.DB) return c.text('Datenbank nicht erreichbar.');
+
+        await c.env.DB.prepare('DELETE FROM email_subscriptions WHERE email = ?')
+            .bind(email.toLowerCase()).run();
+        
+        await c.env.DB.prepare('DELETE FROM users WHERE email = ?')
+            .bind(email.toLowerCase()).run().catch(() => {}); // Also delete user if they want to be forgotten
+
+        return c.html(`
+            <div style="font-family: sans-serif; text-align: center; padding: 50px;">
+                <h1>Erfolgreich abgemeldet</h1>
+                <p>Du wirst keine weiteren E-Mails mehr erhalten.</p>
+                <a href="https://kinopolis.artjombecker.com" style="color: #e50914;">Zurück zum Dashboard</a>
+            </div>
+        `);
+    } catch (e) {
+        return c.text('Fehler beim Abmelden: ' + e.message);
+    }
+});
+
 app.post('/api/auth/shift-report', async (c) => {
     const authHeader = c.req.header('Authorization');
     if (!authHeader) return c.json({ error: 'Nicht autorisiert' }, 401);
@@ -494,14 +535,14 @@ app.post('/api/auth/shift-report', async (c) => {
                         <div style="margin-top: 30px; text-align: center; background: rgba(0, 120, 255, 0.05); padding: 24px; border-radius: 18px; border: 1px solid rgba(0, 120, 255, 0.1);">
                             <h4 style="color: ${s.textColor}; margin: 0 0 8px; font-size: 16px;">Wie war dein Tag?</h4>
                             <p style="color: ${s.mutedColor}; font-size: 13px; margin: 0 0 20px;">Dein Feedback hilft uns, das Dashboard und den Ablauf im Kino zu verbessern.</p>
-                            <a href="https://kinopolis.artjombecker.com/?feedback=true" style="display: inline-block; background: var(--primary-blue, #0078FF); color: white; text-decoration: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14px;">Feedback zum Tag geben</a>
+                            <a href="https://kinopolis.artjombecker.com/?feedback=true" style="display: inline-block; background: #0078FF; color: white; text-decoration: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14px;">Feedback zum Tag geben</a>
                         </div>
 
                         <div style="text-align:center;margin-top:40px;padding-top:30px;border-top:1px solid ${s.borderColor};">
                             <p style="color:#48484a; font-size:11px;line-height:1.6;">
                                 Diese Zusammenfassung wurde automatisch von der Kinopolis Automation Platform erstellt.<br>
                                 Viel Erfolg für deine nächste Schicht!<br><br>
-                                <a href="https://kinopolis.artjombecker.com/api/email/unsubscribe?email=${payload.email}" style="color: #48484a; text-decoration: underline;">E-Mail Berichte abbestellen</a>
+                                <a href="https://kinopolis.artjombecker.com/api/email/unsubscribe?email=${payload.email}" style="color: #48484a; text-decoration: underline;">Berichte abbestellen</a>
                             </p>
                         </div>
                     </div>

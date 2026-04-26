@@ -3430,6 +3430,30 @@
             </div>
         </div>
 
+        <!-- Date Selection in Settings -->
+        <div class="card-container glass einstellungen-section" style="margin-bottom: 1rem; border-color: rgba(0, 120, 255, 0.3);">
+            <div class="card-header" style="padding: 1.25rem 1.25rem 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span class="alert-icon-small">📅</span>
+                    <h2 style="font-size: 1.25rem;">Tag auswählen</h2>
+                </div>
+            </div>
+            <div style="padding: 1rem 1.5rem 1.5rem;">
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Wähle den Tag aus, für den du die Daten sehen möchtest.</p>
+                <div class="date-navigator" style="width: 100%; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 0.5rem;">
+                    <button class="nav-btn" onclick="changeDate(-1)">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" /></svg>
+                    </button>
+                    <div class="date-display" style="text-align: center; min-width: 120px;">
+                        <span class="settings-date-text" style="font-weight: 700; color: #fff;">Heute</span>
+                    </div>
+                    <button class="nav-btn" onclick="changeDate(1)">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Info / Pitch Card -->
         <div class="card-container glass einstellungen-section" style="margin-bottom: 2rem;">
             <div style="padding: 1.5rem; border-left: 4px solid var(--primary-red); background: rgba(229, 9, 20, 0.03); border-radius: 20px;">
@@ -3552,6 +3576,35 @@
             
             t.classList.add('show');
             setTimeout(() => { t.classList.remove('show'); }, 3500);
+        }
+
+        // --- IMMEDIATE UI INITIALIZATION ---
+        function startClock() {
+            const clockEl = document.getElementById('current-time-display');
+            if (!clockEl) return;
+            
+            const update = () => {
+                const now = new Date();
+                clockEl.innerText = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' Uhr';
+                
+                if (lastUpdateTime) {
+                    const diffSec = Math.floor((now - lastUpdateTime) / 1000);
+                    const updateEl = document.getElementById('last-update-display');
+                    if (updateEl) updateEl.innerText = `Vor ${diffSec}s aktualisiert`;
+                }
+                
+                if (window.updateCountdowns) updateCountdowns();
+            };
+            
+            update();
+            setInterval(update, 1000);
+        }
+        
+        // Start clock ASAP
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startClock);
+        } else {
+            startClock();
         }
 
         function formatMinutes(min) {
@@ -3687,37 +3740,43 @@
             
             // Apply new view state
             const titleEl = document.getElementById('main-title');
+            const suffix = ' V1.0';
+            
             if (view === 'live') {
                 document.body.classList.add('live-active');
-                if (titleEl) titleEl.innerText = 'Live Overview';
+                if (titleEl) titleEl.innerText = 'Live Overview' + suffix;
             } else if (view === 'funk') {
                 document.body.classList.add('tools-active', 'funk-active');
-                if (titleEl) titleEl.innerText = 'Funk-Ruf (Digital)';
+                if (titleEl) titleEl.innerText = 'Funk-Ruf (Digital)' + suffix;
                 fetchInventory();
             } else if (view === 'action') {
                 document.body.classList.add('action-active', 'intern-active', 'tools-active');
-                if (titleEl) titleEl.innerText = 'Team-Aktionen';
+                if (titleEl) titleEl.innerText = 'Team-Aktionen' + suffix;
             } else if (view === 'mehr') {
                 document.body.classList.add('mehr-active', 'stats-active', 'kontakte-active', 'info-active', 'einstellungen-active');
-                if (titleEl) titleEl.innerText = 'Mehr & Infos';
+                if (titleEl) titleEl.innerText = 'Mehr & Infos' + suffix;
                 loadUpcomingMovies();
             } else if (view === 'stats') {
                 document.body.classList.add('stats-active');
-                if (titleEl) titleEl.innerText = 'Statistik & Auswertung';
+                if (titleEl) titleEl.innerText = 'Statistik & Auswertung' + suffix;
             } else if (view === 'kontakte') {
                 document.body.classList.add('kontakte-active');
-                if (titleEl) titleEl.innerText = 'Telefonliste';
+                if (titleEl) titleEl.innerText = 'Telefonliste' + suffix;
             } else if (view === 'intern' || view === 'tools') {
                 document.body.classList.add('intern-active', 'tools-active');
-                if (titleEl) titleEl.innerText = 'Interne Tools';
+                if (titleEl) titleEl.innerText = 'Interne Tools' + suffix;
                 if (document.getElementById('transfer-items').children.length === 0) initTransferList();
             } else if (view === 'info') {
                 document.body.classList.add('info-active');
-                if (titleEl) titleEl.innerText = 'Film-Informationen';
+                if (titleEl) titleEl.innerText = 'Film-Informationen' + suffix;
                 loadUpcomingMovies();
             } else if (view === 'einstellungen') {
                 document.body.classList.add('einstellungen-active');
-                if (titleEl) titleEl.innerText = 'Einstellungen';
+                if (titleEl) titleEl.innerText = 'Einstellungen' + suffix;
+            } else {
+                document.body.classList.add(view + '-active');
+                if (titleEl) titleEl.innerText = view.charAt(0).toUpperCase() + view.slice(1) + suffix;
+            }
             } else {
                 // Direct fallback for Desktop single-tab clicks
                 document.body.classList.add(view + '-active');
@@ -4052,8 +4111,9 @@
             const grid = document.getElementById('upcoming-grid');
             const loader = document.getElementById('upcoming-loading');
             
+            if (!grid) return;
             grid.innerHTML = '';
-            loader.style.display = 'flex';
+            if (loader) loader.style.display = 'flex';
             grid.style.display = 'none';
             
             try {
@@ -4080,25 +4140,31 @@
 
                 // 2. Upcoming Movies
                 const res = await fetch('/api/upcoming');
-                const upcoming = await res.json();
+                let upcoming = [];
+                if (res.ok) {
+                    upcoming = await res.json();
+                }
                 
                 // Merge and deduplicate: Only add upcoming if not already seen in current
                 const upcomingFiltered = Array.isArray(upcoming) ? upcoming.filter(m => !seenTitles.has(m.title)) : [];
                 const allMovies = [...currentMovies, ...upcomingFiltered.map(m => ({...m, current: false}))];
 
-                if (allMovies.length === 0) throw new Error('Keine Filme gefunden');
+                if (allMovies.length === 0) {
+                   if (loader) loader.innerHTML = '<div style="color: var(--text-muted); padding: 2rem;">Keine Filme gefunden.</div>';
+                   return;
+                }
 
                 grid.innerHTML = allMovies.map(m => {
                     const badge = m.current ? 
                         `<span class="badge" style="position: absolute; top: 8px; left: 8px; background: var(--primary-red); font-size: 0.65rem;">JETZT</span>` :
                         `<span class="badge" style="position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.65); font-size: 0.65rem;">DEMNÄCHST</span>`;
                     
-                    const onClick = m.movieLink ? `onclick="openMovieDetail('${m.movieLink}')"` : `onclick="window.open('https://www.kinopolis.de/${currentCity}', '_blank')"`;
+                    const onClick = m.movieLink ? `onclick="window.open('${m.movieLink}', '_blank')"` : `onclick="window.open('https://www.kinopolis.de/${currentCity}', '_blank')"`;
 
                     return `
                     <div class="hall-card glass movie-item-card" ${onClick} style="cursor: pointer; padding: 0; overflow: hidden; border-radius: 12px;">
                         <div style="position: relative;">
-                            <img src="${m.poster}" alt="Poster" style="width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block;">
+                            <img src="${m.poster}" alt="Poster" style="width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block;" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&q=80'">
                             ${badge}
                         </div>
                         <div style="padding: 0.75rem; text-align: center;">
@@ -4107,13 +4173,13 @@
                     </div>`;
                 }).join('');
                 
-                loader.style.display = 'none';
+                if (loader) loader.style.display = 'none';
                 grid.style.display = 'grid';
                 grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(140px, 1fr))';
                 
             } catch (e) {
                 console.error('Error loading movie list:', e);
-                loader.innerHTML = '<div style="color: #ff4d4d;">Fehler beim Laden.</div>';
+                if (loader) loader.innerHTML = '<div style="color: #ff4d4d;">Fehler beim Laden.</div>';
             }
         }
 
@@ -4623,19 +4689,7 @@
             });
         }
 
-        // Update clock and countdowns
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('current-time-display').innerText = 
-                now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' Uhr';
-            
-            if (lastUpdateTime) {
-                const diffSec = Math.floor((now - lastUpdateTime) / 1000);
-                document.getElementById('last-update-display').innerText = `Vor ${diffSec}s aktualisiert`;
-            }
-            
-            updateCountdowns();
-        }, 1000);
+
 
         function updateCountdowns() {
             const isToday = displayDate.toDateString() === new Date().toDateString();
@@ -4690,6 +4744,7 @@
             const today = new Date();
             const textEl = document.getElementById('display-date-text');
             const subEl = document.getElementById('display-date-sub');
+            const settingsTextEl = document.querySelector('.settings-date-text');
             if(!textEl || !subEl) return;
             
             const isToday = displayDate.toDateString() === today.toDateString();
@@ -4700,12 +4755,19 @@
             yesterday.setDate(today.getDate() - 1);
             const isYesterday = displayDate.toDateString() === yesterday.toDateString();
 
-            if (isToday) textEl.innerText = 'Heute';
-            else if (isTomorrow) textEl.innerText = 'Morgen';
-            else if (isYesterday) textEl.innerText = 'Gestern';
-            else textEl.innerText = displayDate.toLocaleDateString('de-DE', { weekday: 'long' });
+            let dayName = '';
+            if (isToday) dayName = 'Heute';
+            else if (isTomorrow) dayName = 'Morgen';
+            else if (isYesterday) dayName = 'Gestern';
+            else dayName = displayDate.toLocaleDateString('de-DE', { weekday: 'long' });
 
-            subEl.innerText = displayDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+            textEl.innerText = dayName;
+            const dateStr = displayDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+            subEl.innerText = dateStr;
+            
+            if (settingsTextEl) {
+                settingsTextEl.innerText = `${dayName}, ${dateStr}`;
+            }
         }
 
         // --- Workstation Checklists ---
@@ -6064,12 +6126,26 @@
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
                 init();
-                // Show Dev Info Popup on startup
-                setTimeout(() => document.getElementById('dev-info-modal').classList.add('active'), 2000);
+                // Check for feedback param
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('feedback') === 'true') {
+                    setTimeout(() => openFeedback('bl'), 1500);
+                } else {
+                    // Show Dev Info Popup on startup only if not feedback mode
+                    setTimeout(() => {
+                        const modal = document.getElementById('dev-info-modal');
+                        if (modal) modal.classList.add('active');
+                    }, 2000);
+                }
             });
         } else {
             init();
-            setTimeout(() => openFeedback('artjom'), 2000);
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('feedback') === 'true') {
+                setTimeout(() => openFeedback('bl'), 1500);
+            } else {
+                setTimeout(() => openFeedback('artjom'), 2000);
+            }
         }
         
 
@@ -6391,39 +6467,7 @@
         }
 
 
-        async function loadUpcomingMovies() {
-            const grid = document.getElementById('upcoming-grid');
-            const loader = document.getElementById('upcoming-loading');
-            if (!grid) return;
 
-            try {
-                const res = await fetch('/api/upcoming');
-                if (!res.ok) throw new Error();
-                const movies = await res.json();
-
-                if (movies.length === 0) {
-                    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">Momentan keine kommenden Highlights verfügbar.</div>';
-                } else {
-                    grid.innerHTML = movies.map(m => `
-                        <div class="session-item glass" style="padding: 0; overflow: hidden; border-radius: 20px; transition: transform 0.3s; cursor: pointer;" onclick="window.open('${m.movieLink}', '_blank')">
-                            <div style="position: relative; aspect-ratio: 2/3;">
-                                <img src="${m.poster}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&q=80'">
-                                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.9)); padding: 1.5rem 1rem 1rem;">
-                                    <h3 style="font-size: 1.1rem; font-weight: 800; color: white; margin: 0; line-height: 1.2;">${m.title}</h3>
-                                    <div style="font-size: 0.75rem; color: var(--primary-blue); font-weight: 700; text-transform: uppercase; margin-top: 0.5rem;">Demnächst</div>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-                
-                if (loader) loader.style.display = 'none';
-                grid.style.display = 'grid';
-            } catch (e) {
-                console.error("Failed to load upcoming movies:", e);
-                if (loader) loader.innerHTML = '<div style="padding: 2rem; color: #ff4d4d;">Fehler beim Laden der Vorschau.</div>';
-            }
-        }
     </script>
 
 
