@@ -3568,11 +3568,24 @@
         let lastUpdateTime = null;
         let currentCity = 'kp';
         let displayDate = new Date();
-        let completedAuslaesse = new Set(JSON.parse(localStorage.getItem('completed_auslaesse') || '[]'));
-        let completedPosters = new Set(JSON.parse(localStorage.getItem('completed_posters') || '[]'));
-        let completedCleaning = new Set(JSON.parse(localStorage.getItem('completed_cleaning') || '[]'));
-        let scannedPlanData = JSON.parse(localStorage.getItem('scanned_plan_data') || '[]');
+        
+        // Helper to parse JSON safely from localStorage
+        const safeParse = (key, fallback) => {
+            try {
+                const item = localStorage.getItem(key);
+                return item ? JSON.parse(item) : fallback;
+            } catch (e) {
+                console.warn(`SafeParse failed for ${key}:`, e);
+                return fallback;
+            }
+        };
+
+        let completedAuslaesse = new Set(safeParse('completed_auslaesse', []));
+        let completedPosters = new Set(safeParse('completed_posters', []));
+        let completedCleaning = new Set(safeParse('completed_cleaning', []));
+        let scannedPlanData = safeParse('scanned_plan_data', []);
         let shiftStartTime = localStorage.getItem('shift_start_time') ? new Date(localStorage.getItem('shift_start_time')) : null;
+
 
         const CLEANING_TASKS = {
             1: ["Tagesaufgabe 1: MONTAG"], 2: ["Tagesaufgabe 1: DIENSTAG"], 
