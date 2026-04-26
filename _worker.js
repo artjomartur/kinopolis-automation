@@ -162,12 +162,13 @@ app.post('/api/auth/register', async (c) => {
                                                 <a href="https://kinopolis.artjombecker.com" class="btn">Zum Dashboard</a>
                                             </div>
                                         </div>
-                                        <div class="footer">
-                                            <p class="footer-text">
-                                                Dies ist eine automatische Benachrichtigung.<br>
-                                                © 2026 Kinopolis Automation
-                                            </p>
-                                        </div>
+                                         <div class="footer">
+                                             <p class="footer-text">
+                                                 Dies ist eine automatische Benachrichtigung.<br>
+                                                 © 2026 Kinopolis Automation<br><br>
+                                                 <a href="https://kinopolis.artjombecker.com/api/email/unsubscribe?email=${email.toLowerCase()}" style="color: #475569; text-decoration: underline;">Abbestellen</a>
+                                             </p>
+                                         </div>
                                     </div>
                                 </div>
                             </body>
@@ -307,6 +308,7 @@ app.post('/api/auth/forgot-password', async (c) => {
                     </div>
                     <div style="padding:20px 40px;background:${s.footerBg};border-top:1px solid ${s.borderColor};text-align:center;">
                         <p style="color:${s.mutedColor};font-size:11px;margin:0;text-transform:uppercase;letter-spacing:0.1em;">&copy; 2026 Kinopolis Automation Dashboard</p>
+                        <p style="margin-top: 10px;"><a href="https://kinopolis.artjombecker.com/api/email/unsubscribe?email=${email.toLowerCase()}" style="color: ${s.mutedColor}; font-size: 10px; text-decoration: underline;">Benachrichtigungen abbestellen</a></p>
                     </div>
                 </div>
             </td>
@@ -488,10 +490,18 @@ app.post('/api/auth/shift-report', async (c) => {
                             </div>
                         </div>
 
+                        <!-- Feedback Prompt -->
+                        <div style="margin-top: 30px; text-align: center; background: rgba(0, 120, 255, 0.05); padding: 24px; border-radius: 18px; border: 1px solid rgba(0, 120, 255, 0.1);">
+                            <h4 style="color: ${s.textColor}; margin: 0 0 8px; font-size: 16px;">Wie war dein Tag?</h4>
+                            <p style="color: ${s.mutedColor}; font-size: 13px; margin: 0 0 20px;">Dein Feedback hilft uns, das Dashboard und den Ablauf im Kino zu verbessern.</p>
+                            <a href="https://kinopolis.artjombecker.com/?feedback=true" style="display: inline-block; background: var(--primary-blue, #0078FF); color: white; text-decoration: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14px;">Feedback zum Tag geben</a>
+                        </div>
+
                         <div style="text-align:center;margin-top:40px;padding-top:30px;border-top:1px solid ${s.borderColor};">
                             <p style="color:#48484a; font-size:11px;line-height:1.6;">
                                 Diese Zusammenfassung wurde automatisch von der Kinopolis Automation Platform erstellt.<br>
-                                Viel Erfolg für deine nächste Schicht!
+                                Viel Erfolg für deine nächste Schicht!<br><br>
+                                <a href="https://kinopolis.artjombecker.com/api/email/unsubscribe?email=${payload.email}" style="color: #48484a; text-decoration: underline;">E-Mail Berichte abbestellen</a>
                             </p>
                         </div>
                     </div>
@@ -1055,11 +1065,12 @@ app.post('/api/messages', async (c) => {
                                             </div>
                                         </div>
                                         <div class="footer">
-                                            <p class="footer-text">
-                                                Du erhältst diese E-Mail als Mitarbeiter von Kinopolis.<br>
-                                                © 2026 Kinopolis Automation
-                                            </p>
-                                        </div>
+                                             <p class="footer-text">
+                                                 Du erhältst diese E-Mail als Mitarbeiter von Kinopolis.<br>
+                                                 © 2026 Kinopolis Automation<br><br>
+                                                 <a href="https://kinopolis.artjombecker.com/api/email/unsubscribe?email=${sub.email}" style="color: #475569; text-decoration: underline;">Abbestellen</a>
+                                             </p>
+                                         </div>
                                     </div>
                                 </div>
                             </body>
@@ -1322,6 +1333,44 @@ app.post('/api/email/subscribe', async (c) => {
         return c.json({ success: true });
     } catch (e) {
         return c.json({ error: e.message }, 500);
+    }
+});
+
+app.get('/api/email/unsubscribe', async (c) => {
+    const email = c.req.query('email');
+    if (!email) return c.html('<h1>Fehler</h1><p>E-Mail Adresse fehlt.</p>', 400);
+
+    try {
+        if (c.env.DB) {
+            await c.env.DB.prepare('DELETE FROM email_subscriptions WHERE email = ?')
+                .bind(email.toLowerCase()).run();
+        }
+        return c.html(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Abbestellt - Kinopolis Automation</title>
+                <style>
+                    body { font-family: 'Inter', sans-serif; background: #050507; color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; text-align: center; }
+                    .card { background: rgba(255,255,255,0.05); padding: 3rem; border-radius: 28px; border: 1px solid rgba(255,255,255,0.1); max-width: 400px; }
+                    h1 { font-size: 1.5rem; margin-bottom: 1rem; color: #E50914; }
+                    p { color: #94a3b8; line-height: 1.6; margin-bottom: 2rem; }
+                    .btn { display: inline-block; background: #0078FF; color: white; text-decoration: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; }
+                </style>
+            </head>
+            <body>
+                <div class="card">
+                    <h1>Abbestellt!</h1>
+                    <p>Du hast dich erfolgreich von allen E-Mail Benachrichtigungen abgemeldet. Wir werden dir keine weiteren Updates an <strong>${email}</strong> senden.</p>
+                    <a href="https://kinopolis.artjombecker.com" class="btn">Zum Dashboard</a>
+                </div>
+            </body>
+            </html>
+        `);
+    } catch (e) {
+        return c.html('<h1>Fehler</h1><p>' + e.message + '</p>', 500);
     }
 });
 
