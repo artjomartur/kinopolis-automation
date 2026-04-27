@@ -6007,6 +6007,11 @@
                             <div class="time">Start: ${nextMovie.time} ${isEndDay ? 'Uhr (Morgen)' : 'Uhr'}</div>
                         </div>
                     </div>
+                    <button class="alert-action" onclick="markPosterDone('${alertId}', this)">Als erledigt markieren</button>
+                </div>
+            `;
+            return alert;
+        }
         function markPosterDone(id, btn) {
             completedPosters.add(id);
             saveTaskState();
