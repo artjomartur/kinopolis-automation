@@ -746,7 +746,7 @@ app.get('/api/sessions', async (c) => {
         const response = await fetchKinopolis(targetUrl);
         if (!response.ok) {
             console.error(`Kinopolis returned status ${response.status}`);
-            return c.json({ error: `Kinopolis error: ${response.status}` }, response.status);
+            return c.json({ error: `Kinopolis error: ${response.status}`, status: response.status }, 200);
         }
         
         const html = await response.text();
@@ -768,11 +768,11 @@ app.get('/api/sessions', async (c) => {
             else if (navText.includes(shortDateStr)) matches = true;
 
             if (matches) {
-                const ids = $(navEl).attr('data-performance-ids');
-                if (ids) {
-                    ids.replace(/[\[\]]/g, '').split(',').forEach(id => {
-                        const trimmed = id.trim();
-                        if (trimmed) allowedIds.add(trimmed);
+                const idsAttr = $(navEl).attr('data-performance-ids');
+                if (idsAttr) {
+                    const cleanIds = idsAttr.replace(/[\[\]\s]/g, '');
+                    cleanIds.split(',').forEach(id => {
+                        if (id && id.length > 5) allowedIds.add(id);
                     });
                 }
             }
@@ -804,7 +804,7 @@ app.get('/api/sessions', async (c) => {
                 const perfId = $(sessionEl).attr('data-performance-id');
                 
                 // FILTER BY DATE (using allowed IDs from navigation)
-                 /*  */ 
+                 if (allowedIds.size > 0 && perfId && !allowedIds.has(perfId)) return;
 
                 const time = $(sessionEl).find('.prog2__time').first().text().trim();
                 if (!time) return;

@@ -232,6 +232,8 @@
             --shadow-premium: 0 20px 50px rgba(0, 0, 0, 0.7);
             --ambient-1: rgba(229, 9, 20, 0.1);
             --ambient-2: rgba(0, 120, 255, 0.1);
+            --alert-text-h2: #ffffff;
+            --alert-text-p: #94a3b8;
         }
 
         /* --- LIQUID GLASS BACKGROUND --- */
@@ -239,7 +241,7 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: -2;
-            background: #050507;
+            background: var(--bg-color);
             overflow: hidden;
             pointer-events: none;
         }
@@ -376,6 +378,15 @@
 
         body.light-mode {
             background-image: none !important;
+            background: #f2f2f7 !important;
+        }
+        
+        body.light-mode .liquid-bg {
+            background: #f2f2f7 !important;
+        }
+        
+        body.light-mode .liquid-blob {
+            opacity: 0.08 !important;
         }
         
         body.light-mode .appearance-toggle {
@@ -395,7 +406,8 @@
         body.light-mode .log-author, body.light-mode .item-name, body.light-mode .dashboard-title,
         body.light-mode .push-info-text h4, body.light-mode .alert-text h2,
         body.light-mode .kurzwahl-grid span, body.light-mode .leitung-grid span,
-        body.light-mode .einlass-grid span, body.light-mode .verkauf-grid span {
+        body.light-mode .einlass-grid span, body.light-mode .verkauf-grid span,
+        body.light-mode #main-title {
             color: #0f172a !important;
         }
 
@@ -434,6 +446,11 @@
             background: #ffffff !important;
             color: #0f172a !important;
             border: 1px solid #cbd5e1 !important;
+        }
+
+        body.light-mode .live-overview-header h1,
+        body.light-mode .dashboard-title {
+            color: #0f172a !important;
         }
         
         body.light-mode textarea::placeholder,
