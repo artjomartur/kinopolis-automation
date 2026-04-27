@@ -1053,9 +1053,12 @@ app.post('/api/messages', async (c) => {
             const resendKey = c.env.RESEND_API_KEY;
             if (resendKey) {
                 try {
+                    // Combine newsletter subscribers AND all employees of that location
                     const subscribers = await c.env.DB.prepare(
-                        'SELECT email FROM email_subscriptions WHERE location = ? OR location IS NULL'
-                    ).bind(location || 'kp').all();
+                        `SELECT email FROM email_subscriptions WHERE location = ? OR location IS NULL
+                         UNION
+                         SELECT email FROM users WHERE location = ?`
+                    ).bind(location || 'kp', location || 'kp').all();
 
                     if (subscribers.results && subscribers.results.length > 0) {
                         const emailContent = `
