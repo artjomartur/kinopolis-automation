@@ -3857,7 +3857,7 @@
 
                 // Core Data
                 await fetchLocations().catch(e => console.error("Locations failed:", e));
-                
+                await fetchSessions().catch(e => console.error("Sessions failed:", e));
                 // Mobile Header
                 let lastScrollTop = 0;
                 window.addEventListener('scroll', () => {
