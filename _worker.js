@@ -1060,6 +1060,7 @@ app.post('/api/messages', async (c) => {
                          SELECT email FROM users WHERE location = ?`
                     ).bind(location || 'kp', location || 'kp').all();
 
+                    if (subscribers.results && subscribers.results.length > 0) {
                         for (const sub of subscribers.results) {
                             const emailContent = `
                                 <!DOCTYPE html>
