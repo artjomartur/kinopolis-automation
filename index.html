@@ -3652,8 +3652,13 @@
             return date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
         }
 
-        async function runSafe(fn, errorMsg) {
-            try { return await fn(); } 
+        async function runSafe(fn, errorMsg, timeoutMs = 8000) {
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error(`Timeout: ${errorMsg}`)), timeoutMs)
+            );
+            try { 
+                return await Promise.race([fn(), timeoutPromise]); 
+            } 
             catch (e) { 
                 console.error(errorMsg, e);
                 return null;
@@ -3806,13 +3811,14 @@
         // 1. IMMEDIATE SPLASH SCREEN FAILSAFE
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
-            if (splash) {
+            if (splash && splash.style.display !== 'none') {
+                splash.style.transition = 'opacity 1s ease';
                 splash.style.opacity = '0';
                 splash.style.pointerEvents = 'none';
                 setTimeout(() => splash.style.display = 'none', 1000);
-                console.log('SPLASH: Main failsafe triggered');
+                console.warn('SPLASH: Forcefully removed after 5s timeout');
             }
-        }, 3000);
+        }, 5000);
 
         // 2. IMMEDIATE INITIALIZATION (Don't wait for all images/assets)
         async function init() {
@@ -5410,18 +5416,8 @@
             
             halls.forEach(hall => {
                 const hallName = hall.name;
-                const sessions = hall.sessions || []; // Safety fallback
-
-                // Skip halls where the last session ended more than 60 minutes ago
-                const lastEndMin = sessions.reduce((max, s) => {
-                    if (s.time && s.time.includes(':')) {
-                        const [h, m] = s.time.split(':').map(Number);
-                        return Math.max(max, h * 60 + m + (s.duration || 0));
-                    }
-                    return max;
-                }, 0);
-                if (lastEndMin > 0 && currentMinutes > lastEndMin + 60) return; // skip stale hall
-
+                const sessions = (hall.sessions || []).filter(s => s && s.time); 
+                
                 const card = document.createElement('div');
                 
                 let sessionsHtml = sessions.map(s => {
@@ -5513,8 +5509,14 @@
             localStorage.setItem(`completed_cleaning_${currentCity}`, JSON.stringify(Array.from(completedCleaning)));
         }
 
+        function renderTasks(halls) {
+            if (!halls || !Array.isArray(halls)) return;
+            const taskList = document.getElementById('task-list');
+            if (!taskList) return;
+            taskList.innerHTML = '';
 
-        function renderTasks(hallsGrouped) {
+            const allSessions = (halls || []).flatMap(h => h.sessions || []).filter(s => s && s.time);
+            
             const container = document.getElementById('auslaesse-section-container');
             const list = document.getElementById('auslaesse-list');
             const badge = document.getElementById('auslass-count-badge');
@@ -5525,9 +5527,9 @@
             
             const allTasks = [];
 
-            hallsGrouped.forEach(hall => {
+            halls.forEach(hall => {
                 const hallName = hall.name;
-                const sessions = hall.sessions.filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
+                const sessions = (hall.sessions || []).filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
                 
                 sessions.forEach((s, idx) => {
                     const [h, m] = s.time.split(':').map(Number);
@@ -5687,7 +5689,7 @@
                     const hall = hallsGrouped.find(h => h.name === hallName);
                     if (!hall) return;
 
-                    const sessions = hall.sessions.filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
+                    const sessions = (hall.sessions || []).filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
                     const auslassSessions = sessions.slice(0, -1); // All except last
 
                     auslassSessions.forEach(s => {
@@ -5727,11 +5729,12 @@
 
 
         function renderStats(hallsGrouped) {
+            if (!hallsGrouped || !Array.isArray(hallsGrouped)) return;
             const container = document.getElementById('stats-section-container');
             const grid = document.getElementById('stats-grid');
-            const chart = document.getElementById('hour-chart');
+            if (!container || !grid) return;
             
-            const allSessions = hallsGrouped.flatMap(h => h.sessions);
+            const allSessions = (hallsGrouped || []).flatMap(h => h.sessions || []).filter(s => s && s.time);
             if (allSessions.length === 0) {
                 container.style.display = 'none';
                 return;

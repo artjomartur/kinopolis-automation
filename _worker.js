@@ -755,17 +755,30 @@ app.get('/api/sessions', async (c) => {
         const d = new Date(dateStr);
         const dayNum = d.getDate();
         const monthNum = d.getMonth() + 1;
-        const today = new Date();
-        const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
-        const todayISO = today.toISOString().split('T')[0];
-        const tomorrowISO = tomorrow.toISOString().split('T')[0];
-        
-        const navDateMap = new Map(); // Global map for back-compatibility if needed elsewhere, but we now use per-movie map
-        
-        // Note: Global navDateMap is now less critical as we parse dates per-movie below.
-        // We still keep the mapping here if we ever need a site-wide date reference.
+        const shortDateStr = `${dayNum < 10 ? '0' : ''}${dayNum}.${monthNum < 10 ? '0' : ''}${monthNum}`;
+        const isToday = dateStr === new Date().toISOString().split('T')[0];
+        const isTomorrow = dateStr === new Date(Date.now() + 86400000).toISOString().split('T')[0];
 
-        const sessionMap = new Map(); // Key: date-perfId or date-time-hall-title, Value: session object
+        const allowedIds = new Set();
+        $('.prog-nav__item').each((_, navEl) => {
+            const navText = $(navEl).text().trim().toLowerCase();
+            let matches = false;
+            if (isToday && navText.includes('heute')) matches = true;
+            else if (isTomorrow && navText.includes('morgen')) matches = true;
+            else if (navText.includes(shortDateStr)) matches = true;
+
+            if (matches) {
+                const ids = $(navEl).attr('data-performance-ids');
+                if (ids) {
+                    ids.replace(/[\[\]]/g, '').split(',').forEach(id => {
+                        const trimmed = id.trim();
+                        if (trimmed) allowedIds.add(trimmed);
+                    });
+                }
+            }
+        });
+
+        const sessionMap = new Map();
         
         $('section.movie, .prog2__movie').each((i, movieEl) => {
             const title = $(movieEl).find('.hl-link, .prog2__movie-title').first().text().trim();
@@ -784,94 +797,74 @@ app.get('/api/sessions', async (c) => {
                 if (fskMatch) fsk = `FSK ${fskMatch[1]}`;
             }
 
-            // LINK extraction
             const detailLink = $(movieEl).find('.hl-link, .prog2__movie-title, a[href*="/film/"]').first().attr('href');
             const movieLink = detailLink ? (detailLink.startsWith('http') ? detailLink : `https://www.kinopolis.de${detailLink}`) : null;
 
-            // Build movie-specific date map
-            const movieNavDateMap = new Map();
-            $(movieEl).find('.prog-nav__item[data-index]').each((navIdx, navEl) => {
-                const navText = $(navEl).text().trim().toLowerCase();
-                const dateMatch = navText.match(/(\d{2})\.(\d{2})\./);
+            $(movieEl).find('.prog2__cont, .prog2__movie-session').each((j, sessionEl) => {
+                const perfId = $(sessionEl).attr('data-performance-id');
                 
-                let navDate = '';
-                if (navText.includes('heute')) navDate = todayISO;
-                else if (navText.includes('morgen')) navDate = tomorrowISO;
-                else if (dateMatch) {
-                    const year = today.getFullYear() + (parseInt(dateMatch[2]) < today.getMonth() + 1 ? 1 : 0);
-                    navDate = `${year}-${dateMatch[2]}-${dateMatch[1]}`;
+                // FILTER BY DATE (using allowed IDs from navigation)
+                if (allowedIds.size > 0 && perfId && !allowedIds.has(perfId)) return;
+
+                const time = $(sessionEl).find('.prog2__time').first().text().trim();
+                if (!time) return;
+                
+                let hallTextContent = $(sessionEl).find('.prog2__hall-num > div:first-child').text().trim();
+                if (!hallTextContent) hallTextContent = $(sessionEl).find('.prog2__hall-num').text().replace(/i$/, '').trim();
+                const hall = hallTextContent;
+                const occupancyText = $(sessionEl).text().trim();
+                let capacity = 0;
+                let freePercent = 95;
+                const seatsEl = $(sessionEl).find('.prog2__seats');
+                if (seatsEl.length) capacity = parseInt(seatsEl.text().replace(/\D/g, '')) || 0;
+                
+                const scaleEl = $(sessionEl).find('.prog2__scale');
+                if (scaleEl.length) {
+                    const percentMatch = scaleEl.text().match(/(\d+)%/);
+                    if (percentMatch) freePercent = parseInt(percentMatch[1]);
                 }
-                if (navDate) movieNavDateMap.set(navIdx, navDate);
-            });
-
-            $(movieEl).find('.prog-day__wrapper').each((dayIndex, wrapper) => {
-                // If there's no navigation tab for this day, assume it's the requested date
-                const actualDate = movieNavDateMap.get(dayIndex) || dateStr;
-                if (!actualDate) return;
-
-                $(wrapper).find('.prog2__cont, .prog2__movie-session').each((j, sessionEl) => {
-                    const perfId = $(sessionEl).attr('data-performance-id');
-                    const time = $(sessionEl).find('.prog2__time').first().text().trim();
-                    if (!time) return;
-                    
-                    let hallTextContent = $(sessionEl).find('.prog2__hall-num > div:first-child').text().trim();
-                    if (!hallTextContent) hallTextContent = $(sessionEl).find('.prog2__hall-num').text().replace(/i$/, '').trim();
-                    const hall = hallTextContent;
-                    const occupancyText = $(sessionEl).text().trim();
-                    let capacity = 0;
-                    let freePercent = 95;
-                    const seatsEl = $(sessionEl).find('.prog2__seats');
-                    if (seatsEl.length) capacity = parseInt(seatsEl.text().replace(/\D/g, '')) || 0;
-                    
-                    const scaleEl = $(sessionEl).find('.prog2__scale');
-                    if (scaleEl.length) {
-                        const percentMatch = scaleEl.text().match(/(\d+)%/);
-                        if (percentMatch) freePercent = parseInt(percentMatch[1]);
+                if (capacity <= 1) {
+                    const combinedMatch = occupancyText.match(/(\d+)\s+(\d+)%\s+frei/);
+                    if (combinedMatch) {
+                        capacity = parseInt(combinedMatch[1]);
+                        freePercent = parseInt(combinedMatch[2]);
+                    } else {
+                        const capacityMatch = occupancyText.match(/(\d+)\s+Pl[äa]tze/);
+                        if (capacityMatch) capacity = parseInt(capacityMatch[1]);
                     }
-                    if (capacity <= 1) {
-                        const combinedMatch = occupancyText.match(/(\d+)\s+(\d+)%\s+frei/);
-                        if (combinedMatch) {
-                            capacity = parseInt(combinedMatch[1]);
-                            freePercent = parseInt(combinedMatch[2]);
-                        } else {
-                            const capacityMatch = occupancyText.match(/(\d+)\s+Pl[äa]tze/);
-                            if (capacityMatch) capacity = parseInt(capacityMatch[1]);
-                        }
-                    }
-                    const freeCountMatch = occupancyText.match(/(\d+)\s+(?:Pl[äa]tze\s+)?frei/);
-                    const freePercentMatch = occupancyText.match(/(\d+)%\s+frei/);
-                    if (freePercentMatch && (!scaleEl.length || freePercent === 95)) freePercent = parseInt(freePercentMatch[1]);
-                    
-                    const seatingAttr = $(sessionEl).find('[data-seating]').attr('data-seating');
-                    if (capacity === 0 && seatingAttr) {
-                        try {
-                            const parsed = JSON.parse(seatingAttr);
-                            if (Array.isArray(parsed) && parsed.length > 0 && parsed[0] > 10) capacity = parsed[0];
-                        } catch(e) {}
-                    }
+                }
+                const freeCountMatch = occupancyText.match(/(\d+)\s+(?:Pl[äa]tze\s+)?frei/);
+                const freePercentMatch = occupancyText.match(/(\d+)%\s+frei/);
+                if (freePercentMatch && (!scaleEl.length || freePercent === 95)) freePercent = parseInt(freePercentMatch[1]);
+                
+                const seatingAttr = $(sessionEl).find('[data-seating]').attr('data-seating');
+                if (capacity === 0 && seatingAttr) {
+                    try {
+                        const parsed = JSON.parse(seatingAttr);
+                        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0] > 10) capacity = parsed[0];
+                    } catch(e) {}
+                }
 
-                    let sold = 0;
-                    if (capacity > 0) {
-                        sold = Math.round(capacity * (1 - freePercent / 100));
-                        if (freeCountMatch) sold = capacity - parseInt(freeCountMatch[1]);
-                        if (sold < 0) sold = 0;
-                    }
-                    
-                    const isBookable = !$(sessionEl).hasClass('performance_expired') && 
-                                      !occupancyText.includes('nicht mehr buchbar') && 
-                                      !occupancyText.includes('ausverkauft');
+                let sold = 0;
+                if (capacity > 0) {
+                    sold = Math.round(capacity * (1 - freePercent / 100));
+                    if (freeCountMatch) sold = capacity - parseInt(freeCountMatch[1]);
+                    if (sold < 0) sold = 0;
+                }
+                
+                const isBookable = !$(sessionEl).hasClass('performance_expired') && 
+                                  !occupancyText.includes('nicht mehr buchbar') && 
+                                  !occupancyText.includes('ausverkauft');
 
-                    const sessionObj = { title, poster: poster ? (poster.startsWith('http') ? poster : `https://www.kinopolis.de${poster}`) : null, 
-                                       time, hall, duration, capacity, freePercent, sold, isBookable, performanceId: perfId, date: actualDate, fsk, movieLink };
+                const sessionObj = { title, poster: poster ? (poster.startsWith('http') ? poster : `https://www.kinopolis.de${poster}`) : null, 
+                                   time, hall, duration, capacity, freePercent, sold, isBookable, performanceId: perfId, date: dateStr, fsk, movieLink };
 
-                    const key = `${actualDate}-${perfId || (time + '-' + hall + '-' + title)}`;
-                    const existing = sessionMap.get(key);
-                    
-                    // Keep the best version
-                    if (!existing || (existing.capacity === 0 && capacity > 0) || (!existing.isBookable && isBookable)) {
-                        sessionMap.set(key, sessionObj);
-                    }
-                });
+                const key = `${dateStr}-${perfId || (time + '-' + hall + '-' + title)}`;
+                const existing = sessionMap.get(key);
+                
+                if (!existing || (existing.capacity === 0 && capacity > 0) || (!existing.isBookable && isBookable)) {
+                    sessionMap.set(key, sessionObj);
+                }
             });
         });
 

@@ -10,14 +10,17 @@ app.use(cors());
 app.use(express.json());
 // Fetch Kinopolis program for a specific location and date
 app.get('/api/sessions', async (req, res) => {
-    const location = req.query.location || 'su'; // Default to Sulzbach (su)
+    const location = req.query.location || 'su';
     const tomorrow = req.query.tomorrow === 'true';
-
-    // Always include a date so we only get the target day's schedule
-    const targetDate = new Date();
-    if (tomorrow) targetDate.setDate(targetDate.getDate() + 1);
-    const dateStr = targetDate.toISOString().split('T')[0]; // YYYY-MM-DD
-
+    
+    // Use provided date or default to today
+    let dateStr = req.query.date;
+    if (!dateStr) {
+        const targetDate = new Date();
+        if (tomorrow) targetDate.setDate(targetDate.getDate() + 1);
+        dateStr = targetDate.toISOString().split('T')[0];
+    }
+    
     const url = `https://www.kinopolis.de/${location}/programm?date=${dateStr}`;
 
     try {
@@ -31,18 +34,25 @@ app.get('/api/sessions', async (req, res) => {
 
         const sessions = [];
 
-        // 1. Pre-fetch all allowed performance IDs for the requested date from navigation items
-        // Kinopolis might have multiple .prog-nav__item for the same day (e.g., in different sliders)
+        // We match "Heute", "Morgen", or the specific "DD.MM." string
         const d = new Date(dateStr);
         const dayNum = d.getDate();
         const monthNum = d.getMonth() + 1;
-        const shortDateStr = `${dayNum < 10 ? '0' : ''}${dayNum}.${monthNum < 10 ? '0' : ''}${monthNum}.`;
+        const shortDateStr = `${dayNum < 10 ? '0' : ''}${dayNum}.${monthNum < 10 ? '0' : ''}${monthNum}`;
+        
+        const isToday = dateStr === new Date().toISOString().split('T')[0];
+        const isTomorrow = dateStr === new Date(Date.now() + 86400000).toISOString().split('T')[0];
 
         let allowedPerformanceIds = new Set();
         $('.prog-nav__item').each((_, navEl) => {
-            const navText = $(navEl).text().trim();
-            // Check for "Heute" or the specific date string
-            if (navText.includes('Heute') || navText.includes(shortDateStr)) {
+            const navText = $(navEl).text().trim().toLowerCase();
+            
+            let matchesDate = false;
+            if (isToday && navText.includes('heute')) matchesDate = true;
+            else if (isTomorrow && navText.includes('morgen')) matchesDate = true;
+            else if (navText.includes(shortDateStr)) matchesDate = true;
+
+            if (matchesDate) {
                 const idsAttr = $(navEl).attr('data-performance-ids');
                 if (idsAttr) {
                     // IDs are in format [ID1,ID2,ID3]
