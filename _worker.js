@@ -1060,61 +1060,60 @@ app.post('/api/messages', async (c) => {
                          SELECT email FROM users WHERE location = ?`
                     ).bind(location || 'kp', location || 'kp').all();
 
-                    if (subscribers.results && subscribers.results.length > 0) {
-                        const emailContent = `
-                            <!DOCTYPE html>
-                            <html>
-                            <head>
-                                <meta charset="utf-8">
-                                <style>
-                                    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #0f1014; color: #ffffff; }
-                                    .container { max-width: 600px; margin: 0 auto; background-color: #1a1b1f; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
-                                    .header { padding: 40px 20px; text-align: center; background: linear-gradient(135deg, #1a1b1f 0%, #0a0a0d 100%); }
-                                    .logo { width: 180px; margin-bottom: 20px; }
-                                    .content { padding: 40px; }
-                                    .label { color: #e50914; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-                                    .title { font-size: 24px; font-weight: 800; color: #ffffff; margin-bottom: 8px; letter-spacing: -0.02em; }
-                                    .meta { color: #64748b; font-size: 14px; margin-bottom: 32px; }
-                                    .message-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; color: #f1f5f9; line-height: 1.6; white-space: pre-wrap; font-size: 16px; }
-                                    .image { width: 100%; border-radius: 16px; margin-top: 24px; border: 1px solid rgba(255,255,255,0.1); }
-                                    .btn { display: inline-block; background: rgba(255,255,255,0.05); color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 14px; border: 1px solid rgba(255,255,255,0.1); margin-top: 32px; }
-                                    .footer { padding: 32px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
-                                    .footer-text { color: #475569; font-size: 12px; }
-                                </style>
-                            </head>
-                            <body>
-                                <div style="padding: 20px;">
-                                    <div class="container">
-                                        <div class="header">
-                                            <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" alt="Kinopolis" class="logo">
-                                        </div>
-                                        <div class="content">
-                                            <div class="label">Neue Mitteilung</div>
-                                            <h1 class="title">${title}</h1>
-                                            <div class="meta">Von: <strong>${author || 'System'}</strong> • Standort: ${location || 'Alle'}</div>
-                                            
-                                            <div class="message-box">${content}</div>
-                                            
-                                            ${image_url ? `<img src="${image_url}" class="image" />` : ''}
-
-                                            <div style="text-align: center;">
-                                                <a href="https://kinopolis.artjombecker.com" class="btn">Dashboard öffnen</a>
-                                            </div>
-                                        </div>
-                                        <div class="footer">
-                                             <p class="footer-text">
-                                                 Du erhältst diese E-Mail als Mitarbeiter von Kinopolis.<br>
-                                                 © 2026 Kinopolis Automation<br><br>
-                                                 <a href="https://kinopolis.artjombecker.com/api/email/unsubscribe?email=${sub.email}" style="color: #475569; text-decoration: underline;">Abbestellen</a>
-                                             </p>
-                                         </div>
-                                    </div>
-                                </div>
-                            </body>
-                            </html>
-                        `;
-
                         for (const sub of subscribers.results) {
+                            const emailContent = `
+                                <!DOCTYPE html>
+                                <html>
+                                <head>
+                                    <meta charset="utf-8">
+                                    <style>
+                                        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #0f1014; color: #ffffff; }
+                                        .container { max-width: 600px; margin: 0 auto; background-color: #1a1b1f; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
+                                        .header { padding: 40px 20px; text-align: center; background: linear-gradient(135deg, #1a1b1f 0%, #0a0a0d 100%); }
+                                        .logo { width: 180px; margin-bottom: 20px; }
+                                        .content { padding: 40px; }
+                                        .label { color: #e50914; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+                                        .title { font-size: 24px; font-weight: 800; color: #ffffff; margin-bottom: 8px; letter-spacing: -0.02em; }
+                                        .meta { color: #64748b; font-size: 14px; margin-bottom: 32px; }
+                                        .message-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; color: #f1f5f9; line-height: 1.6; white-space: pre-wrap; font-size: 16px; }
+                                        .image { width: 100%; border-radius: 16px; margin-top: 24px; border: 1px solid rgba(255,255,255,0.1); }
+                                        .btn { display: inline-block; background: rgba(255,255,255,0.05); color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 14px; border: 1px solid rgba(255,255,255,0.1); margin-top: 32px; }
+                                        .footer { padding: 32px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
+                                        .footer-text { color: #475569; font-size: 12px; }
+                                    </style>
+                                </head>
+                                <body>
+                                    <div style="padding: 20px;">
+                                        <div class="container">
+                                            <div class="header">
+                                                <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" alt="Kinopolis" class="logo">
+                                            </div>
+                                            <div class="content">
+                                                <div class="label">Neue Mitteilung</div>
+                                                <h1 class="title">${title}</h1>
+                                                <div class="meta">Von: <strong>${author || 'System'}</strong> • Standort: ${location || 'Alle'}</div>
+                                                
+                                                <div class="message-box">${content}</div>
+                                                
+                                                ${image_url ? \`<img src="\${image_url}" class="image" />\` : ''}
+
+                                                <div style="text-align: center;">
+                                                    <a href="https://kinopolis.artjombecker.com" class="btn">Dashboard öffnen</a>
+                                                </div>
+                                            </div>
+                                            <div class="footer">
+                                                 <p class="footer-text">
+                                                     Du erhältst diese E-Mail als Mitarbeiter von Kinopolis.<br>
+                                                     © 2026 Kinopolis Automation<br><br>
+                                                     <a href="https://kinopolis.artjombecker.com/api/email/unsubscribe?email=\${sub.email}" style="color: #475569; text-decoration: underline;">Abbestellen</a>
+                                                 </p>
+                                             </div>
+                                        </div>
+                                    </div>
+                                </body>
+                                </html>
+                            \`;
+
                             await fetch('https://api.resend.com/emails', {
                                 method: 'POST',
                                 headers: {
@@ -1242,13 +1241,14 @@ app.get('/api/task-completions', async (c) => {
                 location TEXT NOT NULL,
                 date TEXT NOT NULL,
                 type TEXT,
+                author TEXT,
                 completed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (task_id, location, date)
             )
         `).run();
         
         const { results } = await c.env.DB.prepare(
-            'SELECT task_id, type FROM task_completions WHERE location = ? AND date = ?'
+            'SELECT task_id, type, author FROM task_completions WHERE location = ? AND date = ?'
         ).bind(location, date).all();
         return c.json(results);
     } catch (e) {
@@ -1258,12 +1258,12 @@ app.get('/api/task-completions', async (c) => {
 
 app.post('/api/task-completions', async (c) => {
     try {
-        const { task_id, location, date, type } = await c.req.json();
+        const { task_id, location, date, type, author } = await c.req.json();
         if (!task_id || !location || !date) return c.json({ error: 'Missing data' }, 400);
         if (c.env.DB) {
             await c.env.DB.prepare(
-                'INSERT OR REPLACE INTO task_completions (task_id, location, date, type) VALUES (?, ?, ?, ?)'
-            ).bind(task_id, location, date, type || 'task').run();
+                'INSERT OR REPLACE INTO task_completions (task_id, location, date, type, author) VALUES (?, ?, ?, ?, ?)'
+            ).bind(task_id, location, date, type || 'task', author || 'System').run();
         }
         return c.json({ success: true });
     } catch (e) {
@@ -1315,6 +1315,35 @@ app.post('/api/hall-status', async (c) => {
         return c.json({ success: true });
     } catch (e) { return c.json({ error: e.message }, 500); }
 });
+// --- PERSONAL NEED SYNC ---
+app.get('/api/personal-need', async (c) => {
+    const location = c.req.query('location') || 'kp';
+    if (!c.env.DB) return c.json({ active: false });
+    try {
+        await c.env.DB.prepare(`
+            CREATE TABLE IF NOT EXISTS personal_need (
+                location TEXT PRIMARY KEY,
+                active BOOLEAN DEFAULT 0,
+                message TEXT,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `).run();
+        const res = await c.env.DB.prepare('SELECT active, message FROM personal_need WHERE location = ?').bind(location).first();
+        return c.json(res || { active: false });
+    } catch (e) { return c.json({ active: false }); }
+});
+
+app.post('/api/personal-need', async (c) => {
+    try {
+        const { location, active, message } = await c.req.json();
+        if (c.env.DB) {
+            await c.env.DB.prepare('INSERT OR REPLACE INTO personal_need (location, active, message, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)')
+                .bind(location || 'kp', active ? 1 : 0, message || '').run();
+        }
+        return c.json({ success: true });
+    } catch (e) { return c.json({ error: e.message }, 500); }
+});
+
 app.post('/api/feedback', async (c) => {
     try {
         const body = await c.req.json();
