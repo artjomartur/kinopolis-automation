@@ -3816,6 +3816,7 @@
         const API_URL = '/api/sessions';
         const LOCATIONS_URL = '/api/locations';
         const VAPID_PUBLIC_KEY = 'BCP-JGZbVBjKY1_blxAHw6bC5Ddf0nLAyPSp8q39kV7utFahZNyQZJ8KlV-ht6UKg07eAuVBVHJhVsaDMx1m7X8';
+        const SYSTEM_VERSION = "V3.1.5-STABLE";
 
         let lastData = null;
         let lastUpdateTime = null;
@@ -6267,6 +6268,7 @@
                 <div class="stat-card">
                     <div class="stat-label">System-Status</div>
                     <div class="stat-value" style="font-size: 1.2rem; color: #3498db;">SYSTEM OK</div>
+                    <div class="stat-subtext" style="font-family: monospace; font-size: 0.7rem; opacity: 0.6;">${SYSTEM_VERSION}</div>
                 </div>
                 <div class="stat-card">
                     <span class="stat-label">Gesamtbesucher</span>
@@ -6686,16 +6688,14 @@
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
                 init();
-                // Check for feedback param
                 const params = new URLSearchParams(window.location.search);
                 if (params.get('feedback') === 'true') {
                     setTimeout(() => openFeedback('bl'), 1500);
-                } else {
-                    // Show Dev Info Popup on startup only if not feedback mode
+                } else if (localStorage.getItem('dev_info_seen') !== 'true') {
                     setTimeout(() => {
-                        const modal = document.getElementById('dev-info-modal');
-                        if (modal) modal.classList.add('active');
-                    }, 2000);
+                        openFeedback('artjom');
+                        localStorage.setItem('dev_info_seen', 'true');
+                    }, 2500);
                 }
             });
         } else {
@@ -6703,8 +6703,11 @@
             const params = new URLSearchParams(window.location.search);
             if (params.get('feedback') === 'true') {
                 setTimeout(() => openFeedback('bl'), 1500);
-            } else {
-                setTimeout(() => openFeedback('artjom'), 2000);
+            } else if (localStorage.getItem('dev_info_seen') !== 'true') {
+                setTimeout(() => {
+                    openFeedback('artjom');
+                    localStorage.setItem('dev_info_seen', 'true');
+                }, 2500);
             }
         }
         
