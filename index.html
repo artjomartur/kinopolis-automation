@@ -2867,6 +2867,24 @@
             <button onclick="closeHandoverModal()" class="btn-primary" style="width: 100%; padding: 1.25rem; font-size: 1.1rem; border-radius: 16px; font-weight: 800; background: linear-gradient(135deg, #ffab00, #ffc107); border: none; color: #000;">Verstanden</button>
         </div>
     </div>
+
+    <!-- Plakatwechsel: Pop-up unter „Dringende Hinweise“ (nicht mehr inline in der Liste) -->
+    <div id="poster-urgent-modal" class="modal">
+        <div class="modal-content glass" style="max-width: 640px; width: 92vw; padding: 1.75rem 1.5rem 1.5rem;">
+            <div style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 1rem;">
+                <span style="font-size: 1.75rem;">⚠️</span>
+                <div>
+                    <h2 class="modal-title" style="margin: 0; font-size: 1.35rem;">Dringende Hinweise</h2>
+                    <p style="margin: 0.35rem 0 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.35;">Plakatwechsel erscheint automatisch als Pop-up (ca. 20 Min nach Vorstellungsbeginn).</p>
+                </div>
+            </div>
+            <div id="poster-urgent-modal-body"></div>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; justify-content: flex-end;">
+                <button type="button" class="btn-secondary" onclick="snoozePosterUrgentPopup()" style="padding: 0.75rem 1.25rem;">Später (15 Min)</button>
+            </div>
+        </div>
+    </div>
+
     <div id="splash-screen">
         <div class="splash-glow"></div>
         <div class="splash-logo-container">
@@ -2943,14 +2961,14 @@
         <div id="live-alert-banner" style="display:none; flex-direction:column; gap:0.5rem; margin-bottom:1rem; padding:0.75rem 1rem; background:rgba(231,76,60,0.1); border:1px solid rgba(231,76,60,0.4); border-radius:12px;">
         </div>
 
-        <div class="nav-tabs">
-            <button class="tab-btn active tab-live" id="tab-live" onclick="switchTab('live', this)">🎬 Live</button>
-            <button class="tab-btn stats-tab-btn tab-stats tl-only" id="tab-stats" onclick="switchTab('stats', this)">📊 Statistik</button>
-            <button class="tab-btn tab-kontakte" id="tab-kontakte" onclick="switchTab('kontakte', this)">📞 Kontakte</button>
-            <button class="tab-btn tools-tab-btn tab-funk" id="tab-funk" onclick="switchTab('funk', this)">📡 Funk</button>
-            <button class="tab-btn tab-intern" id="tab-intern" onclick="switchTab('intern', this)">🛠️ Tools</button>
-            <button class="tab-btn tab-info" id="tab-info" onclick="switchTab('info', this)">🍿 Filme</button>
-            <button class="tab-btn tab-einstellungen" onclick="switchTab('einstellungen', this)">⚙️ Einstellungen</button>
+        <div class="nav-tabs" id="desktop-nav-tabs">
+            <button type="button" class="tab-btn active tab-live" id="tab-live" data-tab="live">🎬 Live</button>
+            <button type="button" class="tab-btn stats-tab-btn tab-stats tl-only" id="tab-stats" data-tab="stats">📊 Statistik</button>
+            <button type="button" class="tab-btn tab-kontakte" id="tab-kontakte" data-tab="kontakte">📞 Kontakte</button>
+            <button type="button" class="tab-btn tools-tab-btn tab-funk" id="tab-funk" data-tab="funk">📡 Funk</button>
+            <button type="button" class="tab-btn tab-intern" id="tab-intern" data-tab="intern">🛠️ Tools</button>
+            <button type="button" class="tab-btn tab-info" id="tab-info" data-tab="info">🍿 Filme</button>
+            <button type="button" class="tab-btn tab-einstellungen" id="tab-einstellungen" data-tab="einstellungen">⚙️ Einstellungen</button>
         </div>
 
         <!-- UPCOMING MOVIES SECTION -->
@@ -3181,6 +3199,7 @@
                     <span class="alert-icon-small">⚠️</span>
                     <h2>Dringende Hinweise</h2>
                     <span id="alert-count-badge" class="badge">0</span>
+                    <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500; margin-left: 0.35rem;">Plakate per Pop-up</span>
                 </div>
                 <button class="toggle-btn" id="alerts-toggle-btn">
                     <svg viewBox="0 0 24 24" width="24" height="24">
@@ -3198,7 +3217,7 @@
                     <span class="alert-icon-small">📋</span>
                     <h2 id="tasks-title">Tages-Aufgaben</h2>
                     <span id="auslass-count-badge" class="badge">0</span>
-                    <span class="auslass-disclaimer" id="tasks-disclaimer">Auslässe: Ca. Ende + 30m | Poster: 20m nach Start</span>
+                    <span class="auslass-disclaimer" id="tasks-disclaimer">Auslässe: Ca. Ende + 30m · Plakatwechsel: Pop-up unter „Dringende Hinweise“ (ca. 20 Min nach Start)</span>
                 </div>
                 <button class="toggle-btn" id="auslaesse-toggle-btn">
                     <svg viewBox="0 0 24 24" width="24" height="24">
@@ -3627,13 +3646,13 @@
 
 
         const CLEANING_TASKS = {
-            1: ["Kino 1-4 gründlich saugen", "Theke: Becher auffüllen", "Popcornküche: Grundreinigung"],
-            2: ["Kino 5-8 gründlich saugen", "Nachostrecke reinigen", "Sanitäranlagen Check"],
-            3: ["Glasflächen reinigen", "Theke: Sirup-Check", "Mülleimer leeren"],
-            4: ["Kino 1-8 Check", "Werbematerial aktualisieren", "Lager aufräumen"],
-            5: ["Kassenbereich wischen", "Snack-Theke voll bestücken", "Abfall-Container"],
-            6: ["Großkampftag Vorbereitung", "Personalraum Check", "Klimaanlage Filter"],
-            0: ["Wochenabschluss Reinigung", "Alle Kinos Tiefenreinigung", "Inventur-Vorbereitung"]
+            1: ["Böden saugen oder feucht wischen", "Sanitärbereiche kontrollieren und nacharbeiten", "Abfallbehälter leeren"],
+            2: ["Glas- und glatte Oberflächen reinigen", "Team- und Nebenflächen ordentlich halten", "Hygieneartikel nachfüllen"],
+            3: ["Arbeitsflächen abwischen und desinfizieren", "Gemeinschaftsbereiche lüften und ordnen", "Ecken und Fugen kurz nachgehen"],
+            4: ["Lager- und Technikflächen aufräumen", "Infomaterial und Auslagen ordnen", "Eingangsbereich kurz prüfen"],
+            5: ["Service- und Kassenflächen reinigen", "Geräteoberflächen säubern", "Außenanlagen bei Bedarf nachgehen"],
+            6: ["Intensivbereiche laut Plan bearbeiten", "Material und Verbrauch kontrollieren", "Übergabe an nächste Schicht vorbereiten"],
+            0: ["Wochenabschluss: Hauptflächen gründlich reinigen", "Lager und Nebenräume sortieren", "Besonderheiten für die neue Woche notieren"]
         };
 
 
@@ -3793,9 +3812,14 @@
 
 
         function switchTab(view, btn) {
+            let activeBtn = btn && btn.classList ? btn : null;
+            if (!activeBtn && view) {
+                activeBtn = document.querySelector(`.nav-tabs .tab-btn[data-tab="${view}"]`)
+                    || document.querySelector(`#mobile-tab-bar .mobile-nav-item[data-tab="${view}"]`);
+            }
             // Update UI State for both Desktop and Mobile
             document.querySelectorAll('.tab-btn, .mobile-nav-item').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            if (activeBtn) activeBtn.classList.add('active');
             
             // Clean view classes
             document.body.classList.remove(
@@ -3831,7 +3855,8 @@
             } else if (view === 'intern' || view === 'tools') {
                 document.body.classList.add('intern-active', 'tools-active');
                 if (titleEl) titleEl.innerText = 'Interne Tools' + suffix;
-                if (document.getElementById('transfer-items').children.length === 0) initTransferList();
+                const transferEl = document.getElementById('transfer-items');
+                if (transferEl && transferEl.children.length === 0) initTransferList();
             } else if (view === 'info') {
                 document.body.classList.add('info-active');
                 if (titleEl) titleEl.innerText = 'Film-Informationen' + suffix;
@@ -3849,6 +3874,18 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
+
+        function initTabNavigation() {
+            const onNavClick = (e) => {
+                const el = e.target.closest('.tab-btn[data-tab], .mobile-nav-item[data-tab]');
+                if (!el || !el.dataset.tab) return;
+                e.preventDefault();
+                switchTab(el.dataset.tab, el);
+            };
+            document.querySelector('.nav-tabs')?.addEventListener('click', onNavClick);
+            document.getElementById('mobile-tab-bar')?.addEventListener('click', onNavClick);
+        }
+        initTabNavigation();
 
         // --- APP START ---
         // 1. IMMEDIATE SPLASH SCREEN FAILSAFE
@@ -3928,7 +3965,7 @@
                 ]);
 
                 // Default Tab
-                const tabLive = document.querySelector('.mobile-nav-item[onclick*="live"]');
+                const tabLive = document.querySelector('.mobile-nav-item[data-tab="live"]');
                 if (tabLive) switchTab('live', tabLive);
 
                 // Setup toggle for Auslässe
@@ -5586,7 +5623,9 @@
                     const durationMax = durationBase + 30;
 
                     // CHECK FOR SCANNED DATA OVERRIDE
-                    let timeDisplay = `${formatMinutes(durationBase)} - ${formatMinutes(durationMax)}`;
+                    // Ohne Scan: Zeitraum aus Start + Filmdauer + 30 Min Puffer (Disclaimer im Header).
+                    // Mit passendem Scan: eine Uhrzeit aus Plan (Abspann/Ende), engeres Zeitfenster, grün markiert.
+                    let timeDisplay = `${formatMinutes(durationBase)} – ${formatMinutes(durationMax)} (geschätzt)`;
                     let triggerMin = durationBase;
                     let triggerMax = durationMax;
                     let isVerified = false;
@@ -5599,25 +5638,15 @@
                             if (!isNaN(eh)) {
                                 triggerMin = eh * 60 + em;
                                 triggerMax = triggerMin + 15; // Tighter window for verified
-                                timeDisplay = `${targetTime} (Exakt)`;
+                                timeDisplay = `${targetTime} – ${formatMinutes(triggerMax)} (Auslassplan)`;
                                 isVerified = true;
                             }
                         }
                     }
 
-                    // 1. Poster Change Task (20m after start)
-                    allTasks.push({
-                        type: 'poster',
-                        hall: hall.name,
-                        title: s.title,
-                        time: startMin + 20,
-                        timeDisplay: formatMinutes(startMin + 20),
-                        triggerMin: startMin + 20,
-                        triggerMax: startMin + 45,
-                        id: `poster-${hall.name}-${s.title}-${s.time}`
-                    });
+                    // Plakatwechsel: nur noch Pop-up unter „Dringende Hinweise“ (addPosterAlerts / Modal), nicht in dieser Liste.
 
-                    // 2. Auslass Task (All sessions)
+                    // 1. Auslass Task (All sessions)
                     allTasks.push({
                         type: 'auslass',
                         hall: hall.name,
@@ -5658,7 +5687,6 @@
             // Filter for tasks:
             // - Auslaesse: Only show if not done OR if it happened within the last 60 minutes
             // - Cleaning: ALWAYS show
-            // - Posters: Only if done (historical view), but they are primarily in alerts
             const liveTasks = allTasks.filter(t => {
                 if (t.type === 'auslass') {
                     const isDone = completedAuslaesse.has(t.id);
@@ -5668,14 +5696,7 @@
                     return true;
                 }
                 if (t.type === 'cleaning') return true;
-                if (t.type === 'poster') {
-                    // Show if not done OR if it happened within the last 3 hours
-                    const isDone = completedPosters.has(t.id);
-                    const isOld = currentMinutes > (t.time + 180);
-                    if (isOld && isDone) return false;
-                    return true;
-                }
-                return true;
+                return false;
             });
 
 
@@ -6675,16 +6696,16 @@
     </div>
         <!-- MOBILE NAVIGATION (iOS Style) -->
         <nav class="mobile-nav" id="mobile-tab-bar" style="display: none;">
-            <a href="#" class="mobile-nav-item active nav-live" onclick="switchTab('live', this); return false;">
+            <a href="#" class="mobile-nav-item active nav-live" data-tab="live" role="button">
                 <span>🎬</span> Live
             </a>
-            <a href="#" class="mobile-nav-item nav-funk" onclick="switchTab('funk', this); return false;">
+            <a href="#" class="mobile-nav-item nav-funk" data-tab="funk" role="button">
                 <span>📡</span> Funk
             </a>
-            <a href="#" class="mobile-nav-item nav-action" onclick="switchTab('action', this); return false;">
+            <a href="#" class="mobile-nav-item nav-action" data-tab="action" role="button">
                 <span>🛠️</span> Action
             </a>
-            <a href="#" class="mobile-nav-item nav-mehr" onclick="switchTab('mehr', this); return false;">
+            <a href="#" class="mobile-nav-item nav-mehr" data-tab="mehr" role="button">
                 <span>📂</span> Mehr
             </a>
         </nav>
