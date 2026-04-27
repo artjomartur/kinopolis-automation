@@ -1748,12 +1748,12 @@
 
         /* Beautiful Checkmark Button */
         .alert-done-btn {
-            background: rgba(46, 204, 113, 0.2);
-            border: 1px solid rgba(46, 204, 113, 0.4);
-            color: #2ecc71;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1761,14 +1761,15 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             backdrop-filter: blur(10px);
             flex-shrink: 0;
-            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.1);
+            font-size: 1.2rem;
         }
 
         .alert-done-btn:hover {
             background: #2ecc71;
+            border-color: #2ecc71;
             color: white;
-            transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(46, 204, 113, 0.4);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
         }
 
         .alert-done-btn svg {
@@ -2845,12 +2846,9 @@
                     <span style="font-size: 1.1rem;">👥</span>
                     <span id="live-occupancy">0</span>
                 </div>
-                <select id="cinema-selector" class="location-select glass"></select>
+                <select id="cinema-selector" class="location-select glass" style="display: none;"></select><div id="cinema-display" class="location-badge glass" style="padding: 0 15px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; border: 1px solid var(--glass-border);">Darmstadt</div>
                 <div id="user-profile-btn" class="user-profile-btn" onclick="AUTH.showProfile()" title="Profil & Einstellungen">
                     <span>👤</span> Gast
-                </div>
-                <div class="appearance-toggle" onclick="toggleTheme()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-                    <span id="theme-icon" style="font-size: 1.2rem;">🌙</span>
                 </div>
             </div>
         </div>
@@ -2864,18 +2862,6 @@
                 <div class="location-badge" id="location-name">Darmstadt: KINOPOLIS</div>
             </div>
             
-            <div class="date-navigator" style="width: auto; gap: 1rem;">
-                <button class="nav-btn" onclick="changeDate(-1)">
-                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" /></svg>
-                </button>
-                <div class="date-display" style="text-align: center;">
-                    <span id="display-date-text">Heute</span>
-                    <span id="display-date-sub" class="date-sub"></span>
-                </div>
-                <button class="nav-btn" onclick="changeDate(1)">
-                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
-                </button>
-            </div>
 
             <div class="sync-status">
                 <div id="status-indicator" class="status-dot"></div>
@@ -2919,21 +2905,6 @@
         </div>
 
 
-        <div id="internal-news-container" class="news-section intern-section" style="display: none; margin-bottom: 1rem;">
-            <div class="card-header glass" style="margin-bottom: 1rem; border-radius: 20px;" onclick="toggleNews()">
-                <div style="display: flex; align-items: center; gap: 0.75rem; width: 100%;">
-                    <span class="alert-icon-small">📢</span>
-                    <h2 style="font-size: 1.2rem; flex: 1;">Interne Mitteilungen</h2>
-                    <span id="news-count-badge" class="badge">0</span>
-                    <button class="toggle-btn collapsed" id="news-toggle-btn">
-                        <svg viewBox="0 0 24 24" width="24" height="24">
-                            <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <div id="news-list" class="collapsed"></div>
-        </div>
 
 
         <!-- Internal Message Modal -->
@@ -3588,9 +3559,13 @@
 
 
         const CLEANING_TASKS = {
-            1: ["Tagesaufgabe 1: MONTAG"], 2: ["Tagesaufgabe 1: DIENSTAG"], 
-            3: ["Tagesaufgabe 1: MITTWOCH"], 4: ["Tagesaufgabe 1: DONNERSTAG"],
-            5: ["Tagesaufgabe 1: FREITAG"], 6: ["Tagesaufgabe 1: SAMSTAG"], 0: ["Tagesaufgabe 1: SONNTAG"]
+            1: ["Kino 1-4 gründlich saugen", "Theke: Becher auffüllen", "Popcornküche: Grundreinigung"],
+            2: ["Kino 5-8 gründlich saugen", "Nachostrecke reinigen", "Sanitäranlagen Check"],
+            3: ["Glasflächen reinigen", "Theke: Sirup-Check", "Mülleimer leeren"],
+            4: ["Kino 1-8 Check", "Werbematerial aktualisieren", "Lager aufräumen"],
+            5: ["Kassenbereich wischen", "Snack-Theke voll bestücken", "Abfall-Container"],
+            6: ["Großkampftag Vorbereitung", "Personalraum Check", "Klimaanlage Filter"],
+            0: ["Wochenabschluss Reinigung", "Alle Kinos Tiefenreinigung", "Inventur-Vorbereitung"]
         };
 
 
@@ -3763,7 +3738,7 @@
             
             // Apply new view state
             const titleEl = document.getElementById('main-title');
-            const suffix = ' V1.0';
+            const suffix = '';
             
             if (view === 'live') {
                 document.body.classList.add('live-active');
@@ -4163,8 +4138,8 @@
                     upcoming = await res.json();
                 }
                 
-                // Merge and deduplicate: Only add upcoming if not already seen in current
-                const upcomingFiltered = Array.isArray(upcoming) ? upcoming.filter(m => !seenTitles.has(m.title)) : [];
+                // Merge and deduplicate: Only add upcoming if not already seen in current and has a poster
+                const upcomingFiltered = Array.isArray(upcoming) ? upcoming.filter(m => !seenTitles.has(m.title) && m.poster && !m.poster.includes('red-seats')) : [];
                 const allMovies = [...currentMovies, ...upcomingFiltered.map(m => ({...m, current: false}))];
 
                 if (allMovies.length === 0) {
@@ -5732,6 +5707,7 @@
             if (!hallsGrouped || !Array.isArray(hallsGrouped)) return;
             const container = document.getElementById('stats-section-container');
             const grid = document.getElementById('stats-grid');
+            const chart = document.getElementById('hour-chart');
             if (!container || !grid) return;
             
             const allSessions = (hallsGrouped || []).flatMap(h => h.sessions || []).filter(s => s && s.time);
@@ -5779,7 +5755,7 @@
             grid.innerHTML = `
                 <div class="stat-card">
                     <div class="stat-label">System-Status</div>
-                    <div class="stat-value" style="font-size: 1.2rem; color: #3498db;">OK V1.0</div>
+                    <div class="stat-value" style="font-size: 1.2rem; color: #3498db;">SYSTEM OK</div>
                 </div>
                 <div class="stat-card">
                     <span class="stat-label">Gesamtbesucher</span>
@@ -6007,7 +5983,9 @@
                             <div class="time">Start: ${nextMovie.time} ${isEndDay ? 'Uhr (Morgen)' : 'Uhr'}</div>
                         </div>
                     </div>
-                    <button class="alert-action" onclick="markPosterDone('${alertId}', this)">Als erledigt markieren</button>
+                    <button class="alert-action" onclick="markPosterDone('${alertId}', this)">
+                        <span>✅</span> Erledigt
+                    </button>
                 </div>
             `;
             return alert;
@@ -6497,7 +6475,7 @@
     <div id="welcome-modal" class="modal">
         <div class="modal-content glass" style="max-height: 90vh; overflow-y: auto;">
             <span class="welcome-icon">🍿</span>
-            <h2 class="modal-title">Willkommen V1.0!</h2>
+            <h2 class="modal-title">Willkommen!</h2>
             <div style="margin-bottom: 2rem; color: var(--text-main); font-size: 0.95rem; text-align: left;">
                 <p style="margin-bottom: 1.5rem; line-height: 1.5; text-align: center;">Das Kinopolis Automation Dashboard ist deine zentrale Anlaufstelle für einen reibungslosen Kinobetrieb.</p>
                 <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.8rem; text-align: center;">Deine Vorteile:</h3>

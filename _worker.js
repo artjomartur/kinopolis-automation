@@ -1824,6 +1824,27 @@ app.post('/api/logs', async (c) => {
         return c.json({ error: e.message }, 500);
     }
 });
+app.patch('/api/logs/:id', async (c) => {
+    try {
+        const id = c.req.param('id');
+        const { status } = await c.req.json();
+        const db = c.env.DB || c.env.D1_DB;
+        if (!db) return c.json({ error: 'DB not available' }, 500);
+        const log = await db.prepare("SELECT * FROM shift_logs WHERE id = ?").bind(id).first();
+        if (!log) return c.json({ error: 'Log not found' }, 404);
+        let newMessage = log.message;
+        if (status === 'in_progress') {
+            if (!newMessage.includes('[IN_PROGRESS]')) newMessage += ' [IN_PROGRESS]';
+        } else if (status === 'open') {
+            newMessage = newMessage.replace('[IN_PROGRESS]', '').trim();
+        }
+        await db.prepare("UPDATE shift_logs SET message = ? WHERE id = ?").bind(newMessage, id).run();
+        return c.json({ success: true });
+    } catch (e) {
+        console.error('Update log error:', e);
+        return c.json({ error: e.message }, 500);
+    }
+});
 
 app.delete('/api/logs/:id', async (c) => {
     try {
@@ -2226,3 +2247,11 @@ export default {
     }
 };
 
+app.get('/api/diag', async (c) => {
+    return c.json({
+        status: 'ok',
+        time: new Date().toISOString(),
+        env: Object.keys(c.env),
+        location: c.req.query('location') || 'kp'
+    });
+});

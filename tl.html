@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TL Portal V1.0 | Kinopolis Automation</title>
+    <title>TL Portal | Kinopolis Automation</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
@@ -409,7 +409,7 @@
     <!-- Login handled by auth.js -->
 
     <div id="tl-main">
-    <div class="loading-progress" id="loading-bar"></div>
+    <div class="loading-progress" id="loading-bar" style="display: none;"></div>
 
     <header>
         <div class="logo-wrap">
@@ -418,7 +418,7 @@
             </div>
             <h1 class="portal-title">Kommandozentrale (TL)</h1>
         </div>
-        <select class="location-select" id="location-selector" onchange="changeCity()">
+        <select class="location-select" id="location-selector" onchange="changeCity()" style="display: none;">
             <option value="kp">Darmstadt (KP)</option>
             <option value="cd">Darmstadt (CD)</option>
             <option value="rx">Darmstadt (RX)</option>
@@ -437,6 +437,7 @@
             <option value="su">Sulzbach</option>
             <option value="vi">Viernheim</option>
         </select>
+        <div id="location-display" style="background: var(--surface-color); border: 1px solid var(--surface-border); color: white; padding: 0.6rem 1.5rem; border-radius: 50px; font-weight: 700; font-size: 0.9rem;">Darmstadt (KP)</div>
     </header>
 
     <div class="dashboard-grid">
