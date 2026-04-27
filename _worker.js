@@ -1667,42 +1667,77 @@ app.post('/api/scan-plan', async (c) => {
 });
 
 // --- UPCOMING MOVIES API ---
+function decodeKinopolisText(str) {
+    if (!str) return '';
+    return str
+        .replace(/&#x([0-9a-fA-F]+);/gi, (_, h) => {
+            try {
+                return String.fromCodePoint(parseInt(h, 16));
+            } catch {
+                return '';
+            }
+        })
+        .replace(/&#(\d+);/g, (_, d) => {
+            try {
+                return String.fromCharCode(parseInt(d, 10));
+            } catch {
+                return '';
+            }
+        })
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'")
+        .replace(/&#39;/g, "'")
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/<[^>]*>/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
 app.get('/api/upcoming', async (c) => {
     try {
-        // Try dedicated upcoming page first for better results
-        let response = await fetch('https://www.kinopolis.de/kp/filme/demnaechst');
-        if (!response.ok) response = await fetch('https://www.kinopolis.de/kp');
-        
-        if (!response.ok) throw new Error('Failed to fetch Kinopolis movies');
+        const locRaw = (c.req.query('location') || 'kp').toLowerCase();
+        const center = /^[a-z0-9]{2}$/.test(locRaw) ? locRaw : 'kp';
+
+        // Startseite: echter „Demnächst“-Slider hat id="coming-soon-slider" (eigene /filme/demnaechst-URL ist oft 404).
+        const response = await fetch(`https://www.kinopolis.de/${center}`);
+        if (!response.ok) throw new Error('Failed to fetch Kinopolis homepage');
         const html = await response.text();
 
-        // Target movie items with a more resilient regex
-        // Kinopolis often uses div.movie or article.movie
-        const itemRegex = /<(?:div|article)[^>]*class="[^"]*movie[^"]*"[^>]*>([\s\S]*?)<\/(?:div|article)>/g;
-        let match;
-        const upcoming = [];
+        const soonMatch = html.match(/<section[^>]*id="coming-soon-slider"[^>]*>([\s\S]*?)<\/section>/i);
+        const soonHtml = soonMatch ? soonMatch[1] : '';
 
-        while ((match = itemRegex.exec(html)) !== null) {
-            const block = match[1];
-            const hrefMatch = block.match(/href="([^"]+)"/);
-            const srcMatch = block.match(/src="([^"]+)"/);
-            const titleMatch = block.match(/<h3[^>]*>([\s\S]*?)<\/h3>/) || 
-                              block.match(/<h2[^>]*>([\s\S]*?)<\/h2>/) || 
-                              block.match(/alt="([^"]+)"/);
-            
-            if (hrefMatch && srcMatch) {
-                let title = titleMatch ? titleMatch[1].replace(/<[^>]*>/g, '').trim() : 'Unbekannter Film';
-                title = title.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
-                
-                upcoming.push({
-                    title,
-                    poster: srcMatch[1].startsWith('http') ? srcMatch[1] : 'https://www.kinopolis.de' + srcMatch[1],
-                    movieLink: hrefMatch[1].startsWith('http') ? hrefMatch[1] : 'https://www.kinopolis.de' + hrefMatch[1]
-                });
+        const upcoming = [];
+        if (soonHtml) {
+            const brickRe =
+                /<div[^>]*class="[^"]*grid__brick[^"]*\bmovie\b[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/div>\s*<\/div>/g;
+            let bm;
+            while ((bm = brickRe.exec(soonHtml)) !== null) {
+                const block = bm[1];
+                const imgM = block.match(
+                    /<img[^>]*class="[^"]*img-fluid[^"]*"[^>]*src="([^"]+)"[^>]*>/i
+                );
+                const altM = block.match(/alt="([^"]*)"/i);
+                const dataSrcM = block.match(/data-src="([^"]+)"/i);
+                if (!imgM || !imgM[1]) continue;
+
+                const poster = imgM[1].startsWith('http')
+                    ? imgM[1]
+                    : `https://www.kinopolis.de${imgM[1].startsWith('/') ? '' : '/'}${imgM[1]}`;
+                const title = decodeKinopolisText(altM ? altM[1] : 'Film');
+                if (!title) continue;
+
+                let movieLink = `https://www.kinopolis.de/${center}`;
+                if (dataSrcM && dataSrcM[1]) {
+                    const ds = dataSrcM[1];
+                    movieLink = ds.startsWith('http') ? ds : `https://www.kinopolis.de${ds.startsWith('/') ? '' : '/'}${ds}`;
+                }
+
+                upcoming.push({ title, poster, movieLink });
             }
         }
 
-        // Deduplicate and return
         const unique = [];
         const seen = new Set();
         for (const m of upcoming) {
@@ -1711,16 +1746,23 @@ app.get('/api/upcoming', async (c) => {
                 unique.push(m);
             }
         }
-        
-        // If still empty, return some defaults so it doesn't look broken
+
         if (unique.length === 0) {
             return c.json([
-                { title: 'Dune: Part Two', poster: 'https://www.kinopolis.de/media/filme/d/dune-part-two/poster_200.jpg', movieLink: '#' },
-                { title: 'Kung Fu Panda 4', poster: 'https://www.kinopolis.de/media/filme/k/kung-fu-panda-4/poster_200.jpg', movieLink: '#' }
+                {
+                    title: 'Dune: Part Two',
+                    poster: 'https://www.kinopolis.de/media/filme/d/dune-part-two/poster_200.jpg',
+                    movieLink: '#',
+                },
+                {
+                    title: 'Kung Fu Panda 4',
+                    poster: 'https://www.kinopolis.de/media/filme/k/kung-fu-panda-4/poster_200.jpg',
+                    movieLink: '#',
+                },
             ]);
         }
-        
-        return c.json(unique.slice(0, 16));
+
+        return c.json(unique.slice(0, 24));
     } catch (e) {
         console.error('Upcoming fetch error:', e);
         return c.json({ error: 'Failed to fetch upcoming movies' }, 500);

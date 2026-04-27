@@ -4361,6 +4361,17 @@
             }
         }
 
+        function normalizeMovieKey(title) {
+            if (!title || typeof title !== 'string') return '';
+            return title
+                .toLowerCase()
+                .normalize('NFKD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[''`´]/g, '')
+                .replace(/[^a-z0-9äöüß]+/g, ' ')
+                .trim();
+        }
+
         async function loadUpcomingMovies() {
             const grid = document.getElementById('upcoming-grid');
             const loader = document.getElementById('upcoming-loading');
@@ -4373,15 +4384,16 @@
             try {
                 // 1. Current Movies (from lastData which is array of halls)
                 let currentMovies = [];
-                const seenTitles = new Set();
+                const seenKeys = new Set();
 
                 if (lastData && Array.isArray(lastData)) {
                     // Flatten halls into sessions
                     const allCurrentSessions = lastData.flatMap(h => h.sessions || []);
                     
                     allCurrentSessions.forEach(s => {
-                        if (s.title && !seenTitles.has(s.title)) {
-                            seenTitles.add(s.title);
+                        const k = normalizeMovieKey(s.title);
+                        if (s.title && k && !seenKeys.has(k)) {
+                            seenKeys.add(k);
                             currentMovies.push({
                                 title: s.title,
                                 poster: s.poster,
@@ -4392,22 +4404,26 @@
                     });
                 }
 
-                // 2. Upcoming Movies
-                const res = await fetch('/api/upcoming');
+                // 2. Upcoming Movies (nur Slider „Demnächst“ auf der Kinoseite; gleicher Titel wie „Jetzt“ wird ausgeblendet)
+                const res = await fetch(`/api/upcoming?location=${encodeURIComponent(currentCity || 'kp')}`);
                 let upcoming = [];
                 if (res.ok) {
-                    upcoming = await res.json();
+                    const data = await res.json();
+                    upcoming = Array.isArray(data) ? data : [];
                 }
                 
-                // Merge and deduplicate: Only add upcoming if not already seen in current and has a valid poster
-                const upcomingFiltered = Array.isArray(upcoming) ? upcoming.filter(m => {
-                    if (seenTitles.has(m.title)) return false;
-                    if (!m.poster) return false;
-                    const p = m.poster.toLowerCase();
-                    if (p.includes('red-seats') || p.includes('platzhalter') || p.includes('default')) return false;
+                const upcomingFiltered = upcoming.filter(m => {
+                    if (!m || !m.title) return false;
+                    const k = normalizeMovieKey(m.title);
+                    if (!k || seenKeys.has(k)) return false;
+                    if (m.poster) {
+                        const p = String(m.poster).toLowerCase();
+                        if (p.includes('red-seats') || p.includes('platzhalter') || p.includes('placeholder')) return false;
+                    }
+                    seenKeys.add(k);
                     return true;
-                }) : [];
-                const allMovies = [...currentMovies, ...upcomingFiltered.map(m => ({...m, current: false}))];
+                }).map(m => ({ ...m, current: false }));
+                const allMovies = [...currentMovies, ...upcomingFiltered];
 
                 if (allMovies.length === 0) {
                    if (loader) loader.innerHTML = '<div style="color: var(--text-muted); padding: 2rem;">Keine Filme gefunden.</div>';
