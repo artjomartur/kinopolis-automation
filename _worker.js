@@ -1095,7 +1095,7 @@ app.post('/api/messages', async (c) => {
                                                 
                                                 <div class="message-box">${content}</div>
                                                 
-                                                ${image_url ? \`<img src="\${image_url}" class="image" />\` : ''}
+                                                ${image_url ? `<img src="${image_url}" class="image" />` : ''}
 
                                                 <div style="text-align: center;">
                                                     <a href="https://kinopolis.artjombecker.com" class="btn">Dashboard öffnen</a>
@@ -1105,14 +1105,14 @@ app.post('/api/messages', async (c) => {
                                                  <p class="footer-text">
                                                      Du erhältst diese E-Mail als Mitarbeiter von Kinopolis.<br>
                                                      © 2026 Kinopolis Automation<br><br>
-                                                     <a href="https://kinopolis.artjombecker.com/api/email/unsubscribe?email=\${sub.email}" style="color: #475569; text-decoration: underline;">Abbestellen</a>
+                                                     <a href="https://kinopolis.artjombecker.com/api/email/unsubscribe?email=${sub.email}" style="color: #475569; text-decoration: underline;">Abbestellen</a>
                                                  </p>
                                              </div>
                                         </div>
                                     </div>
                                 </body>
                                 </html>
-                            \`;
+                            `;
 
                             await fetch('https://api.resend.com/emails', {
                                 method: 'POST',
