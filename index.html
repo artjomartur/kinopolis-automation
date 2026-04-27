@@ -2557,6 +2557,8 @@
             border: 1px solid var(--surface-border);
             overflow-x: auto;
             scroll-behavior: smooth;
+            position: relative;
+            z-index: 50;
         }
 
         .tab-btn {
@@ -2570,6 +2572,9 @@
             cursor: pointer;
             transition: all 0.3s ease;
             white-space: nowrap;
+            position: relative;
+            z-index: 51;
+            pointer-events: auto;
         }
 
         .restock-btn:hover {
@@ -2831,6 +2836,159 @@
         body:not(.live-active) .live-section { display: none !important; } 
         #staff-notes-content .note-item { margin-bottom: 1.5rem; } 
 
+        /* ——— Mobile polish (Handy): Safe Areas, Bottom-Nav, weiche Karten ——— */
+        @media (max-width: 768px) {
+            html {
+                -webkit-tap-highlight-color: transparent;
+            }
+            body {
+                padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)) !important;
+            }
+            .container {
+                padding-left: max(0.75rem, env(safe-area-inset-left, 0px)) !important;
+                padding-right: max(0.75rem, env(safe-area-inset-right, 0px)) !important;
+                padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px)) !important;
+            }
+            header {
+                position: sticky;
+                top: 0;
+                z-index: 120;
+                padding: max(0.5rem, env(safe-area-inset-top, 0px)) max(0.75rem, env(safe-area-inset-right, 0px)) 0.65rem max(0.75rem, env(safe-area-inset-left, 0px)) !important;
+                background: rgba(10, 10, 13, 0.72) !important;
+                backdrop-filter: blur(16px) saturate(160%);
+                -webkit-backdrop-filter: blur(16px) saturate(160%);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+                margin-bottom: 0.5rem !important;
+            }
+            body.light-mode header {
+                background: rgba(255, 255, 255, 0.82) !important;
+                border-bottom-color: rgba(0, 0, 0, 0.06) !important;
+            }
+            .header-inner {
+                flex-direction: row !important;
+                flex-wrap: wrap;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 0.65rem !important;
+                max-width: 100%;
+            }
+            .header-right {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 0.5rem;
+            }
+            .user-profile-btn {
+                min-height: 44px;
+                padding: 0 0.85rem;
+                border-radius: 12px;
+                display: inline-flex;
+                align-items: center;
+            }
+            #cinema-display.location-badge {
+                font-size: 0.78rem;
+                padding: 0.35rem 0.75rem;
+            }
+            .dashboard-header {
+                margin-bottom: 1rem !important;
+                padding: 0 0.15rem;
+            }
+            .dashboard-title {
+                font-size: clamp(1.45rem, 5.5vw, 1.85rem) !important;
+                line-height: 1.15 !important;
+                margin-top: 0.35rem !important;
+                text-align: center;
+            }
+            .dashboard-header-left {
+                width: 100%;
+            }
+            .sync-status {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 0.35rem 0.75rem;
+                padding: 0.5rem 0.75rem;
+                border-radius: 14px;
+                background: rgba(255, 255, 255, 0.04);
+                border: 1px solid rgba(255, 255, 255, 0.06);
+            }
+            body.light-mode .sync-status {
+                background: rgba(0, 0, 0, 0.04);
+                border-color: rgba(0, 0, 0, 0.06);
+            }
+            #live-alert-banner {
+                margin-left: 0.35rem;
+                margin-right: 0.35rem;
+                border-radius: 16px !important;
+            }
+            .card-container,
+            .news-section,
+            .auslaesse-container,
+            .notes-section,
+            #poster-alerts-container {
+                border-radius: 20px !important;
+                margin-left: 0.35rem !important;
+                margin-right: 0.35rem !important;
+                overflow: hidden;
+            }
+            .hall-card {
+                border-radius: 20px !important;
+                margin-bottom: 0.85rem !important;
+            }
+            #mobile-tab-bar.mobile-nav {
+                left: max(12px, env(safe-area-inset-left, 0px)) !important;
+                right: max(12px, env(safe-area-inset-right, 0px)) !important;
+                bottom: max(12px, env(safe-area-inset-bottom, 0px)) !important;
+                height: auto !important;
+                min-height: 58px;
+                padding: 10px 8px max(10px, calc(8px + env(safe-area-inset-bottom, 0px))) !important;
+                border-radius: 22px !important;
+                background: rgba(22, 22, 28, 0.88) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+                gap: 2px;
+            }
+            body.light-mode #mobile-tab-bar.mobile-nav {
+                background: rgba(255, 255, 255, 0.94) !important;
+                border-color: rgba(0, 0, 0, 0.08);
+                box-shadow: 0 10px 36px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.04) inset;
+            }
+            .mobile-nav-item {
+                min-height: 48px;
+                padding: 6px 4px;
+                border-radius: 16px;
+                font-size: 0.65rem;
+                letter-spacing: 0.02em;
+                font-weight: 700;
+                max-width: 25%;
+            }
+            .mobile-nav-item span {
+                font-size: 1.35rem;
+                line-height: 1;
+            }
+            .mobile-nav-item.active {
+                transform: none;
+                color: #fff;
+                background: linear-gradient(180deg, rgba(0, 120, 255, 0.35) 0%, rgba(0, 120, 255, 0.12) 100%);
+                box-shadow: 0 0 0 1px rgba(0, 120, 255, 0.35);
+            }
+            body.light-mode .mobile-nav-item {
+                color: #64748b;
+            }
+            body.light-mode .mobile-nav-item.active {
+                color: #0f172a;
+                background: linear-gradient(180deg, rgba(0, 120, 255, 0.2) 0%, rgba(0, 120, 255, 0.06) 100%);
+                box-shadow: 0 0 0 1px rgba(0, 120, 255, 0.25);
+            }
+            .modal {
+                padding: max(1rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left)) !important;
+            }
+            .modal-content {
+                border-radius: 22px !important;
+            }
+        }
+
     </style>
 </head>
 <body class="dark-mode">
@@ -2962,13 +3120,13 @@
         </div>
 
         <div class="nav-tabs" id="desktop-nav-tabs">
-            <button type="button" class="tab-btn active tab-live" id="tab-live" data-tab="live">🎬 Live</button>
-            <button type="button" class="tab-btn stats-tab-btn tab-stats tl-only" id="tab-stats" data-tab="stats">📊 Statistik</button>
-            <button type="button" class="tab-btn tab-kontakte" id="tab-kontakte" data-tab="kontakte">📞 Kontakte</button>
-            <button type="button" class="tab-btn tools-tab-btn tab-funk" id="tab-funk" data-tab="funk">📡 Funk</button>
-            <button type="button" class="tab-btn tab-intern" id="tab-intern" data-tab="intern">🛠️ Tools</button>
-            <button type="button" class="tab-btn tab-info" id="tab-info" data-tab="info">🍿 Filme</button>
-            <button type="button" class="tab-btn tab-einstellungen" id="tab-einstellungen" data-tab="einstellungen">⚙️ Einstellungen</button>
+            <button type="button" class="tab-btn active tab-live" id="tab-live" data-tab="live" onclick="switchTab('live', this); return false;">🎬 Live</button>
+            <button type="button" class="tab-btn stats-tab-btn tab-stats tl-only" id="tab-stats" data-tab="stats" onclick="switchTab('stats', this); return false;">📊 Statistik</button>
+            <button type="button" class="tab-btn tab-kontakte" id="tab-kontakte" data-tab="kontakte" onclick="switchTab('kontakte', this); return false;">📞 Kontakte</button>
+            <button type="button" class="tab-btn tools-tab-btn tab-funk" id="tab-funk" data-tab="funk" onclick="switchTab('funk', this); return false;">📡 Funk</button>
+            <button type="button" class="tab-btn tab-intern" id="tab-intern" data-tab="intern" onclick="switchTab('intern', this); return false;">🛠️ Tools</button>
+            <button type="button" class="tab-btn tab-info" id="tab-info" data-tab="info" onclick="switchTab('info', this); return false;">🍿 Filme</button>
+            <button type="button" class="tab-btn tab-einstellungen" id="tab-einstellungen" data-tab="einstellungen" onclick="switchTab('einstellungen', this); return false;">⚙️ Einstellungen</button>
         </div>
 
         <!-- UPCOMING MOVIES SECTION -->
@@ -3812,6 +3970,14 @@
 
 
         function switchTab(view, btn) {
+            try {
+                switchTabInner(view, btn);
+            } catch (err) {
+                console.error('switchTab:', err);
+            }
+        }
+
+        function switchTabInner(view, btn) {
             let activeBtn = btn && btn.classList ? btn : null;
             if (!activeBtn && view) {
                 activeBtn = document.querySelector(`.nav-tabs .tab-btn[data-tab="${view}"]`)
@@ -3875,17 +4041,7 @@
             }
         }
 
-        function initTabNavigation() {
-            const onNavClick = (e) => {
-                const el = e.target.closest('.tab-btn[data-tab], .mobile-nav-item[data-tab]');
-                if (!el || !el.dataset.tab) return;
-                e.preventDefault();
-                switchTab(el.dataset.tab, el);
-            };
-            document.querySelector('.nav-tabs')?.addEventListener('click', onNavClick);
-            document.getElementById('mobile-tab-bar')?.addEventListener('click', onNavClick);
-        }
-        initTabNavigation();
+        // Tab-Wechsel: onclick auf den Buttons (zuverlässig); switchTab fängt Fehler per try/catch ab.
 
         // --- APP START ---
         // 1. IMMEDIATE SPLASH SCREEN FAILSAFE
@@ -5981,25 +6137,79 @@
             sessionsList.classList.toggle('collapsed');
         }
 
+        const POSTER_URGENT_POPUP_DELAY_MS = 1600;
+        window._posterUrgentQueue = window._posterUrgentQueue || [];
+        window.posterUrgentSnoozeUntil = window.posterUrgentSnoozeUntil || 0;
+        window._posterModalTimer = window._posterModalTimer || null;
+
+        function snoozePosterUrgentPopup() {
+            window.posterUrgentSnoozeUntil = Date.now() + 15 * 60 * 1000;
+            const modal = document.getElementById('poster-urgent-modal');
+            if (modal) modal.classList.remove('active');
+            const body = document.getElementById('poster-urgent-modal-body');
+            if (body) body.innerHTML = '';
+        }
+
+        function showPosterUrgentModalStep(queue) {
+            const q = (queue || []).filter(a => a && a.alertId && !completedPosters.has(a.alertId));
+            window._posterUrgentQueue = q;
+            const modal = document.getElementById('poster-urgent-modal');
+            const body = document.getElementById('poster-urgent-modal-body');
+            if (!modal || !body) return;
+            if (!q.length) {
+                modal.classList.remove('active');
+                body.innerHTML = '';
+                return;
+            }
+            const a = q[0];
+            body.innerHTML = '';
+            body.appendChild(createPosterAlertElement(a.hallName, a.nextMovie, a.isEndDay, a.alertId));
+            modal.classList.add('active');
+        }
+
+        function schedulePosterUrgentModal(posterQueue) {
+            const pending = (posterQueue || []).filter(a => a && a.alertId && !completedPosters.has(a.alertId));
+            window._posterUrgentQueue = pending;
+            clearTimeout(window._posterModalTimer);
+            if (!pending.length) {
+                const modal = document.getElementById('poster-urgent-modal');
+                if (modal) modal.classList.remove('active');
+                const body = document.getElementById('poster-urgent-modal-body');
+                if (body) body.innerHTML = '';
+                return;
+            }
+            if (Date.now() < (window.posterUrgentSnoozeUntil || 0)) return;
+            const modalEl = document.getElementById('poster-urgent-modal');
+            const showingId = document.querySelector('#poster-urgent-modal-body .poster-change-alert')?.dataset?.alertId;
+            if (modalEl && modalEl.classList.contains('active') && showingId && pending[0] && showingId === pending[0].alertId) {
+                return;
+            }
+            window._posterModalTimer = setTimeout(() => {
+                if (Date.now() < (window.posterUrgentSnoozeUntil || 0)) return;
+                showPosterUrgentModalStep(window._posterUrgentQueue);
+            }, POSTER_URGENT_POPUP_DELAY_MS);
+        }
+
         function updateAlerts(hallsGrouped, tomSessionsFlat) {
             const alertsContainer = document.getElementById('poster-alerts');
             alertsContainer.innerHTML = '';
 
-            addPosterAlerts(hallsGrouped, tomSessionsFlat, alertsContainer);
+            const posterQueue = collectPosterAlerts(hallsGrouped, tomSessionsFlat);
             addOccupancyAlerts(hallsGrouped, alertsContainer);
 
-            // Update badge count
-            const count = alertsContainer.children.length;
+            const count = posterQueue.length + alertsContainer.children.length;
             document.getElementById('alert-count-badge').textContent = count;
-            
-            // Hide container if no alerts
+
             const container = document.getElementById('poster-alerts-container');
             container.style.display = count > 0 ? 'block' : 'none';
+
+            schedulePosterUrgentModal(posterQueue);
         }
 
-        function addPosterAlerts(hallsGrouped, tomSessionsFlat, container) {
+        /** Liefert offene Plakatwechsel für Pop-up (nicht für die Inline-Liste). */
+        function collectPosterAlerts(hallsGrouped, tomSessionsFlat) {
             // ONLY FOR DARMSTADT ('kp')
-            if (currentCity !== 'kp') return;
+            if (currentCity !== 'kp') return [];
 
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -6010,16 +6220,12 @@
                 const hallSessions = hall.sessions.filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
                 if (hallSessions.length === 0) return;
 
-                // Only find the LATEST poster change that has already happened
                 let latestAlert = null;
-                
-                // Track if we found a potential alert - if so, ensure others for this hall are cleared
-                // (LatestAlert logic naturally cleans up older alerts for the same hall when rendering)
 
                 hallSessions.forEach((s, idx) => {
                     const [sh, sm] = s.time.split(':').map(Number);
-                    const changeMin = (sh * 60 + sm) + 30;
-                    
+                    const changeMin = (sh * 60 + sm) + 20;
+
                     // Expiration: If alert is older than 4 hours (240 mins), hide it
                     if (currentMinutes >= changeMin && (currentMinutes - changeMin) < 240) {
                         if (idx < hallSessions.length - 1) { // Normal change
@@ -6061,19 +6267,14 @@
                 }
             });
 
-            // Sort by time
             allAlerts.sort((a, b) => a.time - b.time);
-
-            // Render
-            allAlerts.forEach(a => {
-                const alert = createPosterAlertElement(a.hallName, a.nextMovie, a.isEndDay, a.alertId);
-                container.appendChild(alert);
-            });
+            return allAlerts;
         }
 
         function createPosterAlertElement(hallName, nextMovie, isEndDay, alertId) {
             const alert = document.createElement('div');
             alert.className = 'poster-change-alert';
+            alert.dataset.alertId = alertId;
             alert.innerHTML = `
                 <div class="alert-content">
                     <div class="alert-icon-svg">
@@ -6081,7 +6282,7 @@
                     </div>
                     <div class="alert-text" style="flex: 1">
                         <h2>Plakatwechsel in <span style="white-space: nowrap">${hallName}</span></h2>
-                        <p>${isEndDay ? 'Die <strong>letzte Vorstellung</strong> des Tages hat begonnen.' : 'Der Film läuft seit 20 Min.'} Das Plakat kann gewechselt werden.</p>
+                        <p>${isEndDay ? 'Die <strong>letzte Vorstellung</strong> des Tages hat begonnen.' : 'Der Film läuft seit mindestens 20 Minuten.'} Das Plakat kann gewechselt werden.</p>
                     </div>
                     <div class="next-movie-preview">
                         ${nextMovie.poster ? `<img src="${nextMovie.poster}" class="poster-img" alt="Poster">` : ''}
@@ -6101,17 +6302,23 @@
         function markPosterDone(id, btn) {
             completedPosters.add(id);
             saveTaskState();
-            
-            // Optimistic UI: Hide alert immediately
+
             if (btn) {
                 const alert = btn.closest('.poster-change-alert');
                 if (alert) {
+                    const inModal = !!alert.closest('#poster-urgent-modal-body');
+                    if (inModal) {
+                        window._posterUrgentQueue = (window._posterUrgentQueue || []).filter(a => a.alertId !== id);
+                        alert.remove();
+                        showPosterUrgentModalStep(window._posterUrgentQueue);
+                        fetchSessions();
+                        return;
+                    }
                     alert.style.opacity = '0';
                     alert.style.transform = 'scale(0.9)';
                     alert.style.pointerEvents = 'none';
                     setTimeout(() => {
                         alert.remove();
-                        // Update badge count
                         const alertsContainer = document.getElementById('poster-alerts');
                         const count = alertsContainer.children.length;
                         document.getElementById('alert-count-badge').textContent = count;
@@ -6119,8 +6326,8 @@
                     }, 300);
                 }
             }
-            
-            fetchSessions(); // Refresh UI
+
+            fetchSessions();
         }
 
 
@@ -6696,16 +6903,16 @@
     </div>
         <!-- MOBILE NAVIGATION (iOS Style) -->
         <nav class="mobile-nav" id="mobile-tab-bar" style="display: none;">
-            <a href="#" class="mobile-nav-item active nav-live" data-tab="live" role="button">
+            <a href="#" class="mobile-nav-item active nav-live" data-tab="live" role="button" onclick="switchTab('live', this); return false;">
                 <span>🎬</span> Live
             </a>
-            <a href="#" class="mobile-nav-item nav-funk" data-tab="funk" role="button">
+            <a href="#" class="mobile-nav-item nav-funk" data-tab="funk" role="button" onclick="switchTab('funk', this); return false;">
                 <span>📡</span> Funk
             </a>
-            <a href="#" class="mobile-nav-item nav-action" data-tab="action" role="button">
+            <a href="#" class="mobile-nav-item nav-action" data-tab="action" role="button" onclick="switchTab('action', this); return false;">
                 <span>🛠️</span> Action
             </a>
-            <a href="#" class="mobile-nav-item nav-mehr" data-tab="mehr" role="button">
+            <a href="#" class="mobile-nav-item nav-mehr" data-tab="mehr" role="button" onclick="switchTab('mehr', this); return false;">
                 <span>📂</span> Mehr
             </a>
         </nav>
