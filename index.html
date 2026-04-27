@@ -273,6 +273,9 @@
             background: rgba(255, 255, 255, 0.03);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
+
+        .ambient-mesh {
+            position: absolute;
             width: 150%;
             height: 150%;
             top: -25%;
@@ -727,6 +730,28 @@
         body.light-mode .occupancy-badge { border: 1px solid rgba(0, 150, 80, 0.2) !important; color: #008f4c !important; }
         body.light-mode .hall-header { background: rgba(255,255,255,0.8); }
         body.light-mode .session-item.active { background: rgba(229, 9, 20, 0.05); border-left: 4px solid var(--primary-red); }
+
+        body.light-mode h1, 
+        body.light-mode h2, 
+        body.light-mode h3, 
+        body.light-mode h4, 
+        body.light-mode .dashboard-title,
+        body.light-mode #main-title,
+        body.light-mode .live-overview-header h1,
+        body.light-mode .alert-text h2,
+        body.light-mode #tasks-title,
+        body.light-mode .task-title,
+        body.light-mode .poster-task-title {
+            color: #0f172a !important;
+        }
+        
+        body.light-mode p, 
+        body.light-mode .alert-text p,
+        body.light-mode .task-subtitle,
+        body.light-mode .poster-task-subtitle,
+        body.light-mode .auslass-disclaimer {
+            color: #64748b !important;
+        }
 
         .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.1);
@@ -5583,8 +5608,17 @@
                         }
                     }
 
-                    // 1. Poster Change Task (Logic moved to updateAlerts/addPosterAlerts)
-                    // ...
+                    // 1. Poster Change Task (20m after start)
+                    allTasks.push({
+                        type: 'poster',
+                        hall: hall.name,
+                        title: s.title,
+                        time: startMin + 20,
+                        timeDisplay: formatMinutes(startMin + 20),
+                        triggerMin: startMin + 20,
+                        triggerMax: startMin + 45,
+                        id: `poster-${hall.name}-${s.title}-${s.time}`
+                    });
 
                     // 2. Auslass Task (All sessions)
                     allTasks.push({
