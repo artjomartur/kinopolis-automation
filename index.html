@@ -5665,13 +5665,19 @@
             const liveTasks = allTasks.filter(t => {
                 if (t.type === 'auslass') {
                     const isDone = completedAuslaesse.has(t.id);
-                    const isOld = currentMinutes > (t.time + 60);
-                    // Hide if older than 1 hour (requested by user)
-                    if (isOld) return false;
+                    // Hide if older than 3 hours (increased from 1h for better overview)
+                    const isOld = currentMinutes > (t.time + 180);
+                    if (isOld && isDone) return false;
                     return true;
                 }
                 if (t.type === 'cleaning') return true;
-                if (t.type === 'poster') return completedPosters.has(t.id);
+                if (t.type === 'poster') {
+                    // Show if not done OR if it happened within the last 3 hours
+                    const isDone = completedPosters.has(t.id);
+                    const isOld = currentMinutes > (t.time + 180);
+                    if (isOld && isDone) return false;
+                    return true;
+                }
                 return true;
             });
 
