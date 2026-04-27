@@ -410,6 +410,72 @@
 
         #tl-main { display: none; }
 
+        /* TABS STYLING */
+        .tl-tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(255,255,255,0.03);
+            padding: 0.5rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--surface-border);
+            position: sticky;
+            top: 1rem;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .tl-tab {
+            flex: 1;
+            padding: 0.85rem;
+            border-radius: 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .tl-tab.active {
+            background: var(--primary-blue);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 120, 255, 0.3);
+        }
+
+        .tl-tab:not(.active):hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-main);
+        }
+
+        .tl-tab-page {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tl-tab-page.active {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .tl-tabs { padding: 0.35rem; gap: 0.25rem; }
+            .tl-tab { padding: 0.65rem 0.25rem; font-size: 0.75rem; flex-direction: column; gap: 0.1rem; }
+            .tl-tab span { font-size: 1.1rem; }
+        }
+
     </style>
 </head>
 <body>
@@ -454,22 +520,35 @@
         </div>
     </div>
 
-    <div class="dashboard-grid">
-        <!-- OPERATIONAL UPDATES -->
-        <div class="feed-section">
+    <div class="tl-tabs">
+        <button class="tl-tab active" onclick="switchTlTab('live', this)">
+            <span>🚨</span> Live
+        </button>
+        <button class="tl-tab" onclick="switchTlTab('log', this)">
+            <span>📖</span> Logbuch
+        </button>
+        <button class="tl-tab" onclick="switchTlTab('breaks', this)">
+            <span>🤖</span> Pausen
+        </button>
+        <button class="tl-tab" onclick="switchTlTab('system', this)">
+            <span>⚙️</span> System
+        </button>
+    </div>
+
+    <div id="tl-pages">
+        <!-- TAB 1: LIVE -->
+        <div id="page-live" class="tl-tab-page active">
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">🚨 Aktuelle Anfragen & Funk</div>
                     <div class="status-badge" id="last-update-status">Live</div>
                 </div>
                 <div class="feed-list" id="ops-feed">
-                    <!-- Loaded dynamically -->
                     <div class="empty-state">Lade Team-Requests...</div>
                 </div>
             </div>
 
-            <!-- AUSLASS PLAN -->
-            <div class="card mt-2">
+            <div class="card">
                 <div class="card-header">
                     <div class="card-title">🚪 Auslass-Plan (Nächste 90 Min)</div>
                 </div>
@@ -477,37 +556,35 @@
                     <div class="empty-state" style="padding: 0;">Lade Zeiten...</div>
                 </div>
             </div>
+        </div>
 
-            <!-- LOGBOOK / SHIFT NOTES -->
-            <div class="card mt-2">
-                <div class="card" style="grid-column: 1 / -1;">
-                    <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>📖 Jüngste Notizen (Handover)</span>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <button id="btn-gen-summary" onclick="generateShiftSummary()" style="font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 8px; background: rgba(255, 185, 0, 0.1); color: var(--primary-gold); border: 1px solid rgba(255, 185, 0, 0.3); cursor: pointer;">✨ KI Zusammenfassung</button>
-                            <button class="btn-primary" onclick="openLogModal()" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; border-radius: 8px; background: rgba(0, 120, 255, 0.2); color: #fff; border: 1px solid rgba(0, 120, 255, 0.4); cursor: pointer;">➕ Eintrag</button>
-                        </div>
+        <!-- TAB 2: LOGBUCH -->
+        <div id="page-log" class="tl-tab-page">
+            <div class="card">
+                <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <span>📖 Jüngste Notizen (Handover)</span>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button id="btn-gen-summary" onclick="generateShiftSummary()" style="font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 8px; background: rgba(255, 185, 0, 0.1); color: var(--primary-gold); border: 1px solid rgba(255, 185, 0, 0.3); cursor: pointer;">✨ KI Zusammenfassung</button>
+                        <button class="btn-primary" onclick="openLogModal()" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; border-radius: 8px; background: rgba(0, 120, 255, 0.2); color: #fff; border: 1px solid rgba(0, 120, 255, 0.4); cursor: pointer;">➕ Eintrag</button>
                     </div>
+                </div>
 
-                    <!-- AI Summary Result -->
-                    <div id="ai-summary-container" style="display: none; margin: 1rem 0; padding: 1rem; background: rgba(255,185,0,0.05); border: 1px solid rgba(255,185,0,0.2); border-radius: 12px;">
-                        <div style="font-size: 0.8rem; font-weight: bold; color: var(--primary-gold); margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
-                            <span>🤖 KI-ANALYSE (Letzte 7 Tage)</span>
-                            <button onclick="copyToClipboard('ai-summary-text')" style="background: none; border: none; color: white; cursor: pointer; text-decoration: underline; font-size: 0.75rem;">Kopieren 📋</button>
-                        </div>
-                        <div id="ai-summary-text" style="font-size: 0.9rem; line-height: 1.5; color: #eee;">Lade Analyse...</div>
+                <div id="ai-summary-container" style="display: none; margin: 1rem 0; padding: 1rem; background: rgba(255,185,0,0.05); border: 1px solid rgba(255,185,0,0.2); border-radius: 12px;">
+                    <div style="font-size: 0.8rem; font-weight: bold; color: var(--primary-gold); margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                        <span>🤖 KI-ANALYSE (Letzte 7 Tage)</span>
+                        <button onclick="copyToClipboard('ai-summary-text')" style="background: none; border: none; color: white; cursor: pointer; text-decoration: underline; font-size: 0.75rem;">Kopieren 📋</button>
                     </div>
+                    <div id="ai-summary-text" style="font-size: 0.9rem; line-height: 1.5; color: #eee;">Lade Analyse...</div>
+                </div>
 
-                    <div id="logs-list">
-                        <!-- Logs will be loaded here -->
-                        <div class="empty-state">Lade Notizen...</div>
-                    </div>
+                <div id="logs-list">
+                    <div class="empty-state">Lade Notizen...</div>
                 </div>
             </div>
         </div>
 
-        <!-- AI BREAKS & STATS -->
-        <div class="sidebar">
+        <!-- TAB 3: PAUSEN -->
+        <div id="page-breaks" class="tl-tab-page">
             <div class="card" style="border-left: 4px solid var(--primary-blue);">
                 <div class="card-header">
                     <div class="card-title">🤖 AI Pausen-Guide</div>
@@ -519,9 +596,23 @@
                     Empfehlungen basieren auf der berechneten Auslastung und den Abspann-Zeiten.
                 </p>
             </div>
+        </div>
 
-            <!-- SYSTEM STATUS -->
-            <div class="card mt-2">
+        <!-- TAB 4: SYSTEM -->
+        <div id="page-system" class="tl-tab-page">
+            <div class="card" style="border-left: 4px solid #e74c3c;">
+                <div class="card-title" style="margin-bottom: 1rem;">📢 Nachricht an alle senden</div>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <input type="text" id="broadcast-title" placeholder="Titel (optional)" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:0.65rem 0.9rem;color:white;font-family:inherit;font-size:0.9rem;outline:none;">
+                    <textarea id="broadcast-message" placeholder="Nachricht eingeben..." rows="3" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:0.65rem 0.9rem;color:white;font-family:inherit;font-size:0.9rem;resize:none;outline:none;"></textarea>
+                    <button id="broadcast-btn" onclick="sendBroadcast()" style="background:linear-gradient(135deg,#e74c3c,#c0392b);border:none;padding:0.75rem;border-radius:10px;color:white;font-weight:700;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">
+                        🚨 An alle senden
+                    </button>
+                    <div id="broadcast-status" style="font-size:0.8rem;text-align:center;display:none;"></div>
+                </div>
+            </div>
+
+            <div class="card">
                 <div class="card-title" style="margin-bottom: 1rem;">⚙️ Services</div>
                 <div id="service-status" style="display: flex; flex-direction: column; gap: 0.75rem;">
                     <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
@@ -534,19 +625,8 @@
                     </div>
                 </div>
             </div>
-
-            <!-- PUSH BROADCAST -->
-            <div class="card mt-2" style="border-left: 4px solid #e74c3c;">
-                <div class="card-title" style="margin-bottom: 1rem;">📢 Nachricht an alle senden</div>
-                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                    <input type="text" id="broadcast-title" placeholder="Titel (optional)" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:0.65rem 0.9rem;color:white;font-family:inherit;font-size:0.9rem;outline:none;">
-                    <textarea id="broadcast-message" placeholder="Nachricht eingeben..." rows="3" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:0.65rem 0.9rem;color:white;font-family:inherit;font-size:0.9rem;resize:none;outline:none;"></textarea>
-                    <button id="broadcast-btn" onclick="sendBroadcast()" style="background:linear-gradient(135deg,#e74c3c,#c0392b);border:none;padding:0.75rem;border-radius:10px;color:white;font-weight:700;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">
-                        🚨 An alle senden
-                    </button>
-                    <div id="broadcast-status" style="font-size:0.8rem;text-align:center;display:none;"></div>
-                </div>
-            </div>
+        </div>
+    </div>
 
             </div>
         </div>
@@ -1150,6 +1230,19 @@
         function formatTime(isoStr) {
             const d = new Date(isoStr);
             return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // --- TABS LOGIC ---
+        function switchTlTab(tabId, btn) {
+            triggerHaptic('light');
+            document.querySelectorAll('.tl-tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.tl-tab-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`page-${tabId}`).classList.add('active');
+            
+            // Trigger specific loads if needed
+            if (tabId === 'log') loadLogs();
+            if (tabId === 'breaks') loadBreaks();
         }
 
         // --- PULL TO REFRESH ---
