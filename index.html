@@ -294,7 +294,6 @@
         }
 
         body {
-            background-color: transparent !important;
             min-height: 100vh;
         }
 
@@ -3936,7 +3935,7 @@
                 const auslaesseBtn = document.getElementById('auslaesse-toggle-btn');
                 if (auslaesseBtn) {
                     auslaesseBtn.addEventListener('click', () => {
-                        const content = document.getElementById('auslaesse-content');
+                        const content = document.getElementById('auslaesse-list');
                         if (content) {
                             content.classList.toggle('collapsed');
                             auslaesseBtn.classList.toggle('collapsed');
@@ -5561,15 +5560,13 @@
 
         function renderTasks(halls) {
             if (!halls || !Array.isArray(halls)) return;
-            const taskList = document.getElementById('task-list');
-            if (!taskList) return;
-            taskList.innerHTML = '';
 
             const allSessions = (halls || []).flatMap(h => h.sessions || []).filter(s => s && s.time);
             
             const container = document.getElementById('auslaesse-section-container');
             const list = document.getElementById('auslaesse-list');
             const badge = document.getElementById('auslass-count-badge');
+            if (!container || !list || !badge) return;
             list.innerHTML = '';
 
             const now = new Date();
@@ -5707,7 +5704,7 @@
 
                 item.innerHTML = `
                     <div class="auslass-hall" style="background: ${isActive ? 'var(--primary-red)' : badgeColor}">${icon} ${t.hall}</div>
-                    <div class="auslass-movie" title="${t.title}">${t.sold !== undefined ? t.sold + ' Besucher' : ''} ${t.isVerified ? '✅' : ''}</div>
+                    <div class="auslass-movie" title="${t.title}">${t.title}${t.sold !== undefined ? ` • ${t.sold} Besucher` : ''} ${t.isVerified ? '✅' : ''}</div>
                     <div class="auslass-time-range" style="${t.isVerified ? 'color: #2ecc71; font-weight: 800;' : ''}">${t.timeDisplay}</div>
                 `;
                 
