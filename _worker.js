@@ -772,7 +772,7 @@ app.get('/api/sessions', async (c) => {
                 if (idsAttr) {
                     const cleanIds = idsAttr.replace(/[\[\]\s]/g, '');
                     cleanIds.split(',').forEach(id => {
-                        if (id && id.length > 5) allowedIds.add(id);
+                        const trimmed = id.trim(); if (trimmed && trimmed.length > 5) allowedIds.add(trimmed);
                     });
                 }
             }
