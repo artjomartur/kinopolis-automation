@@ -446,6 +446,13 @@
         </select>
         <div id="location-display" style="background: var(--surface-color); border: 1px solid var(--surface-border); color: white; padding: 0.6rem 1.5rem; border-radius: 50px; font-weight: 700; font-size: 0.9rem;">Darmstadt (KP)</div>
     </header>
+    
+    <div id="pull-refresh-indicator" style="display: none; align-items: center; justify-content: center; overflow: hidden; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); color: var(--primary-blue); font-size: 1.5rem; transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05); margin: -1.5rem -1.5rem 1.5rem -1.5rem; border-radius: 0 0 20px 20px;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+            <span class="refresh-icon" style="transition: transform 0.2s ease;">🔄</span>
+            <span style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.7; font-weight: 800;">Aktualisieren</span>
+        </div>
+    </div>
 
     <div class="dashboard-grid">
         <!-- OPERATIONAL UPDATES -->
@@ -575,9 +582,9 @@
             
             <textarea id="tl-feedback-text" placeholder="Deine Nachricht..." style="width: 100%; height: 120px; resize: none; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 1rem; margin-bottom: 1.5rem; font-family: inherit;"></textarea>
             
-            <div style="display: flex; gap: 1.5rem;">
-                <button onclick="closeFeedbackModal()" style="flex: 1; background: rgba(255,255,255,0.05); color: white; border: none; padding: 0.75rem; border-radius: 12px; cursor: pointer; font-weight: 600;">Abbrechen</button>
-                <button id="tl-feedback-btn" onclick="sendTlFeedback()" style="flex: 2; background: linear-gradient(135deg, #a855f7, #7c3aed); color: white; border: none; padding: 0.75rem; border-radius: 12px; cursor: pointer; font-weight: 600;">🚀 Senden</button>
+            <div style="display: flex; gap: 1rem;">
+                <button onclick="closeFeedbackModal()" style="flex: 1; background: rgba(255,255,255,0.05); color: white; border: none; padding: 1rem; border-radius: 12px; cursor: pointer; font-weight: 600; height: 50px;">Abbrechen</button>
+                <button id="tl-feedback-btn" onclick="sendTlFeedback()" style="flex: 2; background: linear-gradient(135deg, #a855f7, #7c3aed); color: white; border: none; padding: 1rem; border-radius: 12px; cursor: pointer; font-weight: 700; height: 50px;">🚀 Senden</button>
             </div>
             <div id="tl-feedback-status" style="display: none; font-size: 0.8rem; text-align: center; margin-top: 1rem;"></div>
         </div>
@@ -1144,6 +1151,49 @@
             const d = new Date(isoStr);
             return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
         }
+
+        // --- PULL TO REFRESH ---
+        let touchStart = 0;
+        let pullThresh = 150;
+        
+        document.addEventListener('touchstart', e => {
+            if (window.scrollY === 0) touchStart = e.touches[0].pageY;
+        }, { passive: true });
+        
+        document.addEventListener('touchmove', e => {
+            const touch = e.touches[0].pageY;
+            const diff = touch - touchStart;
+            if (window.scrollY === 0 && diff > 0) {
+                const indicator = document.getElementById('pull-refresh-indicator');
+                if (indicator) {
+                    indicator.style.display = 'flex';
+                    const easedDiff = Math.pow(diff / pullThresh, 0.5) * pullThresh;
+                    indicator.style.height = `${Math.min(easedDiff, pullThresh)}px`;
+                    indicator.style.opacity = Math.min(diff / (pullThresh * 0.7), 1);
+                    
+                    const icon = indicator.querySelector('.refresh-icon');
+                    if (icon) icon.style.transform = `rotate(${diff * 2}deg)`;
+                    
+                    if (Math.abs(diff - pullThresh) < 5) triggerHaptic('medium');
+                }
+            }
+        }, { passive: true });
+        
+        document.addEventListener('touchend', e => {
+            const touch = e.changedTouches[0].pageY;
+            const diff = touch - touchStart;
+            if (window.scrollY === 0 && diff >= pullThresh) {
+                triggerHaptic('success');
+                refreshDashboard();
+                showToast('🔄 Aktualisiere Daten...');
+            }
+            const indicator = document.getElementById('pull-refresh-indicator');
+            if (indicator) {
+                indicator.style.height = '0px';
+                indicator.style.opacity = '0';
+                setTimeout(() => indicator.style.display = 'none', 300);
+            }
+        }, { passive: true });
 
         // --- Logbook Entry Logic ---
         function openLogModal() {
