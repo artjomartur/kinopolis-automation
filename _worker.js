@@ -1,4 +1,4 @@
-import { Hono } from 'hono';
+const key = `${dateStr}|${time}|${hall}|${title}`;import { Hono } from 'hono';
 import { sign, verify } from 'hono/jwt';
 import * as cheerio from 'cheerio';
 import { Buffer } from 'node:buffer';
@@ -859,7 +859,7 @@ app.get('/api/sessions', async (c) => {
                 const sessionObj = { title, poster: poster ? (poster.startsWith('http') ? poster : `https://www.kinopolis.de${poster}`) : null, 
                                    time, hall, duration, capacity, freePercent, sold, isBookable, performanceId: perfId, date: dateStr, fsk, movieLink };
 
-                const key = `${dateStr}-${perfId || (time + '-' + hall + '-' + title)}`;
+                const key = `${dateStr}|${perfId || (time + '-' + hall + '-' + title)}`;
                 const existing = sessionMap.get(key);
                 
                 if (!existing || (existing.capacity === 0 && capacity > 0) || (!existing.isBookable && isBookable)) {
@@ -877,7 +877,7 @@ app.get('/api/sessions', async (c) => {
                 
                 if (archived.results && archived.results.length > 0) {
                     archived.results.forEach(a => {
-                        const key = `${a.date}|${a.time}|${a.hall}|${a.title}`;
+                        const key = `${a.date}|undefined|(${a.time}-${a.hall}-${a.title})`;
                         if (!sessionMap.has(key)) {
                             // Session is missing from live site but exists in archive
                             sessionMap.set(key, {
