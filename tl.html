@@ -149,8 +149,13 @@
             backdrop-filter: blur(20px);
             border: 1px solid var(--surface-border);
             border-radius: 24px;
-            padding: 1.5rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            padding: 1.75rem;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
         }
 
         .card-header {
@@ -181,7 +186,7 @@
         .feed-list {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1rem;
         }
 
         .feed-item {
@@ -227,6 +232,8 @@
             font-size: 0.75rem;
             color: var(--text-muted);
             font-weight: 600;
+            display: block;
+            margin-top: 0.25rem;
         }
 
         .feed-actions {
@@ -819,13 +826,16 @@
                 const container = document.getElementById('logs-list');
                 
                 container.innerHTML = regular.map(l => `
-                    <div class="feed-item" style="grid-template-columns: 1fr auto;">
+                    <div class="feed-item" style="grid-template-columns: 1fr auto; padding: 1.25rem; margin-bottom: 0.75rem; background: rgba(255,255,255,0.04); border-radius: 18px;">
                         <div class="feed-content">
-                            <p><strong>${l.author}:</strong> ${l.message}</p>
-                            <span class="feed-time">${formatTime(l.created_at)} Uhr</span>
+                            <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.35rem;">
+                                <span style="font-weight: 800; color: var(--primary-blue); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.02em;">${l.author}:</span>
+                                <span style="color: #fff; line-height: 1.4;">${l.message}</span>
+                            </div>
+                            <span class="feed-time" style="opacity: 0.6;">${formatTime(l.created_at)} Uhr</span>
                         </div>
                         <div class="feed-actions">
-                            <button class="btn-action" onclick="acknowledgeLog(${l.id})" title="Löschen">🗑️</button>
+                            <button class="btn-action" onclick="acknowledgeLog(${l.id})" title="Löschen" style="opacity: 0.5; transform: scale(0.85);">🗑️</button>
                         </div>
                     </div>
                 `).join('');
