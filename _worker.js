@@ -1229,7 +1229,94 @@ app.delete('/api/mhd/:id', async (c) => {
     return c.json({ success: true });
 });
 
-// Handle Feedback submission
+});
+
+// --- TASK COMPLETIONS (Real-time Sync) ---
+app.get('/api/task-completions', async (c) => {
+    const location = c.req.query('location') || 'kp';
+    const date = c.req.query('date') || new Date().toISOString().split('T')[0];
+    if (!c.env.DB) return c.json([]);
+    try {
+        // Ensure table exists
+        await c.env.DB.prepare(`
+            CREATE TABLE IF NOT EXISTS task_completions (
+                task_id TEXT NOT NULL,
+                location TEXT NOT NULL,
+                date TEXT NOT NULL,
+                type TEXT,
+                completed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (task_id, location, date)
+            )
+        `).run();
+        
+        const { results } = await c.env.DB.prepare(
+            'SELECT task_id, type FROM task_completions WHERE location = ? AND date = ?'
+        ).bind(location, date).all();
+        return c.json(results);
+    } catch (e) {
+        return c.json([]);
+    }
+});
+
+app.post('/api/task-completions', async (c) => {
+    try {
+        const { task_id, location, date, type } = await c.req.json();
+        if (!task_id || !location || !date) return c.json({ error: 'Missing data' }, 400);
+        if (c.env.DB) {
+            await c.env.DB.prepare(
+                'INSERT OR REPLACE INTO task_completions (task_id, location, date, type) VALUES (?, ?, ?, ?)'
+            ).bind(task_id, location, date, type || 'task').run();
+        }
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+app.delete('/api/task-completions', async (c) => {
+    try {
+        const { task_id, location, date } = await c.req.json();
+        if (c.env.DB) {
+            await c.env.DB.prepare(
+                'DELETE FROM task_completions WHERE task_id = ? AND location = ? AND date = ?'
+            ).bind(task_id, location, date).run();
+        }
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+// --- HALL STATUS SYNC ---
+app.get('/api/hall-status', async (c) => {
+    const location = c.req.query('location') || 'kp';
+    if (!c.env.DB) return c.json({});
+    try {
+        await c.env.DB.prepare(`
+            CREATE TABLE IF NOT EXISTS hall_status (
+                hall_id TEXT PRIMARY KEY,
+                location TEXT NOT NULL,
+                status TEXT NOT NULL,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `).run();
+        const { results } = await c.env.DB.prepare('SELECT hall_id, status FROM hall_status WHERE location = ?').bind(location).all();
+        const statusMap = {};
+        results.forEach(r => statusMap[r.hall_id] = r.status);
+        return c.json(statusMap);
+    } catch (e) { return c.json({}); }
+});
+
+app.post('/api/hall-status', async (c) => {
+    try {
+        const { hall_id, location, status } = await c.req.json();
+        if (c.env.DB) {
+            await c.env.DB.prepare('INSERT OR REPLACE INTO hall_status (hall_id, location, status, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)')
+                .bind(hall_id, location || 'kp', status).run();
+        }
+        return c.json({ success: true });
+    } catch (e) { return c.json({ error: e.message }, 500); }
+});
 app.post('/api/feedback', async (c) => {
     try {
         const body = await c.req.json();

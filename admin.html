@@ -360,6 +360,10 @@
                     <div class="card" style="margin-top: 1.5rem;">
                         <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">Verwalte alle Artikel für Transfers und MHD-Erfassung.</p>
                         
+                        <div style="margin-bottom: 2rem; display: flex; gap: 1rem;">
+                            <button onclick="seedInventory()" class="btn-secondary" style="background: rgba(0, 120, 255, 0.1); border-color: rgba(0, 120, 255, 0.3); color: var(--primary-blue); font-size: 0.85rem; padding: 0.6rem 1rem;">✨ Standard-Sortiment laden</button>
+                        </div>
+
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: rgba(255,255,255,0.02); padding: 2rem; border-radius: 16px; border: 1px solid var(--surface-border); margin-bottom: 3rem;">
                             <input type="text" id="inv-name" placeholder="Artikelname (z.B. Popcorn Süß)" class="input-field" style="margin-bottom: 0;">
                             <input type="number" id="inv-target" placeholder="Soll-Wert (Stück)" class="input-field" style="margin-bottom: 0;">
@@ -449,19 +453,15 @@
                                 </label>
                             </div>
                         </div>
-                        <button onclick="handleCSVExport()" class="btn-primary" style="margin-bottom: 1rem; width: 100%; background: linear-gradient(135deg, #2ecc71, #27ae60);">
-                            🚀 CSV Export generieren
-                        </button>
-                        <hr style="border: 0; border-top: 1px solid var(--surface-border); margin: 1.5rem 0;">
-                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Oder als fertiges Dokument für Schichtberichte:</p>
                         <div class="btn-group">
-                            <button onclick="exportToExcel()" class="btn-secondary" style="border-color: rgba(46, 204, 113, 0.3);">
-                                <span style="color: #2ecc71;">📊</span> Excel Export (Logs)
+                            <button onclick="handleCSVExport()" class="btn-primary" style="background: linear-gradient(135deg, #2ecc71, #27ae60);">
+                                🚀 CSV Export
                             </button>
-                            <button onclick="exportToPDF()" class="btn-secondary" style="border-color: rgba(231, 76, 60, 0.3);">
-                                <span style="color: #e74c3c;">📄</span> PDF Export (Logs)
+                            <button onclick="handlePDFExport()" class="btn-primary" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+                                📄 PDF Report (Alles)
                             </button>
                         </div>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem; text-align: center;">Exportiert die oben ausgewählten Kategorien.</p>
                     </div>
                 </div>
 
@@ -486,6 +486,8 @@
             </div>
 
         </div>
+    <div style="text-align: center; padding: 2.5rem 1rem 5rem; font-size: 0.7rem; color: var(--text-muted); opacity: 0.4;">Admin Portal · System-Version: V1.0 · &copy; 2026 Kinopolis Automation</div>
+
     </div>
 
     <!-- News Modal -->
@@ -760,6 +762,36 @@
             } catch (e) { alert('Fehler beim Hinzufügen.'); }
         }
 
+        async function seedInventory() {
+            const items = [
+                { name: "🍿 Popcorn Süß", target: 40, type: 'ware' },
+                { name: "🧂 Popcorn Salz", target: 20, type: 'ware' },
+                { name: "🧀 Nachos", target: 50, type: 'ware' },
+                { name: "🥤 Becher 1.0L", target: 100, type: 'getraenke' },
+                { name: "🥤 Becher 0.5L", target: 100, type: 'getraenke' },
+                { name: "🥤 Becher Deckel", target: 150, type: 'getraenke' },
+                { name: "🥤 Strohhalme", target: 200, type: 'getraenke' },
+                { name: "🍦 Magnum Classic", target: 20, type: 'eis' },
+                { name: "🍦 Magnum Mandel", target: 20, type: 'eis' },
+                { name: "🍦 Magnum White", target: 20, type: 'eis' },
+                { name: "🍦 Eiskonfekt", target: 15, type: 'eis' }
+            ];
+
+            if (!confirm(`Möchtest du ${items.length} Standard-Artikel in die Datenbank laden?`)) return;
+
+            for (const item of items) {
+                try {
+                    await fetch('/api/inventory', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(item)
+                    });
+                } catch (e) {}
+            }
+            loadInventory();
+            alert('✅ Standard-Sortiment erfolgreich importiert!');
+        }
+
         async function deleteInventoryItem(id) {
             if (!confirm('Artikel wirklich löschen?')) return;
             try {
@@ -965,6 +997,118 @@
             } catch (e) {
                 console.error("Export failed:", e);
                 alert("Export fehlgeschlagen: " + e.message);
+            }
+        }
+
+        // NEW: UNIVERSAL PDF EXPORT
+        async function handlePDFExport() {
+            if (typeof window.jspdf === 'undefined') { alert('Die PDF-Bibliothek wird noch geladen...'); return; }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            let currentY = 20;
+
+            try {
+                // Header
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(22);
+                doc.text('Kinopolis Schicht-Report', 14, currentY);
+                currentY += 10;
+                
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(100);
+                doc.text(`Standort: ${currentCity.toUpperCase()} · Datum: ${new Date().toLocaleString('de-DE')}`, 14, currentY);
+                currentY += 15;
+
+                // 1. Logs
+                if (document.getElementById('export-logs')?.checked) {
+                    const res = await fetch(`/api/logs?location=${currentCity}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        doc.setFontSize(14);
+                        doc.setTextColor(0);
+                        doc.text('📖 Dienstprotokolle (Logs)', 14, currentY);
+                        currentY += 5;
+
+                        doc.autoTable({
+                            startY: currentY,
+                            head: [['Zeit', 'Autor', 'Ereignis', 'Prio']],
+                            body: data.map(l => [
+                                new Date(l.created_at).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }),
+                                l.author || 'System',
+                                l.message,
+                                l.priority || 'Normal'
+                            ]),
+                            theme: 'striped',
+                            headStyles: { fillColor: [0, 120, 255] },
+                            styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' },
+                            margin: { left: 14, right: 14 }
+                        });
+                        currentY = doc.lastAutoTable.finalY + 15;
+                    }
+                }
+
+                // 2. Lost & Found
+                if (document.getElementById('export-lf')?.checked) {
+                    if (currentY > 250) { doc.addPage(); currentY = 20; }
+                    const res = await fetch(`/api/lostfound?location=${currentCity}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        doc.setFontSize(14);
+                        doc.setTextColor(0);
+                        doc.text('🎒 Fundbüro Einträge', 14, currentY);
+                        currentY += 5;
+
+                        doc.autoTable({
+                            startY: currentY,
+                            head: [['Datum', 'Gegenstand', 'Fundort', 'Status']],
+                            body: data.map(i => [
+                                new Date(i.created_at).toLocaleDateString('de-DE'),
+                                i.what,
+                                i.location,
+                                i.status || 'Gefunden'
+                            ]),
+                            theme: 'striped',
+                            headStyles: { fillColor: [255, 185, 0] },
+                            styles: { fontSize: 8, cellPadding: 2 },
+                            margin: { left: 14, right: 14 }
+                        });
+                        currentY = doc.lastAutoTable.finalY + 15;
+                    }
+                }
+
+                // 3. Contacts
+                if (document.getElementById('export-contacts')?.checked) {
+                    if (currentY > 250) { doc.addPage(); currentY = 20; }
+                    const res = await fetch(`/api/contacts?location=${currentCity}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        doc.setFontSize(14);
+                        doc.setTextColor(0);
+                        doc.text('📞 Notfall-Kontakte', 14, currentY);
+                        currentY += 5;
+
+                        doc.autoTable({
+                            startY: currentY,
+                            head: [['Bereich', 'Rolle/Name', 'Telefonnummer']],
+                            body: data.map(c => [
+                                c.category,
+                                c.role_name,
+                                c.phone_number
+                            ]),
+                            theme: 'striped',
+                            headStyles: { fillColor: [46, 204, 113] },
+                            styles: { fontSize: 8, cellPadding: 2 },
+                            margin: { left: 14, right: 14 }
+                        });
+                    }
+                }
+
+                doc.save(`Kinopolis_Report_${currentCity}_${new Date().toISOString().split('T')[0]}.pdf`);
+                alert('PDF erfolgreich generiert!');
+            } catch (e) {
+                console.error(e);
+                alert('PDF Export fehlgeschlagen.');
             }
         }
 

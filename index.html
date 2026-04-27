@@ -1411,6 +1411,62 @@
             box-shadow: 0 0 15px var(--red-glow);
         }
 
+        /* LIVE NEWS TICKER */
+        .ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+            background: rgba(229, 9, 20, 0.15);
+            border-bottom: 1px solid rgba(229, 9, 20, 0.3);
+            height: 40px;
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+            position: sticky;
+            top: 0;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+
+        .ticker-badge {
+            background: #E50914;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            margin: 0 12px;
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(229, 9, 20, 0.5);
+            animation: pulse-red 2s infinite;
+            flex-shrink: 0;
+        }
+
+        .ticker-move {
+            white-space: nowrap;
+            padding-right: 100%;
+            display: inline-block;
+            animation: ticker 40s linear infinite;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .ticker-move span {
+            margin-right: 100px;
+            display: inline-block;
+        }
+
+        @keyframes ticker {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+
+        @keyframes pulse-red {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
         .dashboard-grid {
             display: flex;
             flex-direction: column;
@@ -3000,6 +3056,12 @@
     </style>
 </head>
 <body class="dark-mode">
+    <!-- NEWS TICKER -->
+    <div id="news-ticker" class="ticker-wrap" style="display: none;">
+        <div class="ticker-badge">LIVE</div>
+        <div class="ticker-move" id="ticker-content"></div>
+    </div>
+
     <!-- ULTIMATE SPLASH FAILSAFE -->
     <script>
         setTimeout(function() {
@@ -4267,9 +4329,10 @@
                 if (window.updateGamification) updateGamification();
                 if (window.tickAllCountdowns) tickAllCountdowns();
                 if (window.updateLiveAlertBanner) updateLiveAlertBanner(); if (window.updateShiftTimer) { updateShiftTimer(); setInterval(updateShiftTimer, 60000); }
-                if (window.updateShiftTimer) {
-                    updateShiftTimer();
-                    setInterval(updateShiftTimer, 60000);
+                if (window.updateTicker) updateTicker();
+                if (window.loadTaskState) {
+                    loadTaskState();
+                    setInterval(loadTaskState, 30000); // Polling every 30s
                 }
                 
                 // Initialize default tab
@@ -4357,6 +4420,24 @@
             const hours = Math.floor(remaining / (1000 * 60 * 60));
             const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
             leftText.textContent = `${hours}h ${mins}m verbleibend`;
+        }
+
+        // --- NEWS TICKER ---
+        async function updateTicker() {
+            try {
+                const res = await fetch(`/api/messages?location=${localStorage.getItem('admin_city') || 'kp'}`);
+                const messages = await res.json();
+                if (messages && messages.length > 0) {
+                    const ticker = document.getElementById('news-ticker');
+                    const content = document.getElementById('ticker-content');
+                    if (ticker && content) {
+                        ticker.style.display = 'flex';
+                        content.innerHTML = messages.slice(0, 5).map(m => `
+                            <span>🚨 ${m.title.toUpperCase()}: ${m.content.replace(/\n/g, ' ')}</span>
+                        `).join('');
+                    }
+                }
+            } catch (e) { console.error("Ticker fetch error", e); }
         }
 
         // ============================================================
@@ -4811,6 +4892,67 @@
             { name: "🍦 Magnum White", target: 20 },
             { name: "🍦 Eiskonfekt", target: 15 }
         ];
+
+        // --- SAAL STATUS (Real-time Sync) ---
+        let HALL_STATUS = {
+            1: 'running', 2: 'running', 3: 'running', 4: 'running',
+            5: 'running', 6: 'running', 7: 'running', 8: 'running'
+        };
+
+        async function loadHallStatus() {
+            try {
+                const res = await fetch(`/api/hall-status?location=${currentCity}`);
+                const data = await res.json();
+                Object.assign(HALL_STATUS, data);
+                renderHallStatus();
+            } catch (e) { console.error("Error loading hall status", e); }
+        }
+
+        async function updateHallStatus(hall, status) {
+            HALL_STATUS[hall] = status;
+            renderHallStatus();
+            try {
+                await fetch('/api/hall-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hall_id: hall.toString(), location: currentCity, status })
+                });
+            } catch (e) { console.error("Sync error", e); }
+        }
+
+        function initHallStatus() {
+            loadHallStatus();
+            setInterval(loadHallStatus, 15000); // Sync every 15s
+        }
+
+        function renderHallStatus() {
+            const container = document.getElementById('hall-status-grid');
+            if (!container) return;
+            container.innerHTML = [1, 2, 3, 4, 5, 6, 7, 8].map(h => {
+                const status = HALL_STATUS[h] || 'running';
+                let label = 'Läuft';
+                let color = '#2ecc71';
+                if (status === 'cleaning') { label = 'Reinigung'; color = '#f1c40f'; }
+                if (status === 'ready') { label = 'Bereit'; color = '#3498db'; }
+                
+                return `
+                    <div class="hall-status-card" onclick="cycleHallStatus(${h})" style="border-top: 4px solid ${color}">
+                        <div style="font-weight: 800; font-size: 1.1rem; color: white;">Saal ${h}</div>
+                        <div style="font-size: 0.75rem; color: ${color}; font-weight: 700; text-transform: uppercase;">${label}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function cycleHallStatus(hall) {
+            triggerHaptic('medium');
+            const current = HALL_STATUS[hall] || 'running';
+            let next = 'running';
+            if (current === 'running') next = 'cleaning';
+            else if (current === 'cleaning') next = 'ready';
+            else if (current === 'ready') next = 'running';
+            updateHallStatus(hall, next);
+        }
 
         async function fetchInventory() {
             try {
@@ -5961,27 +6103,46 @@
             });
         }
 
-        function loadTaskState() {
+        async function loadTaskState() {
             try {
-                const auslaesse = localStorage.getItem(`completed_auslaesse_${currentCity}`);
-                const posters = localStorage.getItem(`completed_posters_${currentCity}`);
-                const cleaning = localStorage.getItem(`completed_cleaning_${currentCity}`);
+                const res = await fetch(`/api/task-completions?location=${currentCity}&date=${new Date().toISOString().split('T')[0]}`);
+                const data = await res.json();
                 
-                completedAuslaesse = new Set(auslaesse ? JSON.parse(auslaesse) : []);
-                completedPosters = new Set(posters ? JSON.parse(posters) : []);
-                completedCleaning = new Set(cleaning ? JSON.parse(cleaning) : []);
-            } catch (e) {
-                console.error("Error loading task state", e);
                 completedAuslaesse = new Set();
                 completedPosters = new Set();
                 completedCleaning = new Set();
+                
+                data.forEach(t => {
+                    if (t.type === 'auslass') completedAuslaesse.add(t.task_id);
+                    else if (t.type === 'poster') completedPosters.add(t.task_id);
+                    else if (t.type === 'cleaning') completedCleaning.add(t.task_id);
+                });
+                renderLiveTasks();
+            } catch (e) {
+                console.error("Error loading task state", e);
             }
         }
 
+        async function syncTaskState(taskId, type, isDone) {
+            try {
+                if (isDone) {
+                    await fetch('/api/task-completions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ task_id: taskId, location: currentCity, date: new Date().toISOString().split('T')[0], type })
+                    });
+                } else {
+                    await fetch('/api/task-completions', {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ task_id: taskId, location: currentCity, date: new Date().toISOString().split('T')[0] })
+                    });
+                }
+            } catch (e) { console.error("Sync error", e); }
+        }
+
         function saveTaskState() {
-            localStorage.setItem(`completed_auslaesse_${currentCity}`, JSON.stringify(Array.from(completedAuslaesse)));
-            localStorage.setItem(`completed_posters_${currentCity}`, JSON.stringify(Array.from(completedPosters)));
-            localStorage.setItem(`completed_cleaning_${currentCity}`, JSON.stringify(Array.from(completedCleaning)));
+            // No longer used for localStorage, keeping for compatibility if needed
         }
 
         function renderTasks(halls) {
@@ -6118,20 +6279,20 @@
                     <div class="auslass-time-range" style="${t.isVerified ? 'color: #2ecc71; font-weight: 800;' : ''}">${t.timeDisplay}</div>
                 `;
                 
-                item.addEventListener('click', () => {
+                item.addEventListener('click', async () => {
                     triggerHaptic('light');
-                    if (set.has(t.id)) {
+                    const isDone = set.has(t.id);
+                    if (isDone) {
                         set.delete(t.id);
                         item.classList.remove('done');
                     } else {
                         set.add(t.id);
                         item.classList.add('done');
-                        
-                        // Award XP based on task type
                         const xpMap = { 'auslass': 15, 'cleaning': 20, 'poster': 10 };
                         awardXP(xpMap[t.type] || 5, `${t.type.toUpperCase()} erledigt`);
                     }
-                    saveTaskState();
+                    await syncTaskState(t.id, t.type, !isDone);
+                    renderLiveTasks();
                 });
                 
                 list.appendChild(item);
@@ -7149,6 +7310,9 @@
                 <span>📂</span> Mehr
             </a>
         </nav>
+        <div style="text-align: center; padding: 1.5rem 1rem 5rem; font-size: 0.7rem; color: var(--text-muted); opacity: 0.5;">
+            System-Version: V1.0 · &copy; 2026 Kinopolis Automation
+        </div>
     <script>
     </script>
     <!-- Dev Info Modal (Welcome Style) -->

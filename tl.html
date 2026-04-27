@@ -1289,42 +1289,70 @@
             };
         }
 
+        // --- SAAL STATUS (Real-time Sync) ---
+        let HALL_STATUS = {
+            1: 'running', 2: 'running', 3: 'running', 4: 'running',
+            5: 'running', 6: 'running', 7: 'running', 8: 'running'
+        };
+
+        async function loadHallStatus() {
+            try {
+                const res = await fetch(`/api/hall-status?location=${currentCity}`);
+                const data = await res.json();
+                Object.assign(HALL_STATUS, data);
+                renderHallStatus();
+            } catch (e) { console.error("Error loading hall status", e); }
+        }
+
+        async function updateHallStatus(hall, status) {
+            HALL_STATUS[hall] = status;
+            renderHallStatus();
+            try {
+                await fetch('/api/hall-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hall_id: hall.toString(), location: currentCity, status })
+                });
+            } catch (e) { console.error("Sync error", e); }
+        }
+
+        function initHallStatus() {
+            loadHallStatus();
+            setInterval(loadHallStatus, 15000); // Sync every 15s
+        }
+
+        function renderHallStatus() {
+            const container = document.getElementById('hall-status-grid');
+            if (!container) return;
+            container.innerHTML = [1, 2, 3, 4, 5, 6, 7, 8].map(h => {
+                const status = HALL_STATUS[h] || 'running';
+                let label = 'Läuft';
+                let color = '#2ecc71';
+                if (status === 'cleaning') { label = 'Reinigung'; color = '#f1c40f'; }
+                if (status === 'ready') { label = 'Bereit'; color = '#3498db'; }
+                
+                return `
+                    <div class="hall-status-card" onclick="cycleHallStatus(${h})" style="border-top: 4px solid ${color}">
+                        <div style="font-weight: 800; font-size: 1.1rem; color: white;">Saal ${h}</div>
+                        <div style="font-size: 0.75rem; color: ${color}; font-weight: 700; text-transform: uppercase;">${label}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function cycleHallStatus(hall) {
+            triggerHaptic('medium');
+            const current = HALL_STATUS[hall] || 'running';
+            let next = 'running';
+            if (current === 'running') next = 'cleaning';
+            else if (current === 'cleaning') next = 'ready';
+            else if (current === 'ready') next = 'running';
+            updateHallStatus(hall, next);
+        }
+
         function formatTime(isoStr) {
             const d = new Date(isoStr);
             return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-        }
-
-        // --- SAAL STATUS ---
-        const HALL_STATUS = safeParse('tl_hall_status', {
-            1: 'running', 2: 'running', 3: 'running', 4: 'running',
-            5: 'running', 6: 'running', 7: 'running', 8: 'running'
-        });
-
-        function initHallStatus() {
-            const grid = document.getElementById('hall-status-grid');
-            if (!grid) return;
-            grid.innerHTML = '';
-            for (let i = 1; i <= 8; i++) {
-                const status = HALL_STATUS[i] || 'running';
-                const div = document.createElement('div');
-                div.className = `hall-box ${status}`;
-                div.id = `hall-${i}`;
-                div.onclick = () => cycleHallStatus(i);
-                div.innerHTML = `<div class="hall-num">${i}</div><div class="hall-indicator"></div>`;
-                grid.appendChild(div);
-            }
-        }
-
-        function cycleHallStatus(hallNum) {
-            triggerHaptic('medium');
-            const states = ['running', 'cleaning', 'ready'];
-            let current = HALL_STATUS[hallNum];
-            let nextIndex = (states.indexOf(current) + 1) % states.length;
-            let next = states[nextIndex];
-            HALL_STATUS[hallNum] = next;
-            localStorage.setItem('tl_hall_status', JSON.stringify(HALL_STATUS));
-            const el = document.getElementById(`hall-${hallNum}`);
-            el.className = `hall-box ${next}`;
         }
 
         // --- TABS LOGIC ---
