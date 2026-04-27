@@ -1147,31 +1147,38 @@ app.delete('/api/messages/:id', async (c) => {
     }
     return c.json({ success: true });
 });
-
-// --- INVENTORY API ---
+// --- INVENTORY & MHD API ---
 app.get('/api/inventory', async (c) => {
-    if (!c.env.DB) return c.json({ waren: [], eis: [] });
+    if (!c.env.DB) return c.json({ waren: [], eis: [], getraenke: [], slushy: [] });
     try {
         const { results } = await c.env.DB.prepare('SELECT * FROM inventory_items ORDER BY type, name').all();
         return c.json({
-            waren: results.filter(i => i.type === 'waren'),
-            eis: results.filter(i => i.type === 'eis')
+            waren: results.filter(i => i.type === 'waren' || i.type === 'ware'),
+            eis: results.filter(i => i.type === 'eis'),
+            getraenke: results.filter(i => i.type === 'getraenke' || i.type === 'getraenk'),
+            slushy: results.filter(i => i.type === 'slushy' || i.type === 'slushys')
         });
     } catch (e) {
-        // Table might not exist yet, try to create it
+        // Table might not exist with all columns, try to ensure columns exist (simple approach for D1)
         try {
-            await c.env.DB.prepare('CREATE TABLE IF NOT EXISTS inventory_items (id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, name TEXT, target INTEGER, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)').run();
+            await c.env.DB.prepare('ALTER TABLE inventory_items ADD COLUMN location TEXT').run().catch(() => {});
         } catch(e2) {}
-        return c.json({ waren: [], eis: [] });
+        return c.json({ waren: [], eis: [], getraenke: [], slushy: [] });
     }
 });
 
 app.post('/api/inventory', async (c) => {
     try {
-        const { type, name, target } = await c.req.json();
+        const { type, name, target, location } = await c.req.json();
         if (!type || !name) return c.json({ error: 'Type and name required' }, 400);
         if (c.env.DB) {
-            await c.env.DB.prepare('INSERT INTO inventory_items (type, name, target) VALUES (?, ?, ?)').bind(type, name, target || 0).run();
+            // Check if column exists or just try insert
+            try {
+                await c.env.DB.prepare('INSERT INTO inventory_items (type, name, target, location) VALUES (?, ?, ?, ?)').bind(type, name, target || 0, location || null).run();
+            } catch (dbErr) {
+                // Fallback for older schema
+                await c.env.DB.prepare('INSERT INTO inventory_items (type, name, target) VALUES (?, ?, ?)').bind(type, name, target || 0).run();
+            }
         }
         return c.json({ success: true });
     } catch (e) {
@@ -1183,6 +1190,38 @@ app.delete('/api/inventory/:id', async (c) => {
     const id = c.req.param('id');
     if (c.env.DB) {
         await c.env.DB.prepare('DELETE FROM inventory_items WHERE id = ?').bind(id).run();
+    }
+    return c.json({ success: true });
+});
+
+app.get('/api/mhd', async (c) => {
+    if (!c.env.DB) return c.json([]);
+    try {
+        const { results } = await c.env.DB.prepare('SELECT * FROM mhd_records ORDER BY mhd_date ASC').all();
+        return c.json(results);
+    } catch (e) {
+        return c.json([]);
+    }
+});
+
+app.post('/api/mhd', async (c) => {
+    try {
+        const { item_id, item_name, type, location, mhd_date, author } = await c.req.json();
+        if (!item_name || !mhd_date) return c.json({ error: 'Name and Date required' }, 400);
+        if (c.env.DB) {
+            await c.env.DB.prepare('INSERT INTO mhd_records (item_id, item_name, type, location, mhd_date, author) VALUES (?, ?, ?, ?, ?, ?)')
+                .bind(item_id || null, item_name, type, location, mhd_date, author || 'System').run();
+        }
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+app.delete('/api/mhd/:id', async (c) => {
+    const id = c.req.param('id');
+    if (c.env.DB) {
+        await c.env.DB.prepare('DELETE FROM mhd_records WHERE id = ?').bind(id).run();
     }
     return c.json({ success: true });
 });
@@ -1700,9 +1739,11 @@ app.get('/api/upcoming', async (c) => {
         const locRaw = (c.req.query('location') || 'kp').toLowerCase();
         const center = /^[a-z0-9]{2}$/.test(locRaw) ? locRaw : 'kp';
 
-        // Startseite: echter „Demnächst“-Slider hat id="coming-soon-slider" (eigene /filme/demnaechst-URL ist oft 404).
-        const response = await fetch(`https://www.kinopolis.de/${center}`);
-        if (!response.ok) throw new Error('Failed to fetch Kinopolis homepage');
+        // Try dedicated upcoming page first for better results
+        let response = await fetch(`https://www.kinopolis.de/${center}/filme/demnaechst`);
+        if (!response.ok) response = await fetch(`https://www.kinopolis.de/${center}`);
+        
+        if (!response.ok) throw new Error('Failed to fetch Kinopolis movies');
         const html = await response.text();
 
         const soonMatch = html.match(/<section[^>]*id="coming-soon-slider"[^>]*>([\s\S]*?)<\/section>/i);

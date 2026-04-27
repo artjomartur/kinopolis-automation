@@ -90,3 +90,25 @@ CREATE TABLE IF NOT EXISTS occupancy_archive (
 
 CREATE INDEX IF NOT EXISTS idx_occupancy_date ON occupancy_archive(date);
 
+
+CREATE TABLE IF NOT EXISTS inventory_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    type TEXT NOT NULL, -- 'ware', 'eis', 'getraenke', 'slushy'
+    name TEXT NOT NULL,
+    target INTEGER DEFAULT 0,
+    location TEXT, -- 'Kühlschrank 1', 'Gondel A', etc.
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS mhd_records (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    item_id INTEGER,
+    item_name TEXT,
+    type TEXT,
+    location TEXT,
+    mhd_date DATE NOT NULL,
+    author TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_mhd_date ON mhd_records(mhd_date);

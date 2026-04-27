@@ -337,28 +337,62 @@
 
                 <!-- Inventory Management -->
                 <div class="admin-section">
-                    <h2><span>📋</span> Transfer-Artikel & Soll-Werte</h2>
+                    <h2><span>📋</span> Artikelliste & Soll-Werte</h2>
                     <div class="card" style="margin-top: 1.5rem;">
-                        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">Verwalte die Artikel in der Waren- und Eis-Transferliste sowie deren Ziel-Bestände (Soll).</p>
+                        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">Verwalte alle Artikel für Transfers und MHD-Erfassung.</p>
                         
-                        <div style="display: flex; flex-direction: column; gap: 1.25rem; background: rgba(255,255,255,0.02); padding: 2rem; border-radius: 16px; border: 1px solid var(--surface-border); margin-bottom: 3rem;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: rgba(255,255,255,0.02); padding: 2rem; border-radius: 16px; border: 1px solid var(--surface-border); margin-bottom: 3rem;">
                             <input type="text" id="inv-name" placeholder="Artikelname (z.B. Popcorn Süß)" class="input-field" style="margin-bottom: 0;">
                             <input type="number" id="inv-target" placeholder="Soll-Wert (Stück)" class="input-field" style="margin-bottom: 0;">
+                            <input type="text" id="inv-location" placeholder="Ort (z.B. Kühlschrank 1, Gondel A)" class="input-field" style="margin-bottom: 0;">
                             <select id="inv-type" class="input-field" style="margin-bottom: 0;">
                                 <option value="ware">Waren-Transfer</option>
                                 <option value="eis">Eis-Transfer</option>
+                                <option value="getraenke">Getränke</option>
+                                <option value="slushy">Slushys</option>
                             </select>
-                            <button onclick="addInventoryItem()" class="btn-primary" style="margin-top: 0.5rem;">Artikel Hinzufügen</button>
+                            <button onclick="addInventoryItem()" class="btn-primary" style="grid-column: span 2; margin-top: 0.5rem;">Artikel Hinzufügen</button>
                         </div>
 
-                        <h4 style="margin-top: 2rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; margin-bottom: 1rem;">Waren-Artikel</h4>
-                        <div id="admin-inv-waren" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2.5rem;">
-                            <p style="color: var(--text-muted); font-size: 0.9rem;">Keine Waren-Artikel.</p>
-                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                            <div>
+                                <h4 style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; margin-bottom: 1rem;">Waren</h4>
+                                <div id="admin-inv-waren" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem;"></div>
+                                
+                                <h4 style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; margin-bottom: 1rem;">Getränke</h4>
+                                <div id="admin-inv-getraenke" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+                            </div>
+                            <div>
+                                <h4 style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; margin-bottom: 1rem;">Eis</h4>
+                                <div id="admin-inv-eis" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem;"></div>
 
-                        <h4 style="margin-top: 2rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; margin-bottom: 1rem;">Eis-Artikel</h4>
-                        <div id="admin-inv-eis" style="display: flex; flex-direction: column; gap: 0.75rem;">
-                            <p style="color: var(--text-muted); font-size: 0.9rem;">Keine Eis-Artikel.</p>
+                                <h4 style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; margin-bottom: 1rem;">Slushys</h4>
+                                <div id="admin-inv-slushy" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MHD Overview -->
+                <div class="admin-section">
+                    <h2><span>📅</span> MHD Übersicht</h2>
+                    <div class="card">
+                        <p style="margin-bottom: 1.5rem;">Aktuell erfasste Mindesthaltbarkeitsdaten der Artikel.</p>
+                        <div style="overflow-x: auto; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                                <thead>
+                                    <tr style="background: rgba(255,255,255,0.05); text-align: left; border-bottom: 1px solid var(--surface-border);">
+                                        <th style="padding: 0.75rem;">Artikel</th>
+                                        <th style="padding: 0.75rem;">Ort</th>
+                                        <th style="padding: 0.75rem;">MHD</th>
+                                        <th style="padding: 0.75rem;">Status</th>
+                                        <th style="padding: 0.75rem; text-align: right;">Aktion</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-mhd-list">
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -655,6 +689,9 @@
         async function loadInventory() {
             const warenList = document.getElementById('admin-inv-waren');
             const eisList = document.getElementById('admin-inv-eis');
+            const getraenkeList = document.getElementById('admin-inv-getraenke');
+            const slushyList = document.getElementById('admin-inv-slushy');
+            
             try {
                 const res = await fetch('/api/inventory');
                 const data = await res.json();
@@ -663,17 +700,20 @@
                     <div style="background: rgba(255,255,255,0.03); padding: 0.6rem 0.8rem; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05);">
                         <div>
                             <div style="font-weight: 600; font-size: 0.85rem;">${i.name}</div>
-                            <div style="font-size: 0.7rem; color: var(--text-muted);">Soll: ${i.target} Stück</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">${i.location ? '📍 ' + i.location + ' | ' : ''}Soll: ${i.target} Stück</div>
                         </div>
                         <button onclick="deleteInventoryItem(${i.id})" style="background: rgba(229, 9, 20, 0.1); color: #ff4d4d; border: none; padding: 0.35rem 0.5rem; border-radius: 6px; font-size: 0.7rem; cursor: pointer;">Entfernen</button>
                     </div>
                 `;
 
-                warenList.innerHTML = data.waren.map(renderItem).join('') || '<p style="color: var(--text-muted); font-size: 0.8rem;">Keine Waren-Artikel.</p>';
-                eisList.innerHTML = data.eis.map(renderItem).join('') || '<p style="color: var(--text-muted); font-size: 0.8rem;">Keine Eis-Artikel.</p>';
+                warenList.innerHTML = data.waren.map(renderItem).join('') || '<p style="color: var(--text-muted); font-size: 0.8rem;">Keine Artikel.</p>';
+                eisList.innerHTML = data.eis.map(renderItem).join('') || '<p style="color: var(--text-muted); font-size: 0.8rem;">Keine Artikel.</p>';
+                getraenkeList.innerHTML = data.getraenke.map(renderItem).join('') || '<p style="color: var(--text-muted); font-size: 0.8rem;">Keine Artikel.</p>';
+                slushyList.innerHTML = data.slushy.map(renderItem).join('') || '<p style="color: var(--text-muted); font-size: 0.8rem;">Keine Artikel.</p>';
+                
+                loadMHDList();
             } catch (e) {
-                warenList.innerHTML = 'Fehler beim Laden.';
-                eisList.innerHTML = 'Fehler beim Laden.';
+                console.error(e);
             }
         }
 
@@ -681,6 +721,7 @@
             const name = document.getElementById('inv-name').value.trim();
             const target = parseInt(document.getElementById('inv-target').value) || 0;
             const type = document.getElementById('inv-type').value;
+            const location = document.getElementById('inv-location').value.trim();
             
             if (!name) return alert('Bitte Name eingeben.');
             
@@ -688,11 +729,12 @@
                 const res = await fetch('/api/inventory', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, target, type })
+                    body: JSON.stringify({ name, target, type, location })
                 });
                 if (res.ok) {
                     document.getElementById('inv-name').value = '';
                     document.getElementById('inv-target').value = '';
+                    document.getElementById('inv-location').value = '';
                     loadInventory();
                 }
             } catch (e) { alert('Fehler beim Hinzufügen.'); }
@@ -704,6 +746,44 @@
                 const res = await fetch(`/api/inventory/${id}`, { method: 'DELETE' });
                 if (res.ok) loadInventory();
             } catch (e) { alert('Fehler beim Löschen.'); }
+        }
+
+        async function loadMHDList() {
+            const list = document.getElementById('admin-mhd-list');
+            try {
+                const res = await fetch('/api/mhd');
+                const data = await res.json();
+                
+                list.innerHTML = data.map(m => {
+                    const mhd = new Date(m.mhd_date);
+                    const diff = (mhd - new Date()) / (1000 * 60 * 60 * 24);
+                    let status = '<span style="color: #2ecc71;">OK</span>';
+                    if (diff < 0) status = '<span style="color: #e74c3c; font-weight: 800;">ABGELAUFEN</span>';
+                    else if (diff < 7) status = '<span style="color: #f1c40f;">KRITISCH</span>';
+                    
+                    return `
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                            <td style="padding: 0.75rem;">${m.item_name}</td>
+                            <td style="padding: 0.75rem; color: var(--text-muted);">${m.location || '-'}</td>
+                            <td style="padding: 0.75rem; font-weight: 700;">${mhd.toLocaleDateString('de-DE')}</td>
+                            <td style="padding: 0.75rem;">${status}</td>
+                            <td style="padding: 0.75rem; text-align: right;">
+                                <button onclick="deleteMHD(${m.id})" style="background: none; border: none; color: #ff4d4d; cursor: pointer; font-size: 1rem;">🗑️</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('') || '<tr><td colspan="5" style="padding: 2rem; text-align: center; color: var(--text-muted);">Keine MHD Daten erfasst.</td></tr>';
+            } catch (e) {
+                list.innerHTML = '<tr><td colspan="5">Fehler beim Laden.</td></tr>';
+            }
+        }
+
+        async function deleteMHD(id) {
+            if (!confirm('MHD Eintrag wirklich löschen?')) return;
+            try {
+                await fetch(`/api/mhd/${id}`, { method: 'DELETE' });
+                loadMHDList();
+            } catch (e) {}
         }
 
         // Contacts Management

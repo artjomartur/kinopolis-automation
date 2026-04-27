@@ -2594,47 +2594,54 @@
             box-shadow: 0 4px 15px rgba(0, 120, 255, 0.3);
         }
 
-        /* Contact Cards */
+        /* Contact Cards - Enhanced */
         .contact-card {
             text-decoration: none;
             display: flex;
             align-items: center;
-            justify-content: flex-start;
-            gap: 1.25rem;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 24px;
-            padding: 1rem 1.25rem;
-            transition: all 0.2s ease;
+            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 0.85rem 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .contact-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 10% 10%, rgba(255,255,255,0.05), transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         .contact-card:hover {
-            background: rgba(255,255,255,0.09);
-            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+            transform: translateY(-3px) scale(1.02);
+            border-color: rgba(255,255,255,0.15);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
-        .contact-card.mini {
-            padding: 0.75rem 1rem;
-        }
-        .contact-card-inner {
-            display: flex;
-            align-items: center;
-            gap: 0.9rem;
-        }
+        .contact-card:hover::before { opacity: 1; }
+        
+        .contact-card.mini { padding: 0.6rem 0.75rem; border-radius: 16px; }
+        .contact-card-inner { display: flex; align-items: center; gap: 0.75rem; z-index: 1; }
+        
         .contact-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            flex-shrink: 0;
+            width: 38px; height: 38px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; flex-shrink: 0;
+            background: rgba(255,255,255,0.05);
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.05);
         }
-        .contact-icon.sm {
-            width: 32px;
-            height: 32px;
-            font-size: 1rem;
-        }
+        .contact-icon.sm { width: 30px; height: 30px; font-size: 0.9rem; border-radius: 10px; }
+        
+        .contact-name { font-weight: 700; color: #fff; font-size: 0.9rem; letter-spacing: -0.01em; }
+        .contact-number { font-size: 0.75rem; color: var(--text-muted); font-family: 'Inter', sans-serif; }
+        .contact-dial-sm { font-size: 1.1rem; opacity: 0.4; transition: all 0.3s ease; z-index: 1; }
+        .contact-card:hover .contact-dial-sm { opacity: 1; transform: scale(1.1); }
         .contact-icon.bg-red { background: rgba(229,9,20,0.3); border: 1px solid rgba(229,9,20,0.5); }
         .contact-icon.bg-gold { background: rgba(241,196,15,0.3); border: 1px solid rgba(241,196,15,0.5); }
         .contact-icon.bg-blue { background: rgba(0,120,255,0.3); border: 1px solid rgba(0,120,255,0.5); }
@@ -3330,26 +3337,33 @@
             </div>
         </div>
 
-        <!-- MHD-LISTE -->
-        <div class="card-container glass tools-section" id="mhd-section" style="display: none; margin-bottom: 2rem; border-color: rgba(241, 196, 15, 0.3);">
+        <!-- MHD-ERFASSUNG (NEW) -->
+        <div class="card-container glass tools-section" id="mhd-capture-section" style="display: none; margin-bottom: 2rem; border-color: rgba(241, 196, 15, 0.4); background: linear-gradient(135deg, rgba(241, 196, 15, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
             <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem;">
                     <span class="alert-icon-small">📅</span>
-                    <h2 style="font-size: 1.25rem;">MHD-Liste (Best Before)</h2>
+                    <h2 style="font-size: 1.25rem;">MHD Erfassung</h2>
                 </div>
             </div>
             <div style="padding: 1rem 1.5rem 1.5rem;">
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Produkte mit ablaufendem MHD eintragen.</p>
-                <div id="mhd-items" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
-                    <!-- Items generated by JS -->
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Erfasse Mindesthaltbarkeitsdaten für Artikel in Kühlungen & Gondeln.</p>
+                
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                        <div>
+                            <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Artikel</label>
+                            <select id="mhd-item-select" class="input-field" style="width: 100%;"></select>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Datum</label>
+                            <input type="date" id="mhd-date-input" class="input-field" style="width: 100%;">
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="submitMHD()" style="width: 100%; background: linear-gradient(135deg, #f1c40f, #f39c12); color: #fff; border: none; font-weight: bold; padding: 1rem; border-radius: 12px; font-size: 1.05rem;">
+                        💾 MHD speichern
+                    </button>
+                    <div id="mhd-status" style="display: none; padding: 0.75rem; border-radius: 8px; font-size: 0.85rem; text-align: center;"></div>
                 </div>
-                <div style="margin-bottom: 1rem;">
-                    <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Sonstiges / Zusätzliche Infos</label>
-                    <input type="text" id="mhd-custom" placeholder="z.B. Reinigungsmittel läuft ab..." class="input-field" style="padding: 0.75rem;">
-                </div>
-                <button class="btn-primary" onclick="sendMhdList()" style="width: 100%; background: linear-gradient(135deg, #f1c40f, #f39c12); color: #fff; border: none; font-weight: bold; padding: 1rem; border-radius: 12px; font-size: 1.05rem;">
-                    🚀 MHD-Liste an TL senden
-                </button>
             </div>
         </div>
             <div class="alerts-header glass" onclick="toggleAlerts()">
@@ -4002,12 +4016,13 @@
                 document.body.classList.add('live-active');
                 if (titleEl) titleEl.innerText = 'Live Overview' + suffix;
             } else if (view === 'funk') {
-                document.body.classList.add('tools-active', 'funk-active');
+                document.body.classList.add('funk-active');
                 if (titleEl) titleEl.innerText = 'Funk-Ruf (Digital)' + suffix;
-                fetchInventory();
             } else if (view === 'action') {
                 document.body.classList.add('action-active', 'intern-active', 'tools-active');
                 if (titleEl) titleEl.innerText = 'Team-Aktionen' + suffix;
+                fetchInventory();
+                loadMHDItems();
             } else if (view === 'mehr') {
                 document.body.classList.add('mehr-active', 'stats-active', 'kontakte-active', 'info-active', 'einstellungen-active');
                 if (titleEl) titleEl.innerText = 'Mehr & Infos' + suffix;
@@ -4720,29 +4735,79 @@
             initMhdList();
         }
 
+        async function loadMHDItems() {
+            const select = document.getElementById('mhd-item-select');
+            if (!select) return;
+            try {
+                const res = await fetch('/api/inventory');
+                const data = await res.json();
+                
+                let html = '<option value="">-- Artikel wählen --</option>';
+                const all = [...data.waren, ...data.eis, ...data.getraenke, ...data.slushy];
+                
+                // Group by location
+                const byLocation = {};
+                all.forEach(i => {
+                    const loc = i.location || 'Allgemein';
+                    if (!byLocation[loc]) byLocation[loc] = [];
+                    byLocation[loc].push(i);
+                });
+                
+                for (const loc of Object.keys(byLocation)) {
+                    html += `<optgroup label="📍 ${loc}">`;
+                    byLocation[loc].forEach(i => {
+                        html += `<option value="${i.id}" data-name="${i.name}" data-type="${i.type}" data-location="${i.location || ''}">${i.name}</option>`;
+                    });
+                    html += `</optgroup>`;
+                }
+                select.innerHTML = html;
+            } catch (e) {
+                console.error("MHD load error", e);
+            }
+        }
+
+        async function submitMHD() {
+            const select = document.getElementById('mhd-item-select');
+            const dateInput = document.getElementById('mhd-date-input');
+            const status = document.getElementById('mhd-status');
+            
+            const opt = select.options[select.selectedIndex];
+            if (!opt || !opt.value || !dateInput.value) {
+                alert('Bitte Artikel und Datum wählen!');
+                return;
+            }
+            
+            const author = localStorage.getItem('kinopolis_shift_name') || 'System';
+            
+            try {
+                const res = await fetch('/api/mhd', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        item_id: opt.value,
+                        item_name: opt.getAttribute('data-name'),
+                        type: opt.getAttribute('data-type'),
+                        location: opt.getAttribute('data-location'),
+                        mhd_date: dateInput.value,
+                        author
+                    })
+                });
+                
+                if (res.ok) {
+                    status.innerText = '✅ MHD erfolgreich gespeichert!';
+                    status.style.background = 'rgba(46, 204, 113, 0.1)';
+                    status.style.color = '#2ecc71';
+                    status.style.display = 'block';
+                    dateInput.value = '';
+                    setTimeout(() => status.style.display = 'none', 3000);
+                }
+            } catch (e) {
+                alert('Fehler beim Speichern.');
+            }
+        }
+
         function initMhdList() {
-            const container = document.getElementById('mhd-items');
-            if (!container) return;
-            
-            // Focus on common products that need MHD tracking
-            const mhdProducts = [
-                "🥤 Sirup Cola", "🥤 Sirup Zero/Light", "🥤 Sirup Fanta/Sprite",
-                "🍿 Popcorn Mais", "🍿 Popcorn Zucker/Fett",
-                "🧀 Nacho Käsesauce", "🧀 Nacho Salsa",
-                "🥛 Milcherzeugnisse", "☕ Kaffee Bohnen"
-            ];
-            
-            container.innerHTML = mhdProducts.map((name, index) => `
-                <div style="display: flex; flex-direction: column; gap: 0.75rem; background: rgba(241, 196, 15, 0.05); padding: 1rem; border-radius: 12px; border: 1px solid rgba(241, 196, 15, 0.15);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
-                        <span style="font-size: 0.95rem; color: #fff; font-weight: 600;">${name}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 0.75rem; background: rgba(0,0,0,0.2); padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                        <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Ablaufdatum:</span>
-                        <input type="date" id="mhd-date-${index}" style="flex: 1; background: transparent; border: none; color: #fff; font-size: 0.85rem; outline: none; font-family: 'Outfit'; cursor: pointer;" />
-                    </div>
-                </div>
-            `).join('');
+            // Deprecated - replaced by loadMHDItems and submitMHD
         }
 
         function updateTransferCount(index, delta) {
@@ -5009,6 +5074,7 @@
         }
 
         function changeDate(days) {
+            if (!displayDate) displayDate = new Date();
             displayDate.setDate(displayDate.getDate() + days);
             updateDateUI();
             fetchSessions();
@@ -6735,22 +6801,7 @@
             
             try {
                 let contacts = providedContacts || [];
-                
-                // Fallback logic if no contacts from backend
-                if (contacts.length === 0) {
-                if (currentCity === 'kp') {
-                    contacts = KP_DEFAULT_CONTACTS;
-                } else {
-                    contacts = [
-                        { category: 'leitung', role_name: 'TL', phone_number: '000' },
-                        { category: 'einlass', role_name: 'Einlass', phone_number: '000' },
-                        { category: 'theke', role_name: 'Theke', phone_number: '000' },
-                        { category: 'Sicherheit', role_name: 'Sicherheitsdienst', phone_number: '000' },
-                        { category: 'Popcornküche', role_name: 'Produktion', phone_number: '000' },
-                        { category: 'Putzfirma', role_name: 'Reinigung', phone_number: '000' }
-                    ];
-                }
-            }
+                if (contacts.length === 0) contacts = KP_DEFAULT_CONTACTS;
 
                 const byCategory = {};
                 for (const c of contacts) {
@@ -6758,37 +6809,45 @@
                     byCategory[c.category].push(c);
                 }
 
-                let html = '';
-                for (const cat of Object.keys(CAT_NAMES)) {
-                    if (!byCategory[cat]) continue;
-                    html += `
-                    <div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="width: 20px; height: 1px; background: rgba(255,255,255,0.1);"></span> ${CAT_NAMES[cat]}
-                        </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.6rem;">
-                            ${byCategory[cat].map(c => {
-                                const info = CAT_ICONS[c.category] || { icon: '📞', bg: '' };
-                                return `
-                                <a href="tel:${c.phone_number}" class="contact-card mini">
-                                    <div class="contact-card-inner">
-                                        <div class="contact-icon sm ${info.bg}">${info.icon}</div>
-                                        <div>
-                                            <div class="contact-name">${c.role_name}</div>
-                                            <div style="font-size: 0.75rem; color: var(--text-muted);">${c.phone_number}</div>
+                let html = `
+                <div style="display: flex; flex-direction: column; gap: 2.5rem; margin-top: 0.5rem;">
+                `;
+
+                const order = ['leitung', 'theke', 'einlass', 'technik', 'sicherheit', 'popcornkueche', 'putzfirma'];
+
+                order.forEach(cat => {
+                    if (byCategory[cat]) {
+                        html += `
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; font-weight: 800; display: flex; align-items: center; gap: 0.75rem; opacity: 0.8;">
+                                <span style="width: 24px; height: 1.5px; background: linear-gradient(90deg, var(--primary-red), transparent);"></span> 
+                                ${CAT_NAMES[cat] || cat}
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 0.85rem;">
+                                ${byCategory[cat].map(c => {
+                                    const info = CAT_ICONS[c.category] || { icon: '📞', bg: '' };
+                                    return `
+                                    <a href="tel:${c.phone_number}" class="contact-card">
+                                        <div class="contact-card-inner">
+                                            <div class="contact-icon ${info.bg}">${info.icon}</div>
+                                            <div style="display: flex; flex-direction: column; gap: 0.1rem;">
+                                                <div class="contact-name">${c.role_name}</div>
+                                                <div class="contact-number">${c.phone_number.replace('+49 ', '0')}</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="contact-dial-sm">📲</div>
-                                </a>`;
-                            }).join('')}
-                        </div>
-                    </div>`;
-                }
+                                        <div class="contact-dial-sm">📲</div>
+                                    </a>`;
+                                }).join('')}
+                            </div>
+                        </div>`;
+                    }
+                });
 
-                container.innerHTML = html;
+                html += '</div>';
+                
                 if (loader) loader.style.display = 'none';
-                container.style.display = 'flex';
-
+                container.innerHTML = html;
+                container.style.display = 'block';
             } catch (e) {
                 console.error("Error rendering contacts:", e);
                 if (loader) loader.innerHTML = '<div style="padding: 2rem; color: #ff4d4d;">Fehler beim Laden der Kontakte.</div>';
