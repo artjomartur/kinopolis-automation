@@ -1229,8 +1229,6 @@ app.delete('/api/mhd/:id', async (c) => {
     return c.json({ success: true });
 });
 
-});
-
 // --- TASK COMPLETIONS (Real-time Sync) ---
 app.get('/api/task-completions', async (c) => {
     const location = c.req.query('location') || 'kp';
