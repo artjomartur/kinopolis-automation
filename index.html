@@ -4697,7 +4697,13 @@
             try {
                 const res = await fetch('/api/inventory');
                 const data = await res.json();
-                if (data.waren && data.waren.length > 0) TRANSFER_ITEMS = data.waren;
+                
+                // Combine Waren and Getränke for the transfer list as requested
+                let combinedWaren = [];
+                if (data.waren) combinedWaren = [...data.waren];
+                if (data.getraenke) combinedWaren = [...combinedWaren, ...data.getraenke];
+                
+                if (combinedWaren.length > 0) TRANSFER_ITEMS = combinedWaren;
                 if (data.eis && data.eis.length > 0) EIS_TRANSFER_ITEMS = data.eis;
                 initTransferList();
             } catch (e) {
@@ -4757,22 +4763,33 @@
                 const data = await res.json();
                 
                 let html = '<option value="">-- Artikel wählen --</option>';
-                const all = [...data.waren, ...data.eis, ...data.getraenke, ...data.slushy];
                 
-                // Group by location
-                const byLocation = {};
-                all.forEach(i => {
-                    const loc = i.location || 'Allgemein';
-                    if (!byLocation[loc]) byLocation[loc] = [];
-                    byLocation[loc].push(i);
-                });
-                
-                for (const loc of Object.keys(byLocation)) {
-                    html += `<optgroup label="📍 ${loc}">`;
-                    byLocation[loc].forEach(i => {
-                        html += `<option value="${i.id}" data-name="${i.name}" data-type="${i.type}" data-location="${i.location || ''}">${i.name}</option>`;
+                const typeMap = {
+                    'getraenke': '🥤 Getränke',
+                    'waren': '🍿 Waren',
+                    'eis': '🍦 Eis',
+                    'slushy': '🍧 Slushy'
+                };
+
+                for (const [typeKey, typeLabel] of Object.entries(typeMap)) {
+                    const items = data[typeKey] || [];
+                    if (items.length === 0) continue;
+
+                    // Group items of this type by location
+                    const byLocation = {};
+                    items.forEach(i => {
+                        const loc = i.location || 'Allgemein';
+                        if (!byLocation[loc]) byLocation[loc] = [];
+                        byLocation[loc].push(i);
                     });
-                    html += `</optgroup>`;
+
+                    for (const [loc, locItems] of Object.entries(byLocation)) {
+                        html += `<optgroup label="${typeLabel} - 📍 ${loc}">`;
+                        locItems.forEach(i => {
+                            html += `<option value="${i.id}" data-name="${i.name}" data-type="${typeKey}" data-location="${loc}">${i.name}</option>`;
+                        });
+                        html += `</optgroup>`;
+                    }
                 }
                 select.innerHTML = html;
             } catch (e) {
