@@ -606,6 +606,20 @@
                     <option value="dringend">🚨 Dringend</option>
                 </select>
             </div>
+
+            <div style="margin-bottom: 2rem;">
+                <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Foto anhängen (optional)</label>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <input type="file" id="log-image-file" accept="image/*" capture="environment" style="display: none;" onchange="handleLogImage(this)">
+                    <button type="button" onclick="document.getElementById('log-image-file').click()" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); color: white; padding: 1rem; border-radius: 12px; cursor: pointer; font-size: 0.9rem;">
+                        📷 Foto aufnehmen oder wählen
+                    </button>
+                    <div id="log-image-preview" style="display: none; position: relative;">
+                        <img id="log-preview-img" style="width: 100%; border-radius: 12px; border: 1px solid var(--primary-blue);" />
+                        <button onclick="removeLogImage()" style="position: absolute; top: -10px; right: -10px; background: #ff4d4d; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-weight: bold;">×</button>
+                    </div>
+                </div>
+            </div>
             
             <div style="display: flex; gap: 1.5rem; justify-content: flex-end;">
                 <button onclick="closeLogModal()" style="padding: 0.75rem 1.5rem; background: rgba(255,255,255,0.1); color: white; border: none; border-radius: 12px; cursor: pointer;">Abbrechen</button>
@@ -739,6 +753,17 @@
             }, 3500);
         }
 
+        // --- HAPTIC FEEDBACK ---
+        function triggerHaptic(type = 'light') {
+            if (!window.navigator || !window.navigator.vibrate) return;
+            try {
+                if (type === 'light') navigator.vibrate(10);
+                else if (type === 'medium') navigator.vibrate(30);
+                else if (type === 'success') navigator.vibrate([15, 30, 15]);
+                else if (type === 'error') navigator.vibrate([50, 80, 50]);
+            } catch (e) {}
+        }
+
         function setLoading(active) {
             const bar = document.getElementById('loading-bar');
             bar.style.width = active ? '40%' : '100%';
@@ -832,6 +857,7 @@
                                 <span style="font-weight: 800; color: var(--primary-blue); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.02em;">${l.author}:</span>
                                 <span style="color: #fff; line-height: 1.4;">${l.message}</span>
                             </div>
+                            ${l.image_url ? `<img src="${l.image_url}" style="width: 100%; border-radius: 12px; margin: 0.75rem 0; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;" onclick="window.open(this.src)" />` : ''}
                             <span class="feed-time" style="opacity: 0.6;">${formatTime(l.created_at)} Uhr</span>
                         </div>
                         <div class="feed-actions">
@@ -1147,7 +1173,13 @@
                 const res = await fetch('/api/logs', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message, author, priority, location: currentCity })
+                    body: JSON.stringify({ 
+                        message, 
+                        author, 
+                        priority, 
+                        location: currentCity,
+                        image_url: currentLogImageBase64 
+                    })
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error);
@@ -1162,6 +1194,56 @@
                 btn.innerHTML = ogText;
                 btn.disabled = false;
             }
+        }
+
+        // --- IMAGE UTILS ---
+        let currentLogImageBase64 = null;
+
+        function compressImage(file, maxWidth, quality) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    URL.revokeObjectURL(img.src);
+                    const aspectRatio = img.height / img.width;
+                    const targetHeight = Math.round(maxWidth * aspectRatio);
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = maxWidth;
+                    canvas.height = targetHeight;
+                    ctx.drawImage(img, 0, 0, maxWidth, targetHeight);
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", { type: 'image/jpeg' }));
+                        } else {
+                            reject(new Error('Canvas toBlob failed'));
+                        }
+                    }, 'image/jpeg', quality);
+                };
+                img.onerror = () => reject(new Error("Image could not be loaded"));
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        async function handleLogImage(input) {
+            const file = input.files[0];
+            if (!file) return;
+            try {
+                const compressed = await compressImage(file, 800, 0.7);
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    currentLogImageBase64 = e.target.result;
+                    document.getElementById('log-preview-img').src = currentLogImageBase64;
+                    document.getElementById('log-image-preview').style.display = 'block';
+                    triggerHaptic('success');
+                };
+                reader.readAsDataURL(compressed);
+            } catch (e) { alert('Bildfehler'); }
+        }
+
+        function removeLogImage() {
+            currentLogImageBase64 = null;
+            document.getElementById('log-image-file').value = '';
+            document.getElementById('log-image-preview').style.display = 'none';
         }
 
         // --- PUSH BROADCAST ---
@@ -1179,6 +1261,7 @@
             btn.textContent = '⏳ Sende...';
             btn.disabled = true;
             status.style.display = 'none';
+            triggerHaptic('medium');
 
             try {
                 const res = await fetch('/api/push/broadcast', {
@@ -1189,12 +1272,14 @@
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Unbekannter Fehler');
 
+                triggerHaptic('success');
                 status.style.color = '#2ecc71';
                 status.textContent = `✅ Gesendet an ${data.sent} Gerät${data.sent !== 1 ? 'e' : ''}${data.failed > 0 ? ` (${data.failed} fehlgeschlagen)` : ''}`;
                 document.getElementById('broadcast-message').value = '';
                 document.getElementById('broadcast-title').value = '';
                 showToast(`Nachricht an ${data.sent} Geräte gesendet!`);
             } catch (e) {
+                triggerHaptic('error');
                 status.style.color = '#e74c3c';
                 status.textContent = '❌ Fehler: ' + e.message;
             } finally {

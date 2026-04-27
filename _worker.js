@@ -1887,14 +1887,14 @@ app.get('/api/logs', async (c) => {
 
 app.post('/api/logs', async (c) => {
     try {
-        const { location, author, message, priority } = await c.req.json();
+        const { location, author, message, priority, image_url } = await c.req.json();
         if (!c.env.DB || !message) return c.json({ error: 'Missing data or DB connection' }, 400);
         
         try {
             await c.env.DB.prepare(`
-                INSERT INTO shift_logs (location, author, message, priority)
-                VALUES (?, ?, ?, ?)
-            `).bind(location || 'kp', author || 'Anonym', message, priority || 'normal').run();
+                INSERT INTO shift_logs (location, author, message, priority, image_url)
+                VALUES (?, ?, ?, ?, ?)
+            `).bind(location || 'kp', author || 'Anonym', message, priority || 'normal', image_url || null).run();
             return c.json({ success: true });
         } catch (dbError) {
             if (dbError.message.includes('no such table')) {
