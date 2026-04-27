@@ -410,6 +410,52 @@
 
         #tl-main { display: none; }
 
+        /* SAAL STATUS GRID */
+        .hall-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+            aspect-ratio: 1/1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hall-box:active { transform: scale(0.92); }
+
+        .hall-num { font-size: 1.4rem; font-weight: 800; font-family: 'Outfit', sans-serif; z-index: 2; }
+        
+        .hall-box.running { border-color: rgba(229, 9, 20, 0.3); background: rgba(229, 9, 20, 0.05); }
+        .hall-box.running .hall-indicator { background: #E50914; box-shadow: 0 0 15px rgba(229, 9, 20, 0.4); }
+        .hall-box.running .hall-num { color: #fff; }
+
+        .hall-box.cleaning { border-color: rgba(255, 185, 0, 0.3); background: rgba(255, 185, 0, 0.05); }
+        .hall-box.cleaning .hall-indicator { background: #ffb900; box-shadow: 0 0 15px rgba(255, 185, 0, 0.4); animation: pulse-clean 1.5s infinite; }
+        .hall-box.cleaning .hall-num { color: #ffb900; }
+
+        .hall-box.ready { border-color: rgba(46, 204, 113, 0.3); background: rgba(46, 204, 113, 0.05); }
+        .hall-box.ready .hall-indicator { background: #2ecc71; box-shadow: 0 0 15px rgba(46, 204, 113, 0.4); }
+        .hall-box.ready .hall-num { color: #2ecc71; }
+
+        .hall-indicator {
+            position: absolute;
+            bottom: 8px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        @keyframes pulse-clean {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
         /* TABS STYLING */
         .tl-tabs {
             display: flex;
@@ -538,6 +584,22 @@
     <div id="tl-pages">
         <!-- TAB 1: LIVE -->
         <div id="page-live" class="tl-tab-page active">
+            <!-- SAAL-STATUS MONITOR -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🖥️ Saal-Status Monitor</div>
+                    <div style="font-size: 0.7rem; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 0.2rem 0.5rem; border-radius: 5px;">Tippe zum Ändern</div>
+                </div>
+                <div id="hall-status-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-top: 0.5rem;">
+                    <!-- Saal 1 to 8 dynamically -->
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: center; font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">
+                    <span style="display: flex; align-items: center; gap: 0.4rem;"><i style="width: 8px; height: 8px; background: #E50914; border-radius: 50%; display: inline-block;"></i> Läuft</span>
+                    <span style="display: flex; align-items: center; gap: 0.4rem;"><i style="width: 8px; height: 8px; background: #ffb900; border-radius: 50%; display: inline-block;"></i> Reinigung</span>
+                    <span style="display: flex; align-items: center; gap: 0.4rem;"><i style="width: 8px; height: 8px; background: #2ecc71; border-radius: 50%; display: inline-block;"></i> Bereit</span>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">🚨 Aktuelle Anfragen & Funk</div>
@@ -741,7 +803,7 @@
                 
                 document.body.classList.add('auth-loaded');
                 if (document.getElementById('tl-main')) document.getElementById('tl-main').style.display = 'block';
-                refreshDashboard();
+                refreshDashboard(); initHallStatus();
             }
         });
 
@@ -759,7 +821,7 @@
         // Instant refresh when iPad/phone wakes up from sleep or tab is focused
         document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === 'visible') {
-                refreshDashboard();
+                refreshDashboard(); initHallStatus();
             }
         });
 
@@ -860,7 +922,7 @@
         async function changeCity() {
             currentCity = document.getElementById('location-selector').value;
             localStorage.setItem('last_city', currentCity);
-            refreshDashboard();
+            refreshDashboard(); initHallStatus();
         }
 
         async function loadOpsFeed() {
@@ -987,7 +1049,7 @@
 
         // Periodic Refresh for TL View
         setInterval(() => {
-            if (typeof refreshDashboard === 'function') refreshDashboard();
+            if (typeof refreshDashboard === 'function') refreshDashboard(); initHallStatus();
         }, 15000); // 15s sync for TL to see incoming funk pronto
 
         async function generateShiftSummary() {
@@ -1232,6 +1294,39 @@
             return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
         }
 
+        // --- SAAL STATUS ---
+        const HALL_STATUS = safeParse('tl_hall_status', {
+            1: 'running', 2: 'running', 3: 'running', 4: 'running',
+            5: 'running', 6: 'running', 7: 'running', 8: 'running'
+        });
+
+        function initHallStatus() {
+            const grid = document.getElementById('hall-status-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            for (let i = 1; i <= 8; i++) {
+                const status = HALL_STATUS[i] || 'running';
+                const div = document.createElement('div');
+                div.className = `hall-box ${status}`;
+                div.id = `hall-${i}`;
+                div.onclick = () => cycleHallStatus(i);
+                div.innerHTML = `<div class="hall-num">${i}</div><div class="hall-indicator"></div>`;
+                grid.appendChild(div);
+            }
+        }
+
+        function cycleHallStatus(hallNum) {
+            triggerHaptic('medium');
+            const states = ['running', 'cleaning', 'ready'];
+            let current = HALL_STATUS[hallNum];
+            let nextIndex = (states.indexOf(current) + 1) % states.length;
+            let next = states[nextIndex];
+            HALL_STATUS[hallNum] = next;
+            localStorage.setItem('tl_hall_status', JSON.stringify(HALL_STATUS));
+            const el = document.getElementById(`hall-${hallNum}`);
+            el.className = `hall-box ${next}`;
+        }
+
         // --- TABS LOGIC ---
         function switchTlTab(tabId, btn) {
             triggerHaptic('light');
@@ -1277,7 +1372,7 @@
             const diff = touch - touchStart;
             if (window.scrollY === 0 && diff >= pullThresh) {
                 triggerHaptic('success');
-                refreshDashboard();
+                refreshDashboard(); initHallStatus();
                 showToast('🔄 Aktualisiere Daten...');
             }
             const indicator = document.getElementById('pull-refresh-indicator');
@@ -1330,7 +1425,7 @@
                 showToast('Log-Eintrag gespeichert');
                 document.getElementById('log-message').value = '';
                 closeLogModal();
-                refreshDashboard();
+                refreshDashboard(); initHallStatus();
             } catch (e) {
                 showToast('Fehler beim Speichern: ' + e.message, true);
             } finally {

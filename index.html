@@ -3728,6 +3728,18 @@
                         </div>
                     </div>
                 </div>
+                <!-- SHIFT TIMER (NEW) -->
+                <div id="shift-timer-container" style="background: rgba(255, 185, 0, 0.05); border: 1px solid rgba(255, 185, 0, 0.15); border-radius: 20px; padding: 1.25rem; margin-bottom: 1.5rem; display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <div style="font-size: 0.8rem; font-weight: 800; color: var(--primary-gold); display: flex; align-items: center; gap: 0.4rem;">
+                            <span>⏱️</span> Schicht-Fortschritt
+                        </div>
+                        <div id="shift-time-left" style="font-size: 0.85rem; font-weight: 800; color: #fff;">Lade...</div>
+                    </div>
+                    <div style="height: 6px; background: rgba(0,0,0,0.3); border-radius: 50px; overflow: hidden;">
+                        <div id="shift-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(to right, #ffb900, #ff8c00); transition: width 1s linear;"></div>
+                    </div>
+                </div>
                 <div class="progress-container" style="height: 12px; background: rgba(255,255,255,0.05); border-radius: 6px; overflow: hidden; margin-bottom: 0.5rem; border: 1px solid rgba(255,255,255,0.05);">
                     <div id="xp-bar" class="progress-bar" style="width: 0%; height: 100%; background: linear-gradient(to right, #3498db, #2ecc71); transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 15px rgba(52, 152, 219, 0.4);"></div>
                 </div>
@@ -4254,7 +4266,11 @@
                 
                 if (window.updateGamification) updateGamification();
                 if (window.tickAllCountdowns) tickAllCountdowns();
-                if (window.updateLiveAlertBanner) updateLiveAlertBanner();
+                if (window.updateLiveAlertBanner) updateLiveAlertBanner(); if (window.updateShiftTimer) { updateShiftTimer(); setInterval(updateShiftTimer, 60000); }
+                if (window.updateShiftTimer) {
+                    updateShiftTimer();
+                    setInterval(updateShiftTimer, 60000);
+                }
                 
                 // Initialize default tab
                 const activeBtn = document.querySelector('.mobile-nav-item.active') || document.querySelector('.tab-btn.active') || document.getElementById('tab-live');
@@ -4296,6 +4312,51 @@
                     el.style.fontWeight = 'normal';
                 }
             });
+        }
+
+
+        // --- SHIFT TIMER ---
+        function updateShiftTimer() {
+            let startStr = localStorage.getItem('shift_start_time');
+            const now = new Date();
+            
+            if (!startStr) {
+                localStorage.setItem('shift_start_time', now.toISOString());
+                startStr = now.toISOString();
+            } else {
+                const lastStart = new Date(startStr);
+                if (now - lastStart > 12 * 60 * 60 * 1000) {
+                    localStorage.setItem('shift_start_time', now.toISOString());
+                    startStr = now.toISOString();
+                }
+            }
+            
+            const startTime = new Date(startStr);
+            const shiftLength = 8.5 * 60 * 60 * 1000;
+            const endTime = new Date(startTime.getTime() + shiftLength);
+            
+            const total = endTime - startTime;
+            const elapsed = now - startTime;
+            const percent = Math.min(Math.max((elapsed / total) * 100, 0), 100);
+            
+            const bar = document.getElementById('shift-progress-bar');
+            const leftText = document.getElementById('shift-time-left');
+            const container = document.getElementById('shift-timer-container');
+            
+            if (!bar || !leftText || !container) return;
+            
+            if (elapsed > shiftLength) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+            bar.style.width = percent + '%';
+            
+            const remaining = endTime - now;
+            const hours = Math.floor(remaining / (1000 * 60 * 60));
+            const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+            leftText.textContent = `${hours}h ${mins}m verbleibend`;
         }
 
         // ============================================================
