@@ -1212,12 +1212,26 @@
         .container {
             max-width: 1100px;
             margin: 0 auto;
-            padding: 0 2rem 3rem;
+            padding: 0 2rem 160px; /* Increased padding-bottom to avoid abrupt end */
+            position: relative;
+        }
+
+        /* Smooth Bottom Fade */
+        .container::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 150px;
+            background: linear-gradient(to top, var(--bg-color) 0%, transparent 100%);
+            pointer-events: none;
+            z-index: 10;
         }
 
         @media (max-width: 768px) {
             .container {
-                padding: 0 1.25rem 2rem !important;
+                padding: 0 1.25rem 180px !important; /* Extra space for bottom navigation */
                 max-width: 100% !important;
             }
             /* Cards go full width edge-to-edge on mobile */
