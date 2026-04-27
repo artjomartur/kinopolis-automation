@@ -581,8 +581,8 @@ app.get('/api/admin/users', async (c) => {
         }
 
         const users = await c.env.DB.prepare(
-            'SELECT id, email, first_name, last_name, location, employee_number, role, created_at FROM users WHERE location = ?'
-        ).bind(payload.location).all();
+            'SELECT id, email, first_name, last_name, location, employee_number, role, created_at FROM users'
+        ).all();
 
         return c.json(users.results);
     } catch (e) {
@@ -804,7 +804,7 @@ app.get('/api/sessions', async (c) => {
                 const perfId = $(sessionEl).attr('data-performance-id');
                 
                 // FILTER BY DATE (using allowed IDs from navigation)
-                if (allowedIds.size > 0 && perfId && !allowedIds.has(perfId)) return;
+                 /*  */ 
 
                 const time = $(sessionEl).find('.prog2__time').first().text().trim();
                 if (!time) return;

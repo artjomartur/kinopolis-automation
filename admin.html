@@ -589,6 +589,15 @@
             loadInventory();
         }
 
+        function switchAdminTab(tabId, btn) { 
+            document.querySelectorAll(".admin-tab").forEach(t => t.classList.remove("active")); 
+            btn.classList.add("active"); 
+            document.querySelectorAll(".admin-tab-page").forEach(p => p.classList.remove("active")); 
+            document.getElementById(`tab-${tabId}`).classList.add("active"); 
+            if (tabId === "team") loadStaff(); 
+            if (tabId === "content") { loadAdminMessages(); loadInventory(); } 
+        } 
+
         function initModuleManagement() {
             const container = document.getElementById('module-management-list');
             const disabledModules = JSON.parse(localStorage.getItem('disabled_modules') || '[]');

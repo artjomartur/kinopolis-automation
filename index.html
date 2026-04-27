@@ -234,20 +234,43 @@
             --ambient-2: rgba(0, 120, 255, 0.1);
         }
 
-        /* --- AMBIENT DESIGN SYSTEM --- */
-        .ambient-bg {
+        /* --- LIQUID GLASS BACKGROUND --- */
+        .liquid-bg {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             z-index: -2;
+            background: #050507;
             overflow: hidden;
-            background: var(--bg-color);
             pointer-events: none;
         }
-        .ambient-mesh {
+
+        .liquid-blob {
             position: absolute;
+            width: 80vmax;
+            height: 80vmax;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            animation: drift 20s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
+        }
+
+        .blob-1 { background: var(--primary-red); top: -20%; left: -20%; animation-duration: 25s; }
+        .blob-2 { background: var(--primary-blue); bottom: -20%; right: -20%; animation-duration: 30s; animation-delay: -5s; }
+        .blob-3 { background: #7000ff; top: 40%; left: 30%; width: 60vmax; height: 60vmax; animation-duration: 22s; animation-delay: -10s; }
+
+        @keyframes drift {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            50% { transform: translate(10%, 5%) scale(1.1) rotate(10deg); }
+            100% { transform: translate(-5%, 15%) scale(0.9) rotate(-10deg); }
+        }
+
+        .glass {
+            backdrop-filter: blur(25px) saturate(200%);
+            -webkit-backdrop-filter: blur(25px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.03);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
             width: 150%;
             height: 150%;
             top: -25%;
@@ -525,7 +548,8 @@
             background: var(--glass-bg);
         }
 
-        /* Cinematic Splash Screen */
+
+    <!-- Cinematic Splash Screen -->
         #splash-screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -2763,6 +2787,9 @@
             background: rgba(255,255,255,0.05);
             font-size: 1rem;
         }
+        body:not(.live-active) .live-section { display: none !important; } 
+        #staff-notes-content .note-item { margin-bottom: 1.5rem; } 
+
     </style>
 </head>
 <body class="dark-mode">
@@ -4138,8 +4165,14 @@
                     upcoming = await res.json();
                 }
                 
-                // Merge and deduplicate: Only add upcoming if not already seen in current and has a poster
-                const upcomingFiltered = Array.isArray(upcoming) ? upcoming.filter(m => !seenTitles.has(m.title) && m.poster && !m.poster.includes('red-seats')) : [];
+                // Merge and deduplicate: Only add upcoming if not already seen in current and has a valid poster
+                const upcomingFiltered = Array.isArray(upcoming) ? upcoming.filter(m => {
+                    if (seenTitles.has(m.title)) return false;
+                    if (!m.poster) return false;
+                    const p = m.poster.toLowerCase();
+                    if (p.includes('red-seats') || p.includes('platzhalter') || p.includes('default')) return false;
+                    return true;
+                }) : [];
                 const allMovies = [...currentMovies, ...upcomingFiltered.map(m => ({...m, current: false}))];
 
                 if (allMovies.length === 0) {
@@ -5867,7 +5900,7 @@
 
         function toggleHall(header) {
             if (!header) return;
-            const sessionsList = header.closest('.hall-card')?.querySelector('.sessions-list');
+            const sessionsList = header.closest('.hall-card')?.querySelector('.hall-sessions-list');
             if (!sessionsList) return;
             header.classList.toggle('collapsed');
             sessionsList.classList.toggle('collapsed');
@@ -6626,10 +6659,10 @@
                     </div>
                 </div>
                 <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--surface-border); padding: 1.25rem; border-radius: 16px; display: flex; align-items: center; gap: 1rem;">
-                    <div style="font-size: 1.5rem;">🌐</div>
+                    <div style="font-size: 1.5rem;">👨‍💻</div>
                     <div>
-                        <div style="font-weight: 800; font-size: 0.9rem;">Portfolio & Kontakt</div>
-                        <a href="https://artjombecker.com" target="_blank" style="font-size: 0.8rem; color: var(--primary-blue); text-decoration: none;">artjombecker.com</a>
+                        <div style="font-weight: 800; font-size: 0.9rem;">Entwickler Info</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Dein Automatisierungs-Partner für das Kinopolis.</div>
                     </div>
                 </div>
             </div>
