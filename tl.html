@@ -558,6 +558,8 @@
         </select>
         <div id="location-display" style="background: var(--surface-color); border: 1px solid var(--surface-border); color: white; padding: 0.6rem 1.5rem; border-radius: 50px; font-weight: 700; font-size: 0.9rem;">Darmstadt (KP)</div>
     </header>
+
+    <div id="personal-help-banner" style="display: none; margin-bottom: 1.5rem;"></div>
     
     <div id="pull-refresh-indicator" style="display: none; align-items: center; justify-content: center; overflow: hidden; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); color: var(--primary-blue); font-size: 1.5rem; transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05); margin: -1.5rem -1.5rem 1.5rem -1.5rem; border-radius: 0 0 20px 20px;">
         <div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
@@ -804,6 +806,10 @@
                 document.body.classList.add('auth-loaded');
                 if (document.getElementById('tl-main')) document.getElementById('tl-main').style.display = 'block';
                 refreshDashboard(); initHallStatus();
+                if (window.checkPersonalNeed) {
+                    checkPersonalNeed();
+                    setInterval(checkPersonalNeed, 10000);
+                }
             }
         });
 
@@ -913,6 +919,42 @@
             } catch (e) {}
         }
 
+        async function checkPersonalNeed() {
+            try {
+                const res = await fetch(`/api/personal-need?location=${currentCity}`);
+                const data = await res.json();
+                const banner = document.getElementById('personal-help-banner');
+                if (!banner) return;
+                if (data.active) {
+                    banner.style.display = 'flex';
+                    banner.innerHTML = `
+                        <div style="background: var(--primary-red); color: white; padding: 1.25rem; border-radius: 12px; display: flex; align-items: center; gap: 1rem; width: 100%; box-shadow: 0 0 20px rgba(229,9,20,0.5); animation: pulse-red 1.5s infinite;">
+                            <span style="font-size: 1.5rem;">🚨</span>
+                            <div>
+                                <div style="font-weight: 800; font-size: 1.1rem;">HILFE AN KASSE/THEKE BENÖTIGT!</div>
+                                <div style="font-size: 0.85rem; opacity: 0.9;">Sofortige Unterstützung am Service angefordert.</div>
+                            </div>
+                            <button onclick="acknowledgeHelp()" style="margin-left: auto; background: white; color: var(--primary-red); border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 800; cursor: pointer;">GELESEN</button>
+                        </div>
+                    `;
+                    triggerHaptic('error');
+                } else {
+                    banner.style.display = 'none';
+                }
+            } catch (e) {}
+        }
+
+        async function acknowledgeHelp() {
+            try {
+                await fetch('/api/personal-need', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ location: currentCity, active: false, message: 'Hilfe-Ruf bestätigt' })
+                });
+                checkPersonalNeed();
+            } catch (e) {}
+        }
+
         function setLoading(active) {
             const bar = document.getElementById('loading-bar');
             bar.style.width = active ? '40%' : '100%';
@@ -941,6 +983,7 @@
                 }
 
                 container.innerHTML = ops.map(item => {
+                    // ... (rest of logic remains same, just highlighting the area)
                     const isFunk = item.message.includes('[FUNK]');
                     const isInProgress = item.message.includes('[IN_PROGRESS]');
                     const icon = isFunk ? '📡' : '📦';

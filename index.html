@@ -1411,62 +1411,6 @@
             box-shadow: 0 0 15px var(--red-glow);
         }
 
-        /* LIVE NEWS TICKER */
-        .ticker-wrap {
-            width: 100%;
-            overflow: hidden;
-            background: rgba(229, 9, 20, 0.15);
-            border-bottom: 1px solid rgba(229, 9, 20, 0.3);
-            height: 40px;
-            display: flex;
-            align-items: center;
-            z-index: 1000;
-            position: sticky;
-            top: 0;
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-        }
-
-        .ticker-badge {
-            background: #E50914;
-            color: white;
-            font-size: 0.65rem;
-            font-weight: 800;
-            padding: 3px 8px;
-            border-radius: 6px;
-            margin: 0 12px;
-            z-index: 10;
-            box-shadow: 0 0 15px rgba(229, 9, 20, 0.5);
-            animation: pulse-red 2s infinite;
-            flex-shrink: 0;
-        }
-
-        .ticker-move {
-            white-space: nowrap;
-            padding-right: 100%;
-            display: inline-block;
-            animation: ticker 40s linear infinite;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #fff;
-        }
-
-        .ticker-move span {
-            margin-right: 100px;
-            display: inline-block;
-        }
-
-        @keyframes ticker {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-100%, 0, 0); }
-        }
-
-        @keyframes pulse-red {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(0.95); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-
         .dashboard-grid {
             display: flex;
             flex-direction: column;
@@ -3056,11 +3000,6 @@
     </style>
 </head>
 <body class="dark-mode">
-    <!-- NEWS TICKER -->
-    <div id="news-ticker" class="ticker-wrap" style="display: none;">
-        <div class="ticker-badge">LIVE</div>
-        <div class="ticker-move" id="ticker-content"></div>
-    </div>
 
     <!-- ULTIMATE SPLASH FAILSAFE -->
     <script>
@@ -4329,10 +4268,13 @@
                 if (window.updateGamification) updateGamification();
                 if (window.tickAllCountdowns) tickAllCountdowns();
                 if (window.updateLiveAlertBanner) updateLiveAlertBanner(); if (window.updateShiftTimer) { updateShiftTimer(); setInterval(updateShiftTimer, 60000); }
-                if (window.updateTicker) updateTicker();
                 if (window.loadTaskState) {
                     loadTaskState();
                     setInterval(loadTaskState, 30000); // Polling every 30s
+                }
+                if (window.checkPersonalNeed) {
+                    checkPersonalNeed();
+                    setInterval(checkPersonalNeed, 10000); // Sync help status every 10s
                 }
                 
                 // Initialize default tab
@@ -4422,24 +4364,6 @@
             leftText.textContent = `${hours}h ${mins}m verbleibend`;
         }
 
-        // --- NEWS TICKER ---
-        async function updateTicker() {
-            try {
-                const res = await fetch(`/api/messages?location=${localStorage.getItem('admin_city') || 'kp'}`);
-                const messages = await res.json();
-                if (messages && messages.length > 0) {
-                    const ticker = document.getElementById('news-ticker');
-                    const content = document.getElementById('ticker-content');
-                    if (ticker && content) {
-                        ticker.style.display = 'flex';
-                        content.innerHTML = messages.slice(0, 5).map(m => `
-                            <span>🚨 ${m.title.toUpperCase()}: ${m.content.replace(/\n/g, ' ')}</span>
-                        `).join('');
-                    }
-                }
-            } catch (e) { console.error("Ticker fetch error", e); }
-        }
-
         // ============================================================
         // FEATURE: LIVE ALERT BANNER
         // ============================================================
@@ -4481,6 +4405,47 @@
                     </div>
                 </div>`
             ).join('');
+        }
+
+        // --- PERSONAL NEED (Help Button) ---
+        let isHelpActive = false;
+        async function checkPersonalNeed() {
+            try {
+                const res = await fetch(`/api/personal-need?location=${currentCity}`);
+                const data = await res.json();
+                isHelpActive = !!data.active;
+                updateHelpButtonUI();
+            } catch (e) {}
+        }
+
+        async function toggleHelp() {
+            triggerHaptic('heavy');
+            isHelpActive = !isHelpActive;
+            updateHelpButtonUI();
+            try {
+                await fetch('/api/personal-need', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ location: currentCity, active: isHelpActive, message: 'Hilfe an Kasse/Theke benötigt!' })
+                });
+                showToast(isHelpActive ? '🆘 Hilfe-Ruf gesendet!' : '✅ Hilfe-Ruf aufgehoben');
+            } catch (e) { showToast('Fehler beim Senden', true); }
+        }
+
+        function updateHelpButtonUI() {
+            const btn = document.getElementById('help-button');
+            if (!btn) return;
+            if (isHelpActive) {
+                btn.classList.add('active');
+                btn.innerHTML = '<span>🆘</span> HILFE RUF AKTIV';
+                btn.style.background = 'var(--primary-red)';
+                btn.style.animation = 'pulse-red 1.5s infinite';
+            } else {
+                btn.classList.remove('active');
+                btn.innerHTML = '<span>🙋‍♂️</span> Hilfe benötigt?';
+                btn.style.background = 'rgba(255,255,255,0.05)';
+                btn.style.animation = 'none';
+            }
         }
 
         // ============================================================
@@ -6125,11 +6090,12 @@
 
         async function syncTaskState(taskId, type, isDone) {
             try {
+                const author = window.AUTH && AUTH.user ? `${AUTH.user.first_name} ${AUTH.user.last_name}` : 'System';
                 if (isDone) {
                     await fetch('/api/task-completions', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ task_id: taskId, location: currentCity, date: new Date().toISOString().split('T')[0], type })
+                        body: JSON.stringify({ task_id: taskId, location: currentCity, date: new Date().toISOString().split('T')[0], type, author })
                     });
                 } else {
                     await fetch('/api/task-completions', {
@@ -6305,6 +6271,27 @@
 
             badge.textContent = totalActive;
             container.style.display = liveTasks.length > 0 ? 'block' : 'none';
+
+            // Add Help Button if not present
+            if (!document.getElementById('help-button')) {
+                const helpBtn = document.createElement('button');
+                helpBtn.id = 'help-button';
+                helpBtn.className = 'btn-secondary';
+                helpBtn.style.width = '100%';
+                helpBtn.style.marginTop = '1.5rem';
+                helpBtn.style.padding = '1.25rem';
+                helpBtn.style.borderRadius = '16px';
+                helpBtn.style.fontWeight = '800';
+                helpBtn.style.fontSize = '1.1rem';
+                helpBtn.style.display = 'flex';
+                helpBtn.style.alignItems = 'center';
+                helpBtn.style.justifyContent = 'center';
+                helpBtn.style.gap = '0.75rem';
+                helpBtn.style.border = '2px solid rgba(255,255,255,0.1)';
+                helpBtn.onclick = toggleHelp;
+                container.appendChild(helpBtn);
+                updateHelpButtonUI();
+            }
         }
 
         function getKpStationTasks(hallsGrouped) {
