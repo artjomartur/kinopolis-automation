@@ -211,7 +211,7 @@
             }, 3000);
         }
     </script>
-    <script src="auth.js?v=3.0"></script>
+    <script src="auth.js?v=3.1"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
@@ -232,20 +232,48 @@
             --shadow-premium: 0 20px 50px rgba(0, 0, 0, 0.7);
             --ambient-1: rgba(229, 9, 20, 0.1);
             --ambient-2: rgba(0, 120, 255, 0.1);
+            --alert-text-h2: #ffffff;
+            --alert-text-p: #94a3b8;
         }
 
-        /* --- AMBIENT DESIGN SYSTEM --- */
-        .ambient-bg {
+        /* --- LIQUID GLASS BACKGROUND --- */
+        .liquid-bg {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             z-index: -2;
-            overflow: hidden;
             background: var(--bg-color);
+            overflow: hidden;
             pointer-events: none;
         }
+
+        .liquid-blob {
+            position: absolute;
+            width: 80vmax;
+            height: 80vmax;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            animation: drift 20s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
+        }
+
+        .blob-1 { background: var(--primary-red); top: -20%; left: -20%; animation-duration: 25s; }
+        .blob-2 { background: var(--primary-blue); bottom: -20%; right: -20%; animation-duration: 30s; animation-delay: -5s; }
+        .blob-3 { background: #7000ff; top: 40%; left: 30%; width: 60vmax; height: 60vmax; animation-duration: 22s; animation-delay: -10s; }
+
+        @keyframes drift {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            50% { transform: translate(10%, 5%) scale(1.1) rotate(10deg); }
+            100% { transform: translate(-5%, 15%) scale(0.9) rotate(-10deg); }
+        }
+
+        .glass {
+            backdrop-filter: blur(25px) saturate(200%);
+            -webkit-backdrop-filter: blur(25px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.03);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
         .ambient-mesh {
             position: absolute;
             width: 150%;
@@ -266,7 +294,6 @@
         }
 
         body {
-            background-color: transparent !important;
             min-height: 100vh;
         }
 
@@ -353,6 +380,15 @@
 
         body.light-mode {
             background-image: none !important;
+            background: #f2f2f7 !important;
+        }
+        
+        body.light-mode .liquid-bg {
+            background: #f2f2f7 !important;
+        }
+        
+        body.light-mode .liquid-blob {
+            opacity: 0.08 !important;
         }
         
         body.light-mode .appearance-toggle {
@@ -372,7 +408,8 @@
         body.light-mode .log-author, body.light-mode .item-name, body.light-mode .dashboard-title,
         body.light-mode .push-info-text h4, body.light-mode .alert-text h2,
         body.light-mode .kurzwahl-grid span, body.light-mode .leitung-grid span,
-        body.light-mode .einlass-grid span, body.light-mode .verkauf-grid span {
+        body.light-mode .einlass-grid span, body.light-mode .verkauf-grid span,
+        body.light-mode #main-title {
             color: #0f172a !important;
         }
 
@@ -411,6 +448,11 @@
             background: #ffffff !important;
             color: #0f172a !important;
             border: 1px solid #cbd5e1 !important;
+        }
+
+        body.light-mode .live-overview-header h1,
+        body.light-mode .dashboard-title {
+            color: #0f172a !important;
         }
         
         body.light-mode textarea::placeholder,
@@ -525,7 +567,8 @@
             background: var(--glass-bg);
         }
 
-        /* Cinematic Splash Screen */
+
+    /* Cinematic Splash Screen */
         #splash-screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -686,6 +729,28 @@
         body.light-mode .occupancy-badge { border: 1px solid rgba(0, 150, 80, 0.2) !important; color: #008f4c !important; }
         body.light-mode .hall-header { background: rgba(255,255,255,0.8); }
         body.light-mode .session-item.active { background: rgba(229, 9, 20, 0.05); border-left: 4px solid var(--primary-red); }
+
+        body.light-mode h1, 
+        body.light-mode h2, 
+        body.light-mode h3, 
+        body.light-mode h4, 
+        body.light-mode .dashboard-title,
+        body.light-mode #main-title,
+        body.light-mode .live-overview-header h1,
+        body.light-mode .alert-text h2,
+        body.light-mode #tasks-title,
+        body.light-mode .task-title,
+        body.light-mode .poster-task-title {
+            color: #0f172a !important;
+        }
+        
+        body.light-mode p, 
+        body.light-mode .alert-text p,
+        body.light-mode .task-subtitle,
+        body.light-mode .poster-task-subtitle,
+        body.light-mode .auslass-disclaimer {
+            color: #64748b !important;
+        }
 
         .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.1);
@@ -1147,12 +1212,13 @@
         .container {
             max-width: 1100px;
             margin: 0 auto;
-            padding: 0 2rem 3rem;
+            padding: 0 2rem 200px; /* Massive padding to ensure smooth scroll */
+            position: relative;
         }
 
         @media (max-width: 768px) {
             .container {
-                padding: 0 1.25rem 2rem !important;
+                padding: 0 1.25rem 180px !important; /* Extra space for bottom navigation */
                 max-width: 100% !important;
             }
             /* Cards go full width edge-to-edge on mobile */
@@ -1748,12 +1814,12 @@
 
         /* Beautiful Checkmark Button */
         .alert-done-btn {
-            background: rgba(46, 204, 113, 0.2);
-            border: 1px solid rgba(46, 204, 113, 0.4);
-            color: #2ecc71;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1761,14 +1827,15 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             backdrop-filter: blur(10px);
             flex-shrink: 0;
-            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.1);
+            font-size: 1.2rem;
         }
 
         .alert-done-btn:hover {
             background: #2ecc71;
+            border-color: #2ecc71;
             color: white;
-            transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(46, 204, 113, 0.4);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
         }
 
         .alert-done-btn svg {
@@ -2491,6 +2558,8 @@
             border: 1px solid var(--surface-border);
             overflow-x: auto;
             scroll-behavior: smooth;
+            position: relative;
+            z-index: 50;
         }
 
         .tab-btn {
@@ -2504,6 +2573,9 @@
             cursor: pointer;
             transition: all 0.3s ease;
             white-space: nowrap;
+            position: relative;
+            z-index: 51;
+            pointer-events: auto;
         }
 
         .restock-btn:hover {
@@ -2523,47 +2595,54 @@
             box-shadow: 0 4px 15px rgba(0, 120, 255, 0.3);
         }
 
-        /* Contact Cards */
+        /* Contact Cards - Enhanced */
         .contact-card {
             text-decoration: none;
             display: flex;
             align-items: center;
-            justify-content: flex-start;
-            gap: 1.25rem;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 24px;
-            padding: 1rem 1.25rem;
-            transition: all 0.2s ease;
+            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 0.85rem 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .contact-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 10% 10%, rgba(255,255,255,0.05), transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         .contact-card:hover {
-            background: rgba(255,255,255,0.09);
-            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+            transform: translateY(-3px) scale(1.02);
+            border-color: rgba(255,255,255,0.15);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
-        .contact-card.mini {
-            padding: 0.75rem 1rem;
-        }
-        .contact-card-inner {
-            display: flex;
-            align-items: center;
-            gap: 0.9rem;
-        }
+        .contact-card:hover::before { opacity: 1; }
+        
+        .contact-card.mini { padding: 0.6rem 0.75rem; border-radius: 16px; }
+        .contact-card-inner { display: flex; align-items: center; gap: 0.75rem; z-index: 1; }
+        
         .contact-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            flex-shrink: 0;
+            width: 38px; height: 38px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; flex-shrink: 0;
+            background: rgba(255,255,255,0.05);
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.05);
         }
-        .contact-icon.sm {
-            width: 32px;
-            height: 32px;
-            font-size: 1rem;
-        }
+        .contact-icon.sm { width: 30px; height: 30px; font-size: 0.9rem; border-radius: 10px; }
+        
+        .contact-name { font-weight: 700; color: #fff; font-size: 0.9rem; letter-spacing: -0.01em; }
+        .contact-number { font-size: 0.75rem; color: var(--text-muted); font-family: 'Inter', sans-serif; }
+        .contact-dial-sm { font-size: 1.1rem; opacity: 0.4; transition: all 0.3s ease; z-index: 1; }
+        .contact-card:hover .contact-dial-sm { opacity: 1; transform: scale(1.1); }
         .contact-icon.bg-red { background: rgba(229,9,20,0.3); border: 1px solid rgba(229,9,20,0.5); }
         .contact-icon.bg-gold { background: rgba(241,196,15,0.3); border: 1px solid rgba(241,196,15,0.5); }
         .contact-icon.bg-blue { background: rgba(0,120,255,0.3); border: 1px solid rgba(0,120,255,0.5); }
@@ -2762,9 +2841,166 @@
             background: rgba(255,255,255,0.05);
             font-size: 1rem;
         }
+        body:not(.live-active) .live-section { display: none !important; } 
+        #staff-notes-content .note-item { margin-bottom: 1.5rem; } 
+
+        /* ——— Mobile polish (Handy): Safe Areas, Bottom-Nav, weiche Karten ——— */
+        @media (max-width: 768px) {
+            html {
+                -webkit-tap-highlight-color: transparent;
+            }
+            body {
+                padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)) !important;
+            }
+            .container {
+                padding-left: max(0.75rem, env(safe-area-inset-left, 0px)) !important;
+                padding-right: max(0.75rem, env(safe-area-inset-right, 0px)) !important;
+                padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px)) !important;
+            }
+            header {
+                position: sticky;
+                top: 0;
+                z-index: 120;
+                padding: max(0.5rem, env(safe-area-inset-top, 0px)) max(0.75rem, env(safe-area-inset-right, 0px)) 0.65rem max(0.75rem, env(safe-area-inset-left, 0px)) !important;
+                background: rgba(10, 10, 13, 0.72) !important;
+                backdrop-filter: blur(16px) saturate(160%);
+                -webkit-backdrop-filter: blur(16px) saturate(160%);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+                margin-bottom: 0.5rem !important;
+            }
+            body.light-mode header {
+                background: rgba(255, 255, 255, 0.82) !important;
+                border-bottom-color: rgba(0, 0, 0, 0.06) !important;
+            }
+            .header-inner {
+                flex-direction: row !important;
+                flex-wrap: wrap;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 0.65rem !important;
+                max-width: 100%;
+            }
+            .header-right {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 0.5rem;
+            }
+            .user-profile-btn {
+                min-height: 44px;
+                padding: 0 0.85rem;
+                border-radius: 12px;
+                display: inline-flex;
+                align-items: center;
+            }
+            #cinema-display.location-badge {
+                font-size: 0.78rem;
+                padding: 0.35rem 0.75rem;
+            }
+            .dashboard-header {
+                margin-bottom: 1rem !important;
+                padding: 0 0.15rem;
+            }
+            .dashboard-title {
+                font-size: clamp(1.45rem, 5.5vw, 1.85rem) !important;
+                line-height: 1.15 !important;
+                margin-top: 0.35rem !important;
+                text-align: center;
+            }
+            .dashboard-header-left {
+                width: 100%;
+            }
+            .sync-status {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 0.35rem 0.75rem;
+                padding: 0.5rem 0.75rem;
+                border-radius: 14px;
+                background: rgba(255, 255, 255, 0.04);
+                border: 1px solid rgba(255, 255, 255, 0.06);
+            }
+            body.light-mode .sync-status {
+                background: rgba(0, 0, 0, 0.04);
+                border-color: rgba(0, 0, 0, 0.06);
+            }
+            #live-alert-banner {
+                margin-left: 0.35rem;
+                margin-right: 0.35rem;
+                border-radius: 16px !important;
+            }
+            .card-container,
+            .news-section,
+            .auslaesse-container,
+            .notes-section,
+            #poster-alerts-container {
+                border-radius: 20px !important;
+                margin-left: 0.35rem !important;
+                margin-right: 0.35rem !important;
+                overflow: hidden;
+            }
+            .hall-card {
+                border-radius: 20px !important;
+                margin-bottom: 0.85rem !important;
+            }
+            #mobile-tab-bar.mobile-nav {
+                left: max(12px, env(safe-area-inset-left, 0px)) !important;
+                right: max(12px, env(safe-area-inset-right, 0px)) !important;
+                bottom: max(12px, env(safe-area-inset-bottom, 0px)) !important;
+                height: auto !important;
+                min-height: 58px;
+                padding: 10px 8px max(10px, calc(8px + env(safe-area-inset-bottom, 0px))) !important;
+                border-radius: 22px !important;
+                background: rgba(22, 22, 28, 0.88) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+                gap: 2px;
+            }
+            body.light-mode #mobile-tab-bar.mobile-nav {
+                background: rgba(255, 255, 255, 0.94) !important;
+                border-color: rgba(0, 0, 0, 0.08);
+                box-shadow: 0 10px 36px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.04) inset;
+            }
+            .mobile-nav-item {
+                min-height: 48px;
+                padding: 6px 4px;
+                border-radius: 16px;
+                font-size: 0.65rem;
+                letter-spacing: 0.02em;
+                font-weight: 700;
+                max-width: 25%;
+            }
+            .mobile-nav-item span {
+                font-size: 1.35rem;
+                line-height: 1;
+            }
+            .mobile-nav-item.active {
+                transform: none;
+                color: #fff;
+                background: linear-gradient(180deg, rgba(0, 120, 255, 0.35) 0%, rgba(0, 120, 255, 0.12) 100%);
+                box-shadow: 0 0 0 1px rgba(0, 120, 255, 0.35);
+            }
+            body.light-mode .mobile-nav-item {
+                color: #64748b;
+            }
+            body.light-mode .mobile-nav-item.active {
+                color: #0f172a;
+                background: linear-gradient(180deg, rgba(0, 120, 255, 0.2) 0%, rgba(0, 120, 255, 0.06) 100%);
+                box-shadow: 0 0 0 1px rgba(0, 120, 255, 0.25);
+            }
+            .modal {
+                padding: max(1rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left)) !important;
+            }
+            .modal-content {
+                border-radius: 22px !important;
+            }
+        }
+
     </style>
 </head>
 <body class="dark-mode">
+
     <!-- ULTIMATE SPLASH FAILSAFE -->
     <script>
         setTimeout(function() {
@@ -2798,6 +3034,24 @@
             <button onclick="closeHandoverModal()" class="btn-primary" style="width: 100%; padding: 1.25rem; font-size: 1.1rem; border-radius: 16px; font-weight: 800; background: linear-gradient(135deg, #ffab00, #ffc107); border: none; color: #000;">Verstanden</button>
         </div>
     </div>
+
+    <!-- Plakatwechsel: Pop-up unter „Dringende Hinweise“ (nicht mehr inline in der Liste) -->
+    <div id="poster-urgent-modal" class="modal">
+        <div class="modal-content glass" style="max-width: 640px; width: 92vw; padding: 1.75rem 1.5rem 1.5rem;">
+            <div style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 1rem;">
+                <span style="font-size: 1.75rem;">⚠️</span>
+                <div>
+                    <h2 class="modal-title" style="margin: 0; font-size: 1.35rem;">Dringende Hinweise</h2>
+                    <p style="margin: 0.35rem 0 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.35;">Plakatwechsel erscheint automatisch als Pop-up (ca. 20 Min nach Vorstellungsbeginn).</p>
+                </div>
+            </div>
+            <div id="poster-urgent-modal-body"></div>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; justify-content: flex-end;">
+                <button type="button" class="btn-secondary" onclick="snoozePosterUrgentPopup()" style="padding: 0.75rem 1.25rem;">Später (15 Min)</button>
+            </div>
+        </div>
+    </div>
+
     <div id="splash-screen">
         <div class="splash-glow"></div>
         <div class="splash-logo-container">
@@ -2845,17 +3099,21 @@
                     <span style="font-size: 1.1rem;">👥</span>
                     <span id="live-occupancy">0</span>
                 </div>
-                <select id="cinema-selector" class="location-select glass"></select>
+                <select id="cinema-selector" class="location-select glass" style="display: none;"></select><div id="cinema-display" class="location-badge glass" style="padding: 0 15px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; border: 1px solid var(--glass-border);">Darmstadt</div>
                 <div id="user-profile-btn" class="user-profile-btn" onclick="AUTH.showProfile()" title="Profil & Einstellungen">
                     <span>👤</span> Gast
-                </div>
-                <div class="appearance-toggle" onclick="toggleTheme()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-                    <span id="theme-icon" style="font-size: 1.2rem;">🌙</span>
                 </div>
             </div>
         </div>
     </header>
 
+    <div id="pull-refresh-indicator" style="display: none; align-items: center; justify-content: center; overflow: hidden; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); color: var(--primary-blue); font-size: 1.5rem; transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+            <span class="refresh-icon" style="transition: transform 0.2s ease;">🔄</span>
+            <span style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.7; font-weight: 800;">Aktualisieren</span>
+        </div>
+    </div>
+    
     <div class="container">
 
         <div class="dashboard-header">
@@ -2864,18 +3122,6 @@
                 <div class="location-badge" id="location-name">Darmstadt: KINOPOLIS</div>
             </div>
             
-            <div class="date-navigator" style="width: auto; gap: 1rem;">
-                <button class="nav-btn" onclick="changeDate(-1)">
-                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" /></svg>
-                </button>
-                <div class="date-display" style="text-align: center;">
-                    <span id="display-date-text">Heute</span>
-                    <span id="display-date-sub" class="date-sub"></span>
-                </div>
-                <button class="nav-btn" onclick="changeDate(1)">
-                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
-                </button>
-            </div>
 
             <div class="sync-status">
                 <div id="status-indicator" class="status-dot"></div>
@@ -2889,14 +3135,14 @@
         <div id="live-alert-banner" style="display:none; flex-direction:column; gap:0.5rem; margin-bottom:1rem; padding:0.75rem 1rem; background:rgba(231,76,60,0.1); border:1px solid rgba(231,76,60,0.4); border-radius:12px;">
         </div>
 
-        <div class="nav-tabs">
-            <button class="tab-btn active tab-live" id="tab-live" onclick="switchTab('live', this)">🎬 Live</button>
-            <button class="tab-btn stats-tab-btn tab-stats tl-only" id="tab-stats" onclick="switchTab('stats', this)">📊 Statistik</button>
-            <button class="tab-btn tab-kontakte" id="tab-kontakte" onclick="switchTab('kontakte', this)">📞 Kontakte</button>
-            <button class="tab-btn tools-tab-btn tab-funk" id="tab-funk" onclick="switchTab('funk', this)">📡 Funk</button>
-            <button class="tab-btn tab-intern" id="tab-intern" onclick="switchTab('intern', this)">🛠️ Tools</button>
-            <button class="tab-btn tab-info" id="tab-info" onclick="switchTab('info', this)">🍿 Filme</button>
-            <button class="tab-btn tab-einstellungen" onclick="switchTab('einstellungen', this)">⚙️ Einstellungen</button>
+        <div class="nav-tabs" id="desktop-nav-tabs">
+            <button type="button" class="tab-btn active tab-live" id="tab-live" data-tab="live" onclick="switchTab('live', this); return false;">🎬 Live</button>
+            <button type="button" class="tab-btn stats-tab-btn tab-stats tl-only" id="tab-stats" data-tab="stats" onclick="switchTab('stats', this); return false;">📊 Statistik</button>
+            <button type="button" class="tab-btn tab-kontakte" id="tab-kontakte" data-tab="kontakte" onclick="switchTab('kontakte', this); return false;">📞 Kontakte</button>
+            <button type="button" class="tab-btn tools-tab-btn tab-funk" id="tab-funk" data-tab="funk" onclick="switchTab('funk', this); return false;">📡 Funk</button>
+            <button type="button" class="tab-btn tab-intern" id="tab-intern" data-tab="intern" onclick="switchTab('intern', this); return false;">🛠️ Tools</button>
+            <button type="button" class="tab-btn tab-info" id="tab-info" data-tab="info" onclick="switchTab('info', this); return false;">🍿 Filme</button>
+            <button type="button" class="tab-btn tab-einstellungen" id="tab-einstellungen" data-tab="einstellungen" onclick="switchTab('einstellungen', this); return false;">⚙️ Einstellungen</button>
         </div>
 
         <!-- UPCOMING MOVIES SECTION -->
@@ -2919,21 +3165,6 @@
         </div>
 
 
-        <div id="internal-news-container" class="news-section intern-section" style="display: none; margin-bottom: 1rem;">
-            <div class="card-header glass" style="margin-bottom: 1rem; border-radius: 20px;" onclick="toggleNews()">
-                <div style="display: flex; align-items: center; gap: 0.75rem; width: 100%;">
-                    <span class="alert-icon-small">📢</span>
-                    <h2 style="font-size: 1.2rem; flex: 1;">Interne Mitteilungen</h2>
-                    <span id="news-count-badge" class="badge">0</span>
-                    <button class="toggle-btn collapsed" id="news-toggle-btn">
-                        <svg viewBox="0 0 24 24" width="24" height="24">
-                            <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <div id="news-list" class="collapsed"></div>
-        </div>
 
 
         <!-- Internal Message Modal -->
@@ -3115,26 +3346,33 @@
             </div>
         </div>
 
-        <!-- MHD-LISTE -->
-        <div class="card-container glass tools-section" id="mhd-section" style="display: none; margin-bottom: 2rem; border-color: rgba(241, 196, 15, 0.3);">
+        <!-- MHD-ERFASSUNG (NEW) -->
+        <div class="card-container glass tools-section" id="mhd-capture-section" style="display: none; margin-bottom: 2rem; border-color: rgba(241, 196, 15, 0.4); background: linear-gradient(135deg, rgba(241, 196, 15, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
             <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem;">
                     <span class="alert-icon-small">📅</span>
-                    <h2 style="font-size: 1.25rem;">MHD-Liste (Best Before)</h2>
+                    <h2 style="font-size: 1.25rem;">MHD Erfassung</h2>
                 </div>
             </div>
             <div style="padding: 1rem 1.5rem 1.5rem;">
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Produkte mit ablaufendem MHD eintragen.</p>
-                <div id="mhd-items" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
-                    <!-- Items generated by JS -->
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Erfasse Mindesthaltbarkeitsdaten für Artikel in Kühlungen & Gondeln.</p>
+                
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                        <div>
+                            <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Artikel</label>
+                            <select id="mhd-item-select" class="input-field" style="width: 100%;"></select>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Datum</label>
+                            <input type="date" id="mhd-date-input" class="input-field" style="width: 100%;">
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="submitMHD()" style="width: 100%; background: linear-gradient(135deg, #f1c40f, #f39c12); color: #fff; border: none; font-weight: bold; padding: 1rem; border-radius: 12px; font-size: 1.05rem;">
+                        💾 MHD speichern
+                    </button>
+                    <div id="mhd-status" style="display: none; padding: 0.75rem; border-radius: 8px; font-size: 0.85rem; text-align: center;"></div>
                 </div>
-                <div style="margin-bottom: 1rem;">
-                    <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Sonstiges / Zusätzliche Infos</label>
-                    <input type="text" id="mhd-custom" placeholder="z.B. Reinigungsmittel läuft ab..." class="input-field" style="padding: 0.75rem;">
-                </div>
-                <button class="btn-primary" onclick="sendMhdList()" style="width: 100%; background: linear-gradient(135deg, #f1c40f, #f39c12); color: #fff; border: none; font-weight: bold; padding: 1rem; border-radius: 12px; font-size: 1.05rem;">
-                    🚀 MHD-Liste an TL senden
-                </button>
             </div>
         </div>
             <div class="alerts-header glass" onclick="toggleAlerts()">
@@ -3142,6 +3380,7 @@
                     <span class="alert-icon-small">⚠️</span>
                     <h2>Dringende Hinweise</h2>
                     <span id="alert-count-badge" class="badge">0</span>
+                    <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500; margin-left: 0.35rem;">Plakate per Pop-up</span>
                 </div>
                 <button class="toggle-btn" id="alerts-toggle-btn">
                     <svg viewBox="0 0 24 24" width="24" height="24">
@@ -3159,7 +3398,7 @@
                     <span class="alert-icon-small">📋</span>
                     <h2 id="tasks-title">Tages-Aufgaben</h2>
                     <span id="auslass-count-badge" class="badge">0</span>
-                    <span class="auslass-disclaimer" id="tasks-disclaimer">Auslässe: Ca. Ende + 30m | Poster: 20m nach Start</span>
+                    <span class="auslass-disclaimer" id="tasks-disclaimer">Auslässe: Ca. Ende + 30m · Plakatwechsel: Pop-up unter „Dringende Hinweise“ (ca. 20 Min nach Start)</span>
                 </div>
                 <button class="toggle-btn" id="auslaesse-toggle-btn">
                     <svg viewBox="0 0 24 24" width="24" height="24">
@@ -3485,13 +3724,25 @@
                     <div style="display: flex; align-items: center; gap: 0.6rem;">
                         <span style="font-size: 1.3rem;">🏆</span>
                         <div>
-                            <div style="font-weight: 800; font-size: 0.95rem; color: white;">Schicht-Level: <span style="color: var(--primary-blue);">Profi</span></div>
+                            <div style="font-weight: 800; font-size: 0.95rem; color: white;">Schicht-Level: <span id="level-name-label" style="color: var(--primary-blue);">Lade...</span></div>
                             <div id="xp-display" style="font-size: 1.1rem; font-weight: 900; color: white;">0 XP</div>
                         </div>
                     </div>
                 </div>
-                <div class="progress-container" style="height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; margin-bottom: 0.5rem;">
-                    <div id="xp-bar" class="progress-bar" style="width: 0%; height: 100%; background: linear-gradient(to right, #3498db, #2ecc71); transition: width 0.5s ease;"></div>
+                <!-- SHIFT TIMER (NEW) -->
+                <div id="shift-timer-container" style="background: rgba(255, 185, 0, 0.05); border: 1px solid rgba(255, 185, 0, 0.15); border-radius: 20px; padding: 1.25rem; margin-bottom: 1.5rem; display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <div style="font-size: 0.8rem; font-weight: 800; color: var(--primary-gold); display: flex; align-items: center; gap: 0.4rem;">
+                            <span>⏱️</span> Schicht-Fortschritt
+                        </div>
+                        <div id="shift-time-left" style="font-size: 0.85rem; font-weight: 800; color: #fff;">Lade...</div>
+                    </div>
+                    <div style="height: 6px; background: rgba(0,0,0,0.3); border-radius: 50px; overflow: hidden;">
+                        <div id="shift-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(to right, #ffb900, #ff8c00); transition: width 1s linear;"></div>
+                    </div>
+                </div>
+                <div class="progress-container" style="height: 12px; background: rgba(255,255,255,0.05); border-radius: 6px; overflow: hidden; margin-bottom: 0.5rem; border: 1px solid rgba(255,255,255,0.05);">
+                    <div id="xp-bar" class="progress-bar" style="width: 0%; height: 100%; background: linear-gradient(to right, #3498db, #2ecc71); transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 15px rgba(52, 152, 219, 0.4);"></div>
                 </div>
                 <div id="xp-status" style="font-size: 0.75rem; color: var(--text-muted);">Erledige Aufgaben, um XP zu sammeln!</div>
             </div>
@@ -3563,6 +3814,7 @@
         const API_URL = '/api/sessions';
         const LOCATIONS_URL = '/api/locations';
         const VAPID_PUBLIC_KEY = 'BCP-JGZbVBjKY1_blxAHw6bC5Ddf0nLAyPSp8q39kV7utFahZNyQZJ8KlV-ht6UKg07eAuVBVHJhVsaDMx1m7X8';
+        const SYSTEM_VERSION = "V3.1.5-STABLE";
 
         let lastData = null;
         let lastUpdateTime = null;
@@ -3588,9 +3840,13 @@
 
 
         const CLEANING_TASKS = {
-            1: ["Tagesaufgabe 1: MONTAG"], 2: ["Tagesaufgabe 1: DIENSTAG"], 
-            3: ["Tagesaufgabe 1: MITTWOCH"], 4: ["Tagesaufgabe 1: DONNERSTAG"],
-            5: ["Tagesaufgabe 1: FREITAG"], 6: ["Tagesaufgabe 1: SAMSTAG"], 0: ["Tagesaufgabe 1: SONNTAG"]
+            1: ["Böden saugen oder feucht wischen", "Sanitärbereiche kontrollieren und nacharbeiten", "Abfallbehälter leeren"],
+            2: ["Glas- und glatte Oberflächen reinigen", "Team- und Nebenflächen ordentlich halten", "Hygieneartikel nachfüllen"],
+            3: ["Arbeitsflächen abwischen und desinfizieren", "Gemeinschaftsbereiche lüften und ordnen", "Ecken und Fugen kurz nachgehen"],
+            4: ["Lager- und Technikflächen aufräumen", "Infomaterial und Auslagen ordnen", "Eingangsbereich kurz prüfen"],
+            5: ["Service- und Kassenflächen reinigen", "Geräteoberflächen säubern", "Außenanlagen bei Bedarf nachgehen"],
+            6: ["Intensivbereiche laut Plan bearbeiten", "Material und Verbrauch kontrollieren", "Übergabe an nächste Schicht vorbereiten"],
+            0: ["Wochenabschluss: Hauptflächen gründlich reinigen", "Lager und Nebenräume sortieren", "Besonderheiten für die neue Woche notieren"]
         };
 
 
@@ -3606,6 +3862,18 @@
             
             t.classList.add('show');
             setTimeout(() => { t.classList.remove('show'); }, 3500);
+        }
+
+        // --- HAPTIC FEEDBACK ---
+        function triggerHaptic(type = 'light') {
+            if (!window.navigator || !window.navigator.vibrate) return;
+            try {
+                if (type === 'light') navigator.vibrate(10);
+                else if (type === 'medium') navigator.vibrate(30);
+                else if (type === 'success') navigator.vibrate([15, 30, 15]);
+                else if (type === 'error') navigator.vibrate([50, 80, 50]);
+                else if (type === 'heavy') navigator.vibrate(60);
+            } catch (e) {}
         }
 
         // --- IMMEDIATE UI INITIALIZATION ---
@@ -3652,8 +3920,13 @@
             return date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
         }
 
-        async function runSafe(fn, errorMsg) {
-            try { return await fn(); } 
+        async function runSafe(fn, errorMsg, timeoutMs = 8000) {
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error(`Timeout: ${errorMsg}`)), timeoutMs)
+            );
+            try { 
+                return await Promise.race([fn(), timeoutPromise]); 
+            } 
             catch (e) { 
                 console.error(errorMsg, e);
                 return null;
@@ -3692,30 +3965,81 @@
             'technik': 'Technik'
         };
 
-        // --- GAMIFICATION STUB ---
-        function updateGamification() {
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
-            const xp = checkboxes.length * 15; // 15 XP per task
+        // --- GAMIFICATION ENGINE ---
+        let totalXP = parseInt(localStorage.getItem('user_total_xp') || '0');
+
+        function awardXP(amount, reason) {
+            totalXP += amount;
+            localStorage.setItem('user_total_xp', totalXP);
+            updateXPUI();
+            if (reason) showToast(`⭐ +${amount} XP: ${reason}`);
+            triggerHaptic('success');
+        }
+
+        function updateXPUI() {
+            const xpDisplay = document.getElementById('xp-display');
+            const xpBar = document.getElementById('xp-bar');
+            const levelLabel = document.getElementById('level-name-label');
             
-            const xpDisplay = document.getElementById('user-xp');
-            const levelDisplay = document.getElementById('user-level');
-            const progress = document.getElementById('xp-progress');
+            if (xpDisplay) xpDisplay.innerText = `${totalXP} XP`;
             
-            if (xpDisplay) xpDisplay.innerText = `${xp} XP`;
-            if (progress) progress.style.width = `${Math.min(100, (xp % 100))}%`;
+            const level = Math.floor(totalXP / 150) + 1;
+            const xpInLevel = totalXP % 150;
+            const progressPct = (xpInLevel / 150) * 100;
             
-            if (levelDisplay) {
-                if (xp < 50) levelDisplay.innerText = 'Anfänger';
-                else if (xp < 150) levelDisplay.innerText = 'Fortgeschrittener';
-                else if (xp < 300) levelDisplay.innerText = 'Profi';
-                else levelDisplay.innerText = 'Meister';
-            }
+            if (xpBar) xpBar.style.width = `${progressPct}%`;
+            
+            const levels = ['Anfänger', 'Fortgeschrittener', 'Profi', 'Experte', 'Legende', 'Kino-Gott'];
+            const levelName = levels[Math.min(level - 1, levels.length - 1)];
+            
+            if (levelLabel) levelLabel.innerText = levelName;
         }
         
-        // Listen for checkbox changes to update XP live
-        document.addEventListener('change', (e) => {
-            if (e.target.type === 'checkbox') updateGamification();
-        });
+        // Initial UI Update
+        document.addEventListener('DOMContentLoaded', updateXPUI);
+
+        // --- PULL TO REFRESH ---
+        let touchStart = 0;
+        let pullThresh = 150;
+        
+        document.addEventListener('touchstart', e => {
+            if (window.scrollY === 0) touchStart = e.touches[0].pageY;
+        }, { passive: true });
+        
+        document.addEventListener('touchmove', e => {
+            const touch = e.touches[0].pageY;
+            const diff = touch - touchStart;
+            if (window.scrollY === 0 && diff > 0) {
+                const indicator = document.getElementById('pull-refresh-indicator');
+                if (indicator) {
+                    indicator.style.display = 'flex';
+                    const easedDiff = Math.pow(diff / pullThresh, 0.5) * pullThresh;
+                    indicator.style.height = `${Math.min(easedDiff, pullThresh)}px`;
+                    indicator.style.opacity = Math.min(diff / (pullThresh * 0.7), 1);
+                    
+                    const icon = indicator.querySelector('.refresh-icon');
+                    if (icon) icon.style.transform = `rotate(${diff * 2}deg)`;
+                    
+                    if (Math.abs(diff - pullThresh) < 5) triggerHaptic('medium');
+                }
+            }
+        }, { passive: true });
+        
+        document.addEventListener('touchend', e => {
+            const touch = e.changedTouches[0].pageY;
+            const diff = touch - touchStart;
+            if (window.scrollY === 0 && diff >= pullThresh) {
+                triggerHaptic('success');
+                fetchSessions();
+                showToast('🔄 Aktualisiere Daten...');
+            }
+            const indicator = document.getElementById('pull-refresh-indicator');
+            if (indicator) {
+                indicator.style.height = '0px';
+                indicator.style.opacity = '0';
+                setTimeout(() => indicator.style.display = 'none', 300);
+            }
+        }, { passive: true });
 
         // --- RESET LOGIC ---
         function checkAndResetDailyTasks() {
@@ -3745,9 +4069,22 @@
 
 
         function switchTab(view, btn) {
+            try {
+                switchTabInner(view, btn);
+            } catch (err) {
+                console.error('switchTab:', err);
+            }
+        }
+
+        function switchTabInner(view, btn) {
+            let activeBtn = btn && btn.classList ? btn : null;
+            if (!activeBtn && view) {
+                activeBtn = document.querySelector(`.nav-tabs .tab-btn[data-tab="${view}"]`)
+                    || document.querySelector(`#mobile-tab-bar .mobile-nav-item[data-tab="${view}"]`);
+            }
             // Update UI State for both Desktop and Mobile
             document.querySelectorAll('.tab-btn, .mobile-nav-item').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            if (activeBtn) activeBtn.classList.add('active');
             
             // Clean view classes
             document.body.classList.remove(
@@ -3758,18 +4095,19 @@
             
             // Apply new view state
             const titleEl = document.getElementById('main-title');
-            const suffix = ' V1.0';
+            const suffix = '';
             
             if (view === 'live') {
                 document.body.classList.add('live-active');
                 if (titleEl) titleEl.innerText = 'Live Overview' + suffix;
             } else if (view === 'funk') {
-                document.body.classList.add('tools-active', 'funk-active');
+                document.body.classList.add('funk-active');
                 if (titleEl) titleEl.innerText = 'Funk-Ruf (Digital)' + suffix;
-                fetchInventory();
             } else if (view === 'action') {
                 document.body.classList.add('action-active', 'intern-active', 'tools-active');
                 if (titleEl) titleEl.innerText = 'Team-Aktionen' + suffix;
+                fetchInventory();
+                loadMHDItems();
             } else if (view === 'mehr') {
                 document.body.classList.add('mehr-active', 'stats-active', 'kontakte-active', 'info-active', 'einstellungen-active');
                 if (titleEl) titleEl.innerText = 'Mehr & Infos' + suffix;
@@ -3783,7 +4121,8 @@
             } else if (view === 'intern' || view === 'tools') {
                 document.body.classList.add('intern-active', 'tools-active');
                 if (titleEl) titleEl.innerText = 'Interne Tools' + suffix;
-                if (document.getElementById('transfer-items').children.length === 0) initTransferList();
+                const transferEl = document.getElementById('transfer-items');
+                if (transferEl && transferEl.children.length === 0) initTransferList();
             } else if (view === 'info') {
                 document.body.classList.add('info-active');
                 if (titleEl) titleEl.innerText = 'Film-Informationen' + suffix;
@@ -3802,17 +4141,20 @@
             }
         }
 
+        // Tab-Wechsel: onclick auf den Buttons (zuverlässig); switchTab fängt Fehler per try/catch ab.
+
         // --- APP START ---
         // 1. IMMEDIATE SPLASH SCREEN FAILSAFE
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
-            if (splash) {
+            if (splash && splash.style.display !== 'none') {
+                splash.style.transition = 'opacity 1s ease';
                 splash.style.opacity = '0';
                 splash.style.pointerEvents = 'none';
                 setTimeout(() => splash.style.display = 'none', 1000);
-                console.log('SPLASH: Main failsafe triggered');
+                console.warn('SPLASH: Forcefully removed after 5s timeout');
             }
-        }, 3000);
+        }, 5000);
 
         // 2. IMMEDIATE INITIALIZATION (Don't wait for all images/assets)
         async function init() {
@@ -3851,7 +4193,7 @@
 
                 // Core Data
                 await fetchLocations().catch(e => console.error("Locations failed:", e));
-                
+                await fetchSessions().catch(e => console.error("Sessions failed:", e));
                 // Mobile Header
                 let lastScrollTop = 0;
                 window.addEventListener('scroll', () => {
@@ -3879,14 +4221,14 @@
                 ]);
 
                 // Default Tab
-                const tabLive = document.querySelector('.mobile-nav-item[onclick*="live"]');
+                const tabLive = document.querySelector('.mobile-nav-item[data-tab="live"]');
                 if (tabLive) switchTab('live', tabLive);
 
                 // Setup toggle for Auslässe
                 const auslaesseBtn = document.getElementById('auslaesse-toggle-btn');
                 if (auslaesseBtn) {
                     auslaesseBtn.addEventListener('click', () => {
-                        const content = document.getElementById('auslaesse-content');
+                        const content = document.getElementById('auslaesse-list');
                         if (content) {
                             content.classList.toggle('collapsed');
                             auslaesseBtn.classList.toggle('collapsed');
@@ -3925,7 +4267,15 @@
                 
                 if (window.updateGamification) updateGamification();
                 if (window.tickAllCountdowns) tickAllCountdowns();
-                if (window.updateLiveAlertBanner) updateLiveAlertBanner();
+                if (window.updateLiveAlertBanner) updateLiveAlertBanner(); if (window.updateShiftTimer) { updateShiftTimer(); setInterval(updateShiftTimer, 60000); }
+                if (window.loadTaskState) {
+                    loadTaskState();
+                    setInterval(loadTaskState, 30000); // Polling every 30s
+                }
+                if (window.checkPersonalNeed) {
+                    checkPersonalNeed();
+                    setInterval(checkPersonalNeed, 10000); // Sync help status every 10s
+                }
                 
                 // Initialize default tab
                 const activeBtn = document.querySelector('.mobile-nav-item.active') || document.querySelector('.tab-btn.active') || document.getElementById('tab-live');
@@ -3969,6 +4319,51 @@
             });
         }
 
+
+        // --- SHIFT TIMER ---
+        function updateShiftTimer() {
+            let startStr = localStorage.getItem('shift_start_time');
+            const now = new Date();
+            
+            if (!startStr) {
+                localStorage.setItem('shift_start_time', now.toISOString());
+                startStr = now.toISOString();
+            } else {
+                const lastStart = new Date(startStr);
+                if (now - lastStart > 12 * 60 * 60 * 1000) {
+                    localStorage.setItem('shift_start_time', now.toISOString());
+                    startStr = now.toISOString();
+                }
+            }
+            
+            const startTime = new Date(startStr);
+            const shiftLength = 8.5 * 60 * 60 * 1000;
+            const endTime = new Date(startTime.getTime() + shiftLength);
+            
+            const total = endTime - startTime;
+            const elapsed = now - startTime;
+            const percent = Math.min(Math.max((elapsed / total) * 100, 0), 100);
+            
+            const bar = document.getElementById('shift-progress-bar');
+            const leftText = document.getElementById('shift-time-left');
+            const container = document.getElementById('shift-timer-container');
+            
+            if (!bar || !leftText || !container) return;
+            
+            if (elapsed > shiftLength) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+            bar.style.width = percent + '%';
+            
+            const remaining = endTime - now;
+            const hours = Math.floor(remaining / (1000 * 60 * 60));
+            const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+            leftText.textContent = `${hours}h ${mins}m verbleibend`;
+        }
+
         // ============================================================
         // FEATURE: LIVE ALERT BANNER
         // ============================================================
@@ -4010,6 +4405,47 @@
                     </div>
                 </div>`
             ).join('');
+        }
+
+        // --- PERSONAL NEED (Help Button) ---
+        let isHelpActive = false;
+        async function checkPersonalNeed() {
+            try {
+                const res = await fetch(`/api/personal-need?location=${currentCity}`);
+                const data = await res.json();
+                isHelpActive = !!data.active;
+                updateHelpButtonUI();
+            } catch (e) {}
+        }
+
+        async function toggleHelp() {
+            triggerHaptic('heavy');
+            isHelpActive = !isHelpActive;
+            updateHelpButtonUI();
+            try {
+                await fetch('/api/personal-need', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ location: currentCity, active: isHelpActive, message: 'Hilfe an Kasse/Theke benötigt!' })
+                });
+                showToast(isHelpActive ? '🆘 Hilfe-Ruf gesendet!' : '✅ Hilfe-Ruf aufgehoben');
+            } catch (e) { showToast('Fehler beim Senden', true); }
+        }
+
+        function updateHelpButtonUI() {
+            const btn = document.getElementById('help-button');
+            if (!btn) return;
+            if (isHelpActive) {
+                btn.classList.add('active');
+                btn.innerHTML = '<span>🆘</span> HILFE RUF AKTIV';
+                btn.style.background = 'var(--primary-red)';
+                btn.style.animation = 'pulse-red 1.5s infinite';
+            } else {
+                btn.classList.remove('active');
+                btn.innerHTML = '<span>🙋‍♂️</span> Hilfe benötigt?';
+                btn.style.background = 'rgba(255,255,255,0.05)';
+                btn.style.animation = 'none';
+            }
         }
 
         // ============================================================
@@ -4119,6 +4555,17 @@
             }
         }
 
+        function normalizeMovieKey(title) {
+            if (!title || typeof title !== 'string') return '';
+            return title
+                .toLowerCase()
+                .normalize('NFKD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[''`´]/g, '')
+                .replace(/[^a-z0-9äöüß]+/g, ' ')
+                .trim();
+        }
+
         async function loadUpcomingMovies() {
             const grid = document.getElementById('upcoming-grid');
             const loader = document.getElementById('upcoming-loading');
@@ -4131,15 +4578,16 @@
             try {
                 // 1. Current Movies (from lastData which is array of halls)
                 let currentMovies = [];
-                const seenTitles = new Set();
+                const seenKeys = new Set();
 
                 if (lastData && Array.isArray(lastData)) {
                     // Flatten halls into sessions
                     const allCurrentSessions = lastData.flatMap(h => h.sessions || []);
                     
                     allCurrentSessions.forEach(s => {
-                        if (s.title && !seenTitles.has(s.title)) {
-                            seenTitles.add(s.title);
+                        const k = normalizeMovieKey(s.title);
+                        if (s.title && k && !seenKeys.has(k)) {
+                            seenKeys.add(k);
                             currentMovies.push({
                                 title: s.title,
                                 poster: s.poster,
@@ -4150,16 +4598,26 @@
                     });
                 }
 
-                // 2. Upcoming Movies
-                const res = await fetch('/api/upcoming');
+                // 2. Upcoming Movies (nur Slider „Demnächst“ auf der Kinoseite; gleicher Titel wie „Jetzt“ wird ausgeblendet)
+                const res = await fetch(`/api/upcoming?location=${encodeURIComponent(currentCity || 'kp')}`);
                 let upcoming = [];
                 if (res.ok) {
-                    upcoming = await res.json();
+                    const data = await res.json();
+                    upcoming = Array.isArray(data) ? data : [];
                 }
                 
-                // Merge and deduplicate: Only add upcoming if not already seen in current
-                const upcomingFiltered = Array.isArray(upcoming) ? upcoming.filter(m => !seenTitles.has(m.title)) : [];
-                const allMovies = [...currentMovies, ...upcomingFiltered.map(m => ({...m, current: false}))];
+                const upcomingFiltered = upcoming.filter(m => {
+                    if (!m || !m.title) return false;
+                    const k = normalizeMovieKey(m.title);
+                    if (!k || seenKeys.has(k)) return false;
+                    if (m.poster) {
+                        const p = String(m.poster).toLowerCase();
+                        if (p.includes('red-seats') || p.includes('platzhalter') || p.includes('placeholder')) return false;
+                    }
+                    seenKeys.add(k);
+                    return true;
+                }).map(m => ({ ...m, current: false }));
+                const allMovies = [...currentMovies, ...upcomingFiltered];
 
                 if (allMovies.length === 0) {
                    if (loader) loader.innerHTML = '<div style="color: var(--text-muted); padding: 2rem;">Keine Filme gefunden.</div>';
@@ -4400,11 +4858,78 @@
             { name: "🍦 Eiskonfekt", target: 15 }
         ];
 
+        // --- SAAL STATUS (Real-time Sync) ---
+        let HALL_STATUS = {
+            1: 'running', 2: 'running', 3: 'running', 4: 'running',
+            5: 'running', 6: 'running', 7: 'running', 8: 'running'
+        };
+
+        async function loadHallStatus() {
+            try {
+                const res = await fetch(`/api/hall-status?location=${currentCity}`);
+                const data = await res.json();
+                Object.assign(HALL_STATUS, data);
+                renderHallStatus();
+            } catch (e) { console.error("Error loading hall status", e); }
+        }
+
+        async function updateHallStatus(hall, status) {
+            HALL_STATUS[hall] = status;
+            renderHallStatus();
+            try {
+                await fetch('/api/hall-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hall_id: hall.toString(), location: currentCity, status })
+                });
+            } catch (e) { console.error("Sync error", e); }
+        }
+
+        function initHallStatus() {
+            loadHallStatus();
+            setInterval(loadHallStatus, 15000); // Sync every 15s
+        }
+
+        function renderHallStatus() {
+            const container = document.getElementById('hall-status-grid');
+            if (!container) return;
+            container.innerHTML = [1, 2, 3, 4, 5, 6, 7, 8].map(h => {
+                const status = HALL_STATUS[h] || 'running';
+                let label = 'Läuft';
+                let color = '#2ecc71';
+                if (status === 'cleaning') { label = 'Reinigung'; color = '#f1c40f'; }
+                if (status === 'ready') { label = 'Bereit'; color = '#3498db'; }
+                
+                return `
+                    <div class="hall-status-card" onclick="cycleHallStatus(${h})" style="border-top: 4px solid ${color}">
+                        <div style="font-weight: 800; font-size: 1.1rem; color: white;">Saal ${h}</div>
+                        <div style="font-size: 0.75rem; color: ${color}; font-weight: 700; text-transform: uppercase;">${label}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function cycleHallStatus(hall) {
+            triggerHaptic('medium');
+            const current = HALL_STATUS[hall] || 'running';
+            let next = 'running';
+            if (current === 'running') next = 'cleaning';
+            else if (current === 'cleaning') next = 'ready';
+            else if (current === 'ready') next = 'running';
+            updateHallStatus(hall, next);
+        }
+
         async function fetchInventory() {
             try {
                 const res = await fetch('/api/inventory');
                 const data = await res.json();
-                if (data.waren && data.waren.length > 0) TRANSFER_ITEMS = data.waren;
+                
+                // Combine Waren and Getränke for the transfer list as requested
+                let combinedWaren = [];
+                if (data.waren) combinedWaren = [...data.waren];
+                if (data.getraenke) combinedWaren = [...combinedWaren, ...data.getraenke];
+                
+                if (combinedWaren.length > 0) TRANSFER_ITEMS = combinedWaren;
                 if (data.eis && data.eis.length > 0) EIS_TRANSFER_ITEMS = data.eis;
                 initTransferList();
             } catch (e) {
@@ -4423,10 +4948,10 @@
                             <span style="font-size: 0.95rem; color: #fff; font-weight: 600;">${item.name}</span>
                             <span style="font-size: 0.7rem; color: var(--text-muted);">Soll: ${item.target} Stück</span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <button class="btn-secondary" onclick="updateTransferCount(${index}, -1)" style="width: 32px; height: 32px; padding: 0; border-radius: 8px; font-weight: bold; background: rgba(229, 9, 20, 0.2); border-color: rgba(229, 9, 20, 0.4); color: #ff4d4d; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">-</button>
-                            <input type="number" id="transfer-count-${index}" min="0" value="0" style="width: 45px; height: 32px; text-align: center; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: var(--primary-blue); font-weight: bold; font-size: 1rem; padding: 0; appearance: textfield;" />
-                            <button class="btn-secondary" onclick="updateTransferCount(${index}, 1)" style="width: 32px; height: 32px; padding: 0; border-radius: 8px; font-weight: bold; background: rgba(46, 204, 113, 0.2); border-color: rgba(46, 204, 113, 0.4); color: #2ecc71; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">+</button>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <button class="btn-secondary" onclick="updateTransferCount(${index}, -1)" style="width: 44px; height: 44px; padding: 0; border-radius: 12px; font-weight: bold; background: rgba(229, 9, 20, 0.15); border-color: rgba(229, 9, 20, 0.3); color: #ff4d4d; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">-</button>
+                            <input type="number" id="transfer-count-${index}" min="0" value="0" inputmode="numeric" style="width: 50px; height: 44px; text-align: center; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: var(--primary-blue); font-weight: 800; font-size: 1.1rem; padding: 0; appearance: textfield;" />
+                            <button class="btn-secondary" onclick="updateTransferCount(${index}, 1)" style="width: 44px; height: 44px; padding: 0; border-radius: 12px; font-weight: bold; background: rgba(46, 204, 113, 0.15); border-color: rgba(46, 204, 113, 0.3); color: #2ecc71; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">+</button>
                         </div>
                     </div>
                 </div>
@@ -4442,10 +4967,10 @@
                                 <span style="font-size: 0.95rem; color: #fff; font-weight: 600;">${item.name}</span>
                                 <span style="font-size: 0.7rem; color: var(--text-muted);">Soll: ${item.target} Stück</span>
                             </div>
-                            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                <button class="btn-secondary" onclick="updateEisTransferCount(${index}, -1)" style="width: 32px; height: 32px; padding: 0; border-radius: 8px; font-weight: bold; background: rgba(229, 9, 20, 0.2); border-color: rgba(229, 9, 20, 0.4); color: #ff4d4d; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">-</button>
-                                <input type="number" id="eis-transfer-count-${index}" min="0" value="0" style="width: 45px; height: 32px; text-align: center; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: #3498db; font-weight: bold; font-size: 1rem; padding: 0; appearance: textfield;" />
-                                <button class="btn-secondary" onclick="updateEisTransferCount(${index}, 1)" style="width: 32px; height: 32px; padding: 0; border-radius: 8px; font-weight: bold; background: rgba(46, 204, 113, 0.2); border-color: rgba(46, 204, 113, 0.4); color: #2ecc71; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">+</button>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <button class="btn-secondary" onclick="updateEisTransferCount(${index}, -1)" style="width: 44px; height: 44px; padding: 0; border-radius: 12px; font-weight: bold; background: rgba(229, 9, 20, 0.15); border-color: rgba(229, 9, 20, 0.3); color: #ff4d4d; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">-</button>
+                                <input type="number" id="eis-transfer-count-${index}" min="0" value="0" inputmode="numeric" style="width: 50px; height: 44px; text-align: center; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #3498db; font-weight: 800; font-size: 1.1rem; padding: 0; appearance: textfield;" />
+                                <button class="btn-secondary" onclick="updateEisTransferCount(${index}, 1)" style="width: 44px; height: 44px; padding: 0; border-radius: 12px; font-weight: bold; background: rgba(46, 204, 113, 0.15); border-color: rgba(46, 204, 113, 0.3); color: #2ecc71; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">+</button>
                             </div>
                         </div>
                     </div>
@@ -4456,29 +4981,91 @@
             initMhdList();
         }
 
+        async function loadMHDItems() {
+            const select = document.getElementById('mhd-item-select');
+            if (!select) return;
+            try {
+                const res = await fetch('/api/inventory');
+                const data = await res.json();
+                
+                let html = '<option value="">-- Artikel wählen --</option>';
+                
+                const typeMap = {
+                    'getraenke': '🥤 Getränke',
+                    'waren': '🍿 Waren',
+                    'eis': '🍦 Eis',
+                    'slushy': '🍧 Slushy'
+                };
+
+                for (const [typeKey, typeLabel] of Object.entries(typeMap)) {
+                    const items = data[typeKey] || [];
+                    if (items.length === 0) continue;
+
+                    // Group items of this type by location
+                    const byLocation = {};
+                    items.forEach(i => {
+                        const loc = i.location || 'Allgemein';
+                        if (!byLocation[loc]) byLocation[loc] = [];
+                        byLocation[loc].push(i);
+                    });
+
+                    for (const [loc, locItems] of Object.entries(byLocation)) {
+                        html += `<optgroup label="${typeLabel} - 📍 ${loc}">`;
+                        locItems.forEach(i => {
+                            html += `<option value="${i.id}" data-name="${i.name}" data-type="${typeKey}" data-location="${loc}">${i.name}</option>`;
+                        });
+                        html += `</optgroup>`;
+                    }
+                }
+                select.innerHTML = html;
+            } catch (e) {
+                console.error("MHD load error", e);
+            }
+        }
+
+        async function submitMHD() {
+            const select = document.getElementById('mhd-item-select');
+            const dateInput = document.getElementById('mhd-date-input');
+            const status = document.getElementById('mhd-status');
+            
+            const opt = select.options[select.selectedIndex];
+            if (!opt || !opt.value || !dateInput.value) {
+                alert('Bitte Artikel und Datum wählen!');
+                return;
+            }
+            
+            const author = localStorage.getItem('kinopolis_shift_name') || 'System';
+            
+            try {
+                const res = await fetch('/api/mhd', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        item_id: opt.value,
+                        item_name: opt.getAttribute('data-name'),
+                        type: opt.getAttribute('data-type'),
+                        location: opt.getAttribute('data-location'),
+                        mhd_date: dateInput.value,
+                        author
+                    })
+                });
+                
+                if (res.ok) {
+                    awardXP(25, 'MHD Datum erfasst');
+                    status.innerText = '✅ MHD erfolgreich gespeichert!';
+                    status.style.background = 'rgba(46, 204, 113, 0.1)';
+                    status.style.color = '#2ecc71';
+                    status.style.display = 'block';
+                    dateInput.value = '';
+                    setTimeout(() => status.style.display = 'none', 3000);
+                }
+            } catch (e) {
+                alert('Fehler beim Speichern.');
+            }
+        }
+
         function initMhdList() {
-            const container = document.getElementById('mhd-items');
-            if (!container) return;
-            
-            // Focus on common products that need MHD tracking
-            const mhdProducts = [
-                "🥤 Sirup Cola", "🥤 Sirup Zero/Light", "🥤 Sirup Fanta/Sprite",
-                "🍿 Popcorn Mais", "🍿 Popcorn Zucker/Fett",
-                "🧀 Nacho Käsesauce", "🧀 Nacho Salsa",
-                "🥛 Milcherzeugnisse", "☕ Kaffee Bohnen"
-            ];
-            
-            container.innerHTML = mhdProducts.map((name, index) => `
-                <div style="display: flex; flex-direction: column; gap: 0.75rem; background: rgba(241, 196, 15, 0.05); padding: 1rem; border-radius: 12px; border: 1px solid rgba(241, 196, 15, 0.15);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
-                        <span style="font-size: 0.95rem; color: #fff; font-weight: 600;">${name}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 0.75rem; background: rgba(0,0,0,0.2); padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                        <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Ablaufdatum:</span>
-                        <input type="date" id="mhd-date-${index}" style="flex: 1; background: transparent; border: none; color: #fff; font-size: 0.85rem; outline: none; font-family: 'Outfit'; cursor: pointer;" />
-                    </div>
-                </div>
-            `).join('');
+            // Deprecated - replaced by loadMHDItems and submitMHD
         }
 
         function updateTransferCount(index, delta) {
@@ -4745,6 +5332,7 @@
         }
 
         function changeDate(days) {
+            if (!displayDate) displayDate = new Date();
             displayDate.setDate(displayDate.getDate() + days);
             updateDateUI();
             fetchSessions();
@@ -5410,18 +5998,8 @@
             
             halls.forEach(hall => {
                 const hallName = hall.name;
-                const sessions = hall.sessions || []; // Safety fallback
-
-                // Skip halls where the last session ended more than 60 minutes ago
-                const lastEndMin = sessions.reduce((max, s) => {
-                    if (s.time && s.time.includes(':')) {
-                        const [h, m] = s.time.split(':').map(Number);
-                        return Math.max(max, h * 60 + m + (s.duration || 0));
-                    }
-                    return max;
-                }, 0);
-                if (lastEndMin > 0 && currentMinutes > lastEndMin + 60) return; // skip stale hall
-
+                const sessions = (hall.sessions || []).filter(s => s && s.time); 
+                
                 const card = document.createElement('div');
                 
                 let sessionsHtml = sessions.map(s => {
@@ -5490,34 +6068,58 @@
             });
         }
 
-        function loadTaskState() {
+        async function loadTaskState() {
             try {
-                const auslaesse = localStorage.getItem(`completed_auslaesse_${currentCity}`);
-                const posters = localStorage.getItem(`completed_posters_${currentCity}`);
-                const cleaning = localStorage.getItem(`completed_cleaning_${currentCity}`);
+                const res = await fetch(`/api/task-completions?location=${currentCity}&date=${new Date().toISOString().split('T')[0]}`);
+                const data = await res.json();
                 
-                completedAuslaesse = new Set(auslaesse ? JSON.parse(auslaesse) : []);
-                completedPosters = new Set(posters ? JSON.parse(posters) : []);
-                completedCleaning = new Set(cleaning ? JSON.parse(cleaning) : []);
-            } catch (e) {
-                console.error("Error loading task state", e);
                 completedAuslaesse = new Set();
                 completedPosters = new Set();
                 completedCleaning = new Set();
+                
+                data.forEach(t => {
+                    if (t.type === 'auslass') completedAuslaesse.add(t.task_id);
+                    else if (t.type === 'poster') completedPosters.add(t.task_id);
+                    else if (t.type === 'cleaning') completedCleaning.add(t.task_id);
+                });
+                renderLiveTasks();
+            } catch (e) {
+                console.error("Error loading task state", e);
             }
         }
 
-        function saveTaskState() {
-            localStorage.setItem(`completed_auslaesse_${currentCity}`, JSON.stringify(Array.from(completedAuslaesse)));
-            localStorage.setItem(`completed_posters_${currentCity}`, JSON.stringify(Array.from(completedPosters)));
-            localStorage.setItem(`completed_cleaning_${currentCity}`, JSON.stringify(Array.from(completedCleaning)));
+        async function syncTaskState(taskId, type, isDone) {
+            try {
+                const author = window.AUTH && AUTH.user ? `${AUTH.user.first_name} ${AUTH.user.last_name}` : 'System';
+                if (isDone) {
+                    await fetch('/api/task-completions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ task_id: taskId, location: currentCity, date: new Date().toISOString().split('T')[0], type, author })
+                    });
+                } else {
+                    await fetch('/api/task-completions', {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ task_id: taskId, location: currentCity, date: new Date().toISOString().split('T')[0] })
+                    });
+                }
+            } catch (e) { console.error("Sync error", e); }
         }
 
+        function saveTaskState() {
+            // No longer used for localStorage, keeping for compatibility if needed
+        }
 
-        function renderTasks(hallsGrouped) {
+        function renderTasks(halls) {
+            if (!halls || !Array.isArray(halls)) return;
+
+            const allSessions = (halls || []).flatMap(h => h.sessions || []).filter(s => s && s.time);
+            
             const container = document.getElementById('auslaesse-section-container');
             const list = document.getElementById('auslaesse-list');
             const badge = document.getElementById('auslass-count-badge');
+            if (!container || !list || !badge) return;
             list.innerHTML = '';
 
             const now = new Date();
@@ -5525,9 +6127,9 @@
             
             const allTasks = [];
 
-            hallsGrouped.forEach(hall => {
+            halls.forEach(hall => {
                 const hallName = hall.name;
-                const sessions = hall.sessions.filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
+                const sessions = (hall.sessions || []).filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
                 
                 sessions.forEach((s, idx) => {
                     const [h, m] = s.time.split(':').map(Number);
@@ -5537,7 +6139,9 @@
                     const durationMax = durationBase + 30;
 
                     // CHECK FOR SCANNED DATA OVERRIDE
-                    let timeDisplay = `${formatMinutes(durationBase)} - ${formatMinutes(durationMax)}`;
+                    // Ohne Scan: Zeitraum aus Start + Filmdauer + 30 Min Puffer (Disclaimer im Header).
+                    // Mit passendem Scan: eine Uhrzeit aus Plan (Abspann/Ende), engeres Zeitfenster, grün markiert.
+                    let timeDisplay = `${formatMinutes(durationBase)} – ${formatMinutes(durationMax)} (geschätzt)`;
                     let triggerMin = durationBase;
                     let triggerMax = durationMax;
                     let isVerified = false;
@@ -5550,16 +6154,15 @@
                             if (!isNaN(eh)) {
                                 triggerMin = eh * 60 + em;
                                 triggerMax = triggerMin + 15; // Tighter window for verified
-                                timeDisplay = `${targetTime} (Exakt)`;
+                                timeDisplay = `${targetTime} – ${formatMinutes(triggerMax)} (Auslassplan)`;
                                 isVerified = true;
                             }
                         }
                     }
 
-                    // 1. Poster Change Task (Logic moved to updateAlerts/addPosterAlerts)
-                    // ...
+                    // Plakatwechsel: nur noch Pop-up unter „Dringende Hinweise“ (addPosterAlerts / Modal), nicht in dieser Liste.
 
-                    // 2. Auslass Task (All sessions)
+                    // 1. Auslass Task (All sessions)
                     allTasks.push({
                         type: 'auslass',
                         hall: hall.name,
@@ -5600,18 +6203,16 @@
             // Filter for tasks:
             // - Auslaesse: Only show if not done OR if it happened within the last 60 minutes
             // - Cleaning: ALWAYS show
-            // - Posters: Only if done (historical view), but they are primarily in alerts
             const liveTasks = allTasks.filter(t => {
                 if (t.type === 'auslass') {
                     const isDone = completedAuslaesse.has(t.id);
-                    const isOld = currentMinutes > (t.time + 60);
-                    // Hide if older than 1 hour (requested by user)
-                    if (isOld) return false;
+                    // Hide if older than 3 hours (increased from 1h for better overview)
+                    const isOld = currentMinutes > (t.time + 180);
+                    if (isOld && isDone) return false;
                     return true;
                 }
                 if (t.type === 'cleaning') return true;
-                if (t.type === 'poster') return completedPosters.has(t.id);
-                return true;
+                return false;
             });
 
 
@@ -5640,19 +6241,24 @@
 
                 item.innerHTML = `
                     <div class="auslass-hall" style="background: ${isActive ? 'var(--primary-red)' : badgeColor}">${icon} ${t.hall}</div>
-                    <div class="auslass-movie" title="${t.title}">${t.sold !== undefined ? t.sold + ' Besucher' : ''} ${t.isVerified ? '✅' : ''}</div>
+                    <div class="auslass-movie" title="${t.title}">${t.title}${t.sold !== undefined ? ` • ${t.sold} Besucher` : ''} ${t.isVerified ? '✅' : ''}</div>
                     <div class="auslass-time-range" style="${t.isVerified ? 'color: #2ecc71; font-weight: 800;' : ''}">${t.timeDisplay}</div>
                 `;
                 
-                item.addEventListener('click', () => {
-                    if (set.has(t.id)) {
+                item.addEventListener('click', async () => {
+                    triggerHaptic('light');
+                    const isDone = set.has(t.id);
+                    if (isDone) {
                         set.delete(t.id);
                         item.classList.remove('done');
                     } else {
                         set.add(t.id);
                         item.classList.add('done');
+                        const xpMap = { 'auslass': 15, 'cleaning': 20, 'poster': 10 };
+                        awardXP(xpMap[t.type] || 5, `${t.type.toUpperCase()} erledigt`);
                     }
-                    saveTaskState();
+                    await syncTaskState(t.id, t.type, !isDone);
+                    renderLiveTasks();
                 });
                 
                 list.appendChild(item);
@@ -5665,6 +6271,27 @@
 
             badge.textContent = totalActive;
             container.style.display = liveTasks.length > 0 ? 'block' : 'none';
+
+            // Add Help Button if not present
+            if (!document.getElementById('help-button')) {
+                const helpBtn = document.createElement('button');
+                helpBtn.id = 'help-button';
+                helpBtn.className = 'btn-secondary';
+                helpBtn.style.width = '100%';
+                helpBtn.style.marginTop = '1.5rem';
+                helpBtn.style.padding = '1.25rem';
+                helpBtn.style.borderRadius = '16px';
+                helpBtn.style.fontWeight = '800';
+                helpBtn.style.fontSize = '1.1rem';
+                helpBtn.style.display = 'flex';
+                helpBtn.style.alignItems = 'center';
+                helpBtn.style.justifyContent = 'center';
+                helpBtn.style.gap = '0.75rem';
+                helpBtn.style.border = '2px solid rgba(255,255,255,0.1)';
+                helpBtn.onclick = toggleHelp;
+                container.appendChild(helpBtn);
+                updateHelpButtonUI();
+            }
         }
 
         function getKpStationTasks(hallsGrouped) {
@@ -5687,7 +6314,7 @@
                     const hall = hallsGrouped.find(h => h.name === hallName);
                     if (!hall) return;
 
-                    const sessions = hall.sessions.filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
+                    const sessions = (hall.sessions || []).filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
                     const auslassSessions = sessions.slice(0, -1); // All except last
 
                     auslassSessions.forEach(s => {
@@ -5727,11 +6354,13 @@
 
 
         function renderStats(hallsGrouped) {
+            if (!hallsGrouped || !Array.isArray(hallsGrouped)) return;
             const container = document.getElementById('stats-section-container');
             const grid = document.getElementById('stats-grid');
             const chart = document.getElementById('hour-chart');
+            if (!container || !grid) return;
             
-            const allSessions = hallsGrouped.flatMap(h => h.sessions);
+            const allSessions = (hallsGrouped || []).flatMap(h => h.sessions || []).filter(s => s && s.time);
             if (allSessions.length === 0) {
                 container.style.display = 'none';
                 return;
@@ -5776,7 +6405,8 @@
             grid.innerHTML = `
                 <div class="stat-card">
                     <div class="stat-label">System-Status</div>
-                    <div class="stat-value" style="font-size: 1.2rem; color: #3498db;">OK V1.0</div>
+                    <div class="stat-value" style="font-size: 1.2rem; color: #3498db;">SYSTEM OK</div>
+                    <div class="stat-subtext" style="font-family: monospace; font-size: 0.7rem; opacity: 0.6;">${SYSTEM_VERSION}</div>
                 </div>
                 <div class="stat-card">
                     <span class="stat-label">Gesamtbesucher</span>
@@ -5888,31 +6518,85 @@
 
         function toggleHall(header) {
             if (!header) return;
-            const sessionsList = header.closest('.hall-card')?.querySelector('.sessions-list');
+            const sessionsList = header.closest('.hall-card')?.querySelector('.hall-sessions-list');
             if (!sessionsList) return;
             header.classList.toggle('collapsed');
             sessionsList.classList.toggle('collapsed');
+        }
+
+        const POSTER_URGENT_POPUP_DELAY_MS = 1600;
+        window._posterUrgentQueue = window._posterUrgentQueue || [];
+        window.posterUrgentSnoozeUntil = window.posterUrgentSnoozeUntil || 0;
+        window._posterModalTimer = window._posterModalTimer || null;
+
+        function snoozePosterUrgentPopup() {
+            window.posterUrgentSnoozeUntil = Date.now() + 15 * 60 * 1000;
+            const modal = document.getElementById('poster-urgent-modal');
+            if (modal) modal.classList.remove('active');
+            const body = document.getElementById('poster-urgent-modal-body');
+            if (body) body.innerHTML = '';
+        }
+
+        function showPosterUrgentModalStep(queue) {
+            const q = (queue || []).filter(a => a && a.alertId && !completedPosters.has(a.alertId));
+            window._posterUrgentQueue = q;
+            const modal = document.getElementById('poster-urgent-modal');
+            const body = document.getElementById('poster-urgent-modal-body');
+            if (!modal || !body) return;
+            if (!q.length) {
+                modal.classList.remove('active');
+                body.innerHTML = '';
+                return;
+            }
+            const a = q[0];
+            body.innerHTML = '';
+            body.appendChild(createPosterAlertElement(a.hallName, a.nextMovie, a.isEndDay, a.alertId));
+            modal.classList.add('active');
+        }
+
+        function schedulePosterUrgentModal(posterQueue) {
+            const pending = (posterQueue || []).filter(a => a && a.alertId && !completedPosters.has(a.alertId));
+            window._posterUrgentQueue = pending;
+            clearTimeout(window._posterModalTimer);
+            if (!pending.length) {
+                const modal = document.getElementById('poster-urgent-modal');
+                if (modal) modal.classList.remove('active');
+                const body = document.getElementById('poster-urgent-modal-body');
+                if (body) body.innerHTML = '';
+                return;
+            }
+            if (Date.now() < (window.posterUrgentSnoozeUntil || 0)) return;
+            const modalEl = document.getElementById('poster-urgent-modal');
+            const showingId = document.querySelector('#poster-urgent-modal-body .poster-change-alert')?.dataset?.alertId;
+            if (modalEl && modalEl.classList.contains('active') && showingId && pending[0] && showingId === pending[0].alertId) {
+                return;
+            }
+            window._posterModalTimer = setTimeout(() => {
+                if (Date.now() < (window.posterUrgentSnoozeUntil || 0)) return;
+                showPosterUrgentModalStep(window._posterUrgentQueue);
+            }, POSTER_URGENT_POPUP_DELAY_MS);
         }
 
         function updateAlerts(hallsGrouped, tomSessionsFlat) {
             const alertsContainer = document.getElementById('poster-alerts');
             alertsContainer.innerHTML = '';
 
-            addPosterAlerts(hallsGrouped, tomSessionsFlat, alertsContainer);
+            const posterQueue = collectPosterAlerts(hallsGrouped, tomSessionsFlat);
             addOccupancyAlerts(hallsGrouped, alertsContainer);
 
-            // Update badge count
-            const count = alertsContainer.children.length;
+            const count = posterQueue.length + alertsContainer.children.length;
             document.getElementById('alert-count-badge').textContent = count;
-            
-            // Hide container if no alerts
+
             const container = document.getElementById('poster-alerts-container');
             container.style.display = count > 0 ? 'block' : 'none';
+
+            schedulePosterUrgentModal(posterQueue);
         }
 
-        function addPosterAlerts(hallsGrouped, tomSessionsFlat, container) {
+        /** Liefert offene Plakatwechsel für Pop-up (nicht für die Inline-Liste). */
+        function collectPosterAlerts(hallsGrouped, tomSessionsFlat) {
             // ONLY FOR DARMSTADT ('kp')
-            if (currentCity !== 'kp') return;
+            if (currentCity !== 'kp') return [];
 
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -5923,16 +6607,12 @@
                 const hallSessions = hall.sessions.filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
                 if (hallSessions.length === 0) return;
 
-                // Only find the LATEST poster change that has already happened
                 let latestAlert = null;
-                
-                // Track if we found a potential alert - if so, ensure others for this hall are cleared
-                // (LatestAlert logic naturally cleans up older alerts for the same hall when rendering)
 
                 hallSessions.forEach((s, idx) => {
                     const [sh, sm] = s.time.split(':').map(Number);
-                    const changeMin = (sh * 60 + sm) + 30;
-                    
+                    const changeMin = (sh * 60 + sm) + 20;
+
                     // Expiration: If alert is older than 4 hours (240 mins), hide it
                     if (currentMinutes >= changeMin && (currentMinutes - changeMin) < 240) {
                         if (idx < hallSessions.length - 1) { // Normal change
@@ -5974,19 +6654,14 @@
                 }
             });
 
-            // Sort by time
             allAlerts.sort((a, b) => a.time - b.time);
-
-            // Render
-            allAlerts.forEach(a => {
-                const alert = createPosterAlertElement(a.hallName, a.nextMovie, a.isEndDay, a.alertId);
-                container.appendChild(alert);
-            });
+            return allAlerts;
         }
 
         function createPosterAlertElement(hallName, nextMovie, isEndDay, alertId) {
             const alert = document.createElement('div');
             alert.className = 'poster-change-alert';
+            alert.dataset.alertId = alertId;
             alert.innerHTML = `
                 <div class="alert-content">
                     <div class="alert-icon-svg">
@@ -5994,7 +6669,7 @@
                     </div>
                     <div class="alert-text" style="flex: 1">
                         <h2>Plakatwechsel in <span style="white-space: nowrap">${hallName}</span></h2>
-                        <p>${isEndDay ? 'Die <strong>letzte Vorstellung</strong> des Tages hat begonnen.' : 'Der Film läuft seit 20 Min.'} Das Plakat kann gewechselt werden.</p>
+                        <p>${isEndDay ? 'Die <strong>letzte Vorstellung</strong> des Tages hat begonnen.' : 'Der Film läuft seit mindestens 20 Minuten.'} Das Plakat kann gewechselt werden.</p>
                     </div>
                     <div class="next-movie-preview">
                         ${nextMovie.poster ? `<img src="${nextMovie.poster}" class="poster-img" alt="Poster">` : ''}
@@ -6004,20 +6679,33 @@
                             <div class="time">Start: ${nextMovie.time} ${isEndDay ? 'Uhr (Morgen)' : 'Uhr'}</div>
                         </div>
                     </div>
+                    <button class="alert-action" onclick="markPosterDone('${alertId}', this)">
+                        <span>✅</span> Erledigt
+                    </button>
+                </div>
+            `;
+            return alert;
+        }
         function markPosterDone(id, btn) {
             completedPosters.add(id);
             saveTaskState();
-            
-            // Optimistic UI: Hide alert immediately
+
             if (btn) {
                 const alert = btn.closest('.poster-change-alert');
                 if (alert) {
+                    const inModal = !!alert.closest('#poster-urgent-modal-body');
+                    if (inModal) {
+                        window._posterUrgentQueue = (window._posterUrgentQueue || []).filter(a => a.alertId !== id);
+                        alert.remove();
+                        showPosterUrgentModalStep(window._posterUrgentQueue);
+                        fetchSessions();
+                        return;
+                    }
                     alert.style.opacity = '0';
                     alert.style.transform = 'scale(0.9)';
                     alert.style.pointerEvents = 'none';
                     setTimeout(() => {
                         alert.remove();
-                        // Update badge count
                         const alertsContainer = document.getElementById('poster-alerts');
                         const count = alertsContainer.children.length;
                         document.getElementById('alert-count-badge').textContent = count;
@@ -6025,8 +6713,8 @@
                     }, 300);
                 }
             }
-            
-            fetchSessions(); // Refresh UI
+
+            fetchSessions();
         }
 
 
@@ -6087,7 +6775,7 @@
                 textarea.placeholder = 'Deine Nachricht (Anregungen, Probleme, Wünsche)...';
             } else {
                 title.innerText = 'Entwickler Feedback';
-                desc.innerText = 'Fehler gefunden oder gute Ideen zur Seite? Nachricht geht direkt an Artjom.';
+                desc.innerText = 'Fehler gefunden oder gute Ideen zur Seite? Nachricht geht direkt an den Entwickler.';
                 textarea.placeholder = 'Was können wir am Dashboard verbessern?';
             }
             document.getElementById('feedback-modal').classList.add('active');
@@ -6138,16 +6826,14 @@
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
                 init();
-                // Check for feedback param
                 const params = new URLSearchParams(window.location.search);
                 if (params.get('feedback') === 'true') {
                     setTimeout(() => openFeedback('bl'), 1500);
-                } else {
-                    // Show Dev Info Popup on startup only if not feedback mode
+                } else if (localStorage.getItem('dev_info_seen') !== 'true') {
                     setTimeout(() => {
-                        const modal = document.getElementById('dev-info-modal');
-                        if (modal) modal.classList.add('active');
-                    }, 2000);
+                        openFeedback('artjom');
+                        localStorage.setItem('dev_info_seen', 'true');
+                    }, 2500);
                 }
             });
         } else {
@@ -6155,8 +6841,11 @@
             const params = new URLSearchParams(window.location.search);
             if (params.get('feedback') === 'true') {
                 setTimeout(() => openFeedback('bl'), 1500);
-            } else {
-                setTimeout(() => openFeedback('artjom'), 2000);
+            } else if (localStorage.getItem('dev_info_seen') !== 'true') {
+                setTimeout(() => {
+                    openFeedback('artjom');
+                    localStorage.setItem('dev_info_seen', 'true');
+                }, 2500);
             }
         }
         
@@ -6418,22 +7107,7 @@
             
             try {
                 let contacts = providedContacts || [];
-                
-                // Fallback logic if no contacts from backend
-                if (contacts.length === 0) {
-                if (currentCity === 'kp') {
-                    contacts = KP_DEFAULT_CONTACTS;
-                } else {
-                    contacts = [
-                        { category: 'leitung', role_name: 'TL', phone_number: '000' },
-                        { category: 'einlass', role_name: 'Einlass', phone_number: '000' },
-                        { category: 'theke', role_name: 'Theke', phone_number: '000' },
-                        { category: 'Sicherheit', role_name: 'Sicherheitsdienst', phone_number: '000' },
-                        { category: 'Popcornküche', role_name: 'Produktion', phone_number: '000' },
-                        { category: 'Putzfirma', role_name: 'Reinigung', phone_number: '000' }
-                    ];
-                }
-            }
+                if (contacts.length === 0) contacts = KP_DEFAULT_CONTACTS;
 
                 const byCategory = {};
                 for (const c of contacts) {
@@ -6441,37 +7115,45 @@
                     byCategory[c.category].push(c);
                 }
 
-                let html = '';
-                for (const cat of Object.keys(CAT_NAMES)) {
-                    if (!byCategory[cat]) continue;
-                    html += `
-                    <div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="width: 20px; height: 1px; background: rgba(255,255,255,0.1);"></span> ${CAT_NAMES[cat]}
-                        </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.6rem;">
-                            ${byCategory[cat].map(c => {
-                                const info = CAT_ICONS[c.category] || { icon: '📞', bg: '' };
-                                return `
-                                <a href="tel:${c.phone_number}" class="contact-card mini">
-                                    <div class="contact-card-inner">
-                                        <div class="contact-icon sm ${info.bg}">${info.icon}</div>
-                                        <div>
-                                            <div class="contact-name">${c.role_name}</div>
-                                            <div style="font-size: 0.75rem; color: var(--text-muted);">${c.phone_number}</div>
+                let html = `
+                <div style="display: flex; flex-direction: column; gap: 2.5rem; margin-top: 0.5rem;">
+                `;
+
+                const order = ['leitung', 'theke', 'einlass', 'technik', 'sicherheit', 'popcornkueche', 'putzfirma'];
+
+                order.forEach(cat => {
+                    if (byCategory[cat]) {
+                        html += `
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; font-weight: 800; display: flex; align-items: center; gap: 0.75rem; opacity: 0.8;">
+                                <span style="width: 24px; height: 1.5px; background: linear-gradient(90deg, var(--primary-red), transparent);"></span> 
+                                ${CAT_NAMES[cat] || cat}
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 0.85rem;">
+                                ${byCategory[cat].map(c => {
+                                    const info = CAT_ICONS[c.category] || { icon: '📞', bg: '' };
+                                    return `
+                                    <a href="tel:${c.phone_number}" class="contact-card">
+                                        <div class="contact-card-inner">
+                                            <div class="contact-icon ${info.bg}">${info.icon}</div>
+                                            <div style="display: flex; flex-direction: column; gap: 0.1rem;">
+                                                <div class="contact-name">${c.role_name}</div>
+                                                <div class="contact-number">${c.phone_number.replace('+49 ', '0')}</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="contact-dial-sm">📲</div>
-                                </a>`;
-                            }).join('')}
-                        </div>
-                    </div>`;
-                }
+                                        <div class="contact-dial-sm">📲</div>
+                                    </a>`;
+                                }).join('')}
+                            </div>
+                        </div>`;
+                    }
+                });
 
-                container.innerHTML = html;
+                html += '</div>';
+                
                 if (loader) loader.style.display = 'none';
-                container.style.display = 'flex';
-
+                container.innerHTML = html;
+                container.style.display = 'block';
             } catch (e) {
                 console.error("Error rendering contacts:", e);
                 if (loader) loader.innerHTML = '<div style="padding: 2rem; color: #ff4d4d;">Fehler beim Laden der Kontakte.</div>';
@@ -6480,6 +7162,7 @@
 
 
 
+        init();
     </script>
 
 
@@ -6488,7 +7171,7 @@
     <div id="welcome-modal" class="modal">
         <div class="modal-content glass" style="max-height: 90vh; overflow-y: auto;">
             <span class="welcome-icon">🍿</span>
-            <h2 class="modal-title">Willkommen V1.0!</h2>
+            <h2 class="modal-title">Willkommen!</h2>
             <div style="margin-bottom: 2rem; color: var(--text-main); font-size: 0.95rem; text-align: left;">
                 <p style="margin-bottom: 1.5rem; line-height: 1.5; text-align: center;">Das Kinopolis Automation Dashboard ist deine zentrale Anlaufstelle für einen reibungslosen Kinobetrieb.</p>
                 <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.8rem; text-align: center;">Deine Vorteile:</h3>
@@ -6601,19 +7284,22 @@
     </div>
         <!-- MOBILE NAVIGATION (iOS Style) -->
         <nav class="mobile-nav" id="mobile-tab-bar" style="display: none;">
-            <a href="#" class="mobile-nav-item active nav-live" onclick="switchTab('live', this); return false;">
+            <a href="#" class="mobile-nav-item active nav-live" data-tab="live" role="button" onclick="switchTab('live', this); return false;">
                 <span>🎬</span> Live
             </a>
-            <a href="#" class="mobile-nav-item nav-funk" onclick="switchTab('funk', this); return false;">
+            <a href="#" class="mobile-nav-item nav-funk" data-tab="funk" role="button" onclick="switchTab('funk', this); return false;">
                 <span>📡</span> Funk
             </a>
-            <a href="#" class="mobile-nav-item nav-action" onclick="switchTab('action', this); return false;">
+            <a href="#" class="mobile-nav-item nav-action" data-tab="action" role="button" onclick="switchTab('action', this); return false;">
                 <span>🛠️</span> Action
             </a>
-            <a href="#" class="mobile-nav-item nav-mehr" onclick="switchTab('mehr', this); return false;">
+            <a href="#" class="mobile-nav-item nav-mehr" data-tab="mehr" role="button" onclick="switchTab('mehr', this); return false;">
                 <span>📂</span> Mehr
             </a>
         </nav>
+        <div style="text-align: center; padding: 1.5rem 1rem 5rem; font-size: 0.7rem; color: var(--text-muted); opacity: 0.5;">
+            System-Version: V1.0 · &copy; 2026 Kinopolis Automation
+        </div>
     <script>
     </script>
     <!-- Dev Info Modal (Welcome Style) -->
@@ -6621,7 +7307,7 @@
         <div class="modal-content glass" style="max-height: 90vh; overflow-y: auto; text-align: center;">
             <div style="width: 80px; height: 80px; background: rgba(0, 120, 255, 0.1); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2.5rem;">👨‍💻</div>
             <h2 class="modal-title" style="margin-bottom: 0.5rem;">Entwickler Info</h2>
-            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">Hey! Ich bin Artjom, der Entwickler hinter diesem Dashboard. Schön, dass du es nutzt!</p>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">Schön, dass du das Automatisierungs-Dashboard nutzt!</p>
             
             <div style="display: flex; flex-direction: column; gap: 1rem; text-align: left; margin-bottom: 2rem;">
                 <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--surface-border); padding: 1.25rem; border-radius: 16px; display: flex; align-items: center; gap: 1rem;">
@@ -6639,10 +7325,10 @@
                     </div>
                 </div>
                 <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--surface-border); padding: 1.25rem; border-radius: 16px; display: flex; align-items: center; gap: 1rem;">
-                    <div style="font-size: 1.5rem;">🌐</div>
+                    <div style="font-size: 1.5rem;">👨‍💻</div>
                     <div>
-                        <div style="font-weight: 800; font-size: 0.9rem;">Portfolio & Kontakt</div>
-                        <a href="https://artjombecker.com" target="_blank" style="font-size: 0.8rem; color: var(--primary-blue); text-decoration: none;">artjombecker.com</a>
+                        <div style="font-weight: 800; font-size: 0.9rem;">Entwickler Info</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Dein Automatisierungs-Partner für das Kinopolis.</div>
                     </div>
                 </div>
             </div>

@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TL Portal V1.0 | Kinopolis Automation</title>
+    <title>TL Portal | Kinopolis Automation</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <script src="auth.js"></script>
+    <script src="auth.js?v=3.1"></script>
     <style>
         /* Hidden until Auth */
         body:not(.auth-loaded) > *:not(script):not(style):not(.modal) { display: none !important; }
@@ -37,7 +37,7 @@
             background-color: var(--bg-dark);
             color: var(--text-main);
             min-height: 100vh;
-            padding: 1.5rem;
+            padding: 1.5rem 1.5rem 150px;
             background-image: 
                 radial-gradient(circle at 0% 0%, rgba(229, 9, 20, 0.05) 0%, transparent 25%),
                 radial-gradient(circle at 100% 100%, rgba(0, 120, 255, 0.05) 0%, transparent 25%);
@@ -53,7 +53,7 @@
         .logo-wrap {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 1.5rem;
         }
 
         .logo-box {
@@ -149,8 +149,13 @@
             backdrop-filter: blur(20px);
             border: 1px solid var(--surface-border);
             border-radius: 24px;
-            padding: 1.5rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            padding: 1.75rem;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
         }
 
         .card-header {
@@ -188,7 +193,7 @@
             display: grid;
             grid-template-columns: auto 1fr auto;
             align-items: center;
-            gap: 1rem;
+            gap: 1.5rem;
             padding: 1rem;
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -227,6 +232,8 @@
             font-size: 0.75rem;
             color: var(--text-muted);
             font-weight: 600;
+            display: block;
+            margin-top: 0.25rem;
         }
 
         .feed-actions {
@@ -266,7 +273,7 @@
         }
         .btn-active {
             background: var(--primary-gold);
-            color: black;
+            color: #ffffff;
             border: 1px solid var(--primary-gold);
             animation: pulse-gold 2s infinite;
         }
@@ -281,7 +288,7 @@
         }
         .badge.in-progress {
             background: var(--primary-gold);
-            color: black;
+            color: #ffffff;
             font-size: 0.65rem;
             padding: 2px 6px;
             border-radius: 4px;
@@ -403,13 +410,125 @@
 
         #tl-main { display: none; }
 
+        /* SAAL STATUS GRID */
+        .hall-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+            aspect-ratio: 1/1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hall-box:active { transform: scale(0.92); }
+
+        .hall-num { font-size: 1.4rem; font-weight: 800; font-family: 'Outfit', sans-serif; z-index: 2; }
+        
+        .hall-box.running { border-color: rgba(229, 9, 20, 0.3); background: rgba(229, 9, 20, 0.05); }
+        .hall-box.running .hall-indicator { background: #E50914; box-shadow: 0 0 15px rgba(229, 9, 20, 0.4); }
+        .hall-box.running .hall-num { color: #fff; }
+
+        .hall-box.cleaning { border-color: rgba(255, 185, 0, 0.3); background: rgba(255, 185, 0, 0.05); }
+        .hall-box.cleaning .hall-indicator { background: #ffb900; box-shadow: 0 0 15px rgba(255, 185, 0, 0.4); animation: pulse-clean 1.5s infinite; }
+        .hall-box.cleaning .hall-num { color: #ffb900; }
+
+        .hall-box.ready { border-color: rgba(46, 204, 113, 0.3); background: rgba(46, 204, 113, 0.05); }
+        .hall-box.ready .hall-indicator { background: #2ecc71; box-shadow: 0 0 15px rgba(46, 204, 113, 0.4); }
+        .hall-box.ready .hall-num { color: #2ecc71; }
+
+        .hall-indicator {
+            position: absolute;
+            bottom: 8px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        @keyframes pulse-clean {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
+        /* TABS STYLING */
+        .tl-tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(255,255,255,0.03);
+            padding: 0.5rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--surface-border);
+            position: sticky;
+            top: 1rem;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .tl-tab {
+            flex: 1;
+            padding: 0.85rem;
+            border-radius: 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .tl-tab.active {
+            background: var(--primary-blue);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 120, 255, 0.3);
+        }
+
+        .tl-tab:not(.active):hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-main);
+        }
+
+        .tl-tab-page {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tl-tab-page.active {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .tl-tabs { padding: 0.35rem; gap: 0.25rem; }
+            .tl-tab { padding: 0.65rem 0.25rem; font-size: 0.75rem; flex-direction: column; gap: 0.1rem; }
+            .tl-tab span { font-size: 1.1rem; }
+        }
+
     </style>
 </head>
 <body>
     <!-- Login handled by auth.js -->
 
     <div id="tl-main">
-    <div class="loading-progress" id="loading-bar"></div>
+    <div class="loading-progress" id="loading-bar" style="display: none;"></div>
 
     <header>
         <div class="logo-wrap">
@@ -418,7 +537,7 @@
             </div>
             <h1 class="portal-title">Kommandozentrale (TL)</h1>
         </div>
-        <select class="location-select" id="location-selector" onchange="changeCity()">
+        <select class="location-select" id="location-selector" onchange="changeCity()" style="display: none;">
             <option value="kp">Darmstadt (KP)</option>
             <option value="cd">Darmstadt (CD)</option>
             <option value="rx">Darmstadt (RX)</option>
@@ -437,24 +556,63 @@
             <option value="su">Sulzbach</option>
             <option value="vi">Viernheim</option>
         </select>
+        <div id="location-display" style="background: var(--surface-color); border: 1px solid var(--surface-border); color: white; padding: 0.6rem 1.5rem; border-radius: 50px; font-weight: 700; font-size: 0.9rem;">Darmstadt (KP)</div>
     </header>
 
-    <div class="dashboard-grid">
-        <!-- OPERATIONAL UPDATES -->
-        <div class="feed-section">
+    <div id="personal-help-banner" style="display: none; margin-bottom: 1.5rem;"></div>
+    
+    <div id="pull-refresh-indicator" style="display: none; align-items: center; justify-content: center; overflow: hidden; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); color: var(--primary-blue); font-size: 1.5rem; transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05); margin: -1.5rem -1.5rem 1.5rem -1.5rem; border-radius: 0 0 20px 20px;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+            <span class="refresh-icon" style="transition: transform 0.2s ease;">🔄</span>
+            <span style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.7; font-weight: 800;">Aktualisieren</span>
+        </div>
+    </div>
+
+    <div class="tl-tabs">
+        <button class="tl-tab active" onclick="switchTlTab('live', this)">
+            <span>🚨</span> Live
+        </button>
+        <button class="tl-tab" onclick="switchTlTab('log', this)">
+            <span>📖</span> Logbuch
+        </button>
+        <button class="tl-tab" onclick="switchTlTab('breaks', this)">
+            <span>🤖</span> Pausen
+        </button>
+        <button class="tl-tab" onclick="switchTlTab('system', this)">
+            <span>⚙️</span> System
+        </button>
+    </div>
+
+    <div id="tl-pages">
+        <!-- TAB 1: LIVE -->
+        <div id="page-live" class="tl-tab-page active">
+            <!-- SAAL-STATUS MONITOR -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🖥️ Saal-Status Monitor</div>
+                    <div style="font-size: 0.7rem; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 0.2rem 0.5rem; border-radius: 5px;">Tippe zum Ändern</div>
+                </div>
+                <div id="hall-status-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-top: 0.5rem;">
+                    <!-- Saal 1 to 8 dynamically -->
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: center; font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">
+                    <span style="display: flex; align-items: center; gap: 0.4rem;"><i style="width: 8px; height: 8px; background: #E50914; border-radius: 50%; display: inline-block;"></i> Läuft</span>
+                    <span style="display: flex; align-items: center; gap: 0.4rem;"><i style="width: 8px; height: 8px; background: #ffb900; border-radius: 50%; display: inline-block;"></i> Reinigung</span>
+                    <span style="display: flex; align-items: center; gap: 0.4rem;"><i style="width: 8px; height: 8px; background: #2ecc71; border-radius: 50%; display: inline-block;"></i> Bereit</span>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">🚨 Aktuelle Anfragen & Funk</div>
                     <div class="status-badge" id="last-update-status">Live</div>
                 </div>
                 <div class="feed-list" id="ops-feed">
-                    <!-- Loaded dynamically -->
                     <div class="empty-state">Lade Team-Requests...</div>
                 </div>
             </div>
 
-            <!-- AUSLASS PLAN -->
-            <div class="card mt-2">
+            <div class="card">
                 <div class="card-header">
                     <div class="card-title">🚪 Auslass-Plan (Nächste 90 Min)</div>
                 </div>
@@ -462,37 +620,35 @@
                     <div class="empty-state" style="padding: 0;">Lade Zeiten...</div>
                 </div>
             </div>
+        </div>
 
-            <!-- LOGBOOK / SHIFT NOTES -->
-            <div class="card mt-2">
-                <div class="card" style="grid-column: 1 / -1;">
-                    <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>📖 Jüngste Notizen (Handover)</span>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <button id="btn-gen-summary" onclick="generateShiftSummary()" style="font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 8px; background: rgba(255, 185, 0, 0.1); color: var(--primary-gold); border: 1px solid rgba(255, 185, 0, 0.3); cursor: pointer;">✨ KI Zusammenfassung</button>
-                            <button class="btn-primary" onclick="openLogModal()" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; border-radius: 8px; background: rgba(0, 120, 255, 0.2); color: #fff; border: 1px solid rgba(0, 120, 255, 0.4); cursor: pointer;">➕ Eintrag</button>
-                        </div>
+        <!-- TAB 2: LOGBUCH -->
+        <div id="page-log" class="tl-tab-page">
+            <div class="card">
+                <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <span>📖 Jüngste Notizen (Handover)</span>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button id="btn-gen-summary" onclick="generateShiftSummary()" style="font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 8px; background: rgba(255, 185, 0, 0.1); color: var(--primary-gold); border: 1px solid rgba(255, 185, 0, 0.3); cursor: pointer;">✨ KI Zusammenfassung</button>
+                        <button class="btn-primary" onclick="openLogModal()" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; border-radius: 8px; background: rgba(0, 120, 255, 0.2); color: #fff; border: 1px solid rgba(0, 120, 255, 0.4); cursor: pointer;">➕ Eintrag</button>
                     </div>
+                </div>
 
-                    <!-- AI Summary Result -->
-                    <div id="ai-summary-container" style="display: none; margin: 1rem 0; padding: 1rem; background: rgba(255,185,0,0.05); border: 1px solid rgba(255,185,0,0.2); border-radius: 12px;">
-                        <div style="font-size: 0.8rem; font-weight: bold; color: var(--primary-gold); margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
-                            <span>🤖 KI-ANALYSE (Letzte 7 Tage)</span>
-                            <button onclick="copyToClipboard('ai-summary-text')" style="background: none; border: none; color: white; cursor: pointer; text-decoration: underline; font-size: 0.75rem;">Kopieren 📋</button>
-                        </div>
-                        <div id="ai-summary-text" style="font-size: 0.9rem; line-height: 1.5; color: #eee;">Lade Analyse...</div>
+                <div id="ai-summary-container" style="display: none; margin: 1rem 0; padding: 1rem; background: rgba(255,185,0,0.05); border: 1px solid rgba(255,185,0,0.2); border-radius: 12px;">
+                    <div style="font-size: 0.8rem; font-weight: bold; color: var(--primary-gold); margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                        <span>🤖 KI-ANALYSE (Letzte 7 Tage)</span>
+                        <button onclick="copyToClipboard('ai-summary-text')" style="background: none; border: none; color: white; cursor: pointer; text-decoration: underline; font-size: 0.75rem;">Kopieren 📋</button>
                     </div>
+                    <div id="ai-summary-text" style="font-size: 0.9rem; line-height: 1.5; color: #eee;">Lade Analyse...</div>
+                </div>
 
-                    <div id="logs-list">
-                        <!-- Logs will be loaded here -->
-                        <div class="empty-state">Lade Notizen...</div>
-                    </div>
+                <div id="logs-list">
+                    <div class="empty-state">Lade Notizen...</div>
                 </div>
             </div>
         </div>
 
-        <!-- AI BREAKS & STATS -->
-        <div class="sidebar">
+        <!-- TAB 3: PAUSEN -->
+        <div id="page-breaks" class="tl-tab-page">
             <div class="card" style="border-left: 4px solid var(--primary-blue);">
                 <div class="card-header">
                     <div class="card-title">🤖 AI Pausen-Guide</div>
@@ -504,9 +660,23 @@
                     Empfehlungen basieren auf der berechneten Auslastung und den Abspann-Zeiten.
                 </p>
             </div>
+        </div>
 
-            <!-- SYSTEM STATUS -->
-            <div class="card mt-2">
+        <!-- TAB 4: SYSTEM -->
+        <div id="page-system" class="tl-tab-page">
+            <div class="card" style="border-left: 4px solid #e74c3c;">
+                <div class="card-title" style="margin-bottom: 1rem;">📢 Nachricht an alle senden</div>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <input type="text" id="broadcast-title" placeholder="Titel (optional)" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:0.65rem 0.9rem;color:white;font-family:inherit;font-size:0.9rem;outline:none;">
+                    <textarea id="broadcast-message" placeholder="Nachricht eingeben..." rows="3" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:0.65rem 0.9rem;color:white;font-family:inherit;font-size:0.9rem;resize:none;outline:none;"></textarea>
+                    <button id="broadcast-btn" onclick="sendBroadcast()" style="background:linear-gradient(135deg,#e74c3c,#c0392b);border:none;padding:0.75rem;border-radius:10px;color:white;font-weight:700;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">
+                        🚨 An alle senden
+                    </button>
+                    <div id="broadcast-status" style="font-size:0.8rem;text-align:center;display:none;"></div>
+                </div>
+            </div>
+
+            <div class="card">
                 <div class="card-title" style="margin-bottom: 1rem;">⚙️ Services</div>
                 <div id="service-status" style="display: flex; flex-direction: column; gap: 0.75rem;">
                     <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
@@ -519,19 +689,8 @@
                     </div>
                 </div>
             </div>
-
-            <!-- PUSH BROADCAST -->
-            <div class="card mt-2" style="border-left: 4px solid #e74c3c;">
-                <div class="card-title" style="margin-bottom: 1rem;">📢 Nachricht an alle senden</div>
-                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                    <input type="text" id="broadcast-title" placeholder="Titel (optional)" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:0.65rem 0.9rem;color:white;font-family:inherit;font-size:0.9rem;outline:none;">
-                    <textarea id="broadcast-message" placeholder="Nachricht eingeben..." rows="3" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:0.65rem 0.9rem;color:white;font-family:inherit;font-size:0.9rem;resize:none;outline:none;"></textarea>
-                    <button id="broadcast-btn" onclick="sendBroadcast()" style="background:linear-gradient(135deg,#e74c3c,#c0392b);border:none;padding:0.75rem;border-radius:10px;color:white;font-weight:700;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">
-                        🚨 An alle senden
-                    </button>
-                    <div id="broadcast-status" style="font-size:0.8rem;text-align:center;display:none;"></div>
-                </div>
-            </div>
+        </div>
+    </div>
 
             </div>
         </div>
@@ -568,8 +727,8 @@
             <textarea id="tl-feedback-text" placeholder="Deine Nachricht..." style="width: 100%; height: 120px; resize: none; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 1rem; margin-bottom: 1.5rem; font-family: inherit;"></textarea>
             
             <div style="display: flex; gap: 1rem;">
-                <button onclick="closeFeedbackModal()" style="flex: 1; background: rgba(255,255,255,0.05); color: white; border: none; padding: 0.75rem; border-radius: 12px; cursor: pointer; font-weight: 600;">Abbrechen</button>
-                <button id="tl-feedback-btn" onclick="sendTlFeedback()" style="flex: 2; background: linear-gradient(135deg, #a855f7, #7c3aed); color: white; border: none; padding: 0.75rem; border-radius: 12px; cursor: pointer; font-weight: 600;">🚀 Senden</button>
+                <button onclick="closeFeedbackModal()" style="flex: 1; background: rgba(255,255,255,0.05); color: white; border: none; padding: 1rem; border-radius: 12px; cursor: pointer; font-weight: 600; height: 50px;">Abbrechen</button>
+                <button id="tl-feedback-btn" onclick="sendTlFeedback()" style="flex: 2; background: linear-gradient(135deg, #a855f7, #7c3aed); color: white; border: none; padding: 1rem; border-radius: 12px; cursor: pointer; font-weight: 700; height: 50px;">🚀 Senden</button>
             </div>
             <div id="tl-feedback-status" style="display: none; font-size: 0.8rem; text-align: center; margin-top: 1rem;"></div>
         </div>
@@ -598,8 +757,22 @@
                     <option value="dringend">🚨 Dringend</option>
                 </select>
             </div>
+
+            <div style="margin-bottom: 2rem;">
+                <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Foto anhängen (optional)</label>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <input type="file" id="log-image-file" accept="image/*" capture="environment" style="display: none;" onchange="handleLogImage(this)">
+                    <button type="button" onclick="document.getElementById('log-image-file').click()" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); color: white; padding: 1rem; border-radius: 12px; cursor: pointer; font-size: 0.9rem;">
+                        📷 Foto aufnehmen oder wählen
+                    </button>
+                    <div id="log-image-preview" style="display: none; position: relative;">
+                        <img id="log-preview-img" style="width: 100%; border-radius: 12px; border: 1px solid var(--primary-blue);" />
+                        <button onclick="removeLogImage()" style="position: absolute; top: -10px; right: -10px; background: #ff4d4d; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-weight: bold;">×</button>
+                    </div>
+                </div>
+            </div>
             
-            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+            <div style="display: flex; gap: 1.5rem; justify-content: flex-end;">
                 <button onclick="closeLogModal()" style="padding: 0.75rem 1.5rem; background: rgba(255,255,255,0.1); color: white; border: none; border-radius: 12px; cursor: pointer;">Abbrechen</button>
                 <button id="log-save-btn" onclick="saveLogEntry()" style="background: var(--primary-blue); border: none; padding: 0.75rem 1.5rem; border-radius: 12px; color: white; font-weight: 700; cursor: pointer;">
                     💾 Speichern
@@ -632,7 +805,11 @@
                 
                 document.body.classList.add('auth-loaded');
                 if (document.getElementById('tl-main')) document.getElementById('tl-main').style.display = 'block';
-                refreshDashboard();
+                refreshDashboard(); initHallStatus();
+                if (window.checkPersonalNeed) {
+                    checkPersonalNeed();
+                    setInterval(checkPersonalNeed, 10000);
+                }
             }
         });
 
@@ -650,7 +827,7 @@
         // Instant refresh when iPad/phone wakes up from sleep or tab is focused
         document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === 'visible') {
-                refreshDashboard();
+                refreshDashboard(); initHallStatus();
             }
         });
 
@@ -731,6 +908,53 @@
             }, 3500);
         }
 
+        // --- HAPTIC FEEDBACK ---
+        function triggerHaptic(type = 'light') {
+            if (!window.navigator || !window.navigator.vibrate) return;
+            try {
+                if (type === 'light') navigator.vibrate(10);
+                else if (type === 'medium') navigator.vibrate(30);
+                else if (type === 'success') navigator.vibrate([15, 30, 15]);
+                else if (type === 'error') navigator.vibrate([50, 80, 50]);
+            } catch (e) {}
+        }
+
+        async function checkPersonalNeed() {
+            try {
+                const res = await fetch(`/api/personal-need?location=${currentCity}`);
+                const data = await res.json();
+                const banner = document.getElementById('personal-help-banner');
+                if (!banner) return;
+                if (data.active) {
+                    banner.style.display = 'flex';
+                    banner.innerHTML = `
+                        <div style="background: var(--primary-red); color: white; padding: 1.25rem; border-radius: 12px; display: flex; align-items: center; gap: 1rem; width: 100%; box-shadow: 0 0 20px rgba(229,9,20,0.5); animation: pulse-red 1.5s infinite;">
+                            <span style="font-size: 1.5rem;">🚨</span>
+                            <div>
+                                <div style="font-weight: 800; font-size: 1.1rem;">HILFE AN KASSE/THEKE BENÖTIGT!</div>
+                                <div style="font-size: 0.85rem; opacity: 0.9;">Sofortige Unterstützung am Service angefordert.</div>
+                            </div>
+                            <button onclick="acknowledgeHelp()" style="margin-left: auto; background: white; color: var(--primary-red); border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 800; cursor: pointer;">GELESEN</button>
+                        </div>
+                    `;
+                    triggerHaptic('error');
+                } else {
+                    banner.style.display = 'none';
+                }
+            } catch (e) {}
+        }
+
+        async function acknowledgeHelp() {
+            try {
+                await fetch('/api/personal-need', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ location: currentCity, active: false, message: 'Hilfe-Ruf bestätigt' })
+                });
+                checkPersonalNeed();
+            } catch (e) {}
+        }
+
         function setLoading(active) {
             const bar = document.getElementById('loading-bar');
             bar.style.width = active ? '40%' : '100%';
@@ -740,7 +964,7 @@
         async function changeCity() {
             currentCity = document.getElementById('location-selector').value;
             localStorage.setItem('last_city', currentCity);
-            refreshDashboard();
+            refreshDashboard(); initHallStatus();
         }
 
         async function loadOpsFeed() {
@@ -759,6 +983,7 @@
                 }
 
                 container.innerHTML = ops.map(item => {
+                    // ... (rest of logic remains same, just highlighting the area)
                     const isFunk = item.message.includes('[FUNK]');
                     const isInProgress = item.message.includes('[IN_PROGRESS]');
                     const icon = isFunk ? '📡' : '📦';
@@ -778,7 +1003,7 @@
                     
                     return `
                         <div class="feed-item ${priorityClass}">
-                            <div class="feed-icon" style="${isInProgress ? 'background: var(--primary-gold); color: black;' : ''}">${icon}</div>
+                            <div class="feed-icon" style="${isInProgress ? 'background: var(--primary-gold); color: #ffffff;' : ''}">${icon}</div>
                             <div class="feed-content" style="width: 100%;">
                                 <div style="display:flex; justify-content:space-between; align-items:center;">
                                     <h3 style="display:flex; align-items:center; gap:0.5rem;">
@@ -818,13 +1043,17 @@
                 const container = document.getElementById('logs-list');
                 
                 container.innerHTML = regular.map(l => `
-                    <div class="feed-item" style="grid-template-columns: 1fr auto;">
+                    <div class="feed-item" style="grid-template-columns: 1fr auto; padding: 1.25rem; margin-bottom: 0.75rem; background: rgba(255,255,255,0.04); border-radius: 18px;">
                         <div class="feed-content">
-                            <p><strong>${l.author}:</strong> ${l.message}</p>
-                            <span class="feed-time">${formatTime(l.created_at)} Uhr</span>
+                            <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.35rem;">
+                                <span style="font-weight: 800; color: var(--primary-blue); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.02em;">${l.author}:</span>
+                                <span style="color: #fff; line-height: 1.4;">${l.message}</span>
+                            </div>
+                            ${l.image_url ? `<img src="${l.image_url}" style="width: 100%; border-radius: 12px; margin: 0.75rem 0; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;" onclick="window.open(this.src)" />` : ''}
+                            <span class="feed-time" style="opacity: 0.6;">${formatTime(l.created_at)} Uhr</span>
                         </div>
                         <div class="feed-actions">
-                            <button class="btn-action" onclick="acknowledgeLog(${l.id})" title="Löschen">🗑️</button>
+                            <button class="btn-action" onclick="acknowledgeLog(${l.id})" title="Löschen" style="opacity: 0.5; transform: scale(0.85);">🗑️</button>
                         </div>
                     </div>
                 `).join('');
@@ -863,7 +1092,7 @@
 
         // Periodic Refresh for TL View
         setInterval(() => {
-            if (typeof refreshDashboard === 'function') refreshDashboard();
+            if (typeof refreshDashboard === 'function') refreshDashboard(); initHallStatus();
         }, 15000); // 15s sync for TL to see incoming funk pronto
 
         async function generateShiftSummary() {
@@ -912,6 +1141,7 @@
                 }
 
                 const allSessions = [];
+                const container = document.getElementById('break-recommendations');
                 halls.forEach(hall => {
                     if (!hall.sessions) return;
                     hall.sessions.forEach(s => {
@@ -955,7 +1185,7 @@
                             </div>
                             <div style="text-align: right;">
                                 <div style="font-weight: bold; font-size: 1.1rem; color: ${isHighLoad ? '#ff4d4d' : '#fff'};">${s.hallId}</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">${s.sold || 0} Pax${s.capacity ? ' (' + Math.round((s.sold/s.capacity)*100) + '%)' : ''}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">${s.sold || 0} Besucher${s.capacity ? ' (' + Math.round((s.sold/s.capacity)*100) + '%)' : ''}</div>
                             </div>
                         </div>`;
                     }).join('');
@@ -999,7 +1229,7 @@
                 };
 
                 container.innerHTML = `
-                    <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem; width: 100%;">
                         <div style="background: rgba(255,255,255,0.03); padding: 1.25rem; border-radius: 18px; border: 1px solid rgba(0, 120, 255, 0.2); border-left: 5px solid var(--primary-blue); box-shadow: 0 8px 32px rgba(0,0,0,0.24); backdrop-filter: blur(10px);">
                             <div style="font-weight: 800; color: white; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.6rem; font-size: 1.05rem;">
                                 <span>🍿</span> Theken-Personal
@@ -1102,10 +1332,127 @@
             };
         }
 
+        // --- SAAL STATUS (Real-time Sync) ---
+        let HALL_STATUS = {
+            1: 'running', 2: 'running', 3: 'running', 4: 'running',
+            5: 'running', 6: 'running', 7: 'running', 8: 'running'
+        };
+
+        async function loadHallStatus() {
+            try {
+                const res = await fetch(`/api/hall-status?location=${currentCity}`);
+                const data = await res.json();
+                Object.assign(HALL_STATUS, data);
+                renderHallStatus();
+            } catch (e) { console.error("Error loading hall status", e); }
+        }
+
+        async function updateHallStatus(hall, status) {
+            HALL_STATUS[hall] = status;
+            renderHallStatus();
+            try {
+                await fetch('/api/hall-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hall_id: hall.toString(), location: currentCity, status })
+                });
+            } catch (e) { console.error("Sync error", e); }
+        }
+
+        function initHallStatus() {
+            loadHallStatus();
+            setInterval(loadHallStatus, 15000); // Sync every 15s
+        }
+
+        function renderHallStatus() {
+            const container = document.getElementById('hall-status-grid');
+            if (!container) return;
+            container.innerHTML = [1, 2, 3, 4, 5, 6, 7, 8].map(h => {
+                const status = HALL_STATUS[h] || 'running';
+                let label = 'Läuft';
+                let color = '#2ecc71';
+                if (status === 'cleaning') { label = 'Reinigung'; color = '#f1c40f'; }
+                if (status === 'ready') { label = 'Bereit'; color = '#3498db'; }
+                
+                return `
+                    <div class="hall-status-card" onclick="cycleHallStatus(${h})" style="border-top: 4px solid ${color}">
+                        <div style="font-weight: 800; font-size: 1.1rem; color: white;">Saal ${h}</div>
+                        <div style="font-size: 0.75rem; color: ${color}; font-weight: 700; text-transform: uppercase;">${label}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function cycleHallStatus(hall) {
+            triggerHaptic('medium');
+            const current = HALL_STATUS[hall] || 'running';
+            let next = 'running';
+            if (current === 'running') next = 'cleaning';
+            else if (current === 'cleaning') next = 'ready';
+            else if (current === 'ready') next = 'running';
+            updateHallStatus(hall, next);
+        }
+
         function formatTime(isoStr) {
             const d = new Date(isoStr);
             return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
         }
+
+        // --- TABS LOGIC ---
+        function switchTlTab(tabId, btn) {
+            triggerHaptic('light');
+            document.querySelectorAll('.tl-tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.tl-tab-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`page-${tabId}`).classList.add('active');
+            
+            // Trigger specific loads if needed
+            if (tabId === 'log') loadLogs();
+            if (tabId === 'breaks') loadBreaks();
+        }
+
+        // --- PULL TO REFRESH ---
+        let touchStart = 0;
+        let pullThresh = 150;
+        
+        document.addEventListener('touchstart', e => {
+            if (window.scrollY === 0) touchStart = e.touches[0].pageY;
+        }, { passive: true });
+        
+        document.addEventListener('touchmove', e => {
+            const touch = e.touches[0].pageY;
+            const diff = touch - touchStart;
+            if (window.scrollY === 0 && diff > 0) {
+                const indicator = document.getElementById('pull-refresh-indicator');
+                if (indicator) {
+                    indicator.style.display = 'flex';
+                    const easedDiff = Math.pow(diff / pullThresh, 0.5) * pullThresh;
+                    indicator.style.height = `${Math.min(easedDiff, pullThresh)}px`;
+                    indicator.style.opacity = Math.min(diff / (pullThresh * 0.7), 1);
+                    
+                    const icon = indicator.querySelector('.refresh-icon');
+                    if (icon) icon.style.transform = `rotate(${diff * 2}deg)`;
+                    
+                    if (Math.abs(diff - pullThresh) < 5) triggerHaptic('medium');
+                }
+            }
+        }, { passive: true });
+        
+        document.addEventListener('touchend', e => {
+            const touch = e.changedTouches[0].pageY;
+            const diff = touch - touchStart;
+            if (window.scrollY === 0 && diff >= pullThresh) {
+                triggerHaptic('success');
+                refreshDashboard(); initHallStatus();
+                showToast('🔄 Aktualisiere Daten...');
+            }
+            const indicator = document.getElementById('pull-refresh-indicator');
+            if (indicator) {
+                indicator.style.height = '0px';
+                indicator.style.opacity = '0';
+                setTimeout(() => indicator.style.display = 'none', 300);
+            }
+        }, { passive: true });
 
         // --- Logbook Entry Logic ---
         function openLogModal() {
@@ -1135,7 +1482,13 @@
                 const res = await fetch('/api/logs', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message, author, priority, location: currentCity })
+                    body: JSON.stringify({ 
+                        message, 
+                        author, 
+                        priority, 
+                        location: currentCity,
+                        image_url: currentLogImageBase64 
+                    })
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error);
@@ -1143,13 +1496,63 @@
                 showToast('Log-Eintrag gespeichert');
                 document.getElementById('log-message').value = '';
                 closeLogModal();
-                refreshDashboard();
+                refreshDashboard(); initHallStatus();
             } catch (e) {
                 showToast('Fehler beim Speichern: ' + e.message, true);
             } finally {
                 btn.innerHTML = ogText;
                 btn.disabled = false;
             }
+        }
+
+        // --- IMAGE UTILS ---
+        let currentLogImageBase64 = null;
+
+        function compressImage(file, maxWidth, quality) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    URL.revokeObjectURL(img.src);
+                    const aspectRatio = img.height / img.width;
+                    const targetHeight = Math.round(maxWidth * aspectRatio);
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = maxWidth;
+                    canvas.height = targetHeight;
+                    ctx.drawImage(img, 0, 0, maxWidth, targetHeight);
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", { type: 'image/jpeg' }));
+                        } else {
+                            reject(new Error('Canvas toBlob failed'));
+                        }
+                    }, 'image/jpeg', quality);
+                };
+                img.onerror = () => reject(new Error("Image could not be loaded"));
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        async function handleLogImage(input) {
+            const file = input.files[0];
+            if (!file) return;
+            try {
+                const compressed = await compressImage(file, 800, 0.7);
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    currentLogImageBase64 = e.target.result;
+                    document.getElementById('log-preview-img').src = currentLogImageBase64;
+                    document.getElementById('log-image-preview').style.display = 'block';
+                    triggerHaptic('success');
+                };
+                reader.readAsDataURL(compressed);
+            } catch (e) { alert('Bildfehler'); }
+        }
+
+        function removeLogImage() {
+            currentLogImageBase64 = null;
+            document.getElementById('log-image-file').value = '';
+            document.getElementById('log-image-preview').style.display = 'none';
         }
 
         // --- PUSH BROADCAST ---
@@ -1167,6 +1570,7 @@
             btn.textContent = '⏳ Sende...';
             btn.disabled = true;
             status.style.display = 'none';
+            triggerHaptic('medium');
 
             try {
                 const res = await fetch('/api/push/broadcast', {
@@ -1177,12 +1581,14 @@
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Unbekannter Fehler');
 
+                triggerHaptic('success');
                 status.style.color = '#2ecc71';
                 status.textContent = `✅ Gesendet an ${data.sent} Gerät${data.sent !== 1 ? 'e' : ''}${data.failed > 0 ? ` (${data.failed} fehlgeschlagen)` : ''}`;
                 document.getElementById('broadcast-message').value = '';
                 document.getElementById('broadcast-title').value = '';
                 showToast(`Nachricht an ${data.sent} Geräte gesendet!`);
             } catch (e) {
+                triggerHaptic('error');
                 status.style.color = '#e74c3c';
                 status.textContent = '❌ Fehler: ' + e.message;
             } finally {

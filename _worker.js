@@ -581,8 +581,8 @@ app.get('/api/admin/users', async (c) => {
         }
 
         const users = await c.env.DB.prepare(
-            'SELECT id, email, first_name, last_name, location, employee_number, role, created_at FROM users WHERE location = ?'
-        ).bind(payload.location).all();
+            'SELECT id, email, first_name, last_name, location, employee_number, role, created_at FROM users'
+        ).all();
 
         return c.json(users.results);
     } catch (e) {
@@ -746,7 +746,7 @@ app.get('/api/sessions', async (c) => {
         const response = await fetchKinopolis(targetUrl);
         if (!response.ok) {
             console.error(`Kinopolis returned status ${response.status}`);
-            return c.json({ error: `Kinopolis error: ${response.status}` }, response.status);
+            return c.json({ error: `Kinopolis error: ${response.status}`, status: response.status }, 200);
         }
         
         const html = await response.text();
@@ -755,17 +755,30 @@ app.get('/api/sessions', async (c) => {
         const d = new Date(dateStr);
         const dayNum = d.getDate();
         const monthNum = d.getMonth() + 1;
-        const today = new Date();
-        const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
-        const todayISO = today.toISOString().split('T')[0];
-        const tomorrowISO = tomorrow.toISOString().split('T')[0];
-        
-        const navDateMap = new Map(); // Global map for back-compatibility if needed elsewhere, but we now use per-movie map
-        
-        // Note: Global navDateMap is now less critical as we parse dates per-movie below.
-        // We still keep the mapping here if we ever need a site-wide date reference.
+        const shortDateStr = `${dayNum < 10 ? '0' : ''}${dayNum}.${monthNum < 10 ? '0' : ''}${monthNum}`;
+        const isToday = dateStr === new Date().toISOString().split('T')[0];
+        const isTomorrow = dateStr === new Date(Date.now() + 86400000).toISOString().split('T')[0];
 
-        const sessionMap = new Map(); // Key: date-perfId or date-time-hall-title, Value: session object
+        const allowedIds = new Set();
+        $('.prog-nav__item').each((_, navEl) => {
+            const navText = $(navEl).text().trim().toLowerCase();
+            let matches = false;
+            if (isToday && navText.includes('heute')) matches = true;
+            else if (isTomorrow && navText.includes('morgen')) matches = true;
+            else if (navText.includes(shortDateStr)) matches = true;
+
+            if (matches) {
+                const idsAttr = $(navEl).attr('data-performance-ids');
+                if (idsAttr) {
+                    const cleanIds = idsAttr.replace(/[\[\]\s]/g, '');
+                    cleanIds.split(',').forEach(id => {
+                        const trimmed = id.trim(); if (trimmed && trimmed.length > 5) allowedIds.add(trimmed);
+                    });
+                }
+            }
+        });
+
+        const sessionMap = new Map();
         
         $('section.movie, .prog2__movie').each((i, movieEl) => {
             const title = $(movieEl).find('.hl-link, .prog2__movie-title').first().text().trim();
@@ -784,94 +797,74 @@ app.get('/api/sessions', async (c) => {
                 if (fskMatch) fsk = `FSK ${fskMatch[1]}`;
             }
 
-            // LINK extraction
             const detailLink = $(movieEl).find('.hl-link, .prog2__movie-title, a[href*="/film/"]').first().attr('href');
             const movieLink = detailLink ? (detailLink.startsWith('http') ? detailLink : `https://www.kinopolis.de${detailLink}`) : null;
 
-            // Build movie-specific date map
-            const movieNavDateMap = new Map();
-            $(movieEl).find('.prog-nav__item[data-index]').each((navIdx, navEl) => {
-                const navText = $(navEl).text().trim().toLowerCase();
-                const dateMatch = navText.match(/(\d{2})\.(\d{2})\./);
+            $(movieEl).find('.prog2__cont, .prog2__movie-session').each((j, sessionEl) => {
+                const perfId = $(sessionEl).attr('data-performance-id');
                 
-                let navDate = '';
-                if (navText.includes('heute')) navDate = todayISO;
-                else if (navText.includes('morgen')) navDate = tomorrowISO;
-                else if (dateMatch) {
-                    const year = today.getFullYear() + (parseInt(dateMatch[2]) < today.getMonth() + 1 ? 1 : 0);
-                    navDate = `${year}-${dateMatch[2]}-${dateMatch[1]}`;
+                // FILTER BY DATE (using allowed IDs from navigation)
+                 if (allowedIds.size > 0 && perfId && !allowedIds.has(perfId)) return;
+
+                const time = $(sessionEl).find('.prog2__time').first().text().trim();
+                if (!time) return;
+                
+                let hallTextContent = $(sessionEl).find('.prog2__hall-num > div:first-child').text().trim();
+                if (!hallTextContent) hallTextContent = $(sessionEl).find('.prog2__hall-num').text().replace(/i$/, '').trim();
+                const hall = hallTextContent;
+                const occupancyText = $(sessionEl).text().trim();
+                let capacity = 0;
+                let freePercent = 95;
+                const seatsEl = $(sessionEl).find('.prog2__seats');
+                if (seatsEl.length) capacity = parseInt(seatsEl.text().replace(/\D/g, '')) || 0;
+                
+                const scaleEl = $(sessionEl).find('.prog2__scale');
+                if (scaleEl.length) {
+                    const percentMatch = scaleEl.text().match(/(\d+)%/);
+                    if (percentMatch) freePercent = parseInt(percentMatch[1]);
                 }
-                if (navDate) movieNavDateMap.set(navIdx, navDate);
-            });
-
-            $(movieEl).find('.prog-day__wrapper').each((dayIndex, wrapper) => {
-                // If there's no navigation tab for this day, assume it's the requested date
-                const actualDate = movieNavDateMap.get(dayIndex) || dateStr;
-                if (!actualDate) return;
-
-                $(wrapper).find('.prog2__cont, .prog2__movie-session').each((j, sessionEl) => {
-                    const perfId = $(sessionEl).attr('data-performance-id');
-                    const time = $(sessionEl).find('.prog2__time').first().text().trim();
-                    if (!time) return;
-                    
-                    let hallTextContent = $(sessionEl).find('.prog2__hall-num > div:first-child').text().trim();
-                    if (!hallTextContent) hallTextContent = $(sessionEl).find('.prog2__hall-num').text().replace(/i$/, '').trim();
-                    const hall = hallTextContent;
-                    const occupancyText = $(sessionEl).text().trim();
-                    let capacity = 0;
-                    let freePercent = 95;
-                    const seatsEl = $(sessionEl).find('.prog2__seats');
-                    if (seatsEl.length) capacity = parseInt(seatsEl.text().replace(/\D/g, '')) || 0;
-                    
-                    const scaleEl = $(sessionEl).find('.prog2__scale');
-                    if (scaleEl.length) {
-                        const percentMatch = scaleEl.text().match(/(\d+)%/);
-                        if (percentMatch) freePercent = parseInt(percentMatch[1]);
+                if (capacity <= 1) {
+                    const combinedMatch = occupancyText.match(/(\d+)\s+(\d+)%\s+frei/);
+                    if (combinedMatch) {
+                        capacity = parseInt(combinedMatch[1]);
+                        freePercent = parseInt(combinedMatch[2]);
+                    } else {
+                        const capacityMatch = occupancyText.match(/(\d+)\s+Pl[äa]tze/);
+                        if (capacityMatch) capacity = parseInt(capacityMatch[1]);
                     }
-                    if (capacity <= 1) {
-                        const combinedMatch = occupancyText.match(/(\d+)\s+(\d+)%\s+frei/);
-                        if (combinedMatch) {
-                            capacity = parseInt(combinedMatch[1]);
-                            freePercent = parseInt(combinedMatch[2]);
-                        } else {
-                            const capacityMatch = occupancyText.match(/(\d+)\s+Pl[äa]tze/);
-                            if (capacityMatch) capacity = parseInt(capacityMatch[1]);
-                        }
-                    }
-                    const freeCountMatch = occupancyText.match(/(\d+)\s+(?:Pl[äa]tze\s+)?frei/);
-                    const freePercentMatch = occupancyText.match(/(\d+)%\s+frei/);
-                    if (freePercentMatch && (!scaleEl.length || freePercent === 95)) freePercent = parseInt(freePercentMatch[1]);
-                    
-                    const seatingAttr = $(sessionEl).find('[data-seating]').attr('data-seating');
-                    if (capacity === 0 && seatingAttr) {
-                        try {
-                            const parsed = JSON.parse(seatingAttr);
-                            if (Array.isArray(parsed) && parsed.length > 0 && parsed[0] > 10) capacity = parsed[0];
-                        } catch(e) {}
-                    }
+                }
+                const freeCountMatch = occupancyText.match(/(\d+)\s+(?:Pl[äa]tze\s+)?frei/);
+                const freePercentMatch = occupancyText.match(/(\d+)%\s+frei/);
+                if (freePercentMatch && (!scaleEl.length || freePercent === 95)) freePercent = parseInt(freePercentMatch[1]);
+                
+                const seatingAttr = $(sessionEl).find('[data-seating]').attr('data-seating');
+                if (capacity === 0 && seatingAttr) {
+                    try {
+                        const parsed = JSON.parse(seatingAttr);
+                        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0] > 10) capacity = parsed[0];
+                    } catch(e) {}
+                }
 
-                    let sold = 0;
-                    if (capacity > 0) {
-                        sold = Math.round(capacity * (1 - freePercent / 100));
-                        if (freeCountMatch) sold = capacity - parseInt(freeCountMatch[1]);
-                        if (sold < 0) sold = 0;
-                    }
-                    
-                    const isBookable = !$(sessionEl).hasClass('performance_expired') && 
-                                      !occupancyText.includes('nicht mehr buchbar') && 
-                                      !occupancyText.includes('ausverkauft');
+                let sold = 0;
+                if (capacity > 0) {
+                    sold = Math.round(capacity * (1 - freePercent / 100));
+                    if (freeCountMatch) sold = capacity - parseInt(freeCountMatch[1]);
+                    if (sold < 0) sold = 0;
+                }
+                
+                const isBookable = !$(sessionEl).hasClass('performance_expired') && 
+                                  !occupancyText.includes('nicht mehr buchbar') && 
+                                  !occupancyText.includes('ausverkauft');
 
-                    const sessionObj = { title, poster: poster ? (poster.startsWith('http') ? poster : `https://www.kinopolis.de${poster}`) : null, 
-                                       time, hall, duration, capacity, freePercent, sold, isBookable, performanceId: perfId, date: actualDate, fsk, movieLink };
+                const sessionObj = { title, poster: poster ? (poster.startsWith('http') ? poster : `https://www.kinopolis.de${poster}`) : null, 
+                                   time, hall, duration, capacity, freePercent, sold, isBookable, performanceId: perfId, date: dateStr, fsk, movieLink };
 
-                    const key = `${actualDate}-${perfId || (time + '-' + hall + '-' + title)}`;
-                    const existing = sessionMap.get(key);
-                    
-                    // Keep the best version
-                    if (!existing || (existing.capacity === 0 && capacity > 0) || (!existing.isBookable && isBookable)) {
-                        sessionMap.set(key, sessionObj);
-                    }
-                });
+                const key = `${dateStr}|${time}|${hall}|${title}`;
+                const existing = sessionMap.get(key);
+                
+                if (!existing || (existing.capacity === 0 && capacity > 0) || (!existing.isBookable && isBookable)) {
+                    sessionMap.set(key, sessionObj);
+                }
             });
         });
 
@@ -1060,65 +1053,68 @@ app.post('/api/messages', async (c) => {
             const resendKey = c.env.RESEND_API_KEY;
             if (resendKey) {
                 try {
+                    // Combine newsletter subscribers AND all employees of that location
                     const subscribers = await c.env.DB.prepare(
-                        'SELECT email FROM email_subscriptions WHERE location = ? OR location IS NULL'
-                    ).bind(location || 'kp').all();
+                        `SELECT email FROM email_subscriptions WHERE location = ? OR location IS NULL
+                         UNION
+                         SELECT email FROM users WHERE location = ?`
+                    ).bind(location || 'kp', location || 'kp').all();
 
                     if (subscribers.results && subscribers.results.length > 0) {
-                        const emailContent = `
-                            <!DOCTYPE html>
-                            <html>
-                            <head>
-                                <meta charset="utf-8">
-                                <style>
-                                    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #0f1014; color: #ffffff; }
-                                    .container { max-width: 600px; margin: 0 auto; background-color: #1a1b1f; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
-                                    .header { padding: 40px 20px; text-align: center; background: linear-gradient(135deg, #1a1b1f 0%, #0a0a0d 100%); }
-                                    .logo { width: 180px; margin-bottom: 20px; }
-                                    .content { padding: 40px; }
-                                    .label { color: #e50914; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-                                    .title { font-size: 24px; font-weight: 800; color: #ffffff; margin-bottom: 8px; letter-spacing: -0.02em; }
-                                    .meta { color: #64748b; font-size: 14px; margin-bottom: 32px; }
-                                    .message-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; color: #f1f5f9; line-height: 1.6; white-space: pre-wrap; font-size: 16px; }
-                                    .image { width: 100%; border-radius: 16px; margin-top: 24px; border: 1px solid rgba(255,255,255,0.1); }
-                                    .btn { display: inline-block; background: rgba(255,255,255,0.05); color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 14px; border: 1px solid rgba(255,255,255,0.1); margin-top: 32px; }
-                                    .footer { padding: 32px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
-                                    .footer-text { color: #475569; font-size: 12px; }
-                                </style>
-                            </head>
-                            <body>
-                                <div style="padding: 20px;">
-                                    <div class="container">
-                                        <div class="header">
-                                            <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" alt="Kinopolis" class="logo">
-                                        </div>
-                                        <div class="content">
-                                            <div class="label">Neue Mitteilung</div>
-                                            <h1 class="title">${title}</h1>
-                                            <div class="meta">Von: <strong>${author || 'System'}</strong> • Standort: ${location || 'Alle'}</div>
-                                            
-                                            <div class="message-box">${content}</div>
-                                            
-                                            ${image_url ? `<img src="${image_url}" class="image" />` : ''}
-
-                                            <div style="text-align: center;">
-                                                <a href="https://kinopolis.artjombecker.com" class="btn">Dashboard öffnen</a>
-                                            </div>
-                                        </div>
-                                        <div class="footer">
-                                             <p class="footer-text">
-                                                 Du erhältst diese E-Mail als Mitarbeiter von Kinopolis.<br>
-                                                 © 2026 Kinopolis Automation<br><br>
-                                                 <a href="https://kinopolis.artjombecker.com/api/email/unsubscribe?email=${sub.email}" style="color: #475569; text-decoration: underline;">Abbestellen</a>
-                                             </p>
-                                         </div>
-                                    </div>
-                                </div>
-                            </body>
-                            </html>
-                        `;
-
                         for (const sub of subscribers.results) {
+                            const emailContent = `
+                                <!DOCTYPE html>
+                                <html>
+                                <head>
+                                    <meta charset="utf-8">
+                                    <style>
+                                        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #0f1014; color: #ffffff; }
+                                        .container { max-width: 600px; margin: 0 auto; background-color: #1a1b1f; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
+                                        .header { padding: 40px 20px; text-align: center; background: linear-gradient(135deg, #1a1b1f 0%, #0a0a0d 100%); }
+                                        .logo { width: 180px; margin-bottom: 20px; }
+                                        .content { padding: 40px; }
+                                        .label { color: #e50914; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+                                        .title { font-size: 24px; font-weight: 800; color: #ffffff; margin-bottom: 8px; letter-spacing: -0.02em; }
+                                        .meta { color: #64748b; font-size: 14px; margin-bottom: 32px; }
+                                        .message-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; color: #f1f5f9; line-height: 1.6; white-space: pre-wrap; font-size: 16px; }
+                                        .image { width: 100%; border-radius: 16px; margin-top: 24px; border: 1px solid rgba(255,255,255,0.1); }
+                                        .btn { display: inline-block; background: rgba(255,255,255,0.05); color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 14px; border: 1px solid rgba(255,255,255,0.1); margin-top: 32px; }
+                                        .footer { padding: 32px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
+                                        .footer-text { color: #475569; font-size: 12px; }
+                                    </style>
+                                </head>
+                                <body>
+                                    <div style="padding: 20px;">
+                                        <div class="container">
+                                            <div class="header">
+                                                <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" alt="Kinopolis" class="logo">
+                                            </div>
+                                            <div class="content">
+                                                <div class="label">Neue Mitteilung</div>
+                                                <h1 class="title">${title}</h1>
+                                                <div class="meta">Von: <strong>${author || 'System'}</strong> • Standort: ${location || 'Alle'}</div>
+                                                
+                                                <div class="message-box">${content}</div>
+                                                
+                                                ${image_url ? `<img src="${image_url}" class="image" />` : ''}
+
+                                                <div style="text-align: center;">
+                                                    <a href="https://kinopolis.artjombecker.com" class="btn">Dashboard öffnen</a>
+                                                </div>
+                                            </div>
+                                            <div class="footer">
+                                                 <p class="footer-text">
+                                                     Du erhältst diese E-Mail als Mitarbeiter von Kinopolis.<br>
+                                                     © 2026 Kinopolis Automation<br><br>
+                                                     <a href="https://kinopolis.artjombecker.com/api/email/unsubscribe?email=${sub.email}" style="color: #475569; text-decoration: underline;">Abbestellen</a>
+                                                 </p>
+                                             </div>
+                                        </div>
+                                    </div>
+                                </body>
+                                </html>
+                            `;
+
                             await fetch('https://api.resend.com/emails', {
                                 method: 'POST',
                                 headers: {
@@ -1154,31 +1150,38 @@ app.delete('/api/messages/:id', async (c) => {
     }
     return c.json({ success: true });
 });
-
-// --- INVENTORY API ---
+// --- INVENTORY & MHD API ---
 app.get('/api/inventory', async (c) => {
-    if (!c.env.DB) return c.json({ waren: [], eis: [] });
+    if (!c.env.DB) return c.json({ waren: [], eis: [], getraenke: [], slushy: [] });
     try {
         const { results } = await c.env.DB.prepare('SELECT * FROM inventory_items ORDER BY type, name').all();
         return c.json({
-            waren: results.filter(i => i.type === 'waren'),
-            eis: results.filter(i => i.type === 'eis')
+            waren: results.filter(i => i.type === 'waren' || i.type === 'ware'),
+            eis: results.filter(i => i.type === 'eis'),
+            getraenke: results.filter(i => i.type === 'getraenke' || i.type === 'getraenk'),
+            slushy: results.filter(i => i.type === 'slushy' || i.type === 'slushys')
         });
     } catch (e) {
-        // Table might not exist yet, try to create it
+        // Table might not exist with all columns, try to ensure columns exist (simple approach for D1)
         try {
-            await c.env.DB.prepare('CREATE TABLE IF NOT EXISTS inventory_items (id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, name TEXT, target INTEGER, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)').run();
+            await c.env.DB.prepare('ALTER TABLE inventory_items ADD COLUMN location TEXT').run().catch(() => {});
         } catch(e2) {}
-        return c.json({ waren: [], eis: [] });
+        return c.json({ waren: [], eis: [], getraenke: [], slushy: [] });
     }
 });
 
 app.post('/api/inventory', async (c) => {
     try {
-        const { type, name, target } = await c.req.json();
+        const { type, name, target, location } = await c.req.json();
         if (!type || !name) return c.json({ error: 'Type and name required' }, 400);
         if (c.env.DB) {
-            await c.env.DB.prepare('INSERT INTO inventory_items (type, name, target) VALUES (?, ?, ?)').bind(type, name, target || 0).run();
+            // Check if column exists or just try insert
+            try {
+                await c.env.DB.prepare('INSERT INTO inventory_items (type, name, target, location) VALUES (?, ?, ?, ?)').bind(type, name, target || 0, location || null).run();
+            } catch (dbErr) {
+                // Fallback for older schema
+                await c.env.DB.prepare('INSERT INTO inventory_items (type, name, target) VALUES (?, ?, ?)').bind(type, name, target || 0).run();
+            }
         }
         return c.json({ success: true });
     } catch (e) {
@@ -1194,7 +1197,154 @@ app.delete('/api/inventory/:id', async (c) => {
     return c.json({ success: true });
 });
 
-// Handle Feedback submission
+app.get('/api/mhd', async (c) => {
+    if (!c.env.DB) return c.json([]);
+    try {
+        const { results } = await c.env.DB.prepare('SELECT * FROM mhd_records ORDER BY mhd_date ASC').all();
+        return c.json(results);
+    } catch (e) {
+        return c.json([]);
+    }
+});
+
+app.post('/api/mhd', async (c) => {
+    try {
+        const { item_id, item_name, type, location, mhd_date, author } = await c.req.json();
+        if (!item_name || !mhd_date) return c.json({ error: 'Name and Date required' }, 400);
+        if (c.env.DB) {
+            await c.env.DB.prepare('INSERT INTO mhd_records (item_id, item_name, type, location, mhd_date, author) VALUES (?, ?, ?, ?, ?, ?)')
+                .bind(item_id || null, item_name, type, location, mhd_date, author || 'System').run();
+        }
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+app.delete('/api/mhd/:id', async (c) => {
+    const id = c.req.param('id');
+    if (c.env.DB) {
+        await c.env.DB.prepare('DELETE FROM mhd_records WHERE id = ?').bind(id).run();
+    }
+    return c.json({ success: true });
+});
+
+// --- TASK COMPLETIONS (Real-time Sync) ---
+app.get('/api/task-completions', async (c) => {
+    const location = c.req.query('location') || 'kp';
+    const date = c.req.query('date') || new Date().toISOString().split('T')[0];
+    if (!c.env.DB) return c.json([]);
+    try {
+        // Ensure table exists
+        await c.env.DB.prepare(`
+            CREATE TABLE IF NOT EXISTS task_completions (
+                task_id TEXT NOT NULL,
+                location TEXT NOT NULL,
+                date TEXT NOT NULL,
+                type TEXT,
+                author TEXT,
+                completed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (task_id, location, date)
+            )
+        `).run();
+        
+        const { results } = await c.env.DB.prepare(
+            'SELECT task_id, type, author FROM task_completions WHERE location = ? AND date = ?'
+        ).bind(location, date).all();
+        return c.json(results);
+    } catch (e) {
+        return c.json([]);
+    }
+});
+
+app.post('/api/task-completions', async (c) => {
+    try {
+        const { task_id, location, date, type, author } = await c.req.json();
+        if (!task_id || !location || !date) return c.json({ error: 'Missing data' }, 400);
+        if (c.env.DB) {
+            await c.env.DB.prepare(
+                'INSERT OR REPLACE INTO task_completions (task_id, location, date, type, author) VALUES (?, ?, ?, ?, ?)'
+            ).bind(task_id, location, date, type || 'task', author || 'System').run();
+        }
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+app.delete('/api/task-completions', async (c) => {
+    try {
+        const { task_id, location, date } = await c.req.json();
+        if (c.env.DB) {
+            await c.env.DB.prepare(
+                'DELETE FROM task_completions WHERE task_id = ? AND location = ? AND date = ?'
+            ).bind(task_id, location, date).run();
+        }
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+// --- HALL STATUS SYNC ---
+app.get('/api/hall-status', async (c) => {
+    const location = c.req.query('location') || 'kp';
+    if (!c.env.DB) return c.json({});
+    try {
+        await c.env.DB.prepare(`
+            CREATE TABLE IF NOT EXISTS hall_status (
+                hall_id TEXT PRIMARY KEY,
+                location TEXT NOT NULL,
+                status TEXT NOT NULL,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `).run();
+        const { results } = await c.env.DB.prepare('SELECT hall_id, status FROM hall_status WHERE location = ?').bind(location).all();
+        const statusMap = {};
+        results.forEach(r => statusMap[r.hall_id] = r.status);
+        return c.json(statusMap);
+    } catch (e) { return c.json({}); }
+});
+
+app.post('/api/hall-status', async (c) => {
+    try {
+        const { hall_id, location, status } = await c.req.json();
+        if (c.env.DB) {
+            await c.env.DB.prepare('INSERT OR REPLACE INTO hall_status (hall_id, location, status, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)')
+                .bind(hall_id, location || 'kp', status).run();
+        }
+        return c.json({ success: true });
+    } catch (e) { return c.json({ error: e.message }, 500); }
+});
+// --- PERSONAL NEED SYNC ---
+app.get('/api/personal-need', async (c) => {
+    const location = c.req.query('location') || 'kp';
+    if (!c.env.DB) return c.json({ active: false });
+    try {
+        await c.env.DB.prepare(`
+            CREATE TABLE IF NOT EXISTS personal_need (
+                location TEXT PRIMARY KEY,
+                active BOOLEAN DEFAULT 0,
+                message TEXT,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `).run();
+        const res = await c.env.DB.prepare('SELECT active, message FROM personal_need WHERE location = ?').bind(location).first();
+        return c.json(res || { active: false });
+    } catch (e) { return c.json({ active: false }); }
+});
+
+app.post('/api/personal-need', async (c) => {
+    try {
+        const { location, active, message } = await c.req.json();
+        if (c.env.DB) {
+            await c.env.DB.prepare('INSERT OR REPLACE INTO personal_need (location, active, message, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)')
+                .bind(location || 'kp', active ? 1 : 0, message || '').run();
+        }
+        return c.json({ success: true });
+    } catch (e) { return c.json({ error: e.message }, 500); }
+});
+
 app.post('/api/feedback', async (c) => {
     try {
         const body = await c.req.json();
@@ -1674,42 +1824,79 @@ app.post('/api/scan-plan', async (c) => {
 });
 
 // --- UPCOMING MOVIES API ---
+function decodeKinopolisText(str) {
+    if (!str) return '';
+    return str
+        .replace(/&#x([0-9a-fA-F]+);/gi, (_, h) => {
+            try {
+                return String.fromCodePoint(parseInt(h, 16));
+            } catch {
+                return '';
+            }
+        })
+        .replace(/&#(\d+);/g, (_, d) => {
+            try {
+                return String.fromCharCode(parseInt(d, 10));
+            } catch {
+                return '';
+            }
+        })
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'")
+        .replace(/&#39;/g, "'")
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/<[^>]*>/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
 app.get('/api/upcoming', async (c) => {
     try {
+        const locRaw = (c.req.query('location') || 'kp').toLowerCase();
+        const center = /^[a-z0-9]{2}$/.test(locRaw) ? locRaw : 'kp';
+
         // Try dedicated upcoming page first for better results
-        let response = await fetch('https://www.kinopolis.de/kp/filme/demnaechst');
-        if (!response.ok) response = await fetch('https://www.kinopolis.de/kp');
+        let response = await fetch(`https://www.kinopolis.de/${center}/filme/demnaechst`);
+        if (!response.ok) response = await fetch(`https://www.kinopolis.de/${center}`);
         
         if (!response.ok) throw new Error('Failed to fetch Kinopolis movies');
         const html = await response.text();
 
-        // Target movie items with a more resilient regex
-        // Kinopolis often uses div.movie or article.movie
-        const itemRegex = /<(?:div|article)[^>]*class="[^"]*movie[^"]*"[^>]*>([\s\S]*?)<\/(?:div|article)>/g;
-        let match;
-        const upcoming = [];
+        const soonMatch = html.match(/<section[^>]*id="coming-soon-slider"[^>]*>([\s\S]*?)<\/section>/i);
+        const soonHtml = soonMatch ? soonMatch[1] : '';
 
-        while ((match = itemRegex.exec(html)) !== null) {
-            const block = match[1];
-            const hrefMatch = block.match(/href="([^"]+)"/);
-            const srcMatch = block.match(/src="([^"]+)"/);
-            const titleMatch = block.match(/<h3[^>]*>([\s\S]*?)<\/h3>/) || 
-                              block.match(/<h2[^>]*>([\s\S]*?)<\/h2>/) || 
-                              block.match(/alt="([^"]+)"/);
-            
-            if (hrefMatch && srcMatch) {
-                let title = titleMatch ? titleMatch[1].replace(/<[^>]*>/g, '').trim() : 'Unbekannter Film';
-                title = title.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
-                
-                upcoming.push({
-                    title,
-                    poster: srcMatch[1].startsWith('http') ? srcMatch[1] : 'https://www.kinopolis.de' + srcMatch[1],
-                    movieLink: hrefMatch[1].startsWith('http') ? hrefMatch[1] : 'https://www.kinopolis.de' + hrefMatch[1]
-                });
+        const upcoming = [];
+        if (soonHtml) {
+            const brickRe =
+                /<div[^>]*class="[^"]*grid__brick[^"]*\bmovie\b[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/div>\s*<\/div>/g;
+            let bm;
+            while ((bm = brickRe.exec(soonHtml)) !== null) {
+                const block = bm[1];
+                const imgM = block.match(
+                    /<img[^>]*class="[^"]*img-fluid[^"]*"[^>]*src="([^"]+)"[^>]*>/i
+                );
+                const altM = block.match(/alt="([^"]*)"/i);
+                const dataSrcM = block.match(/data-src="([^"]+)"/i);
+                if (!imgM || !imgM[1]) continue;
+
+                const poster = imgM[1].startsWith('http')
+                    ? imgM[1]
+                    : `https://www.kinopolis.de${imgM[1].startsWith('/') ? '' : '/'}${imgM[1]}`;
+                const title = decodeKinopolisText(altM ? altM[1] : 'Film');
+                if (!title) continue;
+
+                let movieLink = `https://www.kinopolis.de/${center}`;
+                if (dataSrcM && dataSrcM[1]) {
+                    const ds = dataSrcM[1];
+                    movieLink = ds.startsWith('http') ? ds : `https://www.kinopolis.de${ds.startsWith('/') ? '' : '/'}${ds}`;
+                }
+
+                upcoming.push({ title, poster, movieLink });
             }
         }
 
-        // Deduplicate and return
         const unique = [];
         const seen = new Set();
         for (const m of upcoming) {
@@ -1718,16 +1905,23 @@ app.get('/api/upcoming', async (c) => {
                 unique.push(m);
             }
         }
-        
-        // If still empty, return some defaults so it doesn't look broken
+
         if (unique.length === 0) {
             return c.json([
-                { title: 'Dune: Part Two', poster: 'https://www.kinopolis.de/media/filme/d/dune-part-two/poster_200.jpg', movieLink: '#' },
-                { title: 'Kung Fu Panda 4', poster: 'https://www.kinopolis.de/media/filme/k/kung-fu-panda-4/poster_200.jpg', movieLink: '#' }
+                {
+                    title: 'Dune: Part Two',
+                    poster: 'https://www.kinopolis.de/media/filme/d/dune-part-two/poster_200.jpg',
+                    movieLink: '#',
+                },
+                {
+                    title: 'Kung Fu Panda 4',
+                    poster: 'https://www.kinopolis.de/media/filme/k/kung-fu-panda-4/poster_200.jpg',
+                    movieLink: '#',
+                },
             ]);
         }
-        
-        return c.json(unique.slice(0, 16));
+
+        return c.json(unique.slice(0, 24));
     } catch (e) {
         console.error('Upcoming fetch error:', e);
         return c.json({ error: 'Failed to fetch upcoming movies' }, 500);
@@ -1811,14 +2005,14 @@ app.get('/api/logs', async (c) => {
 
 app.post('/api/logs', async (c) => {
     try {
-        const { location, author, message, priority } = await c.req.json();
+        const { location, author, message, priority, image_url } = await c.req.json();
         if (!c.env.DB || !message) return c.json({ error: 'Missing data or DB connection' }, 400);
         
         try {
             await c.env.DB.prepare(`
-                INSERT INTO shift_logs (location, author, message, priority)
-                VALUES (?, ?, ?, ?)
-            `).bind(location || 'kp', author || 'Anonym', message, priority || 'normal').run();
+                INSERT INTO shift_logs (location, author, message, priority, image_url)
+                VALUES (?, ?, ?, ?, ?)
+            `).bind(location || 'kp', author || 'Anonym', message, priority || 'normal', image_url || null).run();
             return c.json({ success: true });
         } catch (dbError) {
             if (dbError.message.includes('no such table')) {
@@ -1828,6 +2022,27 @@ app.post('/api/logs', async (c) => {
         }
     } catch (e) {
         console.error('Log save error:', e);
+        return c.json({ error: e.message }, 500);
+    }
+});
+app.patch('/api/logs/:id', async (c) => {
+    try {
+        const id = c.req.param('id');
+        const { status } = await c.req.json();
+        const db = c.env.DB || c.env.D1_DB;
+        if (!db) return c.json({ error: 'DB not available' }, 500);
+        const log = await db.prepare("SELECT * FROM shift_logs WHERE id = ?").bind(id).first();
+        if (!log) return c.json({ error: 'Log not found' }, 404);
+        let newMessage = log.message;
+        if (status === 'in_progress') {
+            if (!newMessage.includes('[IN_PROGRESS]')) newMessage += ' [IN_PROGRESS]';
+        } else if (status === 'open') {
+            newMessage = newMessage.replace('[IN_PROGRESS]', '').trim();
+        }
+        await db.prepare("UPDATE shift_logs SET message = ? WHERE id = ?").bind(newMessage, id).run();
+        return c.json({ success: true });
+    } catch (e) {
+        console.error('Update log error:', e);
         return c.json({ error: e.message }, 500);
     }
 });
@@ -2233,3 +2448,11 @@ export default {
     }
 };
 
+app.get('/api/diag', async (c) => {
+    return c.json({
+        status: 'ok',
+        time: new Date().toISOString(),
+        env: Object.keys(c.env),
+        location: c.req.query('location') || 'kp'
+    });
+});
