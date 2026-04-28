@@ -1878,7 +1878,7 @@ app.get('/api/upcoming', async (c) => {
                     /<img[^>]*class="[^"]*img-fluid[^"]*"[^>]*src="([^"]+)"[^>]*>/i
                 );
                 const altM = block.match(/alt="([^"]*)"/i);
-                const dataSrcM = block.match(/data-src="([^"]+)"/i);
+                const hrefM = block.match(/href="([^"]+)"/i);
                 if (!imgM || !imgM[1]) continue;
 
                 const poster = imgM[1].startsWith('http')
@@ -1888,9 +1888,9 @@ app.get('/api/upcoming', async (c) => {
                 if (!title) continue;
 
                 let movieLink = `https://www.kinopolis.de/${center}`;
-                if (dataSrcM && dataSrcM[1]) {
-                    const ds = dataSrcM[1];
-                    movieLink = ds.startsWith('http') ? ds : `https://www.kinopolis.de${ds.startsWith('/') ? '' : '/'}${ds}`;
+                if (hrefM && hrefM[1]) {
+                    const ln = hrefM[1];
+                    movieLink = ln.startsWith('http') ? ln : `https://www.kinopolis.de${ln.startsWith('/') ? '' : '/'}${ln}`;
                 }
 
                 upcoming.push({ title, poster, movieLink });
@@ -2373,12 +2373,7 @@ export default {
                                     
                                     if (!existing) {
                                         await env.DB.prepare('INSERT INTO notification_state (alert_hash) VALUES (?)').bind(alertHash).run();
-                                        await sendPushToAll(env, {
-                                            title: '🖼️ Plakatwechsel: ' + hall.name,
-                                            body: `Film läuft seit 20 Min. Bitte Plakat für "${nextS.title}" (${nextS.time} Uhr) einhängen!`,
-                                            image: nextS.poster,
-                                            tag: 'poster-alert'
-                                        }, loc);
+                                        // Poster Popups disabled per user request - only show in dashboard
                                     }
                                 }
                             }
@@ -2420,11 +2415,7 @@ export default {
                 const existing = await env.DB.prepare('SELECT id FROM notification_state WHERE alert_hash = ?').bind(alertHash).first();
                 if (!existing) {
                     await env.DB.prepare('INSERT INTO notification_state (alert_hash) VALUES (?)').bind(alertHash).run();
-                    await sendPushToAll(env, {
-                        title: '🖼️ Plakatwechsel: ' + row.hall,
-                        body: `Laut Plan: ${row.movie} Credits beginnen jetzt (${row.credits_time}). Plakat bereit machen!`,
-                        tag: 'poster-alert'
-                    }); // Sends to all as scanned_plans has no location yet
+                    // Poster Popups disabled per user request
                 }
             }
         }

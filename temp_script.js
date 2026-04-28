@@ -1946,6 +1946,9 @@
                 completedCleaning = new Set();
             }
         }
+        
+        // Execute on script load to initialize properly for the current city
+        loadTaskState();
 
         function saveTaskState() {
             localStorage.setItem(`completed_auslaesse_${currentCity}`, JSON.stringify(Array.from(completedAuslaesse)));
@@ -1970,6 +1973,16 @@
                 const sessions = hall.sessions.filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
                 
                 sessions.forEach((s, idx) => {
+                    const isLastSession = (idx === sessions.length - 1);
+                    if (isLastSession) return; // Do not show task if it's the last session of the day
+                    
+                    const nextSession = sessions[idx + 1];
+                    if (nextSession) {
+                        const [nh, nm] = nextSession.time.split(':').map(Number);
+                        const nextStartMin = nh * 60 + nm;
+                        if (currentMinutes >= nextStartMin) return; // Do not show if next session has started
+                    }
+
                     const [h, m] = s.time.split(':').map(Number);
                     const startMin = h * 60 + m;
                     const running30Min = startMin + 30;
