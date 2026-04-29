@@ -953,17 +953,23 @@ app.get('/api/sessions', async (c) => {
         // --- DATA ARCHIVING (MAX-VALUE LOGIC) ---
         if (c.env.DB && sessions.length > 0) {
             try {
-                // Bulk archive current sold counts (only keep the max)
-                for (const s of sessions) {
+                // Batch archive current sold counts (more efficient than serial inserts)
+                const batchStatements = sessions.map(s => {
                     const archiveKey = `${location}|${s.date}|${s.time}|${s.hall}|${s.title}`;
-                    await c.env.DB.prepare(`
+                    return c.env.DB.prepare(`
                         INSERT INTO occupancy_archive (key, location, title, time, hall, date, max_sold, capacity)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                         ON CONFLICT(key) DO UPDATE SET 
                             max_sold = CASE WHEN EXCLUDED.max_sold > max_sold THEN EXCLUDED.max_sold ELSE max_sold END,
                             capacity = CASE WHEN EXCLUDED.capacity > 0 THEN EXCLUDED.capacity ELSE capacity END,
                             updated_at = CURRENT_TIMESTAMP
-                    `).bind(archiveKey, location, s.title, s.time, s.hall, s.date, s.sold || 0, s.capacity || 0).run();
+                    `).bind(archiveKey, location, s.title, s.time, s.hall, s.date, s.sold || 0, s.capacity || 0);
+                });
+                
+                // Execute in chunks if there are too many (D1 limit is 100 per batch usually, but let's be safe)
+                const CHUNK_SIZE = 50;
+                for (let i = 0; i < batchStatements.length; i += CHUNK_SIZE) {
+                    await c.env.DB.batch(batchStatements.slice(i, i + CHUNK_SIZE));
                 }
             } catch (archiveErr) {
                 console.error("Archive process failed:", archiveErr);
