@@ -6595,6 +6595,7 @@
 
         /** Liefert offene Plakatwechsel für Pop-up (nicht für die Inline-Liste). */
         function collectPosterAlerts(hallsGrouped, tomSessionsFlat) {
+            return []; // Disabled by user request
             // ONLY FOR DARMSTADT ('kp')
             if (currentCity !== 'kp') return [];
 
