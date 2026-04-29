@@ -6154,14 +6154,21 @@
             });
         }
 
+        function renderLiveTasks() {
+            if (typeof lastData !== 'undefined' && lastData) {
+                renderTasks(lastData);
+                if (typeof updateAlerts === 'function') updateAlerts(lastData, []);
+            }
+        }
+
         async function loadTaskState() {
             try {
                 const res = await fetch(`/api/task-completions?location=${currentCity}&date=${new Date().toISOString().split('T')[0]}`);
                 const data = await res.json();
                 
-                completedAuslaesse = new Set();
-                completedPosters = new Set();
-                completedCleaning = new Set();
+                completedAuslaesse.clear();
+                completedPosters.clear();
+                completedCleaning.clear();
                 
                 data.forEach(t => {
                     if (t.type === 'auslass') completedAuslaesse.add(t.task_id);
@@ -6376,7 +6383,7 @@
                 helpBtn.id = 'help-button';
                 helpBtn.className = 'btn-secondary';
                 helpBtn.style.width = '100%';
-                helpBtn.style.marginTop = '1.5rem';
+                helpBtn.style.marginTop = '2.5rem';
                 helpBtn.style.padding = '1.25rem';
                 helpBtn.style.borderRadius = '16px';
                 helpBtn.style.fontWeight = '800';
