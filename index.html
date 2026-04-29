@@ -6136,8 +6136,10 @@
                     `;
                 }).join('');
 
+                const isCollapsed = (localStorage.getItem(`hall_collapsed_${hallName}`) === 'true');
+
                 card.innerHTML = `
-                    <div class="hall-header" onclick="toggleHall(this)">
+                    <div class="hall-header ${isCollapsed ? 'collapsed' : ''}" onclick="toggleHall(this, '${hallName}')">
                         <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;">
                             <span class="hall-name">${hallName}</span>
                             <span class="session-count">${sessions.length} Vorstellungen</span>
@@ -6146,7 +6148,7 @@
                             <path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
                         </svg>
                     </div>
-                    <div class="hall-sessions-list">
+                    <div class="hall-sessions-list ${isCollapsed ? 'collapsed' : ''}">
                         ${sessionsHtml}
                     </div>
                 `;
@@ -6653,12 +6655,13 @@
             return html;
         }
 
-        function toggleHall(header) {
+        function toggleHall(header, hallName) {
             if (!header) return;
             const sessionsList = header.closest('.hall-card')?.querySelector('.hall-sessions-list');
             if (!sessionsList) return;
-            header.classList.toggle('collapsed');
+            const isCollapsed = header.classList.toggle('collapsed');
             sessionsList.classList.toggle('collapsed');
+            if (hallName) localStorage.setItem(`hall_collapsed_${hallName}`, isCollapsed);
         }
 
         const POSTER_URGENT_POPUP_DELAY_MS = 1600;
