@@ -2363,6 +2363,7 @@
         }
 
         function addPosterAlerts(hallsGrouped, tomSessionsFlat, container) {
+            return; // Disabled by user request
             // ONLY FOR DARMSTADT ('kp')
             if (currentCity !== 'kp') return;
 
