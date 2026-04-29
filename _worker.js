@@ -742,6 +742,24 @@ app.get('/api/sessions', async (c) => {
     
     console.log(`Fetching sessions for ${location} on ${dateStr}`);
     
+    if (c.env.DB) {
+        try {
+            await c.env.DB.prepare(`
+                CREATE TABLE IF NOT EXISTS occupancy_archive (
+                    key TEXT PRIMARY KEY,
+                    location TEXT,
+                    title TEXT,
+                    time TEXT,
+                    hall TEXT,
+                    date TEXT,
+                    max_sold INTEGER,
+                    capacity INTEGER,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            `).run();
+        } catch (e) { console.error("Archive table init failed:", e); }
+    }
+    
     try {
         const response = await fetchKinopolis(targetUrl);
         if (!response.ok) {
@@ -877,7 +895,7 @@ app.get('/api/sessions', async (c) => {
                 
                 if (archived.results && archived.results.length > 0) {
                     archived.results.forEach(a => {
-                        const key = `${a.date}|${a.time}|${a.hall}|${a.title}`;
+                        const key = `${location}|${a.date}|${a.time}|${a.hall}|${a.title}`;
                         if (!sessionMap.has(key)) {
                             // Session is missing from live site but exists in archive
                             sessionMap.set(key, {
@@ -933,12 +951,15 @@ app.get('/api/sessions', async (c) => {
             try {
                 // Bulk archive current sold counts (only keep the max)
                 for (const s of sessions) {
-                    const archiveKey = `${s.date}|${s.time}|${s.hall}|${s.title}`;
+                    const archiveKey = `${location}|${s.date}|${s.time}|${s.hall}|${s.title}`;
                     await c.env.DB.prepare(`
-                        INSERT INTO occupancy_archive (key, title, time, hall, date, max_sold, capacity)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)
-                        ON CONFLICT(key) DO UPDATE SET max_sold = MAX(max_sold, EXCLUDED.max_sold)
-                    `).bind(archiveKey, s.title, s.time, s.hall, s.date, s.sold || 0, s.capacity || 0).run();
+                        INSERT INTO occupancy_archive (key, location, title, time, hall, date, max_sold, capacity)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT(key) DO UPDATE SET 
+                            max_sold = CASE WHEN EXCLUDED.max_sold > max_sold THEN EXCLUDED.max_sold ELSE max_sold END,
+                            capacity = CASE WHEN EXCLUDED.capacity > 0 THEN EXCLUDED.capacity ELSE capacity END,
+                            updated_at = CURRENT_TIMESTAMP
+                    `).bind(archiveKey, location, s.title, s.time, s.hall, s.date, s.sold || 0, s.capacity || 0).run();
                 }
             } catch (archiveErr) {
                 console.error("Archive process failed:", archiveErr);
