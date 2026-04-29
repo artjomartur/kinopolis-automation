@@ -1235,7 +1235,7 @@ app.get('/api/task-completions', async (c) => {
     const date = c.req.query('date') || new Date().toISOString().split('T')[0];
     if (!c.env.DB) return c.json([]);
     try {
-        // Ensure table exists
+        // Migration: Ensure table and PK exist
         await c.env.DB.prepare(`
             CREATE TABLE IF NOT EXISTS task_completions (
                 task_id TEXT NOT NULL,
@@ -1251,8 +1251,9 @@ app.get('/api/task-completions', async (c) => {
         const { results } = await c.env.DB.prepare(
             'SELECT task_id, type, author FROM task_completions WHERE location = ? AND date = ?'
         ).bind(location, date).all();
-        return c.json(results);
+        return c.json(results || []);
     } catch (e) {
+        console.error("task-completions GET error:", e);
         return c.json([]);
     }
 });

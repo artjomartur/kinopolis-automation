@@ -6195,19 +6195,24 @@
 
                 const author = window.AUTH && AUTH.user ? `${AUTH.user.first_name} ${AUTH.user.last_name}` : 'System';
                 if (isDone) {
-                    await fetch('/api/task-completions', {
+                    const res = await fetch('/api/task-completions', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ task_id: taskId, location: currentCity, date: dateStr, type, author })
                     });
+                    if (!res.ok) showToast("Fehler beim Speichern (Cloud Sync)", true);
                 } else {
-                    await fetch('/api/task-completions', {
+                    const res = await fetch('/api/task-completions', {
                         method: 'DELETE',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ task_id: taskId, location: currentCity, date: dateStr })
                     });
+                    if (!res.ok) showToast("Fehler beim Löschen (Cloud Sync)", true);
                 }
-            } catch (e) { console.error("Sync error", e); }
+            } catch (e) { 
+                console.error("Sync error", e);
+                showToast("Netzwerkfehler beim Cloud-Sync", true);
+            }
         }
 
         function saveTaskState() {
