@@ -6142,9 +6142,14 @@
                     const durationBase = startMin + s.duration;
                     const durationMax = durationBase + 30;
 
+                    // Calculate next show's start time in this hall
+                    let nextStartMin = 9999; // Far future
+                    if (sessions[idx + 1]) {
+                        const [nh, nm] = sessions[idx + 1].time.split(':').map(Number);
+                        nextStartMin = nh * 60 + nm;
+                    }
+
                     // CHECK FOR SCANNED DATA OVERRIDE
-                    // Ohne Scan: Zeitraum aus Start + Filmdauer + 30 Min Puffer (Disclaimer im Header).
-                    // Mit passendem Scan: eine Uhrzeit aus Plan (Abspann/Ende), engeres Zeitfenster, grün markiert.
                     let timeDisplay = `${formatMinutes(durationBase)} – ${formatMinutes(durationMax)} (geschätzt)`;
                     let triggerMin = durationBase;
                     let triggerMax = durationMax;
@@ -6164,8 +6169,6 @@
                         }
                     }
 
-                    // Plakatwechsel: nur noch Pop-up unter „Dringende Hinweise“ (addPosterAlerts / Modal), nicht in dieser Liste.
-
                     // 1. Auslass Task (All sessions)
                     allTasks.push({
                         type: 'auslass',
@@ -6173,6 +6176,7 @@
                         title: s.title,
                         sold: s.sold,
                         time: triggerMin,
+                        nextStartTime: nextStartMin,
                         timeDisplay: timeDisplay,
                         triggerMin: triggerMin,
                         triggerMax: triggerMax,
@@ -6210,6 +6214,11 @@
             const liveTasks = allTasks.filter(t => {
                 if (t.type === 'auslass') {
                     const isDone = completedAuslaesse.has(t.id);
+                    
+                    // NEU: Wenn die NÄCHSTE Vorstellung im selben Saal bereits begonnen hat,
+                    // nehmen wir die aktuelle Aufgabe raus (zu spät oder bereits erledigt).
+                    if (currentMinutes >= t.nextStartTime) return false;
+
                     // Hide if older than 3 hours (increased from 1h for better overview)
                     const isOld = currentMinutes > (t.time + 180);
                     if (isOld && isDone) return false;
