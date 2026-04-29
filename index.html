@@ -6696,16 +6696,10 @@
             `;
             return alert;
         }
+
         async function markPosterDone(id, btn) {
             completedPosters.add(id);
             saveTaskState();
-            
-            // Sync to backend so everyone sees it
-            try {
-                await syncTaskState(id, 'poster', true);
-            } catch(e) {
-                console.error("Poster sync failed:", e);
-            }
 
             if (btn) {
                 const alert = btn.closest('.poster-change-alert');
@@ -6715,20 +6709,27 @@
                         window._posterUrgentQueue = (window._posterUrgentQueue || []).filter(a => a.alertId !== id);
                         alert.remove();
                         showPosterUrgentModalStep(window._posterUrgentQueue);
-                        fetchSessions();
-                        return;
+                    } else {
+                        alert.style.opacity = '0';
+                        alert.style.transform = 'scale(0.9)';
+                        alert.style.pointerEvents = 'none';
+                        setTimeout(() => {
+                            alert.remove();
+                            const alertsContainer = document.getElementById('poster-alerts');
+                            if (alertsContainer) {
+                                const count = alertsContainer.children.length;
+                                document.getElementById('alert-count-badge').textContent = count;
+                                if (count === 0) document.getElementById('poster-alerts-container').style.display = 'none';
+                            }
+                        }, 300);
                     }
-                    alert.style.opacity = '0';
-                    alert.style.transform = 'scale(0.9)';
-                    alert.style.pointerEvents = 'none';
-                    setTimeout(() => {
-                        alert.remove();
-                        const alertsContainer = document.getElementById('poster-alerts');
-                        const count = alertsContainer.children.length;
-                        document.getElementById('alert-count-badge').textContent = count;
-                        if (count === 0) document.getElementById('poster-alerts-container').style.display = 'none';
-                    }, 300);
                 }
+            }
+
+            try {
+                await syncTaskState(id, 'poster', true);
+            } catch(e) {
+                console.error("Poster sync failed:", e);
             }
 
             fetchSessions();
