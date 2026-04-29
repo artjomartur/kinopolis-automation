@@ -3661,6 +3661,42 @@
                         <div id="push-spinner" class="spinner" style="width: 20px; height: 20px; display: none; margin: 0;"></div>
                         <svg id="push-chevron" viewBox="0 0 24 24" width="20" height="20" style="opacity: 0.5;"><path fill="currentColor" d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
                     </div>
+                    <button class="btn-primary" onclick="submitMessage()">Nachricht senden</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Request Modal -->
+        <div id="help-modal" class="modal">
+            <div class="modal-content glass" style="max-width: 450px;">
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div style="background: rgba(231,76,60,0.1); width: 64px; height: 64px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; border: 1px solid rgba(231,76,60,0.2);">
+                        <span style="font-size: 1.8rem;">🆘</span>
+                    </div>
+                    <h2 class="modal-title">Hilfe anfordern</h2>
+                    <p style="color: var(--text-muted); font-size: 0.85rem;">Beschreibe kurz, wobei du Unterstützung benötigst.</p>
+                </div>
+
+                <div style="margin-bottom: 1.25rem;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">An wen?</label>
+                    <select id="help-recipient" class="input-field" style="width: 100%;">
+                        <option value="TL">Teamleitung (TL)</option>
+                        <option value="Technik">Technik / Vorführer</option>
+                        <option value="Leitung">Betriebsleitung (BL)</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Grund / Nachricht</label>
+                    <textarea id="help-reason" placeholder="z.B. Starker Andrang an Kasse 3, Wechselgeld benötigt..." class="input-field" style="height: 100px; resize: none;"></textarea>
+                </div>
+
+                <div class="modal-actions" style="gap: 0.75rem;">
+                    <button class="btn-secondary" onclick="closeHelpModal()" style="flex: 1;">Abbrechen</button>
+                    <button class="btn-primary" onclick="submitHelpRequest()" style="flex: 2; background: var(--primary-red); border: none;">🚀 Ruf senden</button>
+                </div>
+            </div>
+        </div>
 
                     <button id="push-test-btn" class="btn-secondary" style="width: 100%; height: 48px; border-radius: 14px; justify-content: center; display: none; border: 1px dashed rgba(255,255,255,0.1); background: rgba(255,255,255,0.02); font-size: 0.85rem;" onclick="sendTestPush()">
                         🚀 Test-Benachrichtigung senden
@@ -4409,26 +4445,75 @@
 
         // --- PERSONAL NEED (Help Button) ---
         let isHelpActive = false;
+        let activeHelpData = null;
+
         async function checkPersonalNeed() {
             try {
                 const res = await fetch(`/api/personal-need?location=${currentCity}`);
                 const data = await res.json();
                 isHelpActive = !!data.active;
+                activeHelpData = data;
                 updateHelpButtonUI();
             } catch (e) {}
         }
 
-        async function toggleHelp() {
+        function openHelpModal() {
+            if (isHelpActive) {
+                // If active, just toggle off (cancel)
+                toggleHelpOff();
+                return;
+            }
+            triggerHaptic('medium');
+            document.getElementById('help-modal').classList.add('active');
+            document.getElementById('help-reason').focus();
+        }
+
+        function closeHelpModal() {
+            document.getElementById('help-modal').classList.remove('active');
+        }
+
+        async function submitHelpRequest() {
+            const reason = document.getElementById('help-reason').value.trim();
+            const recipient = document.getElementById('help-recipient').value;
+            
+            if (!reason) {
+                alert('Bitte gib einen Grund an.');
+                return;
+            }
+
             triggerHaptic('heavy');
-            isHelpActive = !isHelpActive;
+            closeHelpModal();
+            isHelpActive = true;
+            updateHelpButtonUI();
+
+            try {
+                await fetch('/api/personal-need', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        location: currentCity, 
+                        active: true, 
+                        message: reason,
+                        recipient: recipient
+                    })
+                });
+                showToast(`🆘 Hilfe-Ruf an ${recipient} gesendet!`);
+            } catch (e) { showToast('Fehler beim Senden', true); }
+        }
+
+        async function toggleHelpOff() {
+            if (!confirm('Hilfe-Ruf wirklich aufheben?')) return;
+            
+            triggerHaptic('medium');
+            isHelpActive = false;
             updateHelpButtonUI();
             try {
                 await fetch('/api/personal-need', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ location: currentCity, active: isHelpActive, message: 'Hilfe an Kasse/Theke benötigt!' })
+                    body: JSON.stringify({ location: currentCity, active: false })
                 });
-                showToast(isHelpActive ? '🆘 Hilfe-Ruf gesendet!' : '✅ Hilfe-Ruf aufgehoben');
+                showToast('✅ Hilfe-Ruf aufgehoben');
             } catch (e) { showToast('Fehler beim Senden', true); }
         }
 
@@ -6301,7 +6386,7 @@
                 helpBtn.style.justifyContent = 'center';
                 helpBtn.style.gap = '0.75rem';
                 helpBtn.style.border = '2px solid rgba(255,255,255,0.1)';
-                helpBtn.onclick = toggleHelp;
+                helpBtn.onclick = openHelpModal;
                 container.appendChild(helpBtn);
                 updateHelpButtonUI();
             }

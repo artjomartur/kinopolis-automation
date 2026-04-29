@@ -930,11 +930,13 @@
                     banner.innerHTML = `
                         <div style="background: var(--primary-red); color: white; padding: 1.25rem; border-radius: 12px; display: flex; align-items: center; gap: 1rem; width: 100%; box-shadow: 0 0 20px rgba(229,9,20,0.5); animation: pulse-red 1.5s infinite;">
                             <span style="font-size: 1.5rem;">🚨</span>
-                            <div>
-                                <div style="font-weight: 800; font-size: 1.1rem;">HILFE AN KASSE/THEKE BENÖTIGT!</div>
-                                <div style="font-size: 0.85rem; opacity: 0.9;">Sofortige Unterstützung am Service angefordert.</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 800; font-size: 1.1rem; text-transform: uppercase;">Hilferuf an ${data.recipient || 'TL'}!</div>
+                                <div style="font-size: 0.9rem; margin-top: 0.2rem; background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 8px;">
+                                    "${data.message || 'Keine Nachricht hinterlegt.'}"
+                                </div>
                             </div>
-                            <button onclick="acknowledgeHelp()" style="margin-left: auto; background: white; color: var(--primary-red); border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 800; cursor: pointer;">GELESEN</button>
+                            <button onclick="acknowledgeHelp()" style="background: white; color: var(--primary-red); border: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 800; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">ERLEDIGT</button>
                         </div>
                     `;
                     triggerHaptic('error');

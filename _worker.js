@@ -1326,20 +1326,21 @@ app.get('/api/personal-need', async (c) => {
                 location TEXT PRIMARY KEY,
                 active BOOLEAN DEFAULT 0,
                 message TEXT,
+                recipient TEXT,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `).run();
-        const res = await c.env.DB.prepare('SELECT active, message FROM personal_need WHERE location = ?').bind(location).first();
+        const res = await c.env.DB.prepare('SELECT active, message, recipient FROM personal_need WHERE location = ?').bind(location).first();
         return c.json(res || { active: false });
     } catch (e) { return c.json({ active: false }); }
 });
 
 app.post('/api/personal-need', async (c) => {
     try {
-        const { location, active, message } = await c.req.json();
+        const { location, active, message, recipient } = await c.req.json();
         if (c.env.DB) {
-            await c.env.DB.prepare('INSERT OR REPLACE INTO personal_need (location, active, message, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)')
-                .bind(location || 'kp', active ? 1 : 0, message || '').run();
+            await c.env.DB.prepare('INSERT OR REPLACE INTO personal_need (location, active, message, recipient, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)')
+                .bind(location || 'kp', active ? 1 : 0, message || '', recipient || 'TL').run();
         }
         return c.json({ success: true });
     } catch (e) { return c.json({ error: e.message }, 500); }
