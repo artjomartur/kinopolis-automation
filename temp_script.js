@@ -1,4 +1,3 @@
-    <script>
         // --- GLOBALS & STATE ---
         const API_URL = '/api/sessions';
         const LOCATIONS_URL = '/api/locations';
@@ -2457,6 +2456,14 @@
                             <div class="time">Start: ${nextMovie.time} ${isEndDay ? 'Uhr (Morgen)' : 'Uhr'}</div>
                         </div>
                     </div>
+                    <button class="btn-primary" onclick="markPosterDone('${alertId}', this)" style="margin-top: 1rem; width: 100%;">
+                        <span class="icon">✅</span> Erledigt
+                    </button>
+                </div>
+            `;
+            return alert;
+        }
+
         function markPosterDone(id, btn) {
             completedPosters.add(id);
             saveTaskState();
@@ -2932,5 +2939,3 @@
         }
 
 
-
-    </script>

@@ -7184,6 +7184,11 @@
                 <div style="background: rgba(0, 120, 255, 0.08); border: 1px solid rgba(0, 120, 255, 0.15); padding: 1rem; border-radius: 16px; text-align: center;">
                     <p style="line-height: 1.5; margin: 0; color: var(--primary-blue); font-size: 0.85rem;"><strong>Tipp:</strong> Starte deine Schicht im Profil-Menü, um XP zu sammeln!</p>
                 </div>
+            <div class="card-container glass danger-zone" style="margin-top: 2rem;">
+                <h2 style="color: #ff4d4d; margin-top: 0;">Notfall / Dringend</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Löst einen sofortigen Alarm auf allen Geräten im Kino aus (Pausenraum, Einlass, TL-Tablet).</p>
+                <input type="text" id="sos-text" placeholder="Womit brauchst du Hilfe?" style="width:100%; padding:1rem; border-radius:12px; margin-bottom:1rem; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.5); color:#fff; font-family: Outfit;">
+                <button class="emergency-btn" onclick="sendEmergency()">🚨 HILFERUF SENDEN</button>
             </div>
             <div class="modal-actions" style="justify-content: center;">
                 <button onclick="closeWelcomeModal()" class="btn-primary" style="width: 100%; padding: 1.25rem; font-size: 1.1rem; border-radius: 16px; font-weight: 800; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); border: none; color: white;">Verstanden & Loslegen</button>
