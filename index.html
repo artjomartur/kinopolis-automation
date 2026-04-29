@@ -6336,8 +6336,25 @@
             });
 
 
-            // Sort by time (Cleaning -1 first, then by time)
-            liveTasks.sort((a, b) => a.time - b.time);
+            // Sort by:
+            // 1. Active (Red) tasks first
+            // 2. Then by time (triggerMin)
+            // 3. Then by hall name
+            liveTasks.sort((a, b) => {
+                const aDone = a.type === 'auslass' ? completedAuslaesse.has(a.id) : completedCleaning.has(a.id);
+                const bDone = b.type === 'auslass' ? completedAuslaesse.has(b.id) : completedCleaning.has(b.id);
+                
+                const aActive = !aDone && a.type === 'auslass' && currentMinutes >= a.triggerMin && currentMinutes <= a.triggerMax;
+                const bActive = !bDone && b.type === 'auslass' && currentMinutes >= b.triggerMin && currentMinutes <= b.triggerMax;
+
+                if (aActive && !bActive) return -1;
+                if (!aActive && bActive) return 1;
+                if (aDone && !bDone) return 1;
+                if (!aDone && bDone) return -1;
+                
+                if (a.time !== b.time) return a.time - b.time;
+                return (a.hall || '').localeCompare(b.hall || '');
+            });
 
             liveTasks.forEach(t => {
                 const isAuslass = t.type === 'auslass';
