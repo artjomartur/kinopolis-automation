@@ -6163,7 +6163,11 @@
             }
         }
 
+        window.lastTaskActionTime = 0;
         async function loadTaskState() {
+            // Debounce: Skip background load if user recently clicked something (avoid race condition)
+            if (Date.now() - window.lastTaskActionTime < 5000) return;
+
             try {
                 const year = displayDate.getFullYear();
                 const month = String(displayDate.getMonth() + 1).padStart(2, '0');
@@ -6171,17 +6175,28 @@
                 const dateStr = `${year}-${month}-${day}`;
 
                 const res = await fetch(`/api/task-completions?location=${currentCity}&date=${dateStr}`);
+                if (!res.ok) return;
                 const data = await res.json();
                 
-                completedAuslaesse.clear();
-                completedPosters.clear();
-                completedCleaning.clear();
+                // Use temp sets to avoid flickering during clear/populate
+                const tempAuslaesse = new Set();
+                const tempPosters = new Set();
+                const tempCleaning = new Set();
                 
                 data.forEach(t => {
-                    if (t.type === 'auslass') completedAuslaesse.add(t.task_id);
-                    else if (t.type === 'poster') completedPosters.add(t.task_id);
-                    else if (t.type === 'cleaning') completedCleaning.add(t.task_id);
+                    if (t.type === 'auslass') tempAuslaesse.add(t.task_id);
+                    else if (t.type === 'poster') tempPosters.add(t.task_id);
+                    else if (t.type === 'cleaning') tempCleaning.add(t.task_id);
                 });
+
+                // Update actual sets
+                completedAuslaesse.clear();
+                tempAuslaesse.forEach(id => completedAuslaesse.add(id));
+                completedPosters.clear();
+                tempPosters.forEach(id => completedPosters.add(id));
+                completedCleaning.clear();
+                tempCleaning.forEach(id => completedCleaning.add(id));
+
                 renderLiveTasks();
             } catch (e) {
                 console.error("Error loading task state", e);
@@ -6189,6 +6204,7 @@
         }
 
         async function syncTaskState(taskId, type, isDone) {
+            window.lastTaskActionTime = Date.now();
             try {
                 const year = displayDate.getFullYear();
                 const month = String(displayDate.getMonth() + 1).padStart(2, '0');
