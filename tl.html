@@ -844,8 +844,13 @@
 
         async function loadGlobalTasks() {
             try {
+                // Use local date for matching completions
                 const now = new Date();
-                const dateStr = now.toISOString().split('T')[0];
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const dateStr = `${year}-${month}-${day}`;
+                
                 const res = await fetch(`/api/task-completions?location=${currentCity}&date=${dateStr}`);
                 if (!res.ok) throw new Error();
                 const completions = await res.json();
@@ -863,15 +868,21 @@
                 
                 container.innerHTML = completions.map(t => {
                     const icon = t.type === 'poster' ? '🖼️' : (t.type === 'cleaning' ? '🧹' : '📽️');
-                    const title = t.type === 'poster' ? 'Poster-Wechsel' : (t.type === 'cleaning' ? 'Tagesaufgabe' : 'Auslass');
+                    const typeLabel = t.type === 'poster' ? 'Poster' : (t.type === 'cleaning' ? 'Tagesaufgabe' : 'Auslass');
                     const time = t.completed_at ? new Date(t.completed_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '--:--';
                     
+                    // Cleanup task ID for display
+                    let displayId = t.task_id;
+                    if (t.type === 'poster') displayId = displayId.replace('poster-', '').split('-').join(' ');
+                    if (t.type === 'cleaning') displayId = displayId.replace('cleaning-', 'Aufgabe #');
+                    if (t.type === 'auslass') displayId = displayId.replace('auslass-', '').split('-').join(' ');
+
                     return `
                         <div class="feed-item">
                             <div class="feed-icon">${icon}</div>
                             <div class="feed-content">
-                                <h3 style="font-size: 0.95rem;">${t.task_id.replace('poster-', '').replace('cleaning-', 'Aufgabe #').split('-').join(' ')}</h3>
-                                <p>${title} • <span style="color: #fff; font-weight: 600;">${t.author || 'Unbekannt'}</span></p>
+                                <h3 style="font-size: 0.95rem;">${displayId}</h3>
+                                <p>${typeLabel} • <span style="color: #fff; font-weight: 600;">${t.author || 'Unbekannt'}</span></p>
                             </div>
                             <div style="text-align: right;">
                                 <span class="feed-time">${time} Uhr</span>
