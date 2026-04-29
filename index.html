@@ -6220,10 +6220,8 @@
                     });
                     if (!res.ok) showToast("Fehler beim Speichern (Cloud Sync)", true);
                 } else {
-                    const res = await fetch('/api/task-completions', {
-                        method: 'DELETE',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ task_id: taskId, location: currentCity, date: dateStr })
+                    const res = await fetch(`/api/task-completions?task_id=${encodeURIComponent(taskId)}&location=${encodeURIComponent(currentCity)}&date=${encodeURIComponent(dateStr)}`, {
+                        method: 'DELETE'
                     });
                     if (!res.ok) showToast("Fehler beim Löschen (Cloud Sync)", true);
                 }

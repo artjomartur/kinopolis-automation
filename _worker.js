@@ -1296,7 +1296,9 @@ app.post('/api/task-completions', async (c) => {
 
 app.delete('/api/task-completions', async (c) => {
     try {
-        const { task_id, location, date } = await c.req.json();
+        const { task_id, location, date } = c.req.query();
+        if (!task_id || !location || !date) return c.json({ error: 'Missing query params' }, 400);
+        
         if (c.env.DB) {
             await c.env.DB.prepare(
                 'DELETE FROM task_completions WHERE task_id = ? AND location = ? AND date = ?'
