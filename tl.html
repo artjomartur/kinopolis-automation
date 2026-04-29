@@ -893,6 +893,8 @@
                 }).join('');
             } catch (e) {
                 console.error("Failed to load global tasks", e);
+                const container = document.getElementById('global-task-list');
+                if (container) container.innerHTML = `<div class="empty-state" style="color: #ff4d4d;">Fehler beim Laden: ${e.message}</div>`;
             }
         }
 
