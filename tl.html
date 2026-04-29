@@ -604,11 +604,22 @@
 
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">🚨 Aktuelle Anfragen & Funk</div>
-                    <div class="status-badge" id="last-update-status">Live</div>
+                    <div class="card-title"><span>📡</span> Ops Feed</div>
+                    <div class="status-badge" id="ops-count">0 Offen</div>
                 </div>
-                <div class="feed-list" id="ops-feed">
-                    <div class="empty-state">Lade Team-Requests...</div>
+                <div id="ops-feed" class="feed-list">
+                    <div class="empty-state">Lade Funk & Transfer...</div>
+                </div>
+            </div>
+
+            <!-- Global Task Collector -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><span>📋</span> Aufgaben-Status</div>
+                    <div class="status-badge" id="task-summary-badge">0 Erledigt</div>
+                </div>
+                <div id="global-task-list" class="feed-list">
+                    <div class="empty-state">Lade Aufgaben...</div>
                 </div>
             </div>
 
@@ -831,12 +842,56 @@
             }
         });
 
+        async function loadGlobalTasks() {
+            try {
+                const now = new Date();
+                const dateStr = now.toISOString().split('T')[0];
+                const res = await fetch(`/api/task-completions?location=${currentCity}&date=${dateStr}`);
+                if (!res.ok) throw new Error();
+                const completions = await res.json();
+                
+                const container = document.getElementById('global-task-list');
+                const badge = document.getElementById('task-summary-badge');
+                
+                if (completions.length === 0) {
+                    container.innerHTML = '<div class="empty-state">Noch keine Aufgaben für heute erledigt. ☕</div>';
+                    badge.innerText = "0 Erledigt";
+                    return;
+                }
+
+                badge.innerText = `${completions.length} Erledigt`;
+                
+                container.innerHTML = completions.map(t => {
+                    const icon = t.type === 'poster' ? '🖼️' : (t.type === 'cleaning' ? '🧹' : '📽️');
+                    const title = t.type === 'poster' ? 'Poster-Wechsel' : (t.type === 'cleaning' ? 'Tagesaufgabe' : 'Auslass');
+                    const time = t.completed_at ? new Date(t.completed_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '--:--';
+                    
+                    return `
+                        <div class="feed-item">
+                            <div class="feed-icon">${icon}</div>
+                            <div class="feed-content">
+                                <h3 style="font-size: 0.95rem;">${t.task_id.replace('poster-', '').replace('cleaning-', 'Aufgabe #').split('-').join(' ')}</h3>
+                                <p>${title} • <span style="color: #fff; font-weight: 600;">${t.author || 'Unbekannt'}</span></p>
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="feed-time">${time} Uhr</span>
+                                <div class="status-badge" style="background: rgba(46, 204, 113, 0.15); color: #2ecc71; margin-top: 4px;">OK</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error("Failed to load global tasks", e);
+            }
+        }
+
         async function refreshDashboard() {
             setLoading(true);
             await Promise.all([
                 loadOpsFeed(),
                 loadLogs(),
-                loadBreaks()
+                loadBreaks(),
+                loadGlobalTasks()
             ]);
             setLoading(false);
             document.getElementById('last-update-status').innerText = 'Zuletzt: ' + new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
