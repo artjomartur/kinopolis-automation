@@ -877,7 +877,7 @@ app.get('/api/sessions', async (c) => {
                 const sessionObj = { title, poster: poster ? (poster.startsWith('http') ? poster : `https://www.kinopolis.de${poster}`) : null, 
                                    time, hall, duration, capacity, freePercent, sold, isBookable, performanceId: perfId, date: dateStr, fsk, movieLink };
 
-                const key = `${dateStr}|${time}|${hall}|${title}`;
+                const key = `${location}|${dateStr}|${time}|${hall}|${title}`;
                 const existing = sessionMap.get(key);
                 
                 if (!existing || (existing.capacity === 0 && capacity > 0) || (!existing.isBookable && isBookable)) {
