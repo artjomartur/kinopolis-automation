@@ -5965,15 +5965,16 @@
                 console.error('Fetch error:', error);
                 document.getElementById('status-indicator').classList.add('offline');
                 
-                if (lastData) {
-                    document.getElementById('stale-warning').style.display = 'block';
-                    // We keep current UI but show warning
-                } else {
-                    document.getElementById('dashboard').innerHTML = `<div class="glass" style="padding: 2rem; color: #ff4d4d; border: 1px solid rgba(255, 77, 77, 0.3);">
-                        <h3 style="margin-bottom: 0.5rem;">Verbindungsfehler</h3>
-                        <p style="font-size: 0.9rem; opacity: 0.9;">${error.message}</p>
-                        <button onclick="fetchSessions()" style="margin-top: 1.5rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer;">Erneut versuchen</button>
-                    </div>`;
+                const staleWarning = document.getElementById('stale-warning');
+                if (staleWarning) staleWarning.style.display = 'block';
+
+                if (!lastData) {
+                    const dashboard = document.getElementById('dashboard');
+                    if (dashboard && !dashboard.innerHTML.includes('loading')) {
+                         dashboard.innerHTML = `<div class="glass" style="padding: 2rem; text-align: center; opacity: 0.6;">
+                            <p>Verbindung wird hergestellt...</p>
+                         </div>`;
+                    }
                 }
             }
         }
