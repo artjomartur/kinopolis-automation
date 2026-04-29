@@ -1321,6 +1321,7 @@ app.get('/api/personal-need', async (c) => {
     const location = c.req.query('location') || 'kp';
     if (!c.env.DB) return c.json({ active: false });
     try {
+        // Migration: Ensure table and columns exist
         await c.env.DB.prepare(`
             CREATE TABLE IF NOT EXISTS personal_need (
                 location TEXT PRIMARY KEY,
@@ -1330,9 +1331,20 @@ app.get('/api/personal-need', async (c) => {
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `).run();
+        
+        // Ensure recipient column exists for older tables
+        try {
+            await c.env.DB.prepare('ALTER TABLE personal_need ADD COLUMN recipient TEXT').run();
+        } catch (e) {
+            // Already exists or other error
+        }
+
         const res = await c.env.DB.prepare('SELECT active, message, recipient FROM personal_need WHERE location = ?').bind(location).first();
         return c.json(res || { active: false });
-    } catch (e) { return c.json({ active: false }); }
+    } catch (e) { 
+        console.error("personal-need GET error:", e);
+        return c.json({ active: false }); 
+    }
 });
 
 app.post('/api/personal-need', async (c) => {
