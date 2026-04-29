@@ -304,9 +304,11 @@
                             <input type="text" id="contact-role" placeholder="Bezeichnung (z.B. TL 1, Security)" class="input-field" style="margin-bottom: 0;">
                             <input type="text" id="contact-phone" placeholder="Nummer (z.B. +49...)" class="input-field" style="margin-bottom: 0;">
                             <select id="contact-category" class="input-field" style="margin-bottom: 0;">
-                                <option value="leitung">Leitung (BL/TL)</option>
+                                <option value="bl">Betriebsleitung (BL)</option>
+                                <option value="tl">Teamleitung (TL)</option>
+                                <option value="theke">Kasse / Concession</option>
                                 <option value="einlass">Einlass</option>
-                                <option value="theke">Kasse/Theke</option>
+                                <option value="technik">Technik</option>
                                 <option value="sicherheit">Sicherheit</option>
                                 <option value="popcornkueche">Popcornküche</option>
                                 <option value="putzfirma">Putzfirma</option>
@@ -846,11 +848,22 @@
                 if (!res.ok) { container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">Keine Verbindung zur Datenbank.</p>'; return; }
                 const contacts = await res.json();
                 if (!contacts.length) { container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">Keine Nummern hinterlegt. (Standort fällt auf "000" zurück).</p>'; return; }
+                const catNames = {
+                    'bl': '👔 Betriebsleitung',
+                    'tl': '🎧 Teamleitung',
+                    'einlass': '🎟️ Einlass',
+                    'theke': '🍿 Kasse / Concession',
+                    'sicherheit': '🛡️ Sicherheit',
+                    'popcornkueche': '🔥 Popcornküche',
+                    'putzfirma': '🧹 Putzfirma',
+                    'technik': '⚙️ Technik'
+                };
                 container.innerHTML = contacts.map(c => `
-                    <div class="msg-item" style="align-items: center;">
+                    <div class="msg-item" style="align-items: center; background: rgba(255,255,255,0.03); border: 1px solid var(--surface-border);">
                         <div class="msg-item-body">
-                            <div class="msg-item-title">${c.role_name} <span style="font-size: 0.75rem; color: var(--primary-blue); margin-left: 0.5rem; text-transform: uppercase;">[${c.category}]</span></div>
-                            <div class="msg-item-meta" style="font-weight: 700; color: white;">${c.phone_number}</div>
+                            <div class="msg-item-title">${c.role_name}</div>
+                            <div class="msg-item-meta" style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.2rem;">${catNames[c.category] || c.category}</div>
+                            <div class="msg-item-meta" style="font-weight: 700; color: white; font-size: 0.9rem;">${c.phone_number}</div>
                         </div>
                         <button class="btn-delete" onclick="deleteContact(${c.id})">🗑️</button>
                     </div>

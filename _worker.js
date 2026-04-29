@@ -984,6 +984,11 @@ app.get('/api/sessions', async (c) => {
     }
 });
 
+// Static fallback messages for when DB is unavailable or empty
+const STATIC_MESSAGES = [
+    { id: 0, title: 'Willkommen', content: 'Willkommen im Kinopolis Automation Dashboard. Nutze das Übergabebuch für wichtige Infos.', author: 'System', created_at: new Date().toISOString() }
+];
+
 // Announcements / Handover API
 app.get('/api/announcements/latest', async (c) => {
     try {

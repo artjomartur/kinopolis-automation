@@ -3698,9 +3698,6 @@
             </div>
         </div>
 
-                    <button id="push-test-btn" class="btn-secondary" style="width: 100%; height: 48px; border-radius: 14px; justify-content: center; display: none; border: 1px dashed rgba(255,255,255,0.1); background: rgba(255,255,255,0.02); font-size: 0.85rem;" onclick="sendTestPush()">
-                        🚀 Test-Benachrichtigung senden
-                    </button>
                 </div>
             </div>
         </div>
@@ -3980,25 +3977,34 @@
         };
 
         const KP_DEFAULT_CONTACTS = [
-            { category: 'leitung', role_name: 'BL', phone_number: '+49 6151 87059288' },
-            { category: 'leitung', role_name: 'TL 1', phone_number: '+49 6151 87059212' },
-            { category: 'leitung', role_name: 'TL 2', phone_number: '+49 6151 87059213' },
-            { category: 'leitung', role_name: 'TL 3', phone_number: '+49 6151 87059214' },
+            { category: 'bl', role_name: 'BL (Theaterleiter)', phone_number: '+49 6151 87059288' },
+            { category: 'tl', role_name: 'TL 1 (Schichtleiter)', phone_number: '+49 6151 87059212' },
+            { category: 'tl', role_name: 'TL 2', phone_number: '+49 6151 87059213' },
+            { category: 'tl', role_name: 'TL 3', phone_number: '+49 6151 87059214' },
             { category: 'einlass', role_name: 'Einlass 1', phone_number: '+49 6151 87059233' },
-            { category: 'einlass', role_name: 'Einlass 2', phone_number: '+49 6151 87059234' },
-            { category: 'einlass', role_name: 'Einlass 3', phone_number: '+49 6151 87059235' },
-            { category: 'einlass', role_name: 'Einlass 4', phone_number: '+49 6151 87059236' },
-            { category: 'theke', role_name: 'Counter hinten', phone_number: '+49 6151 87059203' }
+            { category: 'theke', role_name: 'Theke / Kasse', phone_number: '+49 6151 87059203' }
         ];
 
         const CAT_NAMES = {
-            'leitung': 'Leitung',
+            'bl': 'Betriebsleitung (BL)',
+            'tl': 'Teamleitung (TL)',
             'einlass': 'Einlass',
-            'theke': 'Kasse/Theke',
+            'theke': 'Kasse / Concession',
             'sicherheit': 'Sicherheit',
             'popcornkueche': 'Popcornküche',
             'putzfirma': 'Putzfirma',
             'technik': 'Technik'
+        };
+
+        const CAT_ICONS = {
+            'bl': { icon: '👔', bg: 'bg-red' },
+            'tl': { icon: '🎧', bg: 'bg-gold' },
+            'einlass': { icon: '🎟️', bg: 'bg-blue' },
+            'theke': { icon: '🍿', bg: 'bg-purple' },
+            'sicherheit': { icon: '🛡️', bg: 'bg-red' },
+            'popcornkueche': { icon: '🔥', bg: 'bg-gold' },
+            'putzfirma': { icon: '🧹', bg: 'bg-green' },
+            'technik': { icon: '⚙️', bg: 'bg-blue' }
         };
 
         // --- GAMIFICATION ENGINE ---
@@ -4789,7 +4795,6 @@
             const label = document.getElementById('push-main-label');
             const subLabel = document.getElementById('push-sub-label');
             const dot = document.getElementById('push-status-dot');
-            const testBtn = document.getElementById('push-test-btn');
             const badge = document.getElementById('push-status-badge');
 
             if (subscribed) {
@@ -4797,7 +4802,6 @@
                 label.innerText = 'Benachrichtigungen sind AKTIV';
                 subLabel.innerText = 'Du erhältst jetzt wichtige Updates';
                 dot.classList.add('active');
-                testBtn.style.display = 'flex';
                 badge.innerText = 'Aktiviert';
                 badge.style.background = '#2ecc71';
             } else {
@@ -4876,44 +4880,6 @@
             checkNotificationPermission();
         }
 
-        async function sendTestPush() {
-            const btn = document.getElementById('push-test-btn');
-            btn.innerText = 'Sende...';
-            btn.disabled = true;
-            try {
-                const res = await fetch('/api/push/test', { method: 'POST' });
-                const data = await res.json();
-                if (data.results) {
-                    console.log('Push test results:', data.results);
-                    let statsHtml = data.results.map(r => `
-                        <div style="margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 8px; font-size: 0.85rem;">
-                            <strong style="color: ${r.status.includes('Success') ? '#2ecc71' : '#ff4d4d'}">${r.status}</strong><br />
-                            <span style="color: var(--text-muted); font-size: 0.7rem;">${r.endpoint}</span>
-                            ${r.message ? `<br /><small style="color: #ff4d4d; opacity: 0.8;">${r.message}</small>` : ''}
-                        </div>
-                    `).join('');
-                    
-                    const resultDiv = document.createElement('div');
-                    resultDiv.innerHTML = `
-                        <div style="margin-top: 1.5rem; padding: 1.5rem; background: rgba(0,0,0,0.3); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
-                            <h4 style="margin-bottom: 1rem;">Diagnose-Ergebnisse:</h4>
-                            ${statsHtml}
-                            <p style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted);">
-                                💡 Falls überall "Success (201)" steht, du aber nichts siehst: Prüfe "Nicht stören", Fokus-Modes oder Browser-Berechtigungen (Glocken-Icon oben links).
-                            </p>
-                        </div>
-                    `;
-                    btn.parentElement.appendChild(resultDiv);
-                } else {
-                    alert('Fehler: ' + (data.error || 'Unbekannt'));
-                }
-            } catch (err) {
-                alert('Netzwerkfehler');
-            } finally {
-                btn.innerText = '🚀 Test-Benachrichtigung senden';
-                btn.disabled = false;
-            }
-        }
 
         function urlBase64ToUint8Array(base64String) {
             const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -7301,7 +7267,7 @@
                 <div style="display: flex; flex-direction: column; gap: 2.5rem; margin-top: 0.5rem;">
                 `;
 
-                const order = ['leitung', 'theke', 'einlass', 'technik', 'sicherheit', 'popcornkueche', 'putzfirma'];
+                const order = ['bl', 'tl', 'theke', 'einlass', 'technik', 'sicherheit', 'popcornkueche', 'putzfirma'];
 
                 order.forEach(cat => {
                     if (byCategory[cat]) {
