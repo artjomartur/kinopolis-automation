@@ -6132,6 +6132,9 @@
                 const sessions = (hall.sessions || []).filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
                 
                 sessions.forEach((s, idx) => {
+                    const isLastSession = (idx === sessions.length - 1);
+                    if (isLastSession) return; // Skip last session from Tagesaufgaben
+
                     const [h, m] = s.time.split(':').map(Number);
                     const startMin = h * 60 + m;
                     const running30Min = startMin + 30;
@@ -6686,8 +6689,8 @@
                             <div class="time">Start: ${nextMovie.time} ${isEndDay ? 'Uhr (Morgen)' : 'Uhr'}</div>
                         </div>
                     </div>
-                    <button class="alert-action" onclick="markPosterDone('${alertId}', this)">
-                        <span>✅</span> Erledigt
+                    <button onclick="markPosterDone('${alertId}', this)" style="background: rgba(46, 204, 113, 0.15); border: 1px solid rgba(46, 204, 113, 0.3); color: #2ecc71; padding: 0.6rem 1.25rem; border-radius: 12px; font-weight: 800; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(46, 204, 113, 0.1);" onmouseover="this.style.background='rgba(46, 204, 113, 0.25)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='rgba(46, 204, 113, 0.15)'; this.style.transform='translateY(0)';">
+                        <span style="font-size: 1.1rem;">✅</span> Erledigt
                     </button>
                 </div>
             `;
