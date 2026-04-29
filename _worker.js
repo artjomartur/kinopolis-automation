@@ -911,9 +911,13 @@ app.get('/api/sessions', async (c) => {
                                 fsk: 'FSK ?'
                             });
                         } else {
-                            // Update max_sold from archive if needed
+                            // Update max values from archive
                             const current = sessionMap.get(key);
                             current.sold = Math.max(current.sold || 0, a.max_sold || 0);
+                            current.capacity = Math.max(current.capacity || 0, a.capacity || 0);
+                            if (current.capacity > 0) {
+                                current.freePercent = Math.max(0, Math.floor(((current.capacity - current.sold) / current.capacity) * 100));
+                            }
                         }
                     });
                 }
