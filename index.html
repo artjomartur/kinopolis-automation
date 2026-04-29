@@ -6582,20 +6582,26 @@
             alertsContainer.innerHTML = '';
 
             const posterQueue = collectPosterAlerts(hallsGrouped, tomSessionsFlat);
+            
+            // Render posters inline instead of in popup
+            posterQueue.forEach(a => {
+                const alertEl = createPosterAlertElement(a.hallName, a.nextMovie, a.isEndDay, a.alertId);
+                alertsContainer.appendChild(alertEl);
+            });
+
             addOccupancyAlerts(hallsGrouped, alertsContainer);
 
-            const count = posterQueue.length + alertsContainer.children.length;
+            const count = alertsContainer.children.length;
             document.getElementById('alert-count-badge').textContent = count;
 
             const container = document.getElementById('poster-alerts-container');
             container.style.display = count > 0 ? 'block' : 'none';
 
-            schedulePosterUrgentModal(posterQueue);
+            // schedulePosterUrgentModal is disabled to prevent popups
         }
 
         /** Liefert offene Plakatwechsel für Pop-up (nicht für die Inline-Liste). */
         function collectPosterAlerts(hallsGrouped, tomSessionsFlat) {
-            return []; // Disabled by user request
             // ONLY FOR DARMSTADT ('kp')
             if (currentCity !== 'kp') return [];
 
