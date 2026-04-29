@@ -6010,7 +6010,21 @@
                     throw new Error('Ungültiges Datenformat vom Server');
                 }
 
+                // Fetch tomorrow's sessions for poster alerts
+                let tomSessions = [];
+                try {
+                    const tomDate = new Date(displayDate);
+                    tomDate.setDate(tomDate.getDate() + 1);
+                    const ty = tomDate.getFullYear();
+                    const tm = String(tomDate.getMonth() + 1).padStart(2, '0');
+                    const td = String(tomDate.getDate()).padStart(2, '0');
+                    const tomDateStr = `${ty}-${tm}-${td}`;
+                    const tomRes = await fetch(`${API_URL}?location=${currentCity}&date=${tomDateStr}&v=${Date.now()}`);
+                    if (tomRes.ok) tomSessions = await tomRes.json();
+                } catch (e) { console.error("Tomorrow fetch failed", e); }
+                
                 lastData = sessions;
+                lastTomData = tomSessions;
                 lastUpdateTime = new Date();
                 
                 // Clear state if date changed (optional, but good for cleanliness)
@@ -6044,7 +6058,7 @@
 
                 renderDashboard(sessions); 
                 renderTasks(sessions);
-                updateAlerts(sessions, []); 
+                updateAlerts(sessions, lastTomData || []); 
                 renderStats(sessions);
             } catch (error) {
                 console.error('Fetch error:', error);
