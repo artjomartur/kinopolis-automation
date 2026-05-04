@@ -4677,7 +4677,7 @@
                 .toLowerCase()
                 .normalize('NFKD')
                 .replace(/[\u0300-\u036f]/g, '')
-                .replace(/[''`´]/g, '')
+                .replace(/[''\x60´]/g, '')
                 .replace(/[^a-z0-9äöüß]+/g, ' ')
                 .trim();
         }
@@ -5977,47 +5977,48 @@
         }
 
         function renderLocations(locations) {
-            const selector = document.getElementById('cinema-selector');
-            if (!selector) return;
-            selector.innerHTML = '';
-            
-            locations.forEach(loc => {
-                    const option = document.createElement('option');
-                    option.value = loc.slug;
-                    option.textContent = loc.name;
-                    if (loc.slug === currentCity) option.selected = true;
-                    selector.appendChild(option);
-                });
+            try {
+                const selector = document.getElementById('cinema-selector');
+                if (!selector) return;
+                selector.innerHTML = '';
+                
+                locations.forEach(loc => {
+                        const option = document.createElement('option');
+                        option.value = loc.slug;
+                        option.textContent = loc.name;
+                        if (loc.slug === currentCity) option.selected = true;
+                        selector.appendChild(option);
+                    });
 
-                // Synchronize badge and current selection
-                const currentLoc = locations.find(l => l.slug === currentCity);
-                if (currentLoc) {
-                    const locNameEl = document.getElementById('location-name');
-                    if (locNameEl) locNameEl.innerText = currentLoc.name;
-                    selector.value = currentCity;
-                }
+                    // Synchronize badge and current selection
+                    const currentLoc = locations.find(l => l.slug === currentCity);
+                    if (currentLoc) {
+                        const locNameEl = document.getElementById('location-name');
+                        if (locNameEl) locNameEl.innerText = currentLoc.name;
+                        selector.value = currentCity;
+                    }
 
-                selector.addEventListener('change', (e) => {
-                    currentCity = e.target.value;
-                    localStorage.setItem('current_city', currentCity);
-                    
-                    const cityName = e.target.options[e.target.selectedIndex].text;
-                    const locNameEl = document.getElementById('location-name');
-                    if (locNameEl) locNameEl.innerText = cityName;
-                    
-                    const dashboard = document.getElementById('dashboard');
-                    if (dashboard) dashboard.innerHTML = '<div class="loading-state"><div class="spinner"></div><div class="loading-text">Aktualisiere Daten...</div></div>';
-                    
-                    // Reload state for new location
-                    loadTaskState();
-                    
-                    if (typeof updateKurzwahlVisibility === 'function') updateKurzwahlVisibility();
-                    fetchSessions();
-                    fetchWeather();
-                });
+                    selector.addEventListener('change', (e) => {
+                        currentCity = e.target.value;
+                        localStorage.setItem('current_city', currentCity);
+                        
+                        const cityName = e.target.options[e.target.selectedIndex].text;
+                        const locNameEl = document.getElementById('location-name');
+                        if (locNameEl) locNameEl.innerText = cityName;
+                        
+                        const dashboard = document.getElementById('dashboard');
+                        if (dashboard) dashboard.innerHTML = '<div class="loading-state"><div class="spinner"></div><div class="loading-text">Aktualisiere Daten...</div></div>';
+                        
+                        // Reload state for new location
+                        loadTaskState();
+                        
+                        if (typeof updateKurzwahlVisibility === 'function') updateKurzwahlVisibility();
+                        fetchSessions();
+                        fetchWeather();
+                    });
 
             } catch (err) {
-                console.error('Failed to load locations', err);
+                console.error('Failed to render locations', err);
             }
         }
 
@@ -7541,7 +7542,6 @@
             System-Version: V1.0 · &copy; 2026 Kinopolis Automation
         </div>
     <script>
-    </script>
     <!-- Dev Info Modal (Welcome Style) -->
     <div id="dev-info-modal" class="modal">
         <div class="modal-content glass" style="max-height: 90vh; overflow-y: auto; text-align: center;">
