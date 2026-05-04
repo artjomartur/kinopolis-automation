@@ -281,17 +281,17 @@ app.get('/api/messages', (req, res) => {
 const locations = [
     { name: "Sulzbach / Main-Taunus", slug: "su" },
     { name: "Bonn", slug: "bn" },
-    { name: "Aschaffenburg", slug: "as" },
+    { name: "Aschaffenburg", slug: "ab" },
     { name: "Bad Homburg", slug: "bh" },
     { name: "Darmstadt: KINOPOLIS", slug: "kp" },
     { name: "Darmstadt: Citydome", slug: "cd" },
     { name: "Darmstadt: Rex", slug: "rx" },
     { name: "Freiberg", slug: "fr" },
     { name: "Gießen", slug: "gi" },
-    { name: "Hanau", slug: "han" },
+    { name: "Hanau", slug: "hu" },
     { name: "Koblenz", slug: "ko" },
-    { name: "Landshut", slug: "land" },
-    { name: "Rhein-Neckar / Viernheim", slug: "rn" },
+    { name: "Landshut", slug: "lh" },
+    { name: "Rhein-Neckar / Viernheim", slug: "vi" },
     { name: "Mönchengladbach", slug: "mg" },
     { name: "Karlsruhe", slug: "ka" },
     { name: "Rosenheim", slug: "ro" }
@@ -300,6 +300,24 @@ const locations = [
 app.get('/api/locations', (req, res) => {
     res.json(locations);
 });
+
+// STUBS for missing APIs to prevent frontend crashes
+app.get('/api/auth/me', (req, res) => {
+    res.json({ user: { email: 'admin@kinopolis.de', name: 'Local Admin', role: 'admin' } });
+});
+
+app.get('/api/lostfound', (req, res) => res.json([]));
+app.get('/api/inventory', (req, res) => res.json({ waren: [], eis: [], getraenke: [], slushy: [] }));
+app.get('/api/contacts', (req, res) => res.json([]));
+app.get('/api/checklist', (req, res) => res.json({}));
+app.get('/api/hall-status', (req, res) => res.json([]));
+app.get('/api/task-completions', (req, res) => res.json([]));
+app.get('/api/personal-need', (req, res) => res.json([]));
+app.get('/api/announcements/latest', (req, res) => res.json({ success: false }));
+app.get('/api/upcoming', (req, res) => res.json([]));
+app.get('/api/mhd', (req, res) => res.json([]));
+app.post('/api/feedback', (req, res) => res.json({ success: true }));
+app.post('/api/auth/login', (req, res) => res.json({ token: 'mock-token', user: { email: 'admin@kinopolis.de', name: 'Local Admin' } }));
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);

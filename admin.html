@@ -1293,8 +1293,8 @@
                 const token = localStorage.getItem('kp_auth_token');
                 const user = JSON.parse(localStorage.getItem('kp_user') || 'null');
                 
+                document.body.classList.add('auth-loaded');
                 if (token && user && user.role === 'admin') {
-                    document.body.classList.add('auth-loaded');
                     showAdminPanel();
                 } else {
                     document.getElementById('admin-login-gate').style.display = 'block';

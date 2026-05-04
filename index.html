@@ -4212,10 +4212,9 @@
                     if (sIcon) sIcon.innerText = '☀️';
                 }
 
-                // Auth Init - Should be fast and non-blocking now
+                // Auth Init
                 if (window.AUTH) {
                     await AUTH.init().catch(e => console.error("Auth init failed:", e));
-                    
                     if (AUTH.user) {
                         // Apply Role class for RBAC
                         document.body.classList.add(`role-${AUTH.user.role.toLowerCase()}`);
@@ -4226,33 +4225,31 @@
                             const parent = input.closest('.mb-4') || input.parentElement;
                             if (parent && parent.innerText.includes('Dein Name')) parent.style.display = 'none';
                         });
-                        if (window.updateGamification) updateGamification();
                     }
                 }
 
-                playStartupSound();
-                if (window.checkAndPromptDepartment) checkAndPromptDepartment();
+                if (typeof playStartupSound === 'function') playStartupSound();
+                if (typeof checkAndPromptDepartment === 'function') checkAndPromptDepartment();
 
-                // Core Data
-                await fetchLocations().catch(e => console.error("Locations failed:", e));
-                await fetchSessions().catch(e => console.error("Sessions failed:", e));
-                // Mobile Header
+                // Setup Mobile Nav Scroll Effect
                 let lastScrollTop = 0;
                 window.addEventListener('scroll', () => {
                     if (window.innerWidth <= 768) {
                         const st = window.pageYOffset || document.documentElement.scrollTop;
-                        const header = document.querySelector('header');
-                        if (!header) return;
-                        if (st > lastScrollTop && st > 80) {
-                            header.style.transform = 'translateY(-100%)';
-                        } else {
-                            header.style.transform = 'translateY(0)';
+                        const header = document.querySelector('.dashboard-header');
+                        if (header) {
+                            if (st > lastScrollTop && st > 50) {
+                                header.classList.add('header-hidden');
+                            } else {
+                                header.classList.remove('header-hidden');
+                            }
                         }
                         lastScrollTop = st <= 0 ? 0 : st;
                     }
                 }, { passive: true });
 
                 await Promise.all([
+                    runSafe(fetchLocations, 'Locations'),
                     runSafe(fetchSessions, 'Sessions'),
                     runSafe(fetchWeather, 'Weather'),
                     runSafe(fetchNews, 'News'),
@@ -4325,9 +4322,12 @@
 
             } catch (error) {
                 console.error('APP: Fatal Init Error:', error);
-                // Last resort: hide splash screen
-                const splash = document.getElementById('splash-screen');
-                if (splash) splash.classList.add('fade-out');
+            } finally {
+                // ABSOLUTE GUARANTEE: Hide splash screen
+                if (splash) {
+                    splash.classList.add('fade-out');
+                    setTimeout(() => splash.style.display = 'none', 1000);
+                }
             }
         }
 
@@ -5911,6 +5911,14 @@
                 
                 if (!Array.isArray(locations)) {
                     console.error('fetchLocations: Expected array but got:', locations);
+                    // Fallback: use currentCity if nothing else
+                    const selector = document.getElementById('cinema-selector');
+                    if (selector && selector.children.length === 0) {
+                         const opt = document.createElement('option');
+                         opt.value = currentCity;
+                         opt.textContent = currentCity.toUpperCase();
+                         selector.appendChild(opt);
+                    }
                     return;
                 }
 
@@ -6068,6 +6076,10 @@
                 
                 const card = document.createElement('div');
                 
+                if (!Array.isArray(sessions)) {
+                    console.warn(`renderDashboard: sessions for hall ${hall.name} is not an array:`, sessions);
+                    return '';
+                }
                 let sessionsHtml = sessions.map(s => {
                     const capacity = s.capacity || 1; // Prevent division by zero
                     const occupancyPct = Math.min(100, Math.round((s.sold / capacity) * 100)) || 0;
