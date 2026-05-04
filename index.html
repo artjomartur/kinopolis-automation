@@ -3843,6 +3843,16 @@
     </div>
 
     <script>
+        // --- ERROR TRACKING ---
+        window.onerror = function(msg, url, line, col, error) {
+            console.error('GLOBAL ERROR:', msg, 'at', line, ':', col);
+            const statusText = document.getElementById('current-time-display');
+            if (statusText && statusText.innerText === 'Verbinde...') {
+                statusText.innerText = 'Fehler beim Start';
+                statusText.style.color = '#ff4d4d';
+            }
+        };
+
         // --- GLOBALS & STATE ---
         const API_URL = '/api/sessions';
         const LOCATIONS_URL = '/api/locations';
@@ -3851,7 +3861,7 @@
 
         let lastData = null;
         let lastUpdateTime = null;
-        let currentCity = 'kp';
+        let currentCity = localStorage.getItem('current_city') || 'kp';
         let displayDate = new Date();
         
         // Helper to parse JSON safely from localStorage
@@ -4201,6 +4211,15 @@
         // 2. IMMEDIATE INITIALIZATION (Don't wait for all images/assets)
         async function init() {
             console.log('APP: Starting initialization...');
+            
+            // Emergency Init Timeout: If still connecting after 15s, show reset hint
+            const initTimeout = setTimeout(() => {
+                const statusText = document.getElementById('current-time-display');
+                if (statusText && statusText.innerText === 'Verbinde...') {
+                    statusText.innerHTML = 'Hängt? <span onclick="location.reload(true)" style="text-decoration:underline; cursor:pointer; color:var(--primary-blue);">Neu laden</span>';
+                }
+            }, 15000);
+
             try {
                 // Theme Init
                 const savedTheme = localStorage.getItem('theme');
@@ -4319,7 +4338,8 @@
                 // Initialize default tab
                 const activeBtn = document.querySelector('.mobile-nav-item.active') || document.querySelector('.tab-btn.active') || document.getElementById('tab-live');
                 if (activeBtn) switchTab('live', activeBtn);
-
+                
+                clearTimeout(initTimeout);
             } catch (error) {
                 console.error('APP: Fatal Init Error:', error);
             } finally {
@@ -4773,6 +4793,21 @@
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('/sw.js').then(function(registration) {
                     console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    
+                    // Force update check on load
+                    registration.update();
+
+                    registration.onupdatefound = () => {
+                        const installingWorker = registration.installing;
+                        installingWorker.onstatechange = () => {
+                            if (installingWorker.state === 'installed') {
+                                if (navigator.serviceWorker.controller) {
+                                    console.log('New content is available; please refresh.');
+                                }
+                            }
+                        };
+                    };
+
                     checkPushSubscription();
                     checkNotificationPermission();
                 }, function(err) {
@@ -5948,6 +5983,14 @@
                     if (loc.slug === currentCity) option.selected = true;
                     selector.appendChild(option);
                 });
+
+                // Synchronize badge and current selection
+                const currentLoc = locations.find(l => l.slug === currentCity);
+                if (currentLoc) {
+                    const locNameEl = document.getElementById('location-name');
+                    if (locNameEl) locNameEl.innerText = currentLoc.name;
+                    selector.value = currentCity;
+                }
 
                 selector.addEventListener('change', (e) => {
                     currentCity = e.target.value;
