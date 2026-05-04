@@ -4,10 +4,21 @@ const cheerio = require('cheerio');
 const cors = require('cors');
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static('.')); // Serve static dashboard assets directly
+
+// Diagnostic endpoint
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        uptime: process.uptime(),
+        time: new Date().toISOString(),
+        node: process.version
+    });
+});
 // Fetch Kinopolis program for a specific location and date
 app.get('/api/sessions', async (req, res) => {
     const location = req.query.location || 'su';
@@ -209,7 +220,12 @@ app.get('/api/sessions', async (req, res) => {
         res.json(sortedHalls);
     } catch (error) {
         console.error('Scraping error:', error);
-        res.status(500).json({ error: 'Failed to fetch program' });
+        // Ensure we always return a JSON object even on crash
+        res.status(500).json({ 
+            error: 'Failed to fetch program', 
+            details: error.message,
+            timestamp: new Date().toISOString()
+        });
     }
 });
 

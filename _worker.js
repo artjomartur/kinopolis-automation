@@ -764,7 +764,11 @@ app.get('/api/sessions', async (c) => {
         const response = await fetchKinopolis(targetUrl);
         if (!response.ok) {
             console.error(`Kinopolis returned status ${response.status}`);
-            return c.json({ error: `Kinopolis error: ${response.status}`, status: response.status }, 200);
+            return c.json({ 
+                error: `Kinopolis error: ${response.status}`, 
+                status: response.status,
+                message: 'Die Verbindung zur Kinopolis-Webseite ist fehlgeschlagen.'
+            }, 200); // We return 200 so the frontend can parse the error object
         }
         
         const html = await response.text();

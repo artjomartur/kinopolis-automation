@@ -5727,6 +5727,13 @@
         async function fetchNews() {
             try {
                 const res = await fetch('/api/messages?v=' + Date.now());
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                
+                const contentType = res.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Server returned non-JSON response (HTML?)');
+                }
+
                 const news = await res.json();
                 
                 if (lastNewsCount !== -1 && news.length > lastNewsCount) {
@@ -5907,22 +5914,34 @@
             try {
                 const response = await fetch(`${LOCATIONS_URL}?v=${Date.now()}`);
                 const locations = await response.json();
-                const selector = document.getElementById('cinema-selector');
                 
-                if (!Array.isArray(locations)) {
-                    console.error('fetchLocations: Expected array but got:', locations);
-                    // Fallback: use currentCity if nothing else
-                    const selector = document.getElementById('cinema-selector');
-                    if (selector && selector.children.length === 0) {
-                         const opt = document.createElement('option');
-                         opt.value = currentCity;
-                         opt.textContent = currentCity.toUpperCase();
-                         selector.appendChild(opt);
-                    }
+                if (!response.ok || !Array.isArray(locations)) {
+                    console.error('fetchLocations: Failed or invalid format', { ok: response.ok, locations });
+                    
+                    // CRITICAL FALLBACK: If API is down, use a hardcoded list to keep the UI functional
+                    const fallbackLocations = [
+                        { name: "Darmstadt: KINOPOLIS", slug: "kp" },
+                        { name: "Sulzbach / MTZ", slug: "su" },
+                        { name: "Bonn", slug: "bn" },
+                        { name: "Hanau", slug: "hu" },
+                        { name: "Gießen", slug: "gi" }
+                    ];
+                    renderLocations(fallbackLocations);
                     return;
                 }
 
-                locations.forEach(loc => {
+                renderLocations(locations);
+            } catch (err) {
+                console.error('fetchLocations: Critical failure', err);
+            }
+        }
+
+        function renderLocations(locations) {
+            const selector = document.getElementById('cinema-selector');
+            if (!selector) return;
+            selector.innerHTML = '';
+            
+            locations.forEach(loc => {
                     const option = document.createElement('option');
                     option.value = loc.slug;
                     option.textContent = loc.name;
@@ -5964,24 +5983,19 @@
                 const url = `${API_URL}?location=${currentCity}&date=${dateStr}&v=${Date.now()}`;
                 console.log('Fetching sessions for:', dateStr, url);
                 const response = await fetch(url);
-                
-                if (!response.ok) {
-                    const errorText = await response.text().catch(() => 'Keine Fehlerdetails');
-                    console.error(`API Error (${response.status}):`, errorText);
-                    document.getElementById('status-indicator').innerHTML = `<span style="color:#ff4d4d">❌ Fehler ${response.status}</span>`;
-                    throw new Error(`Server antwortet mit Status ${response.status}`);
-                }
-
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    throw new Error('Server hat kein JSON gesendet (evtl. Wartungsmodus)');
-                }
-
                 const sessions = await response.json();
-                
-                if (!sessions || !Array.isArray(sessions)) {
-                    console.error('Invalid session data format:', sessions);
-                    throw new Error('Ungültiges Datenformat vom Server');
+
+                if (!response.ok || (sessions && sessions.error)) {
+                    const errorMsg = sessions ? sessions.error : `HTTP ${response.status}`;
+                    console.warn('fetchSessions: API Error', errorMsg);
+                    renderDashboard(null, errorMsg);
+                    return;
+                }
+
+                if (!Array.isArray(sessions)) {
+                    console.error('fetchSessions: Expected array but got:', sessions);
+                    renderDashboard(null, 'Ungültiges Datenformat vom Server');
+                    return;
                 }
 
                 // Fetch tomorrow's sessions for poster alerts
@@ -6014,9 +6028,10 @@
                 }
 
                 document.getElementById('status-indicator').classList.remove('offline');
-                document.getElementById('stale-warning').style.display = 'none';
+                const staleWarning = document.getElementById('stale-warning');
+                if (staleWarning) staleWarning.style.display = 'none';
 
-                if(!sessions || (Array.isArray(sessions) && sessions.length === 0)) {
+                if(sessions.length === 0) {
                       const dateStrDisplay = displayDate.toLocaleDateString('de-DE');
                       document.getElementById('dashboard').innerHTML = `<div class="glass" style="padding: 3rem; text-align: center; grid-column: 1/-1;">
                           <h3>Keine Vorstellungen gefunden</h3>
@@ -6024,13 +6039,14 @@
                       </div>`;
                       document.getElementById('poster-alerts').innerHTML = '';
                       document.getElementById('auslaesse-list').innerHTML = '';
-                      document.getElementById('auslaesse-section-container').style.display = 'none';
-                      document.getElementById('stats-section-container').style.display = 'none';
+                      const auslaesseContainer = document.getElementById('auslaesse-section-container');
+                      if (auslaesseContainer) auslaesseContainer.style.display = 'none';
+                      const statsContainer = document.getElementById('stats-section-container');
+                      if (statsContainer) statsContainer.style.display = 'none';
                       return;
                 }
 
-
-                renderDashboard(sessions); 
+                renderDashboard(sessions);
                 renderTasks(sessions);
                 updateAlerts(sessions, lastTomData || []); 
                 renderStats(sessions);
@@ -6052,8 +6068,9 @@
             }
         }
 
-        function renderDashboard(halls) {
+        function renderDashboard(halls, errorMsg = null) {
             const dashboard = document.getElementById('dashboard');
+            if (!dashboard) return;
             dashboard.innerHTML = '';
 
             const now = new Date();
@@ -6063,10 +6080,13 @@
                 dashboard.innerHTML = `
                     <div class="glass" style="padding: 3rem; text-align: center; grid-column: 1/-1;">
                         <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">📡</span>
-                        <h3>Keine Verbindung zu den Live-Daten</h3>
-                        <p style="color: var(--text-muted); margin-top: 1rem;">Der Server antwortet gerade nicht oder sendet fehlerhafte Daten.</p>
-                        <button onclick="fetchSessions()" class="btn-primary" style="margin-top: 1.5rem; padding: 0.8rem 2rem;">Erneut versuchen</button>
-                    </div>`;
+                        <h3>${errorMsg ? 'Fehler beim Laden' : 'Keine Verbindung zu den Live-Daten'}</h3>
+                        <p style="color: var(--text-muted); margin-top: 0.5rem; font-size: 0.9rem;">
+                            ${errorMsg ? `Grund: ${errorMsg}` : 'Die Programmdaten konnten nicht abgerufen werden.'}
+                        </p>
+                        <button onclick="fetchSessions()" class="btn-primary" style="margin-top: 1.5rem; padding: 0.8rem 1.5rem; border-radius: 12px; font-weight: 600;">Erneut versuchen</button>
+                    </div>
+                `;
                 return; 
             }
             

@@ -488,7 +488,12 @@
             </div>
 
         </div>
-    <div style="text-align: center; padding: 2.5rem 1rem 5rem; font-size: 0.7rem; color: var(--text-muted); opacity: 0.4;">Admin Portal · System-Version: V1.0 · &copy; 2026 Kinopolis Automation</div>
+    <div style="text-align: center; padding: 2.5rem 1rem 5rem; color: var(--text-muted);">
+        <div id="admin-status-node" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.75rem; font-weight: 600; margin-bottom: 8px;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; box-shadow: 0 0 10px rgba(46, 204, 113, 0.4);"></span> API Server Online
+        </div>
+        <div style="font-size: 0.7rem; opacity: 0.4;">Admin Portal · System-Version: V1.0 · &copy; 2026 Kinopolis Automation</div>
+    </div>
 
     </div>
 
@@ -687,6 +692,17 @@
             try {
                 const res = await fetch(`/api/messages?location=${currentCity}`);
                 const data = await res.json();
+                
+                if (!res.ok || (data && data.error)) {
+                    list.innerHTML = `<p style="color: var(--primary-red); font-size: 0.85rem;">Fehler: ${data.error || res.statusText}</p>`;
+                    return;
+                }
+
+                if (!Array.isArray(data)) {
+                    list.innerHTML = '<p style="color: var(--primary-red); font-size: 0.85rem;">Fehler: Ungültiges Datenformat vom Server.</p>';
+                    return;
+                }
+
                 list.innerHTML = data.map(m => `
                     <div style="background: rgba(255,255,255,0.03); padding: 0.75rem 1rem; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05);">
                         <div style="overflow: hidden;">
@@ -697,7 +713,7 @@
                     </div>
                 `).join('') || '<p style="color: var(--text-muted); font-size: 0.85rem;">Keine Mitteilungen vorhanden.</p>';
             } catch (e) {
-                list.innerHTML = 'Fehler beim Laden.';
+                list.innerHTML = `<p style="color: var(--primary-red); font-size: 0.85rem;">Netzwerkfehler: ${e.message}</p>`;
             }
         }
 
@@ -1286,7 +1302,26 @@
             console.log("Admin Toast:", msg);
         }
 
+        async function updateAdminStatus() {
+            const statusNode = document.getElementById('admin-status-node');
+            if (!statusNode) return;
+            
+            try {
+                const res = await fetch('/api/health');
+                if (res.ok) {
+                    statusNode.innerHTML = '<span style="width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; box-shadow: 0 0 10px rgba(46, 204, 113, 0.4);"></span> API Server Online';
+                } else {
+                    statusNode.innerHTML = '<span style="width: 8px; height: 8px; border-radius: 50%; background: #f1c40f;"></span> Server Error ' + res.status;
+                }
+            } catch (e) {
+                statusNode.innerHTML = '<span style="width: 8px; height: 8px; border-radius: 50%; background: #e50914;"></span> Server Offline';
+            }
+        }
+
         window.addEventListener('load', async () => {
+            updateAdminStatus();
+            setInterval(updateAdminStatus, 30000); // Check every 30s
+
             if (window.AUTH) {
                 // Initialize AUTH but don't show the default login modal yet
                 // since admin.html has its own login gate
