@@ -282,6 +282,14 @@
             70% { box-shadow: 0 0 0 10px rgba(255, 185, 0, 0); }
             100% { box-shadow: 0 0 0 0 rgba(255, 185, 0, 0); }
         }
+        .pulse-blue {
+            animation: pulse-blue 2s infinite;
+        }
+        @keyframes pulse-blue {
+            0% { box-shadow: 0 0 0 0 rgba(0, 120, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 120, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 120, 255, 0); }
+        }
         .in-progress-card {
             border-left: 5px solid var(--primary-gold) !important;
             background: rgba(255, 185, 0, 0.03) !important;
@@ -590,7 +598,10 @@
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">🖥️ Saal-Status Monitor</div>
-                    <div style="font-size: 0.7rem; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 0.2rem 0.5rem; border-radius: 5px;">Tippe zum Ändern</div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <button id="btn-auto-status" onclick="toggleAutoStatus()" style="font-size: 0.7rem; font-weight: 800; padding: 0.3rem 0.75rem; border-radius: 50px; background: rgba(0, 120, 255, 0.1); color: var(--primary-blue); border: 1px solid rgba(0, 120, 255, 0.3); cursor: pointer; transition: all 0.3s;">AUTO: AUS</button>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 0.3rem 0.6rem; border-radius: 5px;">Tippe zum Ändern</div>
+                    </div>
                 </div>
                 <div id="hall-status-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-top: 0.5rem;">
                     <!-- Saal 1 to 8 dynamically -->
@@ -833,6 +844,8 @@
 
         // Auto Refresh
         setInterval(refreshDashboard, 15000); // 15s
+        let GLOBAL_SESSIONS = [];
+        let AUTO_MODE = localStorage.getItem('auto_status_mode') === 'true';
         window.onload = refreshDashboard;
         
         // Instant refresh when iPad/phone wakes up from sleep or tab is focused
@@ -1207,25 +1220,26 @@
                 if (!res.ok) throw new Error();
                 const halls = await res.json();
                 
-                if (!Array.isArray(halls) || halls.length === 0) {
-                    container.innerHTML = '<div class="empty-state">Keine Sessions für diesen Standort gefunden.</div>';
-                    return;
-                }
-
-                const allSessions = [];
+                GLOBAL_SESSIONS = [];
                 const container = document.getElementById('break-recommendations');
                 halls.forEach(hall => {
                     if (!hall.sessions) return;
                     hall.sessions.forEach(s => {
-                        // Calculate end time in minutes from midnight
+                        // Calculate start/end time in minutes from midnight
+                        let startMin = 0;
                         let endMin = 0;
                         if (s.time && s.time.includes(':')) {
                             const [h, m] = s.time.split(':').map(Number);
-                            endMin = h * 60 + m + (s.duration || 90);
+                            startMin = h * 60 + m;
+                            endMin = startMin + (s.duration || 90);
                         }
-                        allSessions.push({ ...s, hallId: hall.name, endMin });
+                        GLOBAL_SESSIONS.push({ ...s, hallId: hall.name, startMin, endMin });
                     });
                 });
+                
+                if (AUTO_MODE) autoUpdateHallStatus();
+
+                const allSessions = GLOBAL_SESSIONS;
 
                 const breaks = calculateBreaks(allSessions);
                 
@@ -1433,7 +1447,83 @@
 
         function initHallStatus() {
             loadHallStatus();
-            setInterval(loadHallStatus, 15000); // Sync every 15s
+            updateAutoBtnUI();
+            setInterval(() => {
+                loadHallStatus();
+                if (AUTO_MODE) autoUpdateHallStatus();
+            }, 15000); // Sync every 15s
+        }
+
+        function toggleAutoStatus() {
+            AUTO_MODE = !AUTO_MODE;
+            localStorage.setItem('auto_status_mode', AUTO_MODE);
+            updateAutoBtnUI();
+            if (AUTO_MODE) {
+                autoUpdateHallStatus();
+                showToast("Automatischer Status aktiviert");
+            } else {
+                showToast("Automatischer Status deaktiviert");
+            }
+        }
+
+        function updateAutoBtnUI() {
+            const btn = document.getElementById('btn-auto-status');
+            if (!btn) return;
+            if (AUTO_MODE) {
+                btn.innerText = 'AUTO: AN';
+                btn.style.background = 'var(--primary-blue)';
+                btn.style.color = 'white';
+                btn.style.borderColor = 'var(--primary-blue)';
+                btn.classList.add('pulse-blue');
+            } else {
+                btn.innerText = 'AUTO: AUS';
+                btn.style.background = 'rgba(255,255,255,0.05)';
+                btn.style.color = 'var(--text-muted)';
+                btn.style.borderColor = 'rgba(255,255,255,0.1)';
+                btn.classList.remove('pulse-blue');
+            }
+        }
+
+        function autoUpdateHallStatus() {
+            if (!GLOBAL_SESSIONS || GLOBAL_SESSIONS.length === 0) return;
+            
+            const now = new Date();
+            const nowMin = now.getHours() * 60 + now.getMinutes();
+            
+            const newStatus = {};
+            // Group sessions by hall
+            const byHall = {};
+            GLOBAL_SESSIONS.forEach(s => {
+                const hNum = parseInt(s.hallId.replace(/[^0-9]/g, ''));
+                if (isNaN(hNum)) return;
+                if (!byHall[hNum]) byHall[hNum] = [];
+                byHall[hNum].push(s);
+            });
+
+            [1, 2, 3, 4, 5, 6, 7, 8].forEach(h => {
+                const sessions = byHall[h] || [];
+                // Sort by start time
+                sessions.sort((a, b) => a.startMin - b.startMin);
+                
+                let status = 'ready';
+                for (const s of sessions) {
+                    // Running
+                    if (nowMin >= s.startMin && nowMin < s.endMin) {
+                        status = 'running';
+                        break;
+                    }
+                    // Cleaning (e.g. 20 mins after end)
+                    if (nowMin >= s.endMin && nowMin < s.endMin + 20) {
+                        status = 'cleaning';
+                        break;
+                    }
+                }
+                
+                // Only update if changed to avoid unnecessary syncs
+                if (HALL_STATUS[h] !== status) {
+                    updateHallStatus(h, status);
+                }
+            });
         }
 
         function renderHallStatus() {
