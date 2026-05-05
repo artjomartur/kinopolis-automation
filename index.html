@@ -6959,7 +6959,8 @@
                 console.error("Poster sync failed:", e);
             }
 
-            fetchSessions();
+            // Kein fetchSessions() nötig - State ist bereits lokal und in der Cloud gespeichert.
+            // Die Alert-Karte wurde bereits entfernt, kein Reload erforderlich.
         }
 
 
