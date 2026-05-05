@@ -2942,18 +2942,21 @@
                 border-color: rgba(0, 0, 0, 0.06);
             }
             #live-alert-banner {
-                margin-left: 0.35rem;
-                margin-right: 0.35rem;
+                margin-left: 1rem;
+                margin-right: 1rem;
                 border-radius: 16px !important;
             }
             .card-container,
             .news-section,
             .auslaesse-container,
             .notes-section,
+            .einstellungen-section,
+            .stats-section,
+            #gamification-summary,
             #poster-alerts-container {
                 border-radius: 20px !important;
-                margin-left: 0.35rem !important;
-                margin-right: 0.35rem !important;
+                margin-left: 1rem !important;
+                margin-right: 1rem !important;
                 overflow: hidden;
             }
             .hall-card {
@@ -7439,6 +7442,18 @@
             
             try {
                 let contacts = providedContacts || [];
+                
+                // Ensure Management (BL/TL) are always present for KP/Darmstadt if missing in DB
+                if (currentCity === 'kp') {
+                    const existingCats = new Set(contacts.map(c => c.category));
+                    if (!existingCats.has('bl')) {
+                        contacts.push(...KP_DEFAULT_CONTACTS.filter(c => c.category === 'bl'));
+                    }
+                    if (!existingCats.has('tl')) {
+                        contacts.push(...KP_DEFAULT_CONTACTS.filter(c => c.category === 'tl'));
+                    }
+                }
+
                 if (contacts.length === 0) contacts = KP_DEFAULT_CONTACTS;
 
                 const byCategory = {};
