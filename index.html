@@ -2916,7 +2916,9 @@
             }
             .dashboard-header {
                 margin-bottom: 1rem !important;
-                padding: 0 0.15rem;
+                margin-left: 1rem !important;
+                margin-right: 1rem !important;
+                padding: 0;
             }
             .dashboard-title {
                 font-size: clamp(1.45rem, 5.5vw, 1.85rem) !important;
@@ -2952,6 +2954,8 @@
             .notes-section,
             .einstellungen-section,
             .stats-section,
+            .hall-card,
+            .nav-tabs,
             #gamification-summary,
             #poster-alerts-container {
                 border-radius: 20px !important;
@@ -3778,7 +3782,7 @@
         <!-- Statistics Section -->
         <section id="stats-section-container" class="stats-section tl-only" style="display: none; margin-bottom: 4rem;">
             <!-- GAMIFICATION: PROGRESS BAR -->
-            <div id="gamification-summary" class="glass" style="margin-bottom: 1.5rem; padding: 1.2rem; border-radius: 16px; border: 1px solid rgba(0, 120, 255, 0.2); background: linear-gradient(135deg, rgba(0, 120, 255, 0.05) 0%, rgba(0,0,0,0.2) 100%);">
+            <div id="gamification-summary" class="glass" style="margin-bottom: 1.5rem; padding: 1.25rem; border-radius: 16px; border: 1px solid rgba(0, 120, 255, 0.2); background: linear-gradient(135deg, rgba(0, 120, 255, 0.05) 0%, rgba(0,0,0,0.2) 100%);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
                     <div style="display: flex; align-items: center; gap: 0.6rem;">
                         <span style="font-size: 1.3rem;">🏆</span>
@@ -3805,7 +3809,7 @@
                 </div>
                 <div id="xp-status" style="font-size: 0.75rem; color: var(--text-muted);">Erledige Aufgaben, um XP zu sammeln!</div>
             </div>
-            <div class="section-header card-header" onclick="toggleSection('stats-content', 'stats-toggle-btn')" style="cursor: pointer; padding: 1.5rem;">
+            <div class="section-header card-header" onclick="toggleSection('stats-content', 'stats-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;">
                     <span class="alert-icon-small">📊</span>
                     <h2>Tages-Statistiken</h2>
@@ -3816,7 +3820,7 @@
                     </svg>
                 </button>
             </div>
-            <div id="stats-content" class="collapsible-content" style="padding: 0 1.5rem 1.5rem;">
+            <div id="stats-content" class="collapsible-content" style="padding: 0 1.25rem 1.25rem;">
                 <div id="stats-grid" class="stats-grid">
                     <!-- Stat cards will be injected here -->
                 </div>
@@ -3841,7 +3845,7 @@
                     <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" /></svg>
                 </button>
             </div>
-            <div id="news-content" class="collapsible-content" style="padding: 0 1.5rem 1.5rem;">
+            <div id="news-content" class="collapsible-content" style="padding: 0 1.25rem 1.25rem;">
                 <div id="news-list">
                     <!-- Loaded dynamically -->
                 </div>
