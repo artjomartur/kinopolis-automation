@@ -1275,7 +1275,7 @@ app.get('/api/task-completions', async (c) => {
     const date = c.req.query('date') || new Date().toISOString().split('T')[0];
     if (!c.env.DB) return c.json([]);
     try {
-        // Migration: Ensure table and PK exist
+        // Migration: Ensure table and columns exist
         await c.env.DB.prepare(`
             CREATE TABLE IF NOT EXISTS task_completions (
                 task_id TEXT NOT NULL,
@@ -1288,6 +1288,10 @@ app.get('/api/task-completions', async (c) => {
             )
         `).run();
         
+        // Ensure columns exist (for older databases)
+        try { await c.env.DB.prepare("ALTER TABLE task_completions ADD COLUMN type TEXT").run(); } catch(e){}
+        try { await c.env.DB.prepare("ALTER TABLE task_completions ADD COLUMN author TEXT").run(); } catch(e){}
+
         const { results } = await c.env.DB.prepare(
             'SELECT task_id, type, author, completed_at FROM task_completions WHERE location = ? AND date = ?'
         ).bind(location, date).all();

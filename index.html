@@ -6252,7 +6252,7 @@
 
         async function loadTaskState() {
             // Debounce: Skip background load if user recently clicked something (avoid race condition)
-            if (Date.now() - window.lastTaskActionTime < 5000) return;
+            if (Date.now() - window.lastTaskActionTime < 10000) return;
 
             try {
                 const year = displayDate.getFullYear();
@@ -6263,6 +6263,8 @@
                 const res = await fetch(`/api/task-completions?location=${currentCity}&date=${dateStr}`);
                 if (!res.ok) return;
                 const data = await res.json();
+                
+                if (!Array.isArray(data)) return; // Safety check
                 
                 // Build temp sets + meta
                 const tempAuslaesse = new Set();
@@ -6324,7 +6326,7 @@
                     if (!res.ok) showToast("Fehler beim Löschen (Cloud Sync)", true);
                 }
             } catch (e) { 
-                console.error("Sync error", e);
+                console.error("Sync error:", e, { taskId, type, isDone });
                 showToast("Netzwerkfehler beim Cloud-Sync", true);
             }
         }
@@ -6525,8 +6527,14 @@
                         const xpMap = { 'auslass': 15, 'cleaning': 20, 'poster': 10 };
                         awardXP(xpMap[t.type] || 5, `${t.type.toUpperCase()} erledigt`);
                     }
-                    await syncTaskState(t.id, t.type, !isDone);
+                    
+                    // Optimistic UI Update
                     saveTaskState();
+                    renderLiveTasks();
+                    
+                    // Background Sync
+                    await syncTaskState(t.id, t.type, !isDone);
+                    // Final re-render to catch any server-side info (like author/timestamp)
                     renderLiveTasks();
                 });
                 
