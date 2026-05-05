@@ -37,7 +37,7 @@
             background-color: var(--bg-dark);
             color: var(--text-main);
             min-height: 100vh;
-            padding: 1.5rem 1.5rem 150px;
+            padding: 2rem 2rem 150px;
             background-image: 
                 radial-gradient(circle at 0% 0%, rgba(229, 9, 20, 0.05) 0%, transparent 25%),
                 radial-gradient(circle at 100% 100%, rgba(0, 120, 255, 0.05) 0%, transparent 25%);
@@ -108,7 +108,7 @@
         }
 
         @media (max-width: 600px) {
-            body { padding: 0.5rem; }
+            body { padding: 1rem; }
             header { flex-direction: column; align-items: flex-start; gap: 0.75rem; padding-bottom: 1rem; }
             .card { padding: 1rem; border-radius: 16px; margin: 0; }
             .feed-item { padding: 0.75rem; gap: 0.5rem; grid-template-columns: 36px 1fr auto; border-radius: 12px; }
@@ -975,6 +975,7 @@
                 toast.classList.remove('active');
             }, 3500);
         }
+        window.showToast = showToast;
 
         // --- HAPTIC FEEDBACK ---
         function triggerHaptic(type = 'light') {
@@ -1206,8 +1207,9 @@
                 if (!res.ok) throw new Error();
                 const halls = await res.json();
                 
-                if (!Array.isArray(halls)) {
-                    throw new Error(halls.error || 'Server returns invalid format');
+                if (!Array.isArray(halls) || halls.length === 0) {
+                    container.innerHTML = '<div class="empty-state">Keine Sessions für diesen Standort gefunden.</div>';
+                    return;
                 }
 
                 const allSessions = [];
@@ -1440,14 +1442,14 @@
             container.innerHTML = [1, 2, 3, 4, 5, 6, 7, 8].map(h => {
                 const status = HALL_STATUS[h] || 'running';
                 let label = 'Läuft';
-                let color = '#2ecc71';
-                if (status === 'cleaning') { label = 'Reinigung'; color = '#f1c40f'; }
-                if (status === 'ready') { label = 'Bereit'; color = '#3498db'; }
+                if (status === 'cleaning') label = 'Reinigung';
+                if (status === 'ready') label = 'Bereit';
                 
                 return `
-                    <div class="hall-status-card" onclick="cycleHallStatus(${h})" style="border-top: 4px solid ${color}">
-                        <div style="font-weight: 800; font-size: 1.1rem; color: white;">Saal ${h}</div>
-                        <div style="font-size: 0.75rem; color: ${color}; font-weight: 700; text-transform: uppercase;">${label}</div>
+                    <div class="hall-box ${status}" onclick="cycleHallStatus(${h})">
+                        <div class="hall-num">${h}</div>
+                        <div style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-top: 4px; opacity: 0.8;">${label}</div>
+                        <div class="hall-indicator"></div>
                     </div>
                 `;
             }).join('');
