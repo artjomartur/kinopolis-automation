@@ -6292,6 +6292,7 @@
                 // Only re-render if something changed (avoids flicker for other users)
                 if (newHash !== oldHash) {
                     renderLiveTasks();
+                    saveTaskState(); // Keep local cache in sync with server
                     if (typeof updateAlerts === 'function' && lastData) updateAlerts(lastData, lastTomData || []);
                 }
             } catch (e) {
@@ -6525,6 +6526,7 @@
                         awardXP(xpMap[t.type] || 5, `${t.type.toUpperCase()} erledigt`);
                     }
                     await syncTaskState(t.id, t.type, !isDone);
+                    saveTaskState();
                     renderLiveTasks();
                 });
                 
@@ -6962,11 +6964,15 @@
         }
 
         async function markPosterDone(id, btn) {
+            triggerHaptic('success');
             completedPosters.add(id);
-            saveTaskState();
             // Sofort lokalen Meta-Eintrag setzen damit der Autor direkt sichtbar ist
             const selfAuthor = window.AUTH && AUTH.user ? `${AUTH.user.first_name} ${AUTH.user.last_name}` : 'Unbekannt';
             completedMeta.set(id, { author: selfAuthor, completed_at: new Date().toISOString() });
+            
+            saveTaskState();
+            await syncTaskState(id, 'poster', true);
+            renderLiveTasks();
 
             if (btn) {
                 const alert = btn.closest('.poster-change-alert');
