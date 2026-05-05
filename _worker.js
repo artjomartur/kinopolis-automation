@@ -1289,7 +1289,7 @@ app.get('/api/task-completions', async (c) => {
         `).run();
         
         const { results } = await c.env.DB.prepare(
-            'SELECT task_id, type, author FROM task_completions WHERE location = ? AND date = ?'
+            'SELECT task_id, type, author, completed_at FROM task_completions WHERE location = ? AND date = ?'
         ).bind(location, date).all();
         return c.json(results || []);
     } catch (e) {

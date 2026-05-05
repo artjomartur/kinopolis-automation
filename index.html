@@ -3901,6 +3901,8 @@
         let completedAuslaesse = new Set(safeParse('completed_auslaesse', []));
         let completedPosters = new Set(safeParse('completed_posters', []));
         let completedCleaning = new Set(safeParse('completed_cleaning', []));
+        // Maps task_id → { author, completed_at } for real-time "who did it" display
+        let completedMeta = new Map();
         let scannedPlanData = safeParse('scanned_plan_data', []);
         let shiftStartTime = localStorage.getItem('shift_start_time') ? new Date(localStorage.getItem('shift_start_time')) : null;
 
@@ -4348,7 +4350,7 @@
                 if (window.updateLiveAlertBanner) updateLiveAlertBanner(); if (window.updateShiftTimer) { updateShiftTimer(); setInterval(updateShiftTimer, 60000); }
                 if (window.loadTaskState) {
                     loadTaskState();
-                    setInterval(loadTaskState, 30000); // Polling every 30s
+                    startTaskPolling(); // Polling every 15s mit Smart-Re-Render
                 }
                 if (window.checkPersonalNeed) {
                     checkPersonalNeed();
@@ -6241,6 +6243,14 @@
         }
 
         window.lastTaskActionTime = 0;
+        window._taskPollInterval = null;
+        function startTaskPolling() {
+            if (window._taskPollInterval) return; // already running
+            window._taskPollInterval = setInterval(() => {
+                loadTaskState();
+            }, 15000); // every 15 seconds
+        }
+
         async function loadTaskState() {
             // Debounce: Skip background load if user recently clicked something (avoid race condition)
             if (Date.now() - window.lastTaskActionTime < 5000) return;
@@ -6255,30 +6265,41 @@
                 if (!res.ok) return;
                 const data = await res.json();
                 
-                // Use temp sets to avoid flickering during clear/populate
+                // Build temp sets + meta
                 const tempAuslaesse = new Set();
                 const tempPosters = new Set();
                 const tempCleaning = new Set();
+                const tempMeta = new Map();
                 
                 data.forEach(t => {
                     if (t.type === 'auslass') tempAuslaesse.add(t.task_id);
                     else if (t.type === 'poster') tempPosters.add(t.task_id);
                     else if (t.type === 'cleaning') tempCleaning.add(t.task_id);
+                    if (t.author || t.completed_at) {
+                        tempMeta.set(t.task_id, { author: t.author || '', completed_at: t.completed_at || null });
+                    }
                 });
 
-                // Update actual sets
-                completedAuslaesse.clear();
-                tempAuslaesse.forEach(id => completedAuslaesse.add(id));
-                completedPosters.clear();
-                tempPosters.forEach(id => completedPosters.add(id));
-                completedCleaning.clear();
-                tempCleaning.forEach(id => completedCleaning.add(id));
+                // Smart re-render: only update if something actually changed
+                const newHash = [...tempAuslaesse, ...tempPosters, ...tempCleaning].sort().join('|');
+                const oldHash = [...completedAuslaesse, ...completedPosters, ...completedCleaning].sort().join('|');
+                
+                // Update actual sets + meta
+                completedAuslaesse.clear(); tempAuslaesse.forEach(id => completedAuslaesse.add(id));
+                completedPosters.clear(); tempPosters.forEach(id => completedPosters.add(id));
+                completedCleaning.clear(); tempCleaning.forEach(id => completedCleaning.add(id));
+                completedMeta.clear(); tempMeta.forEach((v, k) => completedMeta.set(k, v));
 
-                renderLiveTasks();
+                // Only re-render if something changed (avoids flicker for other users)
+                if (newHash !== oldHash) {
+                    renderLiveTasks();
+                    if (typeof updateAlerts === 'function' && lastData) updateAlerts(lastData, lastTomData || []);
+                }
             } catch (e) {
                 console.error("Error loading task state", e);
             }
         }
+
 
         async function syncTaskState(taskId, type, isDone) {
             window.lastTaskActionTime = Date.now();
@@ -6469,10 +6490,17 @@
                     icon = '🖼️';
                 }
 
+                const meta = completedMeta.get(t.id);
+                const authorBadge = isDone && meta && meta.author ? (() => {
+                    const ts = meta.completed_at ? new Date(meta.completed_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '';
+                    return `<div style="font-size:0.72rem; color:#2ecc71; margin-top:3px; font-weight:600; opacity:0.9;">✅ ${meta.author}${ts ? ' · ' + ts + ' Uhr' : ''}</div>`;
+                })() : '';
+
                 item.innerHTML = `
                     <div class="auslass-hall" style="background: ${isActive ? 'var(--primary-red)' : badgeColor}">${icon} ${t.hall}</div>
                     <div class="auslass-movie" title="${t.title}">${t.title}${t.sold !== undefined ? ` • ${t.sold} Besucher` : ''} ${t.isVerified ? '✅' : ''}</div>
                     <div class="auslass-time-range" style="${t.isVerified ? 'color: #2ecc71; font-weight: 800;' : ''}">${t.timeDisplay}</div>
+                    ${authorBadge}
                 `;
                 
                 item.addEventListener('click', async () => {
@@ -6480,9 +6508,13 @@
                     const isDone = set.has(t.id);
                     if (isDone) {
                         set.delete(t.id);
+                        completedMeta.delete(t.id);
                         item.classList.remove('done');
                     } else {
                         set.add(t.id);
+                        // Sofort lokalen Meta-Eintrag für sofortige Anzeige
+                        const selfAuthor = window.AUTH && AUTH.user ? `${AUTH.user.first_name} ${AUTH.user.last_name}` : 'Unbekannt';
+                        completedMeta.set(t.id, { author: selfAuthor, completed_at: new Date().toISOString() });
                         item.classList.add('done');
                         const xpMap = { 'auslass': 15, 'cleaning': 20, 'poster': 10 };
                         awardXP(xpMap[t.type] || 5, `${t.type.toUpperCase()} erledigt`);
@@ -6927,6 +6959,9 @@
         async function markPosterDone(id, btn) {
             completedPosters.add(id);
             saveTaskState();
+            // Sofort lokalen Meta-Eintrag setzen damit der Autor direkt sichtbar ist
+            const selfAuthor = window.AUTH && AUTH.user ? `${AUTH.user.first_name} ${AUTH.user.last_name}` : 'Unbekannt';
+            completedMeta.set(id, { author: selfAuthor, completed_at: new Date().toISOString() });
 
             if (btn) {
                 const alert = btn.closest('.poster-change-alert');
@@ -7297,12 +7332,44 @@
                     else contacts = KP_DEFAULT_CONTACTS;
                 }
 
+                // For non-KP locations with no contacts: show hint instead of KP numbers
+                if (contacts.length === 0 && currentCity !== 'kp') {
+                    renderContactsEmpty();
+                    renderAdminContacts([]);
+                    return;
+                }
+
                 renderContacts(contacts.length > 0 ? contacts : KP_DEFAULT_CONTACTS);
                 renderAdminContacts(contacts);
             } catch (e) {
                 console.warn("Backend contacts failed, using fallback", e);
-                renderContacts(KP_DEFAULT_CONTACTS);
+                if (currentCity === 'kp') renderContacts(KP_DEFAULT_CONTACTS);
+                else renderContactsEmpty();
             }
+        }
+
+        function renderContactsEmpty() {
+            const container = document.getElementById('contacts-container');
+            const loader = document.getElementById('contacts-loading');
+            if (loader) loader.style.display = 'none';
+            if (!container) return;
+            const isAdmin = window.AUTH && AUTH.user && (AUTH.user.role === 'admin' || AUTH.user.role === 'BL');
+            container.innerHTML = `
+                <div style="text-align:center; padding: 3rem 1rem; color: var(--text-muted);">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📞</div>
+                    <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">Keine Kontakte eingetragen</h3>
+                    <p style="font-size: 0.9rem; line-height: 1.6;">
+                        Für diesen Standort sind noch keine Telefonnummern hinterlegt.<br>
+                        ${isAdmin ? 'Trage sie im <strong>Admin-Bereich → Kontakte</strong> ein.' : 'Wende dich an die Leitung oder den Admin.'}
+                    </p>
+                    ${isAdmin ? `<button onclick="switchTab('einstellungen', document.getElementById('tab-einstellungen'))" 
+                        style="margin-top:1.5rem; padding: 0.75rem 1.5rem; border-radius:12px; background: rgba(0,120,255,0.15); 
+                        border: 1px solid rgba(0,120,255,0.3); color: var(--primary-blue); font-weight:700; cursor:pointer;">
+                        ⚙️ Kontakte jetzt einpflegen
+                    </button>` : ''}
+                </div>
+            `;
+            container.style.display = 'block';
         }
 
         function renderAdminContacts(contacts) {
