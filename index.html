@@ -1,7 +1,8 @@
 <!DOCTYPE html>
+
 <html lang="de">
 <head>
-    <script>
+<script>
         // EMERGENCY CACHE CLEAR
         if (window.location.search.includes('reset=true')) {
             localStorage.clear();
@@ -17,18 +18,18 @@
             window.location.href = window.location.pathname;
         }
     </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kinopolis Dashboard V1.0</title>
-    <!-- Favicon: Kinopolis Logo -->
-    <link rel="icon" href="./icon.png" type="image/png">
-    <link rel="apple-touch-icon" href="./icon.png">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0a0a0d">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
-    <script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Kinopolis Dashboard V1.0</title>
+<!-- Favicon: Kinopolis Logo -->
+<link href="./icon.png" rel="icon" type="image/png"/>
+<link href="./icon.png" rel="apple-touch-icon"/>
+<link href="manifest.json" rel="manifest"/>
+<meta content="#0a0a0d" name="theme-color"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&amp;family=Outfit:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<script>
         // --- PROFESSIONAL CINEMATIC JINGLE (High-End Texture) ---
         window.playStartupSound = function() {
             try {
@@ -227,11 +228,11 @@
             }, 3000);
         }
     </script>
-    <script src="auth.js?v=3.1"></script>
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-    <style>
+<script src="auth.js?v=3.1"></script>
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+<style>
         :root {
             --primary-red: #ff3b30;
             --primary-blue: #007aff;
@@ -1251,7 +1252,7 @@
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 0 2rem 200px; /* Massive padding to ensure smooth scroll */
             position: relative;
@@ -1314,6 +1315,7 @@
             }
             .mobile-nav {
                 display: flex !important;
+            z-index: 9999 !important;
                 position: fixed;
                 bottom: 20px;
                 left: 20px;
@@ -3008,6 +3010,7 @@
                 border: 1px solid rgba(255, 255, 255, 0.12) !important;
                 box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5) !important;
                 display: flex !important;
+            z-index: 9999 !important;
                 align-items: center !important;
                 justify-content: space-around !important;
                 gap: 5px;
@@ -3052,12 +3055,34 @@
             }
         }
 
+    
+        /* UI FIXES */
+        .poster-change-alert, .task-item {
+            flex-wrap: wrap !important;
+            min-height: min-content !important;
+        }
+        .btn-erledigt, .task-btn, .btn-primary, .btn-secondary {
+            white-space: normal !important;
+            height: auto !important;
+            min-height: 44px !important;
+            flex-shrink: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            line-height: 1.2 !important;
+        }
+        @media (max-width: 600px) {
+            .date-selector { max-width: 100% !important; flex-wrap: wrap !important; }
+            .date-display { min-width: 100px !important; }
+        }
+        .hall-header * { pointer-events: none; }
+        .hall-header { cursor: pointer; }
+
     </style>
 </head>
 <body class="dark-mode">
-
-    <!-- ULTIMATE SPLASH FAILSAFE -->
-    <script>
+<!-- ULTIMATE SPLASH FAILSAFE -->
+<script>
         setTimeout(function() {
             var s = document.getElementById('splash-screen');
             if (s) {
@@ -3068,843 +3093,741 @@
             }
         }, 4000);
     </script>
-    <!-- Ambient Background -->
-    <div class="ambient-bg">
-        <div class="ambient-mesh"></div>
-    </div>
-
-    <!-- Handover / Announcement Modal (Wichtige Info) -->
-    <div id="handover-modal" class="modal">
-        <div class="modal-content glass" style="max-width: 480px; padding: 2.5rem; text-align: center;">
-            <div style="background: rgba(255, 171, 0, 0.1); width: 64px; height: 64px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; border: 1px solid rgba(255, 171, 0, 0.2);">
-                <span style="font-size: 1.8rem;">📢</span>
-            </div>
-            <h2 class="modal-title" style="margin-bottom: 0.5rem;">Wichtige Schicht-Info</h2>
-            <p id="handover-author" style="color: var(--primary-blue); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1.5rem;">VON: BETRIEBSLEITUNG</p>
-            
-            <div id="handover-content" style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 18px; border: 1px solid var(--glass-border); margin-bottom: 2rem; text-align: left; line-height: 1.6; color: var(--text-main); font-size: 1rem;">
-                <!-- Content injected via JS -->
-            </div>
-
-            <button onclick="closeHandoverModal()" class="btn-primary" style="width: 100%; padding: 1.25rem; font-size: 1.1rem; border-radius: 16px; font-weight: 800; background: linear-gradient(135deg, #ffab00, #ffc107); border: none; color: #000;">Verstanden</button>
-        </div>
-    </div>
-
-    <!-- Plakatwechsel: Pop-up unter „Dringende Hinweise“ (nicht mehr inline in der Liste) -->
-    <div id="poster-urgent-modal" class="modal">
-        <div class="modal-content glass" style="max-width: 640px; width: 92vw; padding: 1.75rem 1.5rem 1.5rem;">
-            <div style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 1rem;">
-                <span style="font-size: 1.75rem;">⚠️</span>
-                <div>
-                    <h2 class="modal-title" style="margin: 0; font-size: 1.35rem;">Dringende Hinweise</h2>
-                    <p style="margin: 0.35rem 0 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.35;">Plakatwechsel erscheint automatisch als Pop-up (ca. 20 Min nach Vorstellungsbeginn).</p>
-                </div>
-            </div>
-            <div id="poster-urgent-modal-body"></div>
-            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; justify-content: flex-end;">
-                <button type="button" class="btn-secondary" onclick="snoozePosterUrgentPopup()" style="padding: 0.75rem 1.25rem;">Später (15 Min)</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="splash-screen">
-        <div class="splash-glow"></div>
-        <div class="splash-logo-container">
-            <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png?20260323" alt="Kinopolis" class="splash-logo-img">
-        </div>
-        <div class="splash-text">Automation Dashboard</div>
-    </div>
-
-    <!-- DEPARTMENT SELECTION MODAL -->
-    <div id="dept-modal" class="modal">
-        <div class="modal-content glass" style="max-width: 500px; padding: 2.5rem 2rem;">
-            <span class="welcome-icon">🎬</span>
-            <h2 class="modal-title" style="font-size: 1.8rem;">Bereich wählen</h2>
-            <p class="modal-text" style="margin-bottom: 2rem;">Welche Station hast du heute? Wir bereiten deine Werkzeuge vor.</p>
-            
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
-                <button class="dept-btn" onclick="selectDept('einlass')">
-                    <span style="font-size: 1.5rem;">🎟️</span> Einlass
+<!-- Ambient Background -->
+<div class="ambient-bg">
+<div class="ambient-mesh"></div>
+</div>
+<!-- Handover / Announcement Modal (Wichtige Info) -->
+<div class="modal" id="handover-modal">
+<div class="modal-content glass" style="max-width: 480px; padding: 2.5rem; text-align: center;">
+<div style="background: rgba(255, 171, 0, 0.1); width: 64px; height: 64px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; border: 1px solid rgba(255, 171, 0, 0.2);">
+<span style="font-size: 1.8rem;">📢</span>
+</div>
+<h2 class="modal-title" style="margin-bottom: 0.5rem;">Wichtige Schicht-Info</h2>
+<p id="handover-author" style="color: var(--primary-blue); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1.5rem;">VON: BETRIEBSLEITUNG</p>
+<div id="handover-content" style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 18px; border: 1px solid var(--glass-border); margin-bottom: 2rem; text-align: left; line-height: 1.6; color: var(--text-main); font-size: 1rem;">
+<!-- Content injected via JS -->
+</div>
+<button class="btn-primary" onclick="closeHandoverModal()" style="width: 100%; padding: 1.25rem; font-size: 1.1rem; border-radius: 16px; font-weight: 800; background: linear-gradient(135deg, #ffab00, #ffc107); border: none; color: #000;">Verstanden</button>
+</div>
+</div>
+<!-- Plakatwechsel: Pop-up unter „Dringende Hinweise“ (nicht mehr inline in der Liste) -->
+<div class="modal" id="poster-urgent-modal">
+<div class="modal-content glass" style="max-width: 640px; width: 92vw; padding: 1.75rem 1.5rem 1.5rem;">
+<div style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 1rem;">
+<span style="font-size: 1.75rem;">⚠️</span>
+<div>
+<h2 class="modal-title" style="margin: 0; font-size: 1.35rem;">Dringende Hinweise</h2>
+<p style="margin: 0.35rem 0 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.35;">Plakatwechsel erscheint automatisch als Pop-up (ca. 20 Min nach Vorstellungsbeginn).</p>
+</div>
+</div>
+<div id="poster-urgent-modal-body"></div>
+<div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; justify-content: flex-end;">
+<button class="btn-secondary" onclick="snoozePosterUrgentPopup()" style="padding: 0.75rem 1.25rem;" type="button">Später (15 Min)</button>
+</div>
+</div>
+</div>
+<div id="splash-screen">
+<div class="splash-glow"></div>
+<div class="splash-logo-container">
+<img alt="Kinopolis" class="splash-logo-img" src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png?20260323"/>
+</div>
+<div class="splash-text">Automation Dashboard</div>
+</div>
+<!-- DEPARTMENT SELECTION MODAL -->
+<div class="modal" id="dept-modal">
+<div class="modal-content glass" style="max-width: 500px; padding: 2.5rem 2rem;">
+<span class="welcome-icon">🎬</span>
+<h2 class="modal-title" style="font-size: 1.8rem;">Bereich wählen</h2>
+<p class="modal-text" style="margin-bottom: 2rem;">Welche Station hast du heute? Wir bereiten deine Werkzeuge vor.</p>
+<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+<button class="dept-btn" onclick="selectDept('einlass')">
+<span style="font-size: 1.5rem;">🎟️</span> Einlass
                 </button>
-                <button class="dept-btn" onclick="selectDept('kasse')">
-                    <span style="font-size: 1.5rem;">💰</span> Kasse
+<button class="dept-btn" onclick="selectDept('kasse')">
+<span style="font-size: 1.5rem;">💰</span> Kasse
                 </button>
-                <button class="dept-btn" onclick="selectDept('theke')">
-                    <span style="font-size: 1.5rem;">🍿</span> Theke
+<button class="dept-btn" onclick="selectDept('theke')">
+<span style="font-size: 1.5rem;">🍿</span> Theke
                 </button>
-                <button class="dept-btn" onclick="selectDept('tl')">
-                    <span style="font-size: 1.5rem;">👔</span> TL / BL
+<button class="dept-btn" onclick="selectDept('tl')">
+<span style="font-size: 1.5rem;">👔</span> TL / BL
                 </button>
-                <button class="btn-primary" onclick="selectDept('alles')" style="grid-column: 1 / -1; margin-top: 0.5rem; padding: 1rem; border-radius: 14px; font-weight: 800; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); border: none; color: white; cursor: pointer;">
+<button class="btn-primary" onclick="selectDept('alles')" style="grid-column: 1 / -1; margin-top: 0.5rem; padding: 1rem; border-radius: 14px; font-weight: 800; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); border: none; color: white; cursor: pointer;">
                     🌐 Alles anzeigen
                 </button>
-            </div>
-        </div>
-    </div>
-
-    <header>
-        <div class="header-inner">
-            <div class="brand">
-                <div class="logo-container">
-                    <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png?20260323" alt="Kinopolis" class="logo" id="brand-logo">
+</div>
+</div>
+</div>
+<header>
+<div class="header-inner">
+<div class="brand">
+<div class="logo-container">
+<img alt="Kinopolis" class="logo" id="brand-logo" src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png?20260323"/>
+</div>
+</div>
+<div class="header-right">
+<div class="occupancy-badge glass" id="occupancy-widget" style="display: none; padding: 0 15px; height: 44px; border-radius: 12px; align-items: center; gap: 8px; font-weight: 700; color: #00ff80; border: 1px solid rgba(0, 255, 128, 0.15);">
+<span style="font-size: 1.1rem;">👥</span>
+<span id="live-occupancy">0</span>
+</div>
+<select class="location-select glass" id="cinema-selector" style="display: none;"></select><div class="location-badge glass" id="cinema-display" style="padding: 0 15px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; border: 1px solid var(--glass-border);">Darmstadt</div>
+<div class="user-profile-btn" id="user-profile-btn" onclick="AUTH.showProfile()" title="Profil &amp; Einstellungen">
+<span>👤</span> Gast
                 </div>
-            </div>
-            <div class="header-right">
-                <div id="occupancy-widget" class="occupancy-badge glass" style="display: none; padding: 0 15px; height: 44px; border-radius: 12px; align-items: center; gap: 8px; font-weight: 700; color: #00ff80; border: 1px solid rgba(0, 255, 128, 0.15);">
-                    <span style="font-size: 1.1rem;">👥</span>
-                    <span id="live-occupancy">0</span>
-                </div>
-                <select id="cinema-selector" class="location-select glass" style="display: none;"></select><div id="cinema-display" class="location-badge glass" style="padding: 0 15px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; border: 1px solid var(--glass-border);">Darmstadt</div>
-                <div id="user-profile-btn" class="user-profile-btn" onclick="AUTH.showProfile()" title="Profil & Einstellungen">
-                    <span>👤</span> Gast
-                </div>
-            </div>
-        </div>
-    </header>
+</div>
+</div>
+</header>
+<div id="pull-refresh-indicator" style="display: none; align-items: center; justify-content: center; overflow: hidden; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); color: var(--primary-blue); font-size: 1.5rem; transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05);">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+<span class="refresh-icon" style="transition: transform 0.2s ease;">🔄</span>
+<span style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.7; font-weight: 800;">Aktualisieren</span>
+</div>
+</div>
+<div class="container"><div class="card-container news-section glass einstellungen-section" id="internal-news-container" style="display: none; margin-bottom: 1rem;">
+<div class="card-header" onclick="toggleSection('news-content', 'news-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
+<div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
+<span class="alert-icon-small">📢</span>
+<h2 style="font-size: 1.25rem;">Interne Mitteilungen</h2>
+<span class="badge" id="news-badge">0</span>
+</div>
+<button class="toggle-btn" id="news-toggle-btn" style="pointer-events: none;">
+<svg height="24" viewbox="0 0 24 24" width="24"><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path></svg>
+</button>
+</div>
+<div class="collapsible-content" id="news-content" style="padding: 0 1.25rem 1.25rem;">
+<div id="news-list">
+<!-- Loaded dynamically -->
+</div>
+</div>
+</div>
 
-    <div id="pull-refresh-indicator" style="display: none; align-items: center; justify-content: center; overflow: hidden; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); color: var(--primary-blue); font-size: 1.5rem; transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05);">
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
-            <span class="refresh-icon" style="transition: transform 0.2s ease;">🔄</span>
-            <span style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.7; font-weight: 800;">Aktualisieren</span>
-        </div>
-    </div>
-    
-    <div class="container">
-
-        <div class="dashboard-header">
-            <div class="dashboard-header-left">
-                                <h2 class="dashboard-title" id="main-title">Live Overview</h2>
-                <div class="location-badge" id="location-name">Darmstadt: KINOPOLIS</div>
-            </div>
-            
-
-            <div class="sync-status">
-                <div id="status-indicator" class="status-dot"></div>
-                <span id="current-time-display">Verbinde...</span>
-                <span id="last-update-display" class="last-update"></span>
-                <div id="stale-warning" class="stale-badge" style="display: none;">⚠️ Offline-Modus (Veraltete Daten)</div>
-            </div>
-        </div>
-
-        <!-- LIVE ALERT BANNER -->
-        <div id="live-alert-banner" style="display:none; flex-direction:column; gap:0.5rem; margin-bottom:1rem; padding:0.75rem 1rem; background:rgba(231,76,60,0.1); border:1px solid rgba(231,76,60,0.4); border-radius:12px;">
-        </div>
-
-        <div class="nav-tabs" id="desktop-nav-tabs">
-            <button type="button" class="tab-btn active tab-live" id="tab-live" data-tab="live" onclick="switchTab('live', this); return false;">🎬 Live</button>
-            <button type="button" class="tab-btn stats-tab-btn tab-stats tl-only" id="tab-stats" data-tab="stats" onclick="switchTab('stats', this); return false;">📊 Statistik</button>
-            <button type="button" class="tab-btn tab-kontakte" id="tab-kontakte" data-tab="kontakte" onclick="switchTab('kontakte', this); return false;">📞 Kontakte</button>
-            <button type="button" class="tab-btn tools-tab-btn tab-funk" id="tab-funk" data-tab="funk" onclick="switchTab('funk', this); return false;">📡 Funk</button>
-            <button type="button" class="tab-btn tab-intern" id="tab-intern" data-tab="intern" onclick="switchTab('intern', this); return false;">🛠️ Tools</button>
-            <button type="button" class="tab-btn tab-info" id="tab-info" data-tab="info" onclick="switchTab('info', this); return false;">🍿 Filme</button>
-            <button type="button" class="tab-btn tab-einstellungen" id="tab-einstellungen" data-tab="einstellungen" onclick="switchTab('einstellungen', this); return false;">⚙️ Einstellungen</button>
-        </div>
-
-        <!-- UPCOMING MOVIES SECTION -->
-        <div id="info-section-container" class="info-section" style="display: none;">
-            <div class="dashboard-header" style="margin-bottom: 0.75rem; justify-content: flex-start;">
-                <div class="dashboard-header-left">
-                    <h2 class="dashboard-title" style="font-size: 2.5rem;">Filme & Infos</h2>
-                    <div class="location-badge">Aktuell & Demnächst im Kino</div>
-                </div>
-            </div>
-            
-            <div id="upcoming-loading" class="loading-state">
-                <div class="spinner"></div>
-                <div class="loading-text">Lade Filmhighlights...</div>
-            </div>
-
-            <div id="upcoming-grid" class="dashboard-grid" style="display: none; gap: 1.5rem;">
-                <!-- Filled via JS -->
-            </div>
-        </div>
-
-
-
-
-        <!-- Internal Message Modal -->
-        <div id="message-modal" class="modal">
-            <div class="modal-content glass" style="max-width: 450px;">
-                <h2 style="font-family: 'Outfit', sans-serif;">📢 Neue interne Mitteilung</h2>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Schreibe eine Nachricht für das gesamte Team (Sichtbar für alle).</p>
-                
-                <input type="text" id="msg-title" placeholder="Kurzer Titel (z.B. Mario Film Menü)" class="input-field" style="margin-bottom: 1rem;">
-                
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); padding: 0.75rem; border-radius: 12px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
-                        <span style="font-size: 1.2rem;">🖼️</span>
-                        <span style="font-size: 0.85rem; color: #fff;">Bild hochladen</span>
-                        <input type="file" id="msg-image-file" accept="image/*" style="display: none;" onchange="handleMessageImage(this)">
-                    </label>
-                </div>
-
-                <div id="msg-image-preview" style="display: none; margin-bottom: 1rem; position: relative;">
-                    <img id="msg-preview-img" style="width: 100%; height: 120px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-                    <button onclick="removeMessageImage()" style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); border: none; color: white; width: 24px; height: 24px; border-radius: 50%; cursor: pointer;">✕</button>
-                </div>
-
-                <input type="text" id="msg-image-url" placeholder="Oder Bild-URL (z.B. imgur link)" class="input-field" style="margin-bottom: 1rem;">
-                <textarea id="msg-content" placeholder="Inhalt der Nachricht..." class="input-field" style="height: 120px; resize: none;"></textarea>
-                
-                <div style="margin-top: 1rem;">
-                    <label style="font-size: 0.8rem; color: var(--text-muted);">Absender (optional)</label>
-                    <input type="text" id="msg-author" placeholder="Dein Name oder Position" class="input-field" style="margin-top: 0.3rem;">
-                </div>
-                
-                <div class="modal-actions" style="margin-top: 2rem;">
-                    <button class="btn-secondary" onclick="closeMessageModal()">Abbrechen</button>
-                    <button class="btn-primary" id="msg-send-btn" onclick="sendMessage()" style="background: var(--primary-red); border: none; padding: 0.75rem 1.5rem; border-radius: 12px; color: white; font-weight: 700;">
+<div class="dashboard-header">
+<div class="dashboard-header-left">
+<h2 class="dashboard-title" id="main-title">Live Overview</h2>
+<div class="location-badge" id="location-name">Darmstadt: KINOPOLIS</div>
+</div>
+<div class="sync-status">
+<div class="status-dot" id="status-indicator"></div>
+<span id="current-time-display">Verbinde...</span>
+<span class="last-update" id="last-update-display"></span>
+<div class="stale-badge" id="stale-warning" style="display: none;">⚠️ Offline-Modus (Veraltete Daten)</div>
+</div>
+</div>
+<!-- LIVE ALERT BANNER -->
+<div id="live-alert-banner" style="display:none; flex-direction:column; gap:0.5rem; margin-bottom:1rem; padding:0.75rem 1rem; background:rgba(231,76,60,0.1); border:1px solid rgba(231,76,60,0.4); border-radius:12px;">
+</div>
+<div class="nav-tabs" id="desktop-nav-tabs">
+<button class="tab-btn active tab-live" data-tab="live" id="tab-live" onclick="switchTab('live', this); return false;" type="button">🎬 Live</button>
+<button class="tab-btn stats-tab-btn tab-stats tl-only" data-tab="stats" id="tab-stats" onclick="switchTab('stats', this); return false;" type="button">📊 Statistik</button>
+<button class="tab-btn tab-kontakte" data-tab="kontakte" id="tab-kontakte" onclick="switchTab('kontakte', this); return false;" type="button">📞 Kontakte</button>
+<button class="tab-btn tools-tab-btn tab-funk" data-tab="funk" id="tab-funk" onclick="switchTab('funk', this); return false;" type="button">📡 Funk</button>
+<button class="tab-btn tab-intern" data-tab="intern" id="tab-intern" onclick="switchTab('intern', this); return false;" type="button">🛠️ Tools</button>
+<button class="tab-btn tab-info" data-tab="info" id="tab-info" onclick="switchTab('info', this); return false;" type="button">🍿 Filme</button>
+<button class="tab-btn tab-einstellungen" data-tab="einstellungen" id="tab-einstellungen" onclick="switchTab('einstellungen', this); return false;" type="button">⚙️ Einstellungen</button>
+</div>
+<!-- UPCOMING MOVIES SECTION -->
+<div class="info-section" id="info-section-container" style="display: none;">
+<div class="dashboard-header" style="margin-bottom: 0.75rem; justify-content: flex-start;">
+<div class="dashboard-header-left">
+<h2 class="dashboard-title" style="font-size: 2.5rem;">Filme &amp; Infos</h2>
+<div class="location-badge">Aktuell &amp; Demnächst im Kino</div>
+</div>
+</div>
+<div class="loading-state" id="upcoming-loading">
+<div class="spinner"></div>
+<div class="loading-text">Lade Filmhighlights...</div>
+</div>
+<div class="dashboard-grid" id="upcoming-grid" style="display: none; gap: 1.5rem;">
+<!-- Filled via JS -->
+</div>
+</div>
+<!-- Internal Message Modal -->
+<div class="modal" id="message-modal">
+<div class="modal-content glass" style="max-width: 450px;">
+<h2 style="font-family: 'Outfit', sans-serif;">📢 Neue interne Mitteilung</h2>
+<p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Schreibe eine Nachricht für das gesamte Team (Sichtbar für alle).</p>
+<input class="input-field" id="msg-title" placeholder="Kurzer Titel (z.B. Mario Film Menü)" style="margin-bottom: 1rem;" type="text"/>
+<div style="margin-bottom: 1rem;">
+<label onmouseout="this.style.background='rgba(255,255,255,0.05)'" onmouseover="this.style.background='rgba(255,255,255,0.1)'" style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); padding: 0.75rem; border-radius: 12px; cursor: pointer; transition: all 0.2s;">
+<span style="font-size: 1.2rem;">🖼️</span>
+<span style="font-size: 0.85rem; color: #fff;">Bild hochladen</span>
+<input accept="image/*" id="msg-image-file" onchange="handleMessageImage(this)" style="display: none;" type="file"/>
+</label>
+</div>
+<div id="msg-image-preview" style="display: none; margin-bottom: 1rem; position: relative;">
+<img id="msg-preview-img" style="width: 100%; height: 120px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);"/>
+<button onclick="removeMessageImage()" style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); border: none; color: white; width: 24px; height: 24px; border-radius: 50%; cursor: pointer;">✕</button>
+</div>
+<input class="input-field" id="msg-image-url" placeholder="Oder Bild-URL (z.B. imgur link)" style="margin-bottom: 1rem;" type="text"/>
+<textarea class="input-field" id="msg-content" placeholder="Inhalt der Nachricht..." style="height: 120px; resize: none;"></textarea>
+<div style="margin-top: 1rem;">
+<label style="font-size: 0.8rem; color: var(--text-muted);">Absender (optional)</label>
+<input class="input-field" id="msg-author" placeholder="Dein Name oder Position" style="margin-top: 0.3rem;" type="text"/>
+</div>
+<div class="modal-actions" style="margin-top: 2rem;">
+<button class="btn-secondary" onclick="closeMessageModal()">Abbrechen</button>
+<button class="btn-primary" id="msg-send-btn" onclick="sendMessage()" style="background: var(--primary-red); border: none; padding: 0.75rem 1.5rem; border-radius: 12px; color: white; font-weight: 700;">
                         🚀 Senden
                     </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- DYNAMISCHE KURZWAHL / TELEFONLISTE -->
-        <div class="card-container glass kontakte-section" id="kurzwahl-section" style="display: none; margin-bottom: 2rem;">
-            <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
-                <h2 style="font-size: 1.25rem;">Telefonliste</h2>
-            </div>
-            <div id="contacts-loading" style="padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+</div>
+</div>
+</div>
+<!-- DYNAMISCHE KURZWAHL / TELEFONLISTE -->
+<div class="card-container glass kontakte-section" id="kurzwahl-section" style="display: none; margin-bottom: 2rem;">
+<div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
+<h2 style="font-size: 1.25rem;">Telefonliste</h2>
+</div>
+<div id="contacts-loading" style="padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">
                 Lade Kontakte...
             </div>
-            <div id="contacts-container" style="padding: 1rem 1.5rem 1.5rem; display: none; flex-direction: column; gap: 1.25rem;">
-                <!-- Filled via JS -->
-            </div>
-        </div>
-
-        <!-- DIGITALER FUNK (Nachschub-Ruf) -->
-        <div class="card-container glass funk-section" id="restock-section" style="display: none; margin-bottom: 2rem;">
-            <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <span class="alert-icon-small" style="font-size: 1.5rem;">📡</span>
-                    <h2 style="font-size: 1.25rem;">Nachschub-Ruf (Digitaler Funk)</h2>
-                </div>
-            </div>
-            <div style="padding: 1rem 1.5rem 1.5rem;">
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Sende sofort eine unauffällige Push-Nachricht an Kollegen vor Ort.</p>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem;">
-                    <!-- Popcorn Category -->
-                    <div style="display: contents;">
-                        <button onclick="toggleFunkGlobal('popcorn')" class="restock-btn funk-main-btn" style="background: rgba(241, 196, 15, 0.1); border: 1px solid rgba(241, 196, 15, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
-                            <span style="font-size: 2rem;">🍿</span>
-                            <span style="font-weight: 600; font-size: 0.9rem;">Popcorn</span>
-                        </button>
-                        <div id="funk-popcorn-options" style="display: none; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(241, 196, 15, 0.2); margin-top: -0.5rem;">
-                            <button onclick="triggerRestock('🍿 Popcorn Süß')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem; border-color: rgba(241, 196, 15, 0.3); color: #f1c40f;">🍿 Süß</button>
-                            <button onclick="triggerRestock('🧂 Popcorn Salz')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem; border-color: rgba(241, 196, 15, 0.3); color: #f1c40f;">🧂 Salz</button>
-                            <button onclick="resetFunkView()" class="btn-secondary" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem; color: #fff;">Zurück / Abbrechen</button>
-                        </div>
-                    </div>
-
-                    <!-- Nachos Category -->
-                    <div style="display: contents;">
-                        <button onclick="toggleFunkGlobal('nachos')" class="restock-btn funk-main-btn" style="background: rgba(230, 126, 34, 0.1); border: 1px solid rgba(230, 126, 34, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
-                            <span style="font-size: 2rem;">🧀</span>
-                            <span style="font-weight: 600; font-size: 0.9rem;">Nachos</span>
-                        </button>
-                        <div id="funk-nachos-options" style="display: none; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(230, 126, 34, 0.2); margin-top: -0.5rem;">
-                            <button onclick="triggerRestock('1️⃣ 1er Nachos')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem; border-color: rgba(230, 126, 34, 0.3); color: #e67e22;">1️⃣ 1er</button>
-                            <button onclick="triggerRestock('2️⃣ 2er Nachos')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem; border-color: rgba(230, 126, 34, 0.3); color: #e67e22;">2️⃣ 2er</button>
-                            <button onclick="triggerRestock('3️⃣ 3er Nachos')" class="btn-secondary" style="font-size: 0.85rem; padding: 0.75rem; border-color: rgba(230, 126, 34, 0.3); color: #e67e22;">3️⃣ 3er</button>
-                            <button onclick="resetFunkView()" class="btn-secondary" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem; color: #fff;">Zurück / Abbrechen</button>
-                        </div>
-                    </div>
-
-                    <!-- Getränke Category -->
-                    <div style="display: contents;">
-                        <button onclick="toggleFunkGlobal('drinks')" class="restock-btn funk-main-btn" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
-                            <span style="font-size: 2rem;">🥤</span>
-                            <span style="font-weight: 600; font-size: 0.9rem;">Getränke</span>
-                        </button>
-                        <div id="funk-drinks-options" style="display: none; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(52, 152, 219, 0.2); margin-top: -0.5rem;">
-                            <button onclick="triggerRestock('🔴 Cola')" class="btn-secondary" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(52, 152, 219, 0.3); color: #3498db;">🔴 Cola</button>
-                            <button onclick="triggerRestock('🟣 Zero')" class="btn-secondary" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(52, 152, 219, 0.3); color: #3498db;">🟣 Zero</button>
-                            <button onclick="triggerRestock('⚪ Light')" class="btn-secondary" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(52, 152, 219, 0.3); color: #3498db;">⚪ Light</button>
-                            <button onclick="triggerRestock('🟡 Fanta')" class="btn-secondary" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(52, 152, 219, 0.3); color: #3498db;">🟡 Fanta</button>
-                            <button onclick="triggerRestock('🟢 Sprite')" class="btn-secondary" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(52, 152, 219, 0.3); color: #3498db;">🟢 Sprite</button>
-                            <button onclick="resetFunkView()" class="btn-secondary" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem; color: #fff;">Zurück / Abbrechen</button>
-                        </div>
-                    </div>
-
-                    <!-- Becher Category -->
-                    <div style="display: contents;">
-                        <button onclick="toggleFunkGlobal('becher')" class="restock-btn funk-main-btn" style="background: rgba(0, 120, 255, 0.1); border: 1px solid rgba(0, 120, 255, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
-                            <span style="font-size: 2rem;">🥛</span>
-                            <span style="font-weight: 600; font-size: 0.9rem;">Becher</span>
-                        </button>
-                        <div id="funk-becher-options" style="display: none; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(26, 188, 156, 0.2); margin-top: -0.5rem;">
-                            <button onclick="triggerRestock('🥤 Becher 1.0L')" class="btn-secondary" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(26, 188, 156, 0.3); color: #1abc9c;">🥤 1.0L</button>
-                            <button onclick="triggerRestock('🥤 Becher 0.5L')" class="btn-secondary" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(26, 188, 156, 0.3); color: #1abc9c;">🥤 0.5L</button>
-                            <button onclick="triggerRestock('🥤 Becher Deckel')" class="btn-secondary" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(26, 188, 156, 0.3); color: #1abc9c;">⭕ Deckel</button>
-                            <button onclick="triggerRestock('🥤 Strohhalme')" class="btn-secondary" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(26, 188, 156, 0.3); color: #1abc9c;">🥢 Halme</button>
-                            <button onclick="resetFunkView()" class="btn-secondary" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem; color: #fff;">Zurück / Abbrechen</button>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-        <!-- WAREN-TRANSFERLISTE -->
-        <div class="card-container glass tools-section" id="transfer-section" style="display: none; margin-bottom: 1rem; border-color: rgba(46, 204, 113, 0.3);">
-            <div class="card-header" style="padding: 1rem 1.25rem 0.5rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <span class="alert-icon-small">📋</span>
-                    <h2 style="font-size: 1.25rem;">Waren-Transferliste</h2>
-                </div>
-            </div>
-            <div style="padding: 1rem 1.5rem 1.5rem;">
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Fehlende Waren eintragen und direkt an die TL senden.</p>
-                
-                <div id="transfer-items" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
-                    <!-- Items generated by JS -->
-                </div>
-                
-                <div style="margin-bottom: 1rem;">
-                    <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Sonstiges / Anmerkungen</label>
-                    <input type="text" id="transfer-custom" placeholder="z.B. 2x Reinigungsmittel, 1x Rolle Zewa..." class="input-field" style="padding: 0.75rem;">
-                </div>
-
-                <button class="btn-primary" onclick="sendTransferList()" style="width: 100%; background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; border: none; font-weight: bold; padding: 1rem; border-radius: 12px; font-size: 1.05rem;">
+<div id="contacts-container" style="padding: 1rem 1.5rem 1.5rem; display: none; flex-direction: column; gap: 1.25rem;">
+<!-- Filled via JS -->
+</div>
+</div>
+<!-- DIGITALER FUNK (Nachschub-Ruf) -->
+<div class="card-container glass funk-section" id="restock-section" style="display: none; margin-bottom: 2rem;">
+<div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
+<div style="display: flex; align-items: center; gap: 0.75rem;">
+<span class="alert-icon-small" style="font-size: 1.5rem;">📡</span>
+<h2 style="font-size: 1.25rem;">Nachschub-Ruf (Digitaler Funk)</h2>
+</div>
+</div>
+<div style="padding: 1rem 1.5rem 1.5rem;">
+<p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Sende sofort eine unauffällige Push-Nachricht an Kollegen vor Ort.</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem;">
+<!-- Popcorn Category -->
+<div style="display: contents;">
+<button class="restock-btn funk-main-btn" onclick="toggleFunkGlobal('popcorn')" style="background: rgba(241, 196, 15, 0.1); border: 1px solid rgba(241, 196, 15, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
+<span style="font-size: 2rem;">🍿</span>
+<span style="font-weight: 600; font-size: 0.9rem;">Popcorn</span>
+</button>
+<div id="funk-popcorn-options" style="display: none; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(241, 196, 15, 0.2); margin-top: -0.5rem;">
+<button class="btn-secondary" onclick="triggerRestock('🍿 Popcorn Süß')" style="font-size: 0.85rem; padding: 0.75rem; border-color: rgba(241, 196, 15, 0.3); color: #f1c40f;">🍿 Süß</button>
+<button class="btn-secondary" onclick="triggerRestock('🧂 Popcorn Salz')" style="font-size: 0.85rem; padding: 0.75rem; border-color: rgba(241, 196, 15, 0.3); color: #f1c40f;">🧂 Salz</button>
+<button class="btn-secondary" onclick="resetFunkView()" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem; color: #fff;">Zurück / Abbrechen</button>
+</div>
+</div>
+<!-- Nachos Category -->
+<div style="display: contents;">
+<button class="restock-btn funk-main-btn" onclick="toggleFunkGlobal('nachos')" style="background: rgba(230, 126, 34, 0.1); border: 1px solid rgba(230, 126, 34, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
+<span style="font-size: 2rem;">🧀</span>
+<span style="font-weight: 600; font-size: 0.9rem;">Nachos</span>
+</button>
+<div id="funk-nachos-options" style="display: none; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(230, 126, 34, 0.2); margin-top: -0.5rem;">
+<button class="btn-secondary" onclick="triggerRestock('1️⃣ 1er Nachos')" style="font-size: 0.85rem; padding: 0.75rem; border-color: rgba(230, 126, 34, 0.3); color: #e67e22;">1️⃣ 1er</button>
+<button class="btn-secondary" onclick="triggerRestock('2️⃣ 2er Nachos')" style="font-size: 0.85rem; padding: 0.75rem; border-color: rgba(230, 126, 34, 0.3); color: #e67e22;">2️⃣ 2er</button>
+<button class="btn-secondary" onclick="triggerRestock('3️⃣ 3er Nachos')" style="font-size: 0.85rem; padding: 0.75rem; border-color: rgba(230, 126, 34, 0.3); color: #e67e22;">3️⃣ 3er</button>
+<button class="btn-secondary" onclick="resetFunkView()" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem; color: #fff;">Zurück / Abbrechen</button>
+</div>
+</div>
+<!-- Getränke Category -->
+<div style="display: contents;">
+<button class="restock-btn funk-main-btn" onclick="toggleFunkGlobal('drinks')" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
+<span style="font-size: 2rem;">🥤</span>
+<span style="font-weight: 600; font-size: 0.9rem;">Getränke</span>
+</button>
+<div id="funk-drinks-options" style="display: none; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(52, 152, 219, 0.2); margin-top: -0.5rem;">
+<button class="btn-secondary" onclick="triggerRestock('🔴 Cola')" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(52, 152, 219, 0.3); color: #3498db;">🔴 Cola</button>
+<button class="btn-secondary" onclick="triggerRestock('🟣 Zero')" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(52, 152, 219, 0.3); color: #3498db;">🟣 Zero</button>
+<button class="btn-secondary" onclick="triggerRestock('⚪ Light')" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(52, 152, 219, 0.3); color: #3498db;">⚪ Light</button>
+<button class="btn-secondary" onclick="triggerRestock('🟡 Fanta')" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(52, 152, 219, 0.3); color: #3498db;">🟡 Fanta</button>
+<button class="btn-secondary" onclick="triggerRestock('🟢 Sprite')" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(52, 152, 219, 0.3); color: #3498db;">🟢 Sprite</button>
+<button class="btn-secondary" onclick="resetFunkView()" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem; color: #fff;">Zurück / Abbrechen</button>
+</div>
+</div>
+<!-- Becher Category -->
+<div style="display: contents;">
+<button class="restock-btn funk-main-btn" onclick="toggleFunkGlobal('becher')" style="background: rgba(0, 120, 255, 0.1); border: 1px solid rgba(0, 120, 255, 0.3); padding: 1.2rem 0.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; color: white;">
+<span style="font-size: 2rem;">🥛</span>
+<span style="font-weight: 600; font-size: 0.9rem;">Becher</span>
+</button>
+<div id="funk-becher-options" style="display: none; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; grid-column: 1 / -1; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 16px; border: 1px solid rgba(26, 188, 156, 0.2); margin-top: -0.5rem;">
+<button class="btn-secondary" onclick="triggerRestock('🥤 Becher 1.0L')" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(26, 188, 156, 0.3); color: #1abc9c;">🥤 1.0L</button>
+<button class="btn-secondary" onclick="triggerRestock('🥤 Becher 0.5L')" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(26, 188, 156, 0.3); color: #1abc9c;">🥤 0.5L</button>
+<button class="btn-secondary" onclick="triggerRestock('🥤 Becher Deckel')" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(26, 188, 156, 0.3); color: #1abc9c;">⭕ Deckel</button>
+<button class="btn-secondary" onclick="triggerRestock('🥤 Strohhalme')" style="font-size: 0.8rem; padding: 0.75rem; border-color: rgba(26, 188, 156, 0.3); color: #1abc9c;">🥢 Halme</button>
+<button class="btn-secondary" onclick="resetFunkView()" style="grid-column: 1 / -1; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.8rem; color: #fff;">Zurück / Abbrechen</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- WAREN-TRANSFERLISTE -->
+<div class="card-container glass tools-section" id="transfer-section" style="display: none; margin-bottom: 1rem; border-color: rgba(46, 204, 113, 0.3);">
+<div class="card-header" style="padding: 1rem 1.25rem 0.5rem;">
+<div style="display: flex; align-items: center; gap: 0.75rem;">
+<span class="alert-icon-small">📋</span>
+<h2 style="font-size: 1.25rem;">Waren-Transferliste</h2>
+</div>
+</div>
+<div style="padding: 1rem 1.5rem 1.5rem;">
+<p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Fehlende Waren eintragen und direkt an die TL senden.</p>
+<div id="transfer-items" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
+<!-- Items generated by JS -->
+</div>
+<div style="margin-bottom: 1rem;">
+<label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Sonstiges / Anmerkungen</label>
+<input class="input-field" id="transfer-custom" placeholder="z.B. 2x Reinigungsmittel, 1x Rolle Zewa..." style="padding: 0.75rem;" type="text"/>
+</div>
+<button class="btn-primary" onclick="sendTransferList()" style="width: 100%; background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; border: none; font-weight: bold; padding: 1rem; border-radius: 12px; font-size: 1.05rem;">
                     🚀 Transferliste an TL senden
                 </button>
-            </div>
-        </div>
-
-
-        <div id="poster-alerts-container" class="live-section">
-
-        <!-- EIS-TRANSFERLISTE -->
-        <div class="card-container glass tools-section" id="eis-transfer-section" style="margin-bottom: 1rem; border-color: rgba(52, 152, 219, 0.3);">
-            <div class="card-header" style="padding: 1rem 1.25rem 0.5rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <span class="alert-icon-small">🍦</span>
-                    <h2 style="font-size: 1.25rem;">Eis-Transferliste</h2>
-                </div>
-            </div>
-            <div style="padding: 1rem 1.5rem 1.5rem;">
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Fehlendes Eis eintragen und direkt an die Küche senden.</p>
-                
-                <div id="eis-transfer-items" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
-                    <!-- Items generated by JS -->
-                </div>
-                
-                <div style="margin-bottom: 1rem;">
-                    <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Sonstiges / Anmerkungen</label>
-                    <input type="text" id="eis-transfer-custom" placeholder="z.B. Eis Löffel fehlen..." class="input-field" style="padding: 0.75rem;">
-                </div>
-
-                <button class="btn-primary" onclick="sendEisTransferList()" style="width: 100%; background: linear-gradient(135deg, #3498db, #2980b9); color: #fff; border: none; font-weight: bold; padding: 1rem; border-radius: 12px; font-size: 1.05rem;">
+</div>
+</div>
+<div class="live-section" id="poster-alerts-container">
+<!-- EIS-TRANSFERLISTE -->
+<div class="card-container glass tools-section" id="eis-transfer-section" style="margin-bottom: 1rem; border-color: rgba(52, 152, 219, 0.3);">
+<div class="card-header" style="padding: 1rem 1.25rem 0.5rem;">
+<div style="display: flex; align-items: center; gap: 0.75rem;">
+<span class="alert-icon-small">🍦</span>
+<h2 style="font-size: 1.25rem;">Eis-Transferliste</h2>
+</div>
+</div>
+<div style="padding: 1rem 1.5rem 1.5rem;">
+<p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Fehlendes Eis eintragen und direkt an die Küche senden.</p>
+<div id="eis-transfer-items" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
+<!-- Items generated by JS -->
+</div>
+<div style="margin-bottom: 1rem;">
+<label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Sonstiges / Anmerkungen</label>
+<input class="input-field" id="eis-transfer-custom" placeholder="z.B. Eis Löffel fehlen..." style="padding: 0.75rem;" type="text"/>
+</div>
+<button class="btn-primary" onclick="sendEisTransferList()" style="width: 100%; background: linear-gradient(135deg, #3498db, #2980b9); color: #fff; border: none; font-weight: bold; padding: 1rem; border-radius: 12px; font-size: 1.05rem;">
                     🚀 Eisliste an Küche senden
                 </button>
-            </div>
-        </div>
-
-        <!-- MHD-ERFASSUNG (NEW) -->
-        <div class="card-container glass tools-section" id="mhd-capture-section" style="display: none; margin-bottom: 2rem; border-color: rgba(241, 196, 15, 0.4); background: linear-gradient(135deg, rgba(241, 196, 15, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
-            <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <span class="alert-icon-small">📅</span>
-                    <h2 style="font-size: 1.25rem;">MHD Erfassung</h2>
-                </div>
-            </div>
-            <div style="padding: 1rem 1.5rem 1.5rem;">
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Erfasse Mindesthaltbarkeitsdaten für Artikel in Kühlungen & Gondeln.</p>
-                
-                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-                        <div>
-                            <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Artikel</label>
-                            <select id="mhd-item-select" class="input-field" style="width: 100%;"></select>
-                        </div>
-                        <div>
-                            <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Datum</label>
-                            <input type="date" id="mhd-date-input" class="input-field" style="width: 100%;">
-                        </div>
-                    </div>
-                    <button class="btn-primary" onclick="submitMHD()" style="width: 100%; background: linear-gradient(135deg, #f1c40f, #f39c12); color: #fff; border: none; font-weight: bold; padding: 1rem; border-radius: 12px; font-size: 1.05rem;">
+</div>
+</div>
+<!-- MHD-ERFASSUNG (NEW) -->
+<div class="card-container glass tools-section" id="mhd-capture-section" style="display: none; margin-bottom: 2rem; border-color: rgba(241, 196, 15, 0.4); background: linear-gradient(135deg, rgba(241, 196, 15, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
+<div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
+<div style="display: flex; align-items: center; gap: 0.75rem;">
+<span class="alert-icon-small">📅</span>
+<h2 style="font-size: 1.25rem;">MHD Erfassung</h2>
+</div>
+</div>
+<div style="padding: 1rem 1.5rem 1.5rem;">
+<p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Erfasse Mindesthaltbarkeitsdaten für Artikel in Kühlungen &amp; Gondeln.</p>
+<div style="display: flex; flex-direction: column; gap: 1rem;">
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+<div>
+<label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Artikel</label>
+<select class="input-field" id="mhd-item-select" style="width: 100%;"></select>
+</div>
+<div>
+<label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Datum</label>
+<input class="input-field" id="mhd-date-input" style="width: 100%;" type="date"/>
+</div>
+</div>
+<button class="btn-primary" onclick="submitMHD()" style="width: 100%; background: linear-gradient(135deg, #f1c40f, #f39c12); color: #fff; border: none; font-weight: bold; padding: 1rem; border-radius: 12px; font-size: 1.05rem;">
                         💾 MHD speichern
                     </button>
-                    <div id="mhd-status" style="display: none; padding: 0.75rem; border-radius: 8px; font-size: 0.85rem; text-align: center;"></div>
-                </div>
-            </div>
-        </div>
-            <div class="alerts-header glass" onclick="toggleAlerts()">
-                <div class="alerts-title">
-                    <span class="alert-icon-small">⚠️</span>
-                    <h2>Dringende Hinweise</h2>
-                    <span id="alert-count-badge" class="badge">0</span>
+<div id="mhd-status" style="display: none; padding: 0.75rem; border-radius: 8px; font-size: 0.85rem; text-align: center;"></div>
+</div>
+</div>
+</div>
+<div class="alerts-header glass" onclick="toggleAlerts()">
+<div class="alerts-title">
+<span class="alert-icon-small">⚠️</span>
+<h2>Dringende Hinweise</h2>
+<span class="badge" id="alert-count-badge">0</span>
+</div>
+<button class="toggle-btn" id="alerts-toggle-btn">
+<svg height="24" viewbox="0 0 24 24" width="24">
+<path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path>
+</svg>
+</button>
+</div>
+<div class="collapsible-content alerts-list" id="poster-alerts"></div>
+</div>
+<!-- Tasks Section (Auslässe & Posterwechsel) -->
+<div class="card-container auslaesse-container glass auslaesse-section" id="auslaesse-section-container" style="display: none;">
+<div class="card-header" style="flex-wrap: wrap; gap: 1rem; padding: 1rem 1.5rem;">
+<div class="header-left auslass-header-small" style="min-width: 200px;">
+<span class="alert-icon-small">📋</span>
+<h2 id="tasks-title">Tages-Aufgaben</h2>
+<span class="badge" id="auslass-count-badge">0</span>
+<span class="auslass-disclaimer" id="tasks-disclaimer">Auslässe: Ca. Ende + 30m · Plakatwechsel: Pop-up unter „Dringende Hinweise“ (ca. 20 Min nach Start)</span>
+</div>
+<button class="toggle-btn" id="auslaesse-toggle-btn">
+<svg height="24" viewbox="0 0 24 24" width="24">
+<path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path>
+</svg>
+</button>
+</div>
+<div class="collapsible-content auslass-grid" id="auslaesse-list">
 
-                </div>
-                <button class="toggle-btn" id="alerts-toggle-btn">
-                    <svg viewBox="0 0 24 24" width="24" height="24">
-                        <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
-                    </svg>
-                </button>
-            </div>
-            <div id="poster-alerts" class="collapsible-content alerts-list"></div>
-        </div>
-
-        <!-- Tasks Section (Auslässe & Posterwechsel) -->
-        <div id="auslaesse-section-container" class="card-container auslaesse-container glass auslaesse-section" style="display: none;">
-            <div class="card-header" style="flex-wrap: wrap; gap: 1rem; padding: 1rem 1.5rem;">
-                <div class="header-left auslass-header-small" style="min-width: 200px;">
-                    <span class="alert-icon-small">📋</span>
-                    <h2 id="tasks-title">Tages-Aufgaben</h2>
-                    <span id="auslass-count-badge" class="badge">0</span>
-                    <span class="auslass-disclaimer" id="tasks-disclaimer">Auslässe: Ca. Ende + 30m · Plakatwechsel: Pop-up unter „Dringende Hinweise“ (ca. 20 Min nach Start)</span>
-                </div>
-                <button class="toggle-btn" id="auslaesse-toggle-btn">
-                    <svg viewBox="0 0 24 24" width="24" height="24">
-                        <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
-                    </svg>
-                </button>
-            </div>
-            <div id="auslaesse-list" class="collapsible-content auslass-grid"></div>
-        </div>
-
-        <!-- Unified Workstation Panel -->
-        <div class="card-container glass intern-section" id="workstation-section" style="margin-bottom: 1rem;">
-            <div class="card-header" onclick="toggleSection('workstation-content', 'ws-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
-                    <span class="alert-icon-small">🛠️</span>
-                    <h2 style="font-size: 1.25rem;">Arbeitsbereich & Checklisten</h2>
-                    <span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic; margin-left: auto;">Local Storage</span>
-                </div>
-                <button class="toggle-btn" id="ws-toggle-btn" style="pointer-events: none;">
-                    <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" /></svg>
-                </button>
-            </div>
-            
-            <div id="workstation-content" class="collapsible-content" style="padding: 0 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;">
-                
-                <div style="margin-bottom: 0.5rem;">
-                    <select id="workstation-selector" class="input-field" onchange="renderWorkstation()" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--surface-border); padding: 0.75rem; border-radius: 8px; font-size: 1.1rem; font-weight: bold; width: 100%;">
-                        <option value="theke" selected>🍿 Theke (Checkliste)</option>
-                        <option value="einlass">🎟️ Einlass (Checkliste)</option>
-                        <option value="counter">🎫 Counter (Checkliste)</option>
-                        <option value="popcornkueche">🌽 Popcornküche (Checkliste)</option>
-                        <option value="becherspuelen">🥤 Becherspülen (Checkliste)</option>
-                        <option value="tl">👔 Teamleiter (TL)</option>
-                        <option value="bl">🏢 Betriebsleitung (BL)</option>
-
-                        <option value="lostfound" style="color: var(--primary-blue);">🧸 Fundbüro (Lost & Found)</option>
-                    </select>
-                </div>
-
-                <!-- Container for Checklists -->
-                <div id="ws-checklist-container">
-                    <div style="margin-bottom: 1rem;">
-                        <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">👤 Dein Name (Pflicht zum Abhaken)</label>
-                        <input id="ws-name-input" type="text" placeholder="Name eingeben..." class="input-field"
-                            oninput="localStorage.setItem('kinopolis_shift_name', this.value)"
-                            style="padding: 0.6rem 0.9rem; font-size: 0.95rem;">
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 0.5rem;" id="active-checklist-items">
-                        <!-- Items injected by JS -->
-                    </div>
-                    <button class="btn-secondary" onclick="resetChecklist()" style="margin-top: 1rem; font-size: 0.85rem; width: 100%;"><span class="icon">🔄</span> Alle Häkchen für diese Station zurücksetzen</button>
-                </div>
-
-                <!-- Container for Lost & Found -->
-                <div id="ws-lostfound-container" style="display: none;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                        <h3 style="color: var(--primary-blue); font-size: 1.1rem;">Verlorene Gegenstände</h3>
-                        <span id="lf-count-badge" class="badge" style="background: var(--primary-blue);">0</span>
-                    </div>
-                    <!-- Filter Bar -->
-                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
-                        <input id="lf-search" type="text" placeholder="🔍 Suchen..." oninput="loadLfItems()" style="flex: 1; min-width: 140px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.9rem; outline: none;">
-                        <select id="lf-filter-cat" onchange="loadLfItems()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.9rem;">
-                            <option value="">Alle Kategorien</option>
-                            <option>Kleidung</option>
-                            <option>Elektronik</option>
-                            <option>Schmuck</option>
-                            <option>Spielzeug</option>
-                            <option>Dokumente</option>
-                            <option>Taschen</option>
-                            <option>Sonstiges</option>
-                        </select>
-                    </div>
-                    <div id="lf-items-list" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem;"></div>
-                    <button onclick="openLfModal()" style="width: 100%; border-radius: 8px; font-weight: bold; font-size: 1rem; background: var(--primary-red); color: white; border: none; padding: 0.8rem 1rem; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'"><span class="icon">➕</span> Gefundenen Gegenstand eintragen</button>
-                </div>
-
-            </div>
-        </div>
-
-
-        <!-- Interner Kontakt (BL) -->
-        <!-- SCHICHT-VERWALTUNG (IN EINSTELLUNGEN) -->
-        <div class="card-container glass einstellungen-section" style="margin-bottom: 1.5rem; border-color: rgba(46, 204, 113, 0.4); background: linear-gradient(135deg, rgba(46, 204, 113, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
-            <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <span class="alert-icon-small">🕒</span>
-                    <h2 style="font-size: 1.25rem;">Schicht-Verwaltung</h2>
-                </div>
-            </div>
-            <div style="padding: 1rem 1.5rem 1.5rem;">
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Starte oder beende deinen Dienst, um die Arbeitszeit im Blick zu behalten.</p>
-                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <button class="shift-btn btn-primary" onclick="shiftCheckin()" style="width: 100%; padding: 1rem; border-radius: 12px; font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+</div>
+<div class="chart-container">
+<span class="stat-label">Besucher pro Stunde (Heute)</span>
+<div class="hour-bars" id="hour-chart">
+<!-- Bars will be injected here -->
+</div>
+</div></div>
+<!-- Unified Workstation Panel -->
+<div class="card-container glass intern-section" id="workstation-section" style="margin-bottom: 1rem;">
+<div class="card-header" onclick="toggleSection('workstation-content', 'ws-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
+<div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
+<span class="alert-icon-small">🛠️</span>
+<h2 style="font-size: 1.25rem;">Arbeitsbereich &amp; Checklisten</h2>
+<span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic; margin-left: auto;">Local Storage</span>
+</div>
+<button class="toggle-btn" id="ws-toggle-btn" style="pointer-events: none;">
+<svg height="24" viewbox="0 0 24 24" width="24"><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path></svg>
+</button>
+</div>
+<div class="collapsible-content" id="workstation-content" style="padding: 0 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;">
+<div style="margin-bottom: 0.5rem;">
+<select class="input-field" id="workstation-selector" onchange="renderWorkstation()" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--surface-border); padding: 0.75rem; border-radius: 8px; font-size: 1.1rem; font-weight: bold; width: 100%;">
+<option selected="" value="theke">🍿 Theke (Checkliste)</option>
+<option value="einlass">🎟️ Einlass (Checkliste)</option>
+<option value="counter">🎫 Counter (Checkliste)</option>
+<option value="popcornkueche">🌽 Popcornküche (Checkliste)</option>
+<option value="becherspuelen">🥤 Becherspülen (Checkliste)</option>
+<option value="tl">👔 Teamleiter (TL)</option>
+<option value="bl">🏢 Betriebsleitung (BL)</option>
+<option style="color: var(--primary-blue);" value="lostfound">🧸 Fundbüro (Lost &amp; Found)</option>
+</select>
+</div>
+<!-- Container for Checklists -->
+<div id="ws-checklist-container">
+<div style="margin-bottom: 1rem;">
+<label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">👤 Dein Name (Pflicht zum Abhaken)</label>
+<input class="input-field" id="ws-name-input" oninput="localStorage.setItem('kinopolis_shift_name', this.value)" placeholder="Name eingeben..." style="padding: 0.6rem 0.9rem; font-size: 0.95rem;" type="text"/>
+</div>
+<div id="active-checklist-items" style="display: flex; flex-direction: column; gap: 0.5rem;">
+<!-- Items injected by JS -->
+</div>
+<button class="btn-secondary" onclick="resetChecklist()" style="margin-top: 1rem; font-size: 0.85rem; width: 100%;"><span class="icon">🔄</span> Alle Häkchen für diese Station zurücksetzen</button>
+</div>
+<!-- Container for Lost & Found -->
+<div id="ws-lostfound-container" style="display: none;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+<h3 style="color: var(--primary-blue); font-size: 1.1rem;">Verlorene Gegenstände</h3>
+<span class="badge" id="lf-count-badge" style="background: var(--primary-blue);">0</span>
+</div>
+<!-- Filter Bar -->
+<div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+<input id="lf-search" oninput="loadLfItems()" placeholder="🔍 Suchen..." style="flex: 1; min-width: 140px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.9rem; outline: none;" type="text"/>
+<select id="lf-filter-cat" onchange="loadLfItems()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.9rem;">
+<option value="">Alle Kategorien</option>
+<option>Kleidung</option>
+<option>Elektronik</option>
+<option>Schmuck</option>
+<option>Spielzeug</option>
+<option>Dokumente</option>
+<option>Taschen</option>
+<option>Sonstiges</option>
+</select>
+</div>
+<div id="lf-items-list" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem;"></div>
+<button onclick="openLfModal()" onmouseout="this.style.opacity='1'" onmouseover="this.style.opacity='0.85'" style="width: 100%; border-radius: 8px; font-weight: bold; font-size: 1rem; background: var(--primary-red); color: white; border: none; padding: 0.8rem 1rem; cursor: pointer; transition: opacity 0.2s;"><span class="icon">➕</span> Gefundenen Gegenstand eintragen</button>
+</div>
+</div>
+</div>
+<!-- Interner Kontakt (BL) -->
+<!-- SCHICHT-VERWALTUNG (IN EINSTELLUNGEN) -->
+<div class="card-container glass einstellungen-section" style="margin-bottom: 1.5rem; border-color: rgba(46, 204, 113, 0.4); background: linear-gradient(135deg, rgba(46, 204, 113, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
+<div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
+<div style="display: flex; align-items: center; gap: 0.75rem;">
+<span class="alert-icon-small">🕒</span>
+<h2 style="font-size: 1.25rem;">Schicht-Verwaltung</h2>
+</div>
+</div>
+<div style="padding: 1rem 1.5rem 1.5rem;">
+<p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Starte oder beende deinen Dienst, um die Arbeitszeit im Blick zu behalten.</p>
+<div style="display: flex; flex-direction: column; gap: 1rem;">
+<button class="shift-btn btn-primary" onclick="shiftCheckin()" style="width: 100%; padding: 1rem; border-radius: 12px; font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
                         🟢 Schicht starten
                     </button>
-                    <div id="shift-status-text-alt" style="text-align: center; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600;"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card-container glass einstellungen-section" id="feedback-section" style="margin-bottom: 1rem; border-color: rgba(0, 120, 255, 0.4); background: linear-gradient(135deg, rgba(0, 120, 255, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
-            <div class="card-header" style="padding: 1.25rem;">
-                <a href="#" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem; width: 100%;" onclick="openFeedback('bl'); return false;">
-                    <div style="background: rgba(0, 120, 255, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📩</div>
-                    <div style="flex: 1;">
-                        <h2 style="font-size: 1.25rem; margin-bottom: 0.2rem; color: #fff;">Vertrauliches BL-Feedback</h2>
-                        <span style="font-size: 0.85rem; color: var(--text-muted);">Nachricht direkt an die Betriebsleitung senden (Anregungen, Probleme, Lob)</span>
-                    </div>
-                    <div style="color: var(--primary-blue); font-weight: bold;">Verfassen ❯</div>
-                </a>
-            </div>
-        </div>
-
-        <!-- Team Leader Portal -->
-        <div class="card-container glass einstellungen-section" style="margin-bottom: 2rem; border-color: rgba(168, 85, 247, 0.4); background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
-            <div class="card-header" style="padding: 1.25rem;">
-                <a href="/tl.html" target="_blank" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem; width: 100%;">
-                    <div style="background: rgba(168, 85, 247, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🚨</div>
-                    <div style="flex: 1;">
-                        <h2 style="font-size: 1.25rem; margin-bottom: 0.2rem; color: #fff;">Teamleiter-Portal</h2>
-                        <span style="font-size: 0.85rem; color: var(--text-muted);">Echtzeit-Übersicht für Funk & Transfers, sowie KI-Pausenempfehlungen.</span>
-                    </div>
-                    <div style="color: #a855f7; font-weight: bold;">Portal öffnen ❯</div>
-                </a>
-            </div>
-        </div>
-
-        <!-- Admin Portal (Standalone) -->
-        <div class="card-container glass einstellungen-section" style="margin-bottom: 2rem; border-color: rgba(168, 85, 247, 0.4); background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
-            <div class="card-header" style="padding: 1.25rem;">
-                <a href="/admin.html" target="_blank" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem; width: 100%;">
-                    <div style="background: rgba(168, 85, 247, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🔒</div>
-                    <div style="flex: 1;">
-                        <h2 style="font-size: 1.25rem; margin-bottom: 0.2rem; color: #fff;">Admin Portal</h2>
-                        <span style="font-size: 0.85rem; color: var(--text-muted);">Sichtbare Module verwalten, Mitteilungen schreiben und Daten exportieren.</span>
-                    </div>
-                    <div style="color: #a855f7; font-weight: bold;">Portal öffnen ❯</div>
-                </a>
-            </div>
-        </div>
-
-        <!-- Theme & Appearance -->
-        <div class="card-container glass einstellungen-section" style="margin-bottom: 1rem;">
-            <div class="card-header" style="padding: 1.25rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
-                    <span class="alert-icon-small">🌓</span>
-                    <h2 style="font-size: 1.25rem;">Erscheinungsbild</h2>
-                </div>
-                <button onclick="toggleTheme()" class="btn-primary" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.9rem;">
+<div id="shift-status-text-alt" style="text-align: center; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600;"></div>
+</div>
+</div>
+</div>
+<div class="card-container glass einstellungen-section" id="feedback-section" style="margin-bottom: 1rem; border-color: rgba(0, 120, 255, 0.4); background: linear-gradient(135deg, rgba(0, 120, 255, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
+<div class="card-header" style="padding: 1.25rem;">
+<a href="#" onclick="openFeedback('bl'); return false;" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem; width: 100%;">
+<div style="background: rgba(0, 120, 255, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📩</div>
+<div style="flex: 1;">
+<h2 style="font-size: 1.25rem; margin-bottom: 0.2rem; color: #fff;">Vertrauliches BL-Feedback</h2>
+<span style="font-size: 0.85rem; color: var(--text-muted);">Nachricht direkt an die Betriebsleitung senden (Anregungen, Probleme, Lob)</span>
+</div>
+<div style="color: var(--primary-blue); font-weight: bold;">Verfassen ❯</div>
+</a>
+</div>
+</div>
+<!-- Team Leader Portal -->
+<div class="card-container glass einstellungen-section" style="margin-bottom: 2rem; border-color: rgba(168, 85, 247, 0.4); background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
+<div class="card-header" style="padding: 1.25rem;">
+<a href="/tl.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem; width: 100%;" target="_blank">
+<div style="background: rgba(168, 85, 247, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🚨</div>
+<div style="flex: 1;">
+<h2 style="font-size: 1.25rem; margin-bottom: 0.2rem; color: #fff;">Teamleiter-Portal</h2>
+<span style="font-size: 0.85rem; color: var(--text-muted);">Echtzeit-Übersicht für Funk &amp; Transfers, sowie KI-Pausenempfehlungen.</span>
+</div>
+<div style="color: #a855f7; font-weight: bold;">Portal öffnen ❯</div>
+</a>
+</div>
+</div>
+<!-- Admin Portal (Standalone) -->
+<div class="card-container glass einstellungen-section" style="margin-bottom: 2rem; border-color: rgba(168, 85, 247, 0.4); background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
+<div class="card-header" style="padding: 1.25rem;">
+<a href="/admin.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem; width: 100%;" target="_blank">
+<div style="background: rgba(168, 85, 247, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🔒</div>
+<div style="flex: 1;">
+<h2 style="font-size: 1.25rem; margin-bottom: 0.2rem; color: #fff;">Admin Portal</h2>
+<span style="font-size: 0.85rem; color: var(--text-muted);">Sichtbare Module verwalten, Mitteilungen schreiben und Daten exportieren.</span>
+</div>
+<div style="color: #a855f7; font-weight: bold;">Portal öffnen ❯</div>
+</a>
+</div>
+</div>
+<!-- Theme & Appearance -->
+<div class="card-container glass einstellungen-section" style="margin-bottom: 1rem;">
+<div class="card-header" style="padding: 1.25rem;">
+<div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
+<span class="alert-icon-small">🌓</span>
+<h2 style="font-size: 1.25rem;">Erscheinungsbild</h2>
+</div>
+<button class="btn-primary" onclick="toggleTheme()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.9rem;">
                     Design wechseln <span id="settings-theme-icon">🌙</span>
-                </button>
-            </div>
-        </div>
-
-
-
-        <div class="card-container glass einstellungen-section" style="margin-bottom: 1rem;">
-            <div class="card-header" onclick="toggleSection('links-content', 'links-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
-                    <span class="alert-icon-small">🔗</span>
-                    <h2 style="font-size: 1.25rem;">Links & Handbücher</h2>
-                </div>
-                <button class="toggle-btn collapsed" id="links-toggle-btn" style="pointer-events: none;">
-                    <svg viewBox="0 0 24 24" width="24" height="24">
-                        <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
-                    </svg>
-                </button>
-            </div>
-            <div id="links-content" class="collapsible-content collapsed" style="padding: 0 1.5rem 1.5rem;">
-                <!-- External Links -->
-                <div style="margin-bottom: 1rem;">
-                    <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.75rem;">Externe Links</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                        <a href="https://walter.kinopolis.net" target="_blank" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;">
-                            <span style="font-size: 2rem;">🌐</span>
-                            <div>
-                                <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Walter</div>
-                                <div style="font-size: 0.8rem; color: var(--text-muted);">(Tagesbeginn & Abschluss)</div>
-                            </div>
-                        </a>
-                        <a href="https://eu.atoss.com" target="_blank" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;">
-                            <span style="font-size: 2rem;">📅</span>
-                            <div>
-                                <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Dienstplan</div>
-                                <div style="font-size: 0.8rem; color: var(--text-muted);">Schichtplan ansehen</div>
-                            </div>
-                        </a>
-                        <a href="archive.html" target="_blank" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;">
-                            <span style="font-size: 2rem;">🗃️</span>
-                            <div>
-                                <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Archiv</div>
-                                <div style="font-size: 0.8rem; color: var(--text-muted);">Alte Notizen & Bilder</div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-
-
-                <!-- Handbücher -->
-                <div>
-                    <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">Handbücher</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                        <a href="/public/docs/Leitfaden%20schwierige%20G%C3%A4ste.pdf" target="_blank" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem; border-color: rgba(0, 120, 255, 0.4); background: rgba(0, 120, 255, 0.05);">
-                            <span style="font-size: 2rem;">👔</span>
-                            <div>
-                                <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Schwierige Gäste</div>
-                                <div style="font-size: 0.8rem; color: var(--text-muted);">PDF Leitfaden für alle</div>
-                            </div>
-                        </a>
-                        <a href="#" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;" onclick="alert('Handbuch Kasse: Demnächst verfügbar!'); return false;">
-                            <span style="font-size: 2rem;">💰</span>
-                            <div>
-                                <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Kasse</div>
-                                <div style="font-size: 0.8rem; color: var(--text-muted);">Verkauf & Gutscheine</div>
-                            </div>
-                        </a>
-                        <a href="https://app.360learning.com/home/content/all" target="_blank" rel="noopener" class="stat-card" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem; border-color: rgba(46, 204, 113, 0.4); background: rgba(46, 204, 113, 0.05);">
-                            <span style="font-size: 2rem;">🎓</span>
-                            <div>
-                                <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Schulungsplattform</div>
-                                <div style="font-size: 0.8rem; color: var(--text-muted);">360learning · Online-Kurse</div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- GAMIFICATION: PROGRESS BAR (Moved to Stats) -->
-
-        <div id="dashboard" class="dashboard-grid live-section">
-            <div id="loading" class="loading-state">
-                <div class="spinner"></div>
-                <div class="loading-text">Abrufen der Live-Daten...</div>
-            </div>
-        </div>
-
-        <div class="card-container glass einstellungen-section" style="margin-bottom: 1rem;">
-            <div class="card-header" onclick="toggleSection('push-settings-content', 'push-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
-                    <span class="alert-icon-small">🔔</span>
-                    <h2 style="font-size: 1.25rem;">Push-Benachrichtigungen</h2>
-                    <span id="push-status-badge" class="badge" style="background: var(--text-muted); font-size: 0.7rem;">Deaktiviert</span>
-                </div>
-                <button class="toggle-btn collapsed" id="push-toggle-btn" style="pointer-events: none;">
-                    <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" /></svg>
-                </button>
-            </div>
-            <div id="push-settings-content" class="collapsible-content collapsed" style="padding: 0 1.5rem 1.5rem;">
-                <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 0.5rem;">
-                    
-                    <div id="push-unsupported" style="display: none; background: rgba(229, 9, 20, 0.1); border: 1px solid rgba(229, 9, 20, 0.2); padding: 1rem; border-radius: 12px; margin-bottom: 0.5rem;">
-                        <p style="color: #ff4d4d; font-size: 0.85rem;">⚠️ Dein Browser unterstützt keine Push-Benachrichtigungen oder du musst die App zum Home-Bildschirm hinzufügen (iOS).</p>
-                    </div>
-
-                    <!-- Premium Push Button / Card -->
-                    <div class="btn-push-premium" id="push-main-card" onclick="togglePushSubscription()">
-                        <div style="display: flex; align-items: center; gap: 1rem;">
-                            <div class="status-dot" id="push-status-dot"></div>
-                            <div class="push-info-text">
-                                <h4 id="push-main-label">Benachrichtigungen aktivieren</h4>
-                                <p id="push-sub-label">Wichtige Infos direkt aufs Handy erhalten</p>
-                            </div>
-                        </div>
-                        <div id="push-spinner" class="spinner" style="width: 20px; height: 20px; display: none; margin: 0;"></div>
-                        <svg id="push-chevron" viewBox="0 0 24 24" width="20" height="20" style="opacity: 0.5;"><path fill="currentColor" d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
-                    </div>
-                    <button class="btn-primary" onclick="submitMessage()">Nachricht senden</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Help Request Modal -->
-        <div id="help-modal" class="modal">
-            <div class="modal-content glass" style="max-width: 450px;">
-                <div style="text-align: center; margin-bottom: 1.5rem;">
-                    <div style="background: rgba(231,76,60,0.1); width: 64px; height: 64px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; border: 1px solid rgba(231,76,60,0.2);">
-                        <span style="font-size: 1.8rem;">🆘</span>
-                    </div>
-                    <h2 class="modal-title">Hilfe anfordern</h2>
-                    <p style="color: var(--text-muted); font-size: 0.85rem;">Beschreibe kurz, wobei du Unterstützung benötigst.</p>
-                </div>
-
-                <div style="margin-bottom: 1.25rem;">
-                    <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">An wen?</label>
-                    <select id="help-recipient" class="input-field" style="width: 100%;">
-                        <option value="TL">Teamleitung (TL)</option>
-                        <option value="Technik">Technik / Vorführer</option>
-                        <option value="Leitung">Betriebsleitung (BL)</option>
-                    </select>
-                </div>
-
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Grund / Nachricht</label>
-                    <textarea id="help-reason" placeholder="z.B. Starker Andrang an Kasse 3, Wechselgeld benötigt..." class="input-field" style="height: 100px; resize: none;"></textarea>
-                </div>
-
-                <div class="modal-actions" style="gap: 0.75rem;">
-                    <button class="btn-secondary" onclick="closeHelpModal()" style="flex: 1;">Abbrechen</button>
-                    <button class="btn-primary" onclick="submitHelpRequest()" style="flex: 2; background: var(--primary-red); border: none;">🚀 Ruf senden</button>
-                </div>
-            </div>
-        </div>
-
-                </div>
-            </div>
-        </div>
-
-        <!-- Date Selection in Settings -->
-        <div class="card-container glass einstellungen-section" style="margin-bottom: 1rem; border-color: rgba(0, 120, 255, 0.3);">
-            <div class="card-header" style="padding: 1.25rem 1.25rem 0.5rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <span class="alert-icon-small">📅</span>
-                    <h2 style="font-size: 1.25rem;">Tag auswählen</h2>
-                </div>
-            </div>
-            <div style="padding: 1rem 1.5rem 1.5rem;">
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Wähle den Tag aus, für den du die Daten sehen möchtest.</p>
-                <div class="date-navigator" style="width: 100%; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 0.5rem;">
-                    <button class="nav-btn" onclick="changeDate(-1)">
-                        <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" /></svg>
-                    </button>
-                    <div class="date-display" style="text-align: center; min-width: 120px;">
-                        <span class="settings-date-text" style="font-weight: 700; color: #fff;">Heute</span>
-                    </div>
-                    <button class="nav-btn" onclick="changeDate(1)">
-                        <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Info / Pitch Card -->
-        <div class="card-container glass einstellungen-section" style="margin-bottom: 2rem;">
-            <div style="padding: 1.5rem; border-left: 4px solid var(--primary-red); background: rgba(229, 9, 20, 0.03); border-radius: 20px;">
-                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                    <span style="font-size: 1.5rem;">🚀</span>
-                    <h2 style="font-size: 1.25rem;">Über Kinopolis Automation</h2>
-                </div>
-                <p style="font-size: 0.95rem; line-height: 1.6; color: #fff; margin-bottom: 1rem;">
-                    <strong>Das Betriebssystem für dein Kino.</strong> Vernetzt, effizient und modern. 
+</button>
+</div>
+</div>
+<div class="card-container glass einstellungen-section" style="margin-bottom: 1rem;">
+<div class="card-header" onclick="toggleSection('links-content', 'links-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
+<div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
+<span class="alert-icon-small">🔗</span>
+<h2 style="font-size: 1.25rem;">Links &amp; Handbücher</h2>
+</div>
+<button class="toggle-btn collapsed" id="links-toggle-btn" style="pointer-events: none;">
+<svg height="24" viewbox="0 0 24 24" width="24">
+<path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path>
+</svg>
+</button>
+</div>
+<div class="collapsible-content collapsed" id="links-content" style="padding: 0 1.5rem 1.5rem;">
+<!-- External Links -->
+<div style="margin-bottom: 1rem;">
+<h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.75rem;">Externe Links</h3>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+<a class="stat-card" href="https://walter.kinopolis.net" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;" target="_blank">
+<span style="font-size: 2rem;">🌐</span>
+<div>
+<div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Walter</div>
+<div style="font-size: 0.8rem; color: var(--text-muted);">(Tagesbeginn &amp; Abschluss)</div>
+</div>
+</a>
+<a class="stat-card" href="https://eu.atoss.com" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;" target="_blank">
+<span style="font-size: 2rem;">📅</span>
+<div>
+<div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Dienstplan</div>
+<div style="font-size: 0.8rem; color: var(--text-muted);">Schichtplan ansehen</div>
+</div>
+</a>
+<a class="stat-card" href="archive.html" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;" target="_blank">
+<span style="font-size: 2rem;">🗃️</span>
+<div>
+<div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Archiv</div>
+<div style="font-size: 0.8rem; color: var(--text-muted);">Alte Notizen &amp; Bilder</div>
+</div>
+</a>
+</div>
+</div>
+<!-- Handbücher -->
+<div>
+<h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">Handbücher</h3>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+<a class="stat-card" href="/public/docs/Leitfaden%20schwierige%20G%C3%A4ste.pdf" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem; border-color: rgba(0, 120, 255, 0.4); background: rgba(0, 120, 255, 0.05);" target="_blank">
+<span style="font-size: 2rem;">👔</span>
+<div>
+<div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Schwierige Gäste</div>
+<div style="font-size: 0.8rem; color: var(--text-muted);">PDF Leitfaden für alle</div>
+</div>
+</a>
+<a class="stat-card" href="#" onclick="alert('Handbuch Kasse: Demnächst verfügbar!'); return false;" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;">
+<span style="font-size: 2rem;">💰</span>
+<div>
+<div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Kasse</div>
+<div style="font-size: 0.8rem; color: var(--text-muted);">Verkauf &amp; Gutscheine</div>
+</div>
+</a>
+<a class="stat-card" href="https://app.360learning.com/home/content/all" rel="noopener" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem; border-color: rgba(46, 204, 113, 0.4); background: rgba(46, 204, 113, 0.05);" target="_blank">
+<span style="font-size: 2rem;">🎓</span>
+<div>
+<div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Schulungsplattform</div>
+<div style="font-size: 0.8rem; color: var(--text-muted);">360learning · Online-Kurse</div>
+</div>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- GAMIFICATION: PROGRESS BAR (Moved to Stats) -->
+<div class="dashboard-grid live-section" id="dashboard">
+<div class="loading-state" id="loading">
+<div class="spinner"></div>
+<div class="loading-text">Abrufen der Live-Daten...</div>
+</div>
+</div>
+<div class="card-container glass einstellungen-section" style="margin-bottom: 1rem;">
+<div class="card-header" onclick="toggleSection('push-settings-content', 'push-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
+<div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
+<span class="alert-icon-small">🔔</span>
+<h2 style="font-size: 1.25rem;">Push-Benachrichtigungen</h2>
+<span class="badge" id="push-status-badge" style="background: var(--text-muted); font-size: 0.7rem;">Deaktiviert</span>
+</div>
+<button class="toggle-btn collapsed" id="push-toggle-btn" style="pointer-events: none;">
+<svg height="24" viewbox="0 0 24 24" width="24"><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path></svg>
+</button>
+</div>
+<div class="collapsible-content collapsed" id="push-settings-content" style="padding: 0 1.5rem 1.5rem;">
+<div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 0.5rem;">
+<div id="push-unsupported" style="display: none; background: rgba(229, 9, 20, 0.1); border: 1px solid rgba(229, 9, 20, 0.2); padding: 1rem; border-radius: 12px; margin-bottom: 0.5rem;">
+<p style="color: #ff4d4d; font-size: 0.85rem;">⚠️ Dein Browser unterstützt keine Push-Benachrichtigungen oder du musst die App zum Home-Bildschirm hinzufügen (iOS).</p>
+</div>
+<!-- Premium Push Button / Card -->
+<div class="btn-push-premium" id="push-main-card" onclick="togglePushSubscription()">
+<div style="display: flex; align-items: center; gap: 1rem;">
+<div class="status-dot" id="push-status-dot"></div>
+<div class="push-info-text">
+<h4 id="push-main-label">Benachrichtigungen aktivieren</h4>
+<p id="push-sub-label">Wichtige Infos direkt aufs Handy erhalten</p>
+</div>
+</div>
+<div class="spinner" id="push-spinner" style="width: 20px; height: 20px; display: none; margin: 0;"></div>
+<svg height="20" id="push-chevron" style="opacity: 0.5;" viewbox="0 0 24 24" width="20"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" fill="currentColor"></path></svg>
+</div>
+<button class="btn-primary" onclick="submitMessage()">Nachricht senden</button>
+</div>
+</div>
+</div>
+<!-- Help Request Modal -->
+<div class="modal" id="help-modal">
+<div class="modal-content glass" style="max-width: 450px;">
+<div style="text-align: center; margin-bottom: 1.5rem;">
+<div style="background: rgba(231,76,60,0.1); width: 64px; height: 64px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; border: 1px solid rgba(231,76,60,0.2);">
+<span style="font-size: 1.8rem;">🆘</span>
+</div>
+<h2 class="modal-title">Hilfe anfordern</h2>
+<p style="color: var(--text-muted); font-size: 0.85rem;">Beschreibe kurz, wobei du Unterstützung benötigst.</p>
+</div>
+<div style="margin-bottom: 1.25rem;">
+<label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">An wen?</label>
+<select class="input-field" id="help-recipient" style="width: 100%;">
+<option value="TL">Teamleitung (TL)</option>
+<option value="Technik">Technik / Vorführer</option>
+<option value="Leitung">Betriebsleitung (BL)</option>
+</select>
+</div>
+<div style="margin-bottom: 1.5rem;">
+<label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Grund / Nachricht</label>
+<textarea class="input-field" id="help-reason" placeholder="z.B. Starker Andrang an Kasse 3, Wechselgeld benötigt..." style="height: 100px; resize: none;"></textarea>
+</div>
+<div class="modal-actions" style="gap: 0.75rem;">
+<button class="btn-secondary" onclick="closeHelpModal()" style="flex: 1;">Abbrechen</button>
+<button class="btn-primary" onclick="submitHelpRequest()" style="flex: 2; background: var(--primary-red); border: none;">🚀 Ruf senden</button>
+</div>
+</div>
+</div>
+<div class="card-container glass einstellungen-section" style="margin-bottom: 2rem;">
+<div style="padding: 1.5rem; border-left: 4px solid var(--primary-red); background: rgba(229, 9, 20, 0.03); border-radius: 20px;">
+<div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+<span style="font-size: 1.5rem;">🚀</span>
+<h2 style="font-size: 1.25rem;">Über Kinopolis Automation</h2>
+</div>
+<p style="font-size: 0.95rem; line-height: 1.6; color: #fff; margin-bottom: 1rem;">
+<strong>Das Betriebssystem für dein Kino.</strong> Vernetzt, effizient und modern. 
                 </p>
-                <p style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+<p style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
                     Von Mitarbeitern für Mitarbeiter entwickelt, um den Kinobetrieb ins 21. Jahrhundert zu heben. 
                     Echtzeit-Kommunikation, intelligente Aufgabenplanung und ein digitales Gedächtnis für jeden Standort. 
                     Kinopolis Automation ist nicht nur ein Tool – es ist die Zentrale für einen reibungslosen Ablauf hinter den Kulissen.
                 </p>
-                <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; font-size: 0.75rem; color: rgba(255,255,255,0.3);">
-                    <span>Version 1.0 (April 2026)</span>
-                    <span>•</span>
-                    <span>Made with ❤️ for Kinopolis</span>
-                </div>
-            </div>
-        </div>
+<div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; font-size: 0.75rem; color: rgba(255,255,255,0.3);">
+<span>Version 1.0 (April 2026)</span>
+<span>•</span>
+<span>Made with ❤️ for Kinopolis</span>
+</div>
+</div>
+</div></div>
 
-        <!-- Statistics Section -->
-        <section id="stats-section-container" class="stats-section tl-only" style="display: none; margin-bottom: 4rem;">
-            <!-- GAMIFICATION: PROGRESS BAR -->
-            <div id="gamification-summary" class="glass" style="margin-bottom: 1.5rem; padding: 1.25rem; border-radius: 16px; border: 1px solid rgba(0, 120, 255, 0.2); background: linear-gradient(135deg, rgba(0, 120, 255, 0.05) 0%, rgba(0,0,0,0.2) 100%);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                    <div style="display: flex; align-items: center; gap: 0.6rem;">
-                        <span style="font-size: 1.3rem;">🏆</span>
-                        <div>
-                            <div style="font-weight: 800; font-size: 0.95rem; color: white;">Schicht-Level: <span id="level-name-label" style="color: var(--primary-blue);">Lade...</span></div>
-                            <div id="xp-display" style="font-size: 1.1rem; font-weight: 900; color: white;">0 XP</div>
+
+<!-- Date Selection in Settings -->
+<div class="card-container glass einstellungen-section" style="margin-bottom: 1rem; border-color: rgba(0, 120, 255, 0.3);">
+<div class="card-header" style="padding: 1.25rem 1.25rem 0.5rem;">
+<div style="display: flex; align-items: center; gap: 0.75rem;">
+<span class="alert-icon-small">📅</span>
+<h2 style="font-size: 1.25rem;">Tag auswählen</h2>
+</div>
+</div>
+<div style="padding: 1rem 1.5rem 1.5rem;">
+<p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Wähle den Tag aus, für den du die Daten sehen möchtest.</p>
+<div class="date-navigator" style="width: 100%; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 0.5rem;">
+<button class="nav-btn" onclick="changeDate(-1)">
+<svg height="24" viewbox="0 0 24 24" width="24"><path d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" fill="currentColor"></path></svg>
+</button>
+<div class="date-display" style="text-align: center; min-width: 120px;">
+<span class="settings-date-text" style="font-weight: 700; color: #fff;">Heute</span>
+</div>
+<button class="nav-btn" onclick="changeDate(1)">
+<svg height="24" viewbox="0 0 24 24" width="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" fill="currentColor"></path></svg>
+</button>
+</div>
+</div>
+</div>
+<!-- Info / Pitch Card -->
+
+<!-- Statistics Section -->
+<section class="stats-section tl-only" id="stats-section-container" style="display: none; margin-bottom: 4rem;">
+<!-- GAMIFICATION: PROGRESS BAR -->
+<div class="glass" id="gamification-summary" style="margin-bottom: 1.5rem; padding: 1.25rem; border-radius: 16px; border: 1px solid rgba(0, 120, 255, 0.2); background: linear-gradient(135deg, rgba(0, 120, 255, 0.05) 0%, rgba(0,0,0,0.2) 100%);">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+<div style="display: flex; align-items: center; gap: 0.6rem;">
+<span style="font-size: 1.3rem;">🏆</span>
+<div>
+<div style="font-weight: 800; font-size: 0.95rem; color: white;">Schicht-Level: <span id="level-name-label" style="color: var(--primary-blue);">Lade...</span></div>
+<div id="xp-display" style="font-size: 1.1rem; font-weight: 900; color: white;">0 XP</div>
+</div>
+</div>
+</div>
+<!-- SHIFT TIMER (NEW) -->
+<div id="shift-timer-container" style="background: rgba(255, 185, 0, 0.05); border: 1px solid rgba(255, 185, 0, 0.15); border-radius: 20px; padding: 1.25rem; margin-bottom: 1.5rem; display: none;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+<div style="font-size: 0.8rem; font-weight: 800; color: var(--primary-gold); display: flex; align-items: center; gap: 0.4rem;">
+<span>⏱️</span> Schicht-Fortschritt
                         </div>
-                    </div>
-                </div>
-                <!-- SHIFT TIMER (NEW) -->
-                <div id="shift-timer-container" style="background: rgba(255, 185, 0, 0.05); border: 1px solid rgba(255, 185, 0, 0.15); border-radius: 20px; padding: 1.25rem; margin-bottom: 1.5rem; display: none;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                        <div style="font-size: 0.8rem; font-weight: 800; color: var(--primary-gold); display: flex; align-items: center; gap: 0.4rem;">
-                            <span>⏱️</span> Schicht-Fortschritt
-                        </div>
-                        <div id="shift-time-left" style="font-size: 0.85rem; font-weight: 800; color: #fff;">Lade...</div>
-                    </div>
-                    <div style="height: 6px; background: rgba(0,0,0,0.3); border-radius: 50px; overflow: hidden;">
-                        <div id="shift-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(to right, #ffb900, #ff8c00); transition: width 1s linear;"></div>
-                    </div>
-                </div>
-                <div class="progress-container" style="height: 12px; background: rgba(255,255,255,0.05); border-radius: 6px; overflow: hidden; margin-bottom: 0.5rem; border: 1px solid rgba(255,255,255,0.05);">
-                    <div id="xp-bar" class="progress-bar" style="width: 0%; height: 100%; background: linear-gradient(to right, #3498db, #2ecc71); transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 15px rgba(52, 152, 219, 0.4);"></div>
-                </div>
-                <div id="xp-status" style="font-size: 0.75rem; color: var(--text-muted);">Erledige Aufgaben, um XP zu sammeln!</div>
-            </div>
-            <div class="section-header card-header" onclick="toggleSection('stats-content', 'stats-toggle-btn')" style="cursor: pointer; padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <div style="display: flex; align-items: center; gap: 0.8rem; flex: 1;">
-                    <span class="alert-icon-small" style="font-size: 1.4rem;">📊</span>
-                    <h2 style="margin: 0;">Tages-Statistiken</h2>
-                </div>
-                <button class="toggle-btn" id="stats-toggle-btn" style="pointer-events: none;">
-                    <svg viewBox="0 0 24 24" width="24" height="24">
-                        <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
-                    </svg>
-                </button>
-            </div>
-            <div id="stats-content" class="collapsible-content" style="padding: 0 1.25rem 1.25rem;">
-                <div id="stats-grid" class="stats-grid">
-                    <!-- Stat cards will be injected here -->
-                </div>
-                <div class="chart-container">
-                    <span class="stat-label">Besucher pro Stunde (Heute)</span>
-                    <div id="hour-chart" class="hour-bars">
-                        <!-- Bars will be injected here -->
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- INTERNAL NEWS (Moved to Settings) -->
-        <div id="internal-news-container" class="card-container news-section glass einstellungen-section" style="display: none; margin-bottom: 1rem;">
-            <div class="card-header" onclick="toggleSection('news-content', 'news-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
-                    <span class="alert-icon-small">📢</span>
-                    <h2 style="font-size: 1.25rem;">Interne Mitteilungen</h2>
-                    <span id="news-badge" class="badge">0</span>
-                </div>
-                <button class="toggle-btn" id="news-toggle-btn" style="pointer-events: none;">
-                    <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" /></svg>
-                </button>
-            </div>
-            <div id="news-content" class="collapsible-content" style="padding: 0 1.25rem 1.25rem;">
-                <div id="news-list">
-                    <!-- Loaded dynamically -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Staff Notes Section (Moved to Bottom) -->
-        <div class="card-container notes-section glass intern-section" style="margin-top: 2rem; margin-bottom: 2rem; display: none;">
-            <div class="card-header" onclick="toggleSection('staff-notes-content', 'notes-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
-                    <span class="alert-icon-small">📝</span>
-                    <h2 style="font-size: 1.25rem;">Schicht-Notizen</h2>
-                    <span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic; margin-left: auto;">Local Storage</span>
-                </div>
-                <button class="toggle-btn" id="notes-toggle-btn" style="pointer-events: none;">
-                    <svg viewBox="0 0 24 24" width="24" height="24">
-                        <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
-                    </svg>
-                </button>
-            </div>
-            <div id="staff-notes-content" class="collapsible-content" style="padding: 0 1.5rem 1.5rem;">
-                <textarea id="staff-notes" class="notes-area" placeholder="Notizen für die aktuelle Schicht hier eintragen..."></textarea>
-            </div>
-        </div>
-    </div>
-
-    <script>
+<div id="shift-time-left" style="font-size: 0.85rem; font-weight: 800; color: #fff;">Lade...</div>
+</div>
+<div style="height: 6px; background: rgba(0,0,0,0.3); border-radius: 50px; overflow: hidden;">
+<div id="shift-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(to right, #ffb900, #ff8c00); transition: width 1s linear;"></div>
+</div>
+</div>
+<div class="progress-container" style="height: 12px; background: rgba(255,255,255,0.05); border-radius: 6px; overflow: hidden; margin-bottom: 0.5rem; border: 1px solid rgba(255,255,255,0.05);">
+<div class="progress-bar" id="xp-bar" style="width: 0%; height: 100%; background: linear-gradient(to right, #3498db, #2ecc71); transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 15px rgba(52, 152, 219, 0.4);"></div>
+</div>
+<div id="xp-status" style="font-size: 0.75rem; color: var(--text-muted);">Erledige Aufgaben, um XP zu sammeln!</div>
+</div>
+<div class="section-header card-header" onclick="toggleSection('stats-content', 'stats-toggle-btn')" style="cursor: pointer; padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
+<div style="display: flex; align-items: center; gap: 0.8rem; flex: 1;">
+<span class="alert-icon-small" style="font-size: 1.4rem;">📊</span>
+<h2 style="margin: 0;">Tages-Statistiken</h2>
+</div>
+<button class="toggle-btn" id="stats-toggle-btn" style="pointer-events: none;">
+<svg height="24" viewbox="0 0 24 24" width="24">
+<path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path>
+</svg>
+</button>
+</div>
+<div class="collapsible-content" id="stats-content" style="padding: 0 1.25rem 1.25rem;">
+<div class="stats-grid" id="stats-grid">
+<!-- Stat cards will be injected here -->
+</div>
+</div>
+</section>
+<!-- INTERNAL NEWS (Moved to Settings) -->
+<!-- Staff Notes Section (Moved to Bottom) -->
+<script>
         // --- ERROR TRACKING ---
         window.onerror = function(msg, url, line, col, error) {
             console.error('GLOBAL ERROR:', msg, 'at', line, ':', col);
@@ -7554,183 +7477,168 @@
 
         init();
     </script>
-
-
-
-    <!-- Welcome Modal -->
-    <div id="welcome-modal" class="modal">
-        <div class="modal-content glass" style="max-height: 90vh; overflow-y: auto;">
-            <span class="welcome-icon">🍿</span>
-            <h2 class="modal-title">Willkommen!</h2>
-            <div style="margin-bottom: 2rem; color: var(--text-main); font-size: 0.95rem; text-align: left;">
-                <p style="margin-bottom: 1.5rem; line-height: 1.5; text-align: center;">Das Kinopolis Automation Dashboard ist deine zentrale Anlaufstelle für einen reibungslosen Kinobetrieb.</p>
-                <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.8rem; text-align: center;">Deine Vorteile:</h3>
-                <ul style="list-style: none; padding: 0; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.6;">
-                    <li style="margin-bottom: 12px; display: flex; gap: 10px;"><span style="font-size: 1.2rem;">🎯</span> <span><strong>Bereichs-Fokus:</strong> Personalisiere deine Ansicht je nach Einsatzbereich (Kasse, Theke, Einlass).</span></li>
-                    <li style="margin-bottom: 12px; display: flex; gap: 10px;"><span style="font-size: 1.2rem;">⚡</span> <span><strong>Echtzeit-Infos:</strong> Bleibe immer auf dem neuesten Stand bei Aufgaben und Terminen.</span></li>
-                    <li style="margin-bottom: 12px; display: flex; gap: 10px;"><span style="font-size: 1.2rem;">📱</span> <span><strong>Mobile First:</strong> Nutze alle Funktionen bequem auf deinem Smartphone während der Schicht.</span></li>
-                    <li style="margin-bottom: 12px; display: flex; gap: 10px;"><span style="font-size: 1.2rem;">📧</span> <span><strong>Schicht-Reports:</strong> Erhalte nach jeder Schicht eine Zusammenfassung deiner Erfolge per E-Mail.</span></li>
-                </ul>
-                <div style="background: rgba(0, 120, 255, 0.08); border: 1px solid rgba(0, 120, 255, 0.15); padding: 1rem; border-radius: 16px; text-align: center;">
-                    <p style="line-height: 1.5; margin: 0; color: var(--primary-blue); font-size: 0.85rem;"><strong>Tipp:</strong> Starte deine Schicht im Profil-Menü, um XP zu sammeln!</p>
-                </div>
-            <div class="card-container glass danger-zone" style="margin-top: 2rem;">
-                <h2 style="color: #ff4d4d; margin-top: 0;">Notfall / Dringend</h2>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Löst einen sofortigen Alarm auf allen Geräten im Kino aus (Pausenraum, Einlass, TL-Tablet).</p>
-                <input type="text" id="sos-text" placeholder="Womit brauchst du Hilfe?" style="width:100%; padding:1rem; border-radius:12px; margin-bottom:1rem; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.5); color:#fff; font-family: Outfit;">
-                <button class="emergency-btn" onclick="sendEmergency()">🚨 HILFERUF SENDEN</button>
-            </div>
-            <div class="modal-actions" style="justify-content: center;">
-                <button onclick="closeWelcomeModal()" class="btn-primary" style="width: 100%; padding: 1.25rem; font-size: 1.1rem; border-radius: 16px; font-weight: 800; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); border: none; color: white;">Verstanden & Loslegen</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="global-toast" class="global-toast">
-        <span id="toast-icon">✅</span>
-        <span id="toast-msg">Erfolgreich ausgeführt</span>
-    </div>
-
-    <!-- Feedback UI -->
-    <div class="feedback-tab" onclick="openFeedback('artjom')">
+<!-- Welcome Modal -->
+<div class="modal" id="welcome-modal">
+<div class="modal-content glass" style="max-height: 90vh; overflow-y: auto;">
+<span class="welcome-icon">🍿</span>
+<h2 class="modal-title">Willkommen!</h2>
+<div style="margin-bottom: 2rem; color: var(--text-main); font-size: 0.95rem; text-align: left;">
+<p style="margin-bottom: 1.5rem; line-height: 1.5; text-align: center;">Das Kinopolis Automation Dashboard ist deine zentrale Anlaufstelle für einen reibungslosen Kinobetrieb.</p>
+<h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.8rem; text-align: center;">Deine Vorteile:</h3>
+<ul style="list-style: none; padding: 0; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.6;">
+<li style="margin-bottom: 12px; display: flex; gap: 10px;"><span style="font-size: 1.2rem;">🎯</span> <span><strong>Bereichs-Fokus:</strong> Personalisiere deine Ansicht je nach Einsatzbereich (Kasse, Theke, Einlass).</span></li>
+<li style="margin-bottom: 12px; display: flex; gap: 10px;"><span style="font-size: 1.2rem;">⚡</span> <span><strong>Echtzeit-Infos:</strong> Bleibe immer auf dem neuesten Stand bei Aufgaben und Terminen.</span></li>
+<li style="margin-bottom: 12px; display: flex; gap: 10px;"><span style="font-size: 1.2rem;">📱</span> <span><strong>Mobile First:</strong> Nutze alle Funktionen bequem auf deinem Smartphone während der Schicht.</span></li>
+<li style="margin-bottom: 12px; display: flex; gap: 10px;"><span style="font-size: 1.2rem;">📧</span> <span><strong>Schicht-Reports:</strong> Erhalte nach jeder Schicht eine Zusammenfassung deiner Erfolge per E-Mail.</span></li>
+</ul>
+<div style="background: rgba(0, 120, 255, 0.08); border: 1px solid rgba(0, 120, 255, 0.15); padding: 1rem; border-radius: 16px; text-align: center;">
+<p style="line-height: 1.5; margin: 0; color: var(--primary-blue); font-size: 0.85rem;"><strong>Tipp:</strong> Starte deine Schicht im Profil-Menü, um XP zu sammeln!</p>
+</div>
+<div class="card-container glass danger-zone" style="margin-top: 2rem;">
+<h2 style="color: #ff4d4d; margin-top: 0;">Notfall / Dringend</h2>
+<p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Löst einen sofortigen Alarm auf allen Geräten im Kino aus (Pausenraum, Einlass, TL-Tablet).</p>
+<input id="sos-text" placeholder="Womit brauchst du Hilfe?" style="width:100%; padding:1rem; border-radius:12px; margin-bottom:1rem; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.5); color:#fff; font-family: Outfit;" type="text"/>
+<button class="emergency-btn" onclick="sendEmergency()">🚨 HILFERUF SENDEN</button>
+</div>
+<div class="modal-actions" style="justify-content: center;">
+<button class="btn-primary" onclick="closeWelcomeModal()" style="width: 100%; padding: 1.25rem; font-size: 1.1rem; border-radius: 16px; font-weight: 800; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); border: none; color: white;">Verstanden &amp; Loslegen</button>
+</div>
+</div>
+</div>
+<div class="global-toast" id="global-toast">
+<span id="toast-icon">✅</span>
+<span id="toast-msg">Erfolgreich ausgeführt</span>
+</div>
+<!-- Feedback UI -->
+<div class="feedback-tab" onclick="openFeedback('artjom')">
         Entwickler Feedback
     </div>
-
-    <div id="feedback-modal" class="modal">
-        <div class="modal-content glass">
-            <h2>Feedback an die Betriebsleitung</h2>
-            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Nachricht direkt und vertraulich an die BL senden. Andere können das nicht lesen (interne Datenbank/Mail).</p>
-            
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <textarea id="feedback-text" placeholder="Deine Nachricht (Anregungen, Probleme, Wünsche)..." style="margin: 0;"></textarea>
-                <input type="text" id="feedback-contact" class="input-field" placeholder="Dein Name (freiwillig) – lass leer für anonym" style="background: rgba(255,255,255,0.05);">
-            </div>
-
-            <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; color: var(--text-muted);">
-                Support & Website: <a href="https://artjombecker.com" target="_blank" style="color: var(--primary-blue); text-decoration: none; font-weight: 600;">artjombecker.com</a>
-            </div>
-
-            <div class="modal-actions" style="margin-top: 1.5rem;">
-                <button onclick="closeFeedback()" class="btn-secondary">Abbrechen</button>
-                <button onclick="sendFeedback()" class="btn-primary" style="background: var(--primary-red); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 12px; cursor: pointer; font-weight: 600;">Senden</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Lost & Found Modal -->
-    <div id="lf-modal" class="modal">
-        <div class="modal-content glass">
-            <h2>Gefundenen Gegenstand eintragen</h2>
-            <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
-                <input type="text" id="lf-what" class="input-field" placeholder="Was? (z.B. Schwarzer Schal)" required />
-                <select id="lf-category" class="input-field" required style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--surface-border); padding: 0.75rem; border-radius: 8px; font-size: 1rem;">
-                    <option value="" disabled selected>Kategorie wählen...</option>
-                    <option value="Kleidung">👕 Kleidung</option>
-                    <option value="Wertsachen">💎 Wertsachen (Geldbeutel, Schlüssel)</option>
-                    <option value="Elektronik">📱 Elektronik (Handy, Kopfhörer)</option>
-                    <option value="Sonstiges">📦 Sonstiges</option>
-                </select>
-                <input type="text" id="lf-where" class="input-field" placeholder="Wo genau? (z.B. Kino 4, Platz 8A)" required />
-                <input type="text" id="lf-who" class="input-field" placeholder="Wer hat es gefunden? (Dein Name)" required />
-            </div>
-            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                <button class="btn-secondary" onclick="closeLfModal()" style="flex: 1;">Abbrechen</button>
-                <button class="btn-primary" onclick="saveLfItem()" style="flex: 1;">Speichern</button>
-            </div>
-        </div>
-    </div>
-    <!-- Movie Detail Modal -->
-    <div id="movie-detail-modal" class="modal">
-        <div id="movie-detail-content" class="modal-content glass" style="max-height: 90vh; overflow-y: auto;">
-            <!-- Filled via JS -->
-        </div>
-    </div>
-
-    <!-- SHIFT SUMMARY MODAL -->
-    <div id="shift-summary-modal" class="modal">
-        <div class="modal-content glass" style="max-width: 400px; text-align: center;">
-            <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎬</div>
-            <h2 style="margin: 0 0 0.25rem; font-size: 1.5rem;">Schicht beendet!</h2>
-            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Gute Arbeit heute!</p>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-                <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem;">
-                    <div style="font-size: 1.6rem; font-weight: 800;" id="shift-summary-duration">0h 0m</div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">⏱ Schichtdauer</div>
-                </div>
-                <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem;">
-                    <div style="font-size: 1.6rem; font-weight: 800; color: #3498db;" id="shift-summary-auslaesse">0</div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">🚪 Auslässe</div>
-                </div>
-                <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem;">
-                    <div style="font-size: 1.6rem; font-weight: 800; color: #2ecc71;" id="shift-summary-cleaning">0</div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">🧹 Aufgaben</div>
-                </div>
-                <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem;">
-                    <div style="font-size: 1.6rem; font-weight: 800; color: #f1c40f;" id="shift-summary-xp">0</div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">⭐ XP verdient</div>
-                </div>
-            </div>
-
-            <button onclick="document.getElementById('shift-summary-modal').classList.remove('active')" style="width: 100%; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); color: white; border: none; padding: 1rem; border-radius: 12px; font-weight: 800; font-size: 1.1rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(0, 120, 255, 0.4);">
+<div class="modal" id="feedback-modal">
+<div class="modal-content glass">
+<h2>Feedback an die Betriebsleitung</h2>
+<p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Nachricht direkt und vertraulich an die BL senden. Andere können das nicht lesen (interne Datenbank/Mail).</p>
+<div style="display: flex; flex-direction: column; gap: 1rem;">
+<textarea id="feedback-text" placeholder="Deine Nachricht (Anregungen, Probleme, Wünsche)..." style="margin: 0;"></textarea>
+<input class="input-field" id="feedback-contact" placeholder="Dein Name (freiwillig) – lass leer für anonym" style="background: rgba(255,255,255,0.05);" type="text"/>
+</div>
+<div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; color: var(--text-muted);">
+                Support &amp; Website: <a href="https://artjombecker.com" style="color: var(--primary-blue); text-decoration: none; font-weight: 600;" target="_blank">artjombecker.com</a>
+</div>
+<div class="modal-actions" style="margin-top: 1.5rem;">
+<button class="btn-secondary" onclick="closeFeedback()">Abbrechen</button>
+<button class="btn-primary" onclick="sendFeedback()" style="background: var(--primary-red); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 12px; cursor: pointer; font-weight: 600;">Senden</button>
+</div>
+</div>
+</div>
+<!-- Lost & Found Modal -->
+<div class="modal" id="lf-modal">
+<div class="modal-content glass">
+<h2>Gefundenen Gegenstand eintragen</h2>
+<div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
+<input class="input-field" id="lf-what" placeholder="Was? (z.B. Schwarzer Schal)" required="" type="text">
+<select class="input-field" id="lf-category" required="" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--surface-border); padding: 0.75rem; border-radius: 8px; font-size: 1rem;">
+<option disabled="" selected="" value="">Kategorie wählen...</option>
+<option value="Kleidung">👕 Kleidung</option>
+<option value="Wertsachen">💎 Wertsachen (Geldbeutel, Schlüssel)</option>
+<option value="Elektronik">📱 Elektronik (Handy, Kopfhörer)</option>
+<option value="Sonstiges">📦 Sonstiges</option>
+</select>
+<input class="input-field" id="lf-where" placeholder="Wo genau? (z.B. Kino 4, Platz 8A)" required="" type="text">
+<input class="input-field" id="lf-who" placeholder="Wer hat es gefunden? (Dein Name)" required="" type="text">
+</input></input></input></div>
+<div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+<button class="btn-secondary" onclick="closeLfModal()" style="flex: 1;">Abbrechen</button>
+<button class="btn-primary" onclick="saveLfItem()" style="flex: 1;">Speichern</button>
+</div>
+</div>
+</div>
+<!-- Movie Detail Modal -->
+<div class="modal" id="movie-detail-modal">
+<div class="modal-content glass" id="movie-detail-content" style="max-height: 90vh; overflow-y: auto;">
+<!-- Filled via JS -->
+</div>
+</div>
+<!-- SHIFT SUMMARY MODAL -->
+<div class="modal" id="shift-summary-modal">
+<div class="modal-content glass" style="max-width: 400px; text-align: center;">
+<div style="font-size: 3rem; margin-bottom: 0.5rem;">🎬</div>
+<h2 style="margin: 0 0 0.25rem; font-size: 1.5rem;">Schicht beendet!</h2>
+<p style="color: var(--text-muted); margin-bottom: 1.5rem;">Gute Arbeit heute!</p>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+<div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem;">
+<div id="shift-summary-duration" style="font-size: 1.6rem; font-weight: 800;">0h 0m</div>
+<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">⏱ Schichtdauer</div>
+</div>
+<div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem;">
+<div id="shift-summary-auslaesse" style="font-size: 1.6rem; font-weight: 800; color: #3498db;">0</div>
+<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">🚪 Auslässe</div>
+</div>
+<div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem;">
+<div id="shift-summary-cleaning" style="font-size: 1.6rem; font-weight: 800; color: #2ecc71;">0</div>
+<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">🧹 Aufgaben</div>
+</div>
+<div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem;">
+<div id="shift-summary-xp" style="font-size: 1.6rem; font-weight: 800; color: #f1c40f;">0</div>
+<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">⭐ XP verdient</div>
+</div>
+</div>
+<button onclick="document.getElementById('shift-summary-modal').classList.remove('active')" style="width: 100%; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); color: white; border: none; padding: 1rem; border-radius: 12px; font-weight: 800; font-size: 1.1rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(0, 120, 255, 0.4);">
                 Schließen
             </button>
+</div>
+</div>
+<!-- MOBILE NAVIGATION (iOS Style) -->
+<nav class="mobile-nav" id="mobile-tab-bar">
+<a class="mobile-nav-item active nav-live" data-tab="live" href="#" onclick="switchTab('live', this); return false;" role="button">
+<span>🎬</span> Live
+            </a>
+<a class="mobile-nav-item nav-funk" data-tab="funk" href="#" onclick="switchTab('funk', this); return false;" role="button">
+<span>📡</span> Funk
+            </a>
+<a class="mobile-nav-item nav-action" data-tab="action" href="#" onclick="switchTab('action', this); return false;" role="button">
+<span>🛠️</span> Action
+            </a>
+<a class="mobile-nav-item nav-mehr" data-tab="mehr" href="#" onclick="switchTab('mehr', this); return false;" role="button">
+<span>📂</span> Mehr
+            </a>
+</nav>
+<div style="text-align: center; padding: 1.5rem 1rem 5rem; font-size: 0.7rem; color: var(--text-muted); opacity: 0.5;">
+            System-Version: V1.0 · © 2026 Kinopolis Automation
         </div>
-    </div>
-        <!-- MOBILE NAVIGATION (iOS Style) -->
-        <nav class="mobile-nav" id="mobile-tab-bar" style="display: none;">
-            <a href="#" class="mobile-nav-item active nav-live" data-tab="live" role="button" onclick="switchTab('live', this); return false;">
-                <span>🎬</span> Live
-            </a>
-            <a href="#" class="mobile-nav-item nav-funk" data-tab="funk" role="button" onclick="switchTab('funk', this); return false;">
-                <span>📡</span> Funk
-            </a>
-            <a href="#" class="mobile-nav-item nav-action" data-tab="action" role="button" onclick="switchTab('action', this); return false;">
-                <span>🛠️</span> Action
-            </a>
-            <a href="#" class="mobile-nav-item nav-mehr" data-tab="mehr" role="button" onclick="switchTab('mehr', this); return false;">
-                <span>📂</span> Mehr
-            </a>
-        </nav>
-        <div style="text-align: center; padding: 1.5rem 1rem 5rem; font-size: 0.7rem; color: var(--text-muted); opacity: 0.5;">
-            System-Version: V1.0 · &copy; 2026 Kinopolis Automation
-        </div>
-    <!-- Dev Info Modal (Welcome Style) -->
-    <div id="dev-info-modal" class="modal">
-        <div class="modal-content glass" style="max-height: 90vh; overflow-y: auto; text-align: center;">
-            <div style="width: 80px; height: 80px; background: rgba(0, 120, 255, 0.1); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2.5rem;">👨‍💻</div>
-            <h2 class="modal-title" style="margin-bottom: 0.5rem;">Entwickler Info</h2>
-            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">Schön, dass du das Automatisierungs-Dashboard nutzt!</p>
-            
-            <div style="display: flex; flex-direction: column; gap: 1rem; text-align: left; margin-bottom: 2rem;">
-                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--surface-border); padding: 1.25rem; border-radius: 16px; display: flex; align-items: center; gap: 1rem;">
-                    <div style="font-size: 1.5rem;">💡</div>
-                    <div>
-                        <div style="font-weight: 800; font-size: 0.9rem;">Ideen & Wünsche</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">Hast du eine Idee für ein neues Tool? Schreib mir!</div>
-                    </div>
-                </div>
-                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--surface-border); padding: 1.25rem; border-radius: 16px; display: flex; align-items: center; gap: 1rem;">
-                    <div style="font-size: 1.5rem;">🐛</div>
-                    <div>
-                        <div style="font-weight: 800; font-size: 0.9rem;">Fehler gefunden?</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">Falls etwas nicht funktioniert, gib mir kurz Bescheid.</div>
-                    </div>
-                </div>
-                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--surface-border); padding: 1.25rem; border-radius: 16px; display: flex; align-items: center; gap: 1rem;">
-                    <div style="font-size: 1.5rem;">👨‍💻</div>
-                    <div>
-                        <div style="font-weight: 800; font-size: 0.9rem;">Entwickler Info</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">Dein Automatisierungs-Partner für das Kinopolis.</div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                <button onclick="document.getElementById('dev-info-modal').classList.remove('active'); openFeedback('artjom')" class="btn-secondary" style="padding: 1rem; border-radius: 14px; font-weight: 700;">Feedback senden</button>
-                <button onclick="document.getElementById('dev-info-modal').classList.remove('active')" class="btn-primary" style="padding: 1rem; border-radius: 14px; font-weight: 800; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); border: none; color: white;">Alles klar!</button>
-            </div>
-        </div>
-    </div>
-</body>
+<!-- Dev Info Modal (Welcome Style) -->
+<div class="modal" id="dev-info-modal">
+<div class="modal-content glass" style="max-height: 90vh; overflow-y: auto; text-align: center;">
+<div style="width: 80px; height: 80px; background: rgba(0, 120, 255, 0.1); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2.5rem;">👨‍💻</div>
+<h2 class="modal-title" style="margin-bottom: 0.5rem;">Entwickler Info</h2>
+<p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">Schön, dass du das Automatisierungs-Dashboard nutzt!</p>
+<div style="display: flex; flex-direction: column; gap: 1rem; text-align: left; margin-bottom: 2rem;">
+<div style="background: rgba(255,255,255,0.03); border: 1px solid var(--surface-border); padding: 1.25rem; border-radius: 16px; display: flex; align-items: center; gap: 1rem;">
+<div style="font-size: 1.5rem;">💡</div>
+<div>
+<div style="font-weight: 800; font-size: 0.9rem;">Ideen &amp; Wünsche</div>
+<div style="font-size: 0.8rem; color: var(--text-muted);">Hast du eine Idee für ein neues Tool? Schreib mir!</div>
+</div>
+</div>
+<div style="background: rgba(255,255,255,0.03); border: 1px solid var(--surface-border); padding: 1.25rem; border-radius: 16px; display: flex; align-items: center; gap: 1rem;">
+<div style="font-size: 1.5rem;">🐛</div>
+<div>
+<div style="font-weight: 800; font-size: 0.9rem;">Fehler gefunden?</div>
+<div style="font-size: 0.8rem; color: var(--text-muted);">Falls etwas nicht funktioniert, gib mir kurz Bescheid.</div>
+</div>
+</div>
+<div style="background: rgba(255,255,255,0.03); border: 1px solid var(--surface-border); padding: 1.25rem; border-radius: 16px; display: flex; align-items: center; gap: 1rem;">
+<div style="font-size: 1.5rem;">👨‍💻</div>
+<div>
+<div style="font-weight: 800; font-size: 0.9rem;">Entwickler Info</div>
+<div style="font-size: 0.8rem; color: var(--text-muted);">Dein Automatisierungs-Partner für das Kinopolis.</div>
+</div>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+<button class="btn-secondary" onclick="document.getElementById('dev-info-modal').classList.remove('active'); openFeedback('artjom')" style="padding: 1rem; border-radius: 14px; font-weight: 700;">Feedback senden</button>
+<button class="btn-primary" onclick="document.getElementById('dev-info-modal').classList.remove('active')" style="padding: 1rem; border-radius: 14px; font-weight: 800; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); border: none; color: white;">Alles klar!</button>
+</div>
+</div>
+</div>
+</div></body>
 </html>
