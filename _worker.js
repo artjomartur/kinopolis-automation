@@ -1283,17 +1283,22 @@ app.get('/api/task-completions', async (c) => {
                 date TEXT NOT NULL,
                 type TEXT,
                 author TEXT,
+                task_title TEXT,
                 completed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (task_id, location, date)
             )
         `).run();
+        
+        try {
+            await c.env.DB.prepare('ALTER TABLE task_completions ADD COLUMN task_title TEXT').run();
+        } catch(e) {}
         
         // Ensure columns exist (for older databases)
         try { await c.env.DB.prepare("ALTER TABLE task_completions ADD COLUMN type TEXT").run(); } catch(e){}
         try { await c.env.DB.prepare("ALTER TABLE task_completions ADD COLUMN author TEXT").run(); } catch(e){}
 
         const { results } = await c.env.DB.prepare(
-            'SELECT task_id, type, author, completed_at FROM task_completions WHERE location = ? AND date = ?'
+            'SELECT task_id, type, author, task_title, completed_at FROM task_completions WHERE location = ? AND date = ?'
         ).bind(location, date).all();
         return c.json(results || []);
     } catch (e) {
@@ -1304,12 +1309,12 @@ app.get('/api/task-completions', async (c) => {
 
 app.post('/api/task-completions', async (c) => {
     try {
-        const { task_id, location, date, type, author } = await c.req.json();
+        const { task_id, location, date, type, author, task_title } = await c.req.json();
         if (!task_id || !location || !date) return c.json({ error: 'Missing data' }, 400);
         if (c.env.DB) {
             await c.env.DB.prepare(
-                'INSERT OR REPLACE INTO task_completions (task_id, location, date, type, author) VALUES (?, ?, ?, ?, ?)'
-            ).bind(task_id, location, date, type || 'task', author || 'System').run();
+                'INSERT OR REPLACE INTO task_completions (task_id, location, date, type, author, task_title) VALUES (?, ?, ?, ?, ?, ?)'
+            ).bind(task_id, location, date, type || 'task', author || 'System', task_title || '').run();
         }
         return c.json({ success: true });
     } catch (e) {

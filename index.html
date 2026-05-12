@@ -3610,12 +3610,7 @@
 <div class="collapsible-content auslass-grid" id="auslaesse-list">
 
 </div>
-<div class="chart-container">
-<span class="stat-label">Besucher pro Stunde (Heute)</span>
-<div class="hour-bars" id="hour-chart">
-<!-- Bars will be injected here -->
 </div>
-</div></div>
     <!-- POPCORN LISTE (NEW) -->
     <div class="card-container glass action-section" id="popcorn-section" style="display: none; margin-bottom: 1.5rem; border-color: rgba(241, 196, 15, 0.4);">
         <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
@@ -4041,12 +4036,18 @@
 </svg>
 </button>
 </div>
-<div class="collapsible-content" id="stats-content" style="padding: 0 1.25rem 1.25rem;">
-<div class="stats-grid" id="stats-grid">
-<!-- Stat cards will be injected here -->
-</div>
-</div>
-</section>
+                        <div class="stats-grid" id="stats-grid">
+                            <!-- Stat cards will be injected here -->
+                        </div>
+                        
+                        <div class="chart-container" style="margin-top: 3rem;">
+                            <span class="stat-label" style="font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 1.5rem; display: block;">📊 Besucher pro Stunde (Heute)</span>
+                            <div class="hour-bars" id="hour-chart">
+                                <!-- Bars will be injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
 <!-- INTERNAL NEWS (Moved to Settings) -->
 <!-- Staff Notes Section (Moved to Bottom) -->
 <script>
@@ -6437,6 +6438,8 @@
                 const sessions = (hall.sessions || []).filter(s => s && s.time); 
                 
                 const card = document.createElement('div');
+                card.className = 'hall-card ios-card glass';
+                card.style.marginBottom = '2.5rem';
                 
                 if (!Array.isArray(sessions)) {
                     console.warn(`renderDashboard: sessions for hall ${hall.name} is not an array:`, sessions);
@@ -6582,7 +6585,7 @@
         }
 
 
-        async function syncTaskState(taskId, type, isDone) {
+        async function syncTaskState(taskId, type, isDone, taskTitle = '') {
             window.lastTaskActionTime = Date.now();
             try {
                 const year = displayDate.getFullYear();
@@ -6590,12 +6593,23 @@
                 const day = String(displayDate.getDate()).padStart(2, '0');
                 const dateStr = `${year}-${month}-${day}`;
 
-                const author = window.AUTH && AUTH.user ? `${AUTH.user.first_name} ${AUTH.user.last_name}` : 'System';
+                let author = 'Anonym';
+                if (window.AUTH && AUTH.user) {
+                    author = `${AUTH.user.first_name || ''} ${AUTH.user.last_name || ''}`.trim() || AUTH.user.email || 'User';
+                }
+
                 if (isDone) {
                     const res = await fetch('/api/task-completions', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ task_id: taskId, location: currentCity, date: dateStr, type, author })
+                        body: JSON.stringify({ 
+                            task_id: taskId, 
+                            location: currentCity, 
+                            date: dateStr, 
+                            type, 
+                            author,
+                            task_title: taskTitle
+                        })
                     });
                     if (!res.ok) showToast("Fehler beim Speichern (Cloud Sync)", true);
                 } else {
@@ -6694,7 +6708,8 @@
                 });
             });
 
-            // 3. Add General Cleaning Tasks for the current day
+            /* 
+            // 3. Add General Cleaning Tasks - REMOVED AS PER USER REQUEST
             const dayOfWeek = now.getDay();
             const dailyTasks = CLEANING_TASKS[dayOfWeek] || [];
             dailyTasks.forEach((task, idx) => {
@@ -6708,6 +6723,7 @@
                     id: `cleaning-${dayOfWeek}-${idx}`
                 });
             });
+            */
 
             // 4. Add Station Abbau Alerts
             if (currentCity === 'kp') {
@@ -6812,7 +6828,7 @@
                     renderLiveTasks();
                     
                     // Background Sync
-                    await syncTaskState(t.id, t.type, !isDone);
+                    await syncTaskState(t.id, t.type, !isDone, t.title);
                     // Final re-render to catch any server-side info (like author/timestamp)
                     renderLiveTasks();
                 });
@@ -7263,7 +7279,7 @@
             completedMeta.set(id, { author: selfAuthor, completed_at: new Date().toISOString() });
             
             saveTaskState();
-            await syncTaskState(id, 'poster', true);
+            await syncTaskState(id, 'poster', true, title);
             renderLiveTasks();
 
             if (btn) {
@@ -7292,7 +7308,7 @@
             }
 
             try {
-                await syncTaskState(id, 'poster', true);
+                await syncTaskState(id, 'poster', true, title);
             } catch(e) {
                 console.error("Poster sync failed:", e);
             }
