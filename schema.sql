@@ -111,4 +111,14 @@ CREATE TABLE IF NOT EXISTS mhd_records (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_mhd_date ON mhd_records(mhd_date);
+CREATE TABLE IF NOT EXISTS inventory_counts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    location TEXT NOT NULL,
+    date TEXT NOT NULL,
+    type TEXT NOT NULL, -- 'popcorn' or 'becher'
+    data TEXT NOT NULL, -- JSON string containing the counts
+    author TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_inv_counts_date ON inventory_counts(date);

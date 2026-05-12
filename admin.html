@@ -443,17 +443,13 @@
                         <p style="margin-bottom: 1.25rem;">Exportiere alle Logs und Daten für die Ablage.</p>
                         <div style="margin-bottom: 1.5rem;">
                             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Wähle die Daten aus, die du als CSV exportieren möchtest:</p>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                    <input type="checkbox" id="export-logs" checked> Dienstprotokolle
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                    <input type="checkbox" id="export-lf" checked> Fundbüro
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                    <input type="checkbox" id="export-contacts" checked> Kontakte
-                                </label>
-                            </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; background: rgba(255,255,255,0.03); padding: 1.25rem; border-radius: 16px; border: 1px solid var(--surface-border);">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem;"><input type="checkbox" id="export-logs" checked> Logs</label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem;"><input type="checkbox" id="export-tasks" checked> Aufgaben (Wer/Was)</label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem;"><input type="checkbox" id="export-lf" checked> Fundbüro</label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem;"><input type="checkbox" id="export-contacts"> Kontakte</label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem;"><input type="checkbox" id="export-inventory" checked> Bestände (Popcorn/Becher)</label>
+                                </div>
                         </div>
                         <div class="btn-group">
                             <button onclick="handleCSVExport()" class="btn-primary" style="background: linear-gradient(135deg, #2ecc71, #27ae60);">
@@ -992,6 +988,30 @@
                     }
                 }
 
+                // 1b. Tasks
+                if (document.getElementById('export-tasks')?.checked) {
+                    const todayDate = new Date().toISOString().split('T')[0];
+                    const res = await fetch(`/api/task-completions?location=${currentCity}&date=${todayDate}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        data.forEach(t => {
+                            csvContent += `TASK,${t.type || ''},${t.author || ''},"${(t.task_id || '').replace(/"/g, '""')}",${t.completed_at || ''},${currentCity}\n`;
+                        });
+                    }
+                }
+
+                // 1c. Inventory
+                if (document.getElementById('export-inventory')?.checked) {
+                    const todayDate = new Date().toISOString().split('T')[0];
+                    const res = await fetch(`/api/inventory/counts?location=${currentCity}&date=${todayDate}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        data.forEach(inv => {
+                            csvContent += `INVENTORY,${inv.type || ''},${inv.author || ''},"${(inv.data || '').replace(/"/g, '""')}",${inv.created_at || ''},${currentCity}\n`;
+                        });
+                    }
+                }
+
                 // 2. Lost & Found
                 if (document.getElementById('export-lf')?.checked) {
                     const res = await fetch(`/api/lostfound?location=${currentCity}`);
@@ -1046,7 +1066,8 @@
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'normal');
                 doc.setTextColor(100);
-                doc.text(`Standort: ${currentCity.toUpperCase()} · Datum: ${new Date().toLocaleString('de-DE')}`, 14, currentY);
+                const dateStr_header = new Date().toLocaleString('de-DE');
+                doc.text(`Standort: ${currentCity.toUpperCase()} · Erstellt: ${dateStr_header}`, 14, currentY);
                 currentY += 15;
 
                 // 1. Logs
@@ -1071,6 +1092,77 @@
                             theme: 'striped',
                             headStyles: { fillColor: [0, 120, 255] },
                             styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' },
+                            margin: { left: 14, right: 14 }
+                        });
+                        currentY = doc.lastAutoTable.finalY + 15;
+                    }
+                }
+
+                // 1b. TASKS (NEW)
+                if (document.getElementById('export-tasks')?.checked) {
+                    if (currentY > 240) { doc.addPage(); currentY = 20; }
+                    const todayDate = new Date().toISOString().split('T')[0];
+                    const res = await fetch(`/api/task-completions?location=${currentCity}&date=${todayDate}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        doc.setFontSize(14);
+                        doc.setTextColor(0);
+                        doc.text('🛠️ Abgeschlossene Aufgaben', 14, currentY);
+                        currentY += 5;
+
+                        doc.autoTable({
+                            startY: currentY,
+                            head: [['Zeit', 'Mitarbeiter', 'Aufgabe', 'Typ']],
+                            body: data.map(t => [
+                                new Date(t.completed_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
+                                t.author || 'Unbekannt',
+                                t.task_id,
+                                t.type.toUpperCase()
+                            ]),
+                            theme: 'striped',
+                            headStyles: { fillColor: [229, 9, 20] }, // Cinema Red
+                            styles: { fontSize: 8, cellPadding: 2 },
+                            margin: { left: 14, right: 14 }
+                        });
+                        currentY = doc.lastAutoTable.finalY + 15;
+                    }
+                }
+
+                // 1c. INVENTORY (NEW)
+                if (document.getElementById('export-inventory')?.checked) {
+                    if (currentY > 240) { doc.addPage(); currentY = 20; }
+                    const todayDate = new Date().toISOString().split('T')[0];
+                    const res = await fetch(`/api/inventory/counts?location=${currentCity}&date=${todayDate}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        doc.setFontSize(14);
+                        doc.setTextColor(0);
+                        doc.text('📦 Bestands-Erfassung (Popcorn/Becher)', 14, currentY);
+                        currentY += 5;
+
+                        const tableBody = data.map(inv => {
+                            const d = JSON.parse(inv.data);
+                            let detailStr = '';
+                            if (inv.type === 'popcorn') {
+                                detailStr = `Säcke: ${d.saecke}, Salz: ${d.salz}kg, Süß: ${d.suess}kg`;
+                            } else if (inv.type === 'becher') {
+                                detailStr = `0.5L: ${d.becher05rot}R/${d.becher05gruen}G | 1.0L: ${d.becher10rot}R/${d.becher10gruen}G`;
+                            }
+                            return [
+                                new Date(inv.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
+                                inv.type.toUpperCase(),
+                                detailStr,
+                                inv.author || 'Unbekannt'
+                            ];
+                        });
+
+                        doc.autoTable({
+                            startY: currentY,
+                            head: [['Zeit', 'Typ', 'Bestands-Details', 'Mitarbeiter']],
+                            body: tableBody,
+                            theme: 'striped',
+                            headStyles: { fillColor: [52, 152, 219] }, // Blue
+                            styles: { fontSize: 8, cellPadding: 2 },
                             margin: { left: 14, right: 14 }
                         });
                         currentY = doc.lastAutoTable.finalY + 15;

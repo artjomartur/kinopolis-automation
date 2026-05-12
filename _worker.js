@@ -1333,6 +1333,49 @@ app.delete('/api/task-completions', async (c) => {
     }
 });
 
+// --- INVENTORY COUNTS (Popcorn & Becher) ---
+app.get('/api/inventory/counts', async (c) => {
+    const location = c.req.query('location') || 'kp';
+    const date = c.req.query('date') || new Date().toISOString().split('T')[0];
+    if (!c.env.DB) return c.json([]);
+    try {
+        await c.env.DB.prepare(`
+            CREATE TABLE IF NOT EXISTS inventory_counts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                location TEXT NOT NULL,
+                date TEXT NOT NULL,
+                type TEXT NOT NULL,
+                data TEXT NOT NULL,
+                author TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `).run();
+
+        const { results } = await c.env.DB.prepare(
+            'SELECT * FROM inventory_counts WHERE location = ? AND date = ? ORDER BY created_at DESC'
+        ).bind(location, date).all();
+        return c.json(results || []);
+    } catch (e) {
+        console.error("inventory-counts GET error:", e);
+        return c.json([]);
+    }
+});
+
+app.post('/api/inventory/counts', async (c) => {
+    try {
+        const { location, date, type, data, author } = await c.req.json();
+        if (!location || !date || !type || !data) return c.json({ error: 'Missing data' }, 400);
+        if (c.env.DB) {
+            await c.env.DB.prepare(
+                'INSERT INTO inventory_counts (location, date, type, data, author) VALUES (?, ?, ?, ?, ?)'
+            ).bind(location, date, type, JSON.stringify(data), author || 'System').run();
+        }
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
 // --- HALL STATUS SYNC ---
 app.get('/api/hall-status', async (c) => {
     const location = c.req.query('location') || 'kp';

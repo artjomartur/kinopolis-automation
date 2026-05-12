@@ -121,8 +121,16 @@
             localStorage.setItem(`kp_dept_date_${userId}`, today);
             localStorage.setItem('kinopolis_selected_dept', dept);
             
-            document.body.classList.remove('dept-einlass', 'dept-kasse', 'dept-theke', 'dept-tl', 'dept-alles');
+            // Clean classes
+            document.body.classList.remove('dept-einlass', 'dept-kasse', 'dept-theke', 'dept-tl', 'dept-alles', 'dept-popcorn', 'dept-becher');
             document.body.classList.add(`dept-${dept}`);
+            
+            // Switch to initial tab based on role
+            if (dept === 'popcorn' || dept === 'becher') {
+                switchTab('action');
+            } else {
+                switchTab('live');
+            }
             
             const modal = document.getElementById('dept-modal');
             if (modal) {
@@ -335,6 +343,9 @@
 
         body {
             min-height: 100vh;
+            overflow-x: hidden;
+            width: 100%;
+            position: relative;
         }
 
         /* Auth Modal Premium Styles */
@@ -1158,10 +1169,9 @@
         .hour-bars {
             display: flex;
             align-items: flex-end;
-            gap: 1rem;
-            height: 200px;
-            margin-top: 2rem;
-            padding-bottom: 1rem;
+            gap: 12px;
+            height: 150px;
+            padding: 1rem 0;
             overflow-x: auto;
             overflow-y: hidden;
             scroll-behavior: smooth;
@@ -1358,21 +1368,21 @@
             }
             .mobile-nav {
                 display: flex !important;
-                z-index: 9999 !important;
+                z-index: 10000 !important;
                 position: fixed;
-                bottom: 24px;
-                left: 16px;
-                right: 16px;
-                height: 76px;
-                background: rgba(var(--surface-rgb), 0.8);
-                backdrop-filter: blur(32px) saturate(200%);
-                -webkit-backdrop-filter: blur(32px) saturate(200%);
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                border-radius: 38px;
+                bottom: 1.25rem;
+                left: 1rem;
+                right: 1rem;
+                height: 72px;
+                background: rgba(var(--surface-rgb), 0.85);
+                backdrop-filter: blur(25px) saturate(210%);
+                -webkit-backdrop-filter: blur(25px) saturate(210%);
+                border: 1px solid rgba(255, 255, 255, 0.12);
+                border-radius: 28px;
                 justify-content: space-around;
                 align-items: center;
-                padding: 0 12px;
-                box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
+                padding: 0 10px;
+                box-shadow: 0 15px 45px rgba(0, 0, 0, 0.5);
             }
             .mobile-nav-item {
                 flex: 1;
@@ -1543,34 +1553,49 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 1rem;
+            padding: 1.25rem 1.5rem;
             border-bottom: 1px solid var(--surface-border);
             cursor: pointer;
+            min-height: 56px;
+            user-select: none;
+            transition: background 0.3s ease;
+        }
+
+        .hall-header:active {
+            background: rgba(255, 255, 255, 0.03);
         }
 
         .hall-header.collapsed {
             border-bottom: none;
-            padding-bottom: 0.5rem;
         }
 
         .hall-sessions-list {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
-            transition: all 0.3s ease;
+            gap: 0.75rem;
+            padding: 1rem;
+            max-height: 4000px;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+            opacity: 1;
         }
 
         .hall-sessions-list.collapsed {
-            display: none;
+            max-height: 0;
+            opacity: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin: 0;
+            pointer-events: none;
         }
 
         .toggle-icon {
-            transition: transform 0.3s ease;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             color: var(--text-muted);
         }
 
-        .hall-header.collapsed .toggle-icon {
-            transform: rotate(-180deg);
+        .hall-header:not(.collapsed) .toggle-icon {
+            transform: rotate(180deg);
         }
 
         .hall-name {
@@ -1589,16 +1614,22 @@
         }
 
         .session-item {
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 16px;
-            padding: 1rem;
+            background: rgba(var(--surface-rgb), 0.4);
+            border-radius: 20px;
+            padding: 1.25rem;
             display: grid;
-            grid-template-columns: 60px 1fr;
-            gap: 1rem;
+            grid-template-columns: 65px 1fr;
+            gap: 1.25rem;
             align-items: center;
-            border: 1px solid rgba(255,255,255,0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             position: relative;
             overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .session-item:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(var(--surface-rgb), 0.6);
         }
 
         /* Animated background for the active session */
@@ -1695,7 +1726,7 @@
 
         .occupancy-bar {
             height: 100%;
-            border-radius: 3px;
+            border-radius: 4px;
             background: linear-gradient(90deg, var(--primary-blue), #00d2ff);
             transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -2880,15 +2911,50 @@
             font-size: 1.05rem;
         }
 
-        /* Department Filtering */
-        body.dept-einlass .tab-funk, body.dept-einlass .tab-stats, body.dept-einlass .tab-intern { display: none !important; }
-        body.dept-kasse .tab-funk, body.dept-kasse .tab-stats, body.dept-kasse .tab-intern, body.dept-kasse .tab-kontakte { display: none !important; }
-        body.dept-theke .tab-stats, body.dept-theke .tab-kontakte, body.dept-theke .tab-info { display: none !important; }
+        /* --- NEW DEPARTMENT FILTERING LOGIC --- */
         
-        /* Mobile Nav Filtering */
-        body.dept-einlass .nav-funk, body.dept-einlass .nav-stats { display: none !important; }
-        body.dept-kasse .nav-funk, body.dept-kasse .nav-stats { display: none !important; }
+        /* General Hiding */
+        body.dept-popcorn .tab-live, body.dept-popcorn .tab-funk, body.dept-popcorn .tab-stats, body.dept-popcorn .tab-info { display: none !important; }
+        body.dept-becher .tab-live, body.dept-becher .tab-funk, body.dept-becher .tab-stats, body.dept-becher .tab-info { display: none !important; }
+        
+        body.dept-popcorn .nav-live, body.dept-popcorn .nav-funk, body.dept-popcorn .nav-stats { display: none !important; }
+        body.dept-becher .nav-live, body.dept-becher .nav-funk, body.dept-becher .nav-stats { display: none !important; }
+
+        /* EINLASS: Live (incl Auslässe), Filme, Poster, Stats, Kontakte, Settings */
+        body.dept-einlass .tab-funk, body.dept-einlass .tab-intern { display: none !important; }
+        body.dept-einlass .nav-funk { display: none !important; }
+        body.dept-einlass .inventory-section { display: none !important; }
+
+        /* THEKE: Live (excl Auslässe, excl Poster), Kontakte, Funk, Tools, Settings */
+        body.dept-theke .tab-stats, body.dept-theke .tab-info { display: none !important; }
         body.dept-theke .nav-stats { display: none !important; }
+        body.dept-theke .auslaesse-container { display: none !important; }
+        body.dept-theke #poster-alerts-container { display: none !important; }
+
+        /* KASSE: Live (excl Auslässe, excl Poster), Kontakte, Filme, Settings */
+        body.dept-kasse .tab-funk, body.dept-kasse .tab-stats, body.dept-kasse .tab-intern { display: none !important; }
+        body.dept-kasse .nav-funk { display: none !important; }
+        body.dept-kasse .auslaesse-container { display: none !important; }
+        body.dept-kasse #poster-alerts-container { display: none !important; }
+
+        /* Shared visibility for all: Tagesaufgaben, Fundbüro, Settings */
+        /* Tagesaufgaben (auslaesse-container) should be visible for POPCORN/BECHER too */
+        body.dept-popcorn .auslaesse-container { display: block !important; margin-top: 1rem; }
+        body.dept-becher .auslaesse-container { display: block !important; margin-top: 1rem; }
+        
+        /* Specifically hide items within modules */
+        body.dept-popcorn .tools-section, body.dept-becher .tools-section { display: none; }
+        body.dept-popcorn #popcorn-section, body.dept-becher #becher-section { display: block !important; }
+        body.dept-popcorn #workstation-section, body.dept-becher #workstation-section { display: block !important; }
+
+        /* Hide specific elements in Live Overview for certain roles */
+        body.dept-theke .hall-sessions-list, body.dept-kasse .hall-sessions-list { display: block; } 
+        /* The user said "Live Daten exkl Auslässe exkl Poster" for THEKE/KASSE */
+        
+        /* Hide TAGESAUFGABEN from LIVE tab for EINLASS as per request */
+        body.dept-einlass.live-active .auslaesse-container { display: none !important; }
+        /* But keep it visible when in tools/intern? User said "alle bekommen Tagesaufgaben" */
+        body.dept-einlass.action-active .auslaesse-container { display: block !important; }
 
         .dept-btn {
             background: rgba(255,255,255,0.05);
@@ -3218,15 +3284,21 @@
 <button class="dept-btn" onclick="selectDept('theke')">
 <span style="font-size: 1.5rem;">🍿</span> Theke
                 </button>
-<button class="dept-btn" onclick="selectDept('tl')">
-<span style="font-size: 1.5rem;">👔</span> TL / BL
+                <button class="dept-btn" onclick="selectDept('tl')">
+                    <span style="font-size: 1.5rem;">👔</span> TL / BL
                 </button>
-<button class="btn-primary" onclick="selectDept('alles')" style="grid-column: 1 / -1; margin-top: 0.5rem; padding: 1rem; border-radius: 14px; font-weight: 800; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); border: none; color: white; cursor: pointer;">
+                <button class="dept-btn" onclick="selectDept('popcorn')">
+                    <span style="font-size: 1.5rem;">🍿</span> Popcorn
+                </button>
+                <button class="dept-btn" onclick="selectDept('becher')">
+                    <span style="font-size: 1.5rem;">🥤</span> Becher
+                </button>
+                <button class="btn-primary" onclick="selectDept('alles')" style="grid-column: 1 / -1; margin-top: 0.5rem; padding: 1rem; border-radius: 14px; font-weight: 800; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); border: none; color: white; cursor: pointer;">
                     🌐 Alles anzeigen
                 </button>
-</div>
-</div>
-</div>
+            </div>
+        </div>
+    </div>
 <header>
 <div class="header-inner">
 <div class="brand">
@@ -3493,6 +3565,18 @@
 <div id="mhd-status" style="display: none; padding: 0.75rem; border-radius: 8px; font-size: 0.85rem; text-align: center;"></div>
 </div>
 </div>
+<!-- MHD HISTORY LIST (NEW) -->
+<div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span class="alert-icon-small">📜</span>
+        <h2 style="font-size: 1.25rem;">Letzte Erfassungen</h2>
+    </div>
+</div>
+<div style="padding: 1rem 1.5rem 1.5rem;">
+    <div id="mhd-history-list">
+        <div style="text-align: center; padding: 1rem; color: var(--text-muted); font-size: 0.85rem;">Lade Historie...</div>
+    </div>
+</div>
 </div>
 <div class="alerts-header glass" onclick="toggleAlerts()">
 <div class="alerts-title">
@@ -3532,6 +3616,76 @@
 <!-- Bars will be injected here -->
 </div>
 </div></div>
+    <!-- POPCORN LISTE (NEW) -->
+    <div class="card-container glass action-section" id="popcorn-section" style="display: none; margin-bottom: 1.5rem; border-color: rgba(241, 196, 15, 0.4);">
+        <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <span style="font-size: 1.5rem;">🍿</span>
+                <h2 style="font-size: 1.25rem;">Popcorn Erfassung</h2>
+            </div>
+        </div>
+        <div style="padding: 1rem 1.5rem 1.5rem;">
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Aktuellen Bestand für die Schicht erfassen.</p>
+            <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <div>
+                    <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Popcorn Säcke (Anzahl)</label>
+                    <input class="input-field" id="pop-saecke" placeholder="0" style="width: 100%;" type="number"/>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">KG Salz</label>
+                        <input class="input-field" id="pop-salz" placeholder="0" style="width: 100%;" type="number"/>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">KG Süß</label>
+                        <input class="input-field" id="pop-suess" placeholder="0" style="width: 100%;" type="number"/>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="submitInventoryCount('popcorn')" style="width: 100%; background: linear-gradient(135deg, #f1c40f, #f39c12); color: #fff; border: none; font-weight: bold; padding: 1rem; border-radius: 12px;">
+                    💾 Bestände speichern
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BECHER LISTE (NEW) -->
+    <div class="card-container glass action-section" id="becher-section" style="display: none; margin-bottom: 1.5rem; border-color: rgba(52, 152, 219, 0.4);">
+        <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <span style="font-size: 1.5rem;">🥤</span>
+                <h2 style="font-size: 1.25rem;">Becher Erfassung</h2>
+            </div>
+        </div>
+        <div style="padding: 1rem 1.5rem 1.5rem;">
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Aktuelle Becher-Bestände erfassen.</p>
+            <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">0.5L Rot (Anzahl)</label>
+                        <input class="input-field" id="becher-05-rot" placeholder="0" style="width: 100%;" type="number"/>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">0.5L Grün (Anzahl)</label>
+                        <input class="input-field" id="becher-05-gruen" placeholder="0" style="width: 100%;" type="number"/>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">1.0L Rot (Anzahl)</label>
+                        <input class="input-field" id="becher-10-rot" placeholder="0" style="width: 100%;" type="number"/>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">1.0L Grün (Anzahl)</label>
+                        <input class="input-field" id="becher-10-gruen" placeholder="0" style="width: 100%;" type="number"/>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="submitInventoryCount('becher')" style="width: 100%; background: linear-gradient(135deg, #3498db, #2980b9); color: #fff; border: none; font-weight: bold; padding: 1rem; border-radius: 12px;">
+                    💾 Bestände speichern
+                </button>
+            </div>
+        </div>
+    </div>
+
 <!-- Unified Workstation Panel -->
 <div class="card-container glass intern-section" id="workstation-section" style="margin-bottom: 1rem;">
 <div class="card-header" onclick="toggleSection('workstation-content', 'ws-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
@@ -4206,6 +4360,7 @@
                 if (titleEl) titleEl.innerText = 'Team-Aktionen' + suffix;
                 fetchInventory();
                 loadMHDItems();
+                loadMHDHistory();
             } else if (view === 'mehr') {
                 document.body.classList.add('mehr-active', 'stats-active', 'kontakte-active', 'info-active', 'einstellungen-active');
                 if (titleEl) titleEl.innerText = 'Mehr & Infos' + suffix;
@@ -5164,6 +5319,61 @@
             }
         }
 
+        async function submitInventoryCount(type) {
+            const author = window.AUTH && AUTH.user ? `${AUTH.user.first_name} ${AUTH.user.last_name}` : 'System';
+            let data = {};
+            
+            if (type === 'popcorn') {
+                data = {
+                    saecke: document.getElementById('pop-saecke').value || 0,
+                    salz: document.getElementById('pop-salz').value || 0,
+                    suess: document.getElementById('pop-suess').value || 0
+                };
+            } else if (type === 'becher') {
+                data = {
+                    becher05rot: document.getElementById('becher-05-rot').value || 0,
+                    becher05gruen: document.getElementById('becher-05-gruen').value || 0,
+                    becher10rot: document.getElementById('becher-10-rot').value || 0,
+                    becher10gruen: document.getElementById('becher-10-gruen').value || 0
+                };
+            }
+
+            try {
+                const res = await fetch('/api/inventory/counts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        location: currentCity,
+                        date: new Date().toISOString().split('T')[0],
+                        type: type,
+                        data: data,
+                        author: author
+                    })
+                });
+
+                if (res.ok) {
+                    showToast(`✅ ${type.toUpperCase()}-Bestand erfolgreich gespeichert!`);
+                    awardXP(50, `${type.toUpperCase()} Bestand erfasst`);
+                    // Clear inputs
+                    if (type === 'popcorn') {
+                        document.getElementById('pop-saecke').value = '';
+                        document.getElementById('pop-salz').value = '';
+                        document.getElementById('pop-suess').value = '';
+                    } else {
+                        document.getElementById('becher-05-rot').value = '';
+                        document.getElementById('becher-05-gruen').value = '';
+                        document.getElementById('becher-10-rot').value = '';
+                        document.getElementById('becher-10-gruen').value = '';
+                    }
+                } else {
+                    throw new Error('Save failed');
+                }
+            } catch (e) {
+                console.error("Inventory save error", e);
+                showToast("Fehler beim Speichern der Bestände.", true);
+            }
+        }
+
         async function submitMHD() {
             const select = document.getElementById('mhd-item-select');
             const dateInput = document.getElementById('mhd-date-input');
@@ -5198,10 +5408,43 @@
                     status.style.color = '#2ecc71';
                     status.style.display = 'block';
                     dateInput.value = '';
+                    loadMHDHistory(); // Refresh history
                     setTimeout(() => status.style.display = 'none', 3000);
                 }
             } catch (e) {
                 alert('Fehler beim Speichern.');
+            }
+        }
+
+        async function loadMHDHistory() {
+            const container = document.getElementById('mhd-history-list');
+            if (!container) return;
+            try {
+                const res = await fetch('/api/mhd/latest?location=' + currentCity);
+                if (!res.ok) throw new Error('Fetch failed');
+                const data = await res.json();
+                if (!Array.isArray(data) || data.length === 0) {
+                    container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem; text-align: center; padding: 1rem;">Keine Einträge vorhanden</div>';
+                    return;
+                }
+                container.innerHTML = data.map(item => {
+                    const mDate = new Date(item.mhd_date);
+                    const isNear = (mDate - new Date()) < (1000 * 60 * 60 * 24 * 14); // 2 weeks
+                    return `
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 0.75rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 0.9rem;">${item.item_name}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">📍 ${item.location} · Von ${item.author}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-family: monospace; font-weight: 800; color: ${isNear ? '#ff3b30' : '#f1c40f'};">${item.mhd_date}</div>
+                            <div style="font-size: 0.6rem; opacity: 0.4;">${new Date(item.created_at).toLocaleDateString()}</div>
+                        </div>
+                    </div>
+                `}).join('');
+            } catch (e) {
+                console.error("MHD history error", e);
+                container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem; text-align: center;">Historie konnte nicht geladen werden.</div>';
             }
         }
 
@@ -6247,7 +6490,10 @@
                     `;
                 }).join('');
 
-                const isCollapsed = (localStorage.getItem(`hall_collapsed_${hallName}`) === 'true');
+                // Default to collapsed unless explicitly expanded
+                let isCollapsed = localStorage.getItem(`hall_collapsed_${hallName}`);
+                if (isCollapsed === null) isCollapsed = true;
+                else isCollapsed = (isCollapsed === 'true');
 
                 card.innerHTML = `
                     <div class="hall-header ${isCollapsed ? 'collapsed' : ''}" onclick="toggleHall(this, '${hallName}')">
@@ -6830,9 +7076,14 @@
             if (!header) return;
             const sessionsList = header.closest('.hall-card')?.querySelector('.hall-sessions-list');
             if (!sessionsList) return;
-            const isCollapsed = header.classList.toggle('collapsed');
-            sessionsList.classList.toggle('collapsed');
-            if (hallName) localStorage.setItem(`hall_collapsed_${hallName}`, isCollapsed);
+            
+            const wasCollapsed = header.classList.contains('collapsed');
+            
+            // Toggle classes
+            header.classList.toggle('collapsed', !wasCollapsed);
+            sessionsList.classList.toggle('collapsed', !wasCollapsed);
+            
+            if (hallName) localStorage.setItem(`hall_collapsed_${hallName}`, !wasCollapsed);
         }
 
         const POSTER_URGENT_POPUP_DELAY_MS = 1600;
@@ -7738,6 +7989,19 @@
         
         // Failsafe: if content is added dynamically, re-init after 2 seconds
         setTimeout(initReveals, 2000);
+    </script>
+    <div id="help-floating-btn" onclick="openHelpModal()" style="position: fixed; right: 1.5rem; bottom: 6.5rem; z-index: 9999; width: 56px; height: 56px; border-radius: 28px; background: var(--primary-red); color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 25px rgba(229, 9, 20, 0.4); border: 2px solid rgba(255,255,255,0.2); cursor: pointer; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <span style="font-size: 1.5rem;">🆘</span>
+    </div>
+    <script>
+        // Subtle animation for help button
+        setInterval(() => {
+            const btn = document.getElementById('help-floating-btn');
+            if (btn) {
+                btn.style.transform = 'scale(1.1)';
+                setTimeout(() => btn.style.transform = 'scale(1)', 500);
+            }
+        }, 5000);
     </script>
 </body>
 
