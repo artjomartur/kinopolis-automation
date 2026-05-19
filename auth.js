@@ -446,6 +446,9 @@ const AUTH = {
                 <button onclick="AUTH.showChangePassword()" class="btn-secondary" style="width: 100%; padding: 1rem; border-radius: 14px; font-weight: 700; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; cursor: pointer; transition: all 0.2s;">
                     🔑 Passwort ändern
                 </button>
+                <button onclick="if(confirm('Möchtest du das Dashboard neu laden und alle Caches leeren? Dies behebt Darstellungsfehler.')){ localStorage.clear(); sessionStorage.clear(); if('serviceWorker' in navigator){ navigator.serviceWorker.getRegistrations().then(regs => { for(let r of regs) r.unregister(); }); } caches.keys().then(names => { for(let n of names) caches.delete(n); }); setTimeout(() => { window.location.href = window.location.origin + '/?reset=true'; }, 500); }" class="btn-secondary" style="width: 100%; padding: 1rem; border-radius: 14px; font-weight: 700; background: rgba(241,196,15,0.15); border: 1px solid #f1c40f; color: white; cursor: pointer; transition: all 0.2s;">
+                    🔄 App aktualisieren (Cache leeren)
+                </button>
                 <button onclick="AUTH.logout()" class="btn-primary" style="width: 100%; padding: 1rem; border-radius: 14px; font-weight: 800; background: linear-gradient(135deg, #e50914, #ff3d47); border: none; color: white; cursor: pointer; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);">
                     🚪 Abmelden
                 </button>
@@ -519,6 +522,11 @@ const AUTH = {
             btn.disabled = false;
             btn.innerText = 'Passwort speichern';
         }
+    },
+
+    // Alias for inline HTML onclick calls
+    showProfile() {
+        this.showProfileModal();
     }
 };
 

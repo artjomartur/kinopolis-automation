@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kinopolis-v4';
+const CACHE_NAME = 'kinopolis-v5';
 const ASSETS = [
     '/',
     '/index.html',
@@ -24,12 +24,39 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-    // Only cache GET requests and skip API calls
+    // Only handle GET requests and skip API calls
     if (event.request.method !== 'GET' || event.request.url.includes('/api/')) return;
     
+    const url = new URL(event.request.url);
+    
+    // NETWORK-FIRST strategy for HTML pages to ensure immediate updates when online
+    if (url.pathname === '/' || url.pathname === '/index.html' || url.pathname.endsWith('.html')) {
+        event.respondWith(
+            fetch(event.request)
+                .then(response => {
+                    if (response.status === 200) {
+                        const copy = response.clone();
+                        caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+                    }
+                    return response;
+                })
+                .catch(() => {
+                    return caches.match(event.request);
+                })
+        );
+        return;
+    }
+    
+    // CACHE-FIRST strategy for static assets
     event.respondWith(
         caches.match(event.request).then(response => {
-            return response || fetch(event.request);
+            return response || fetch(event.request).then(res => {
+                if (res.status === 200) {
+                    const copy = res.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+                }
+                return res;
+            });
         })
     );
 });
