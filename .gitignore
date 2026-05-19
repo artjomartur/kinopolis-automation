@@ -30,6 +30,9 @@ out/
 # Temporary files
 /tmp/
 *.tmp
+
+# Wrangler build artifacts
+.wrangler/
 kp_programm.html
 today.html
 find_dates.js

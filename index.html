@@ -286,9 +286,11 @@
             --shadow-premium: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
         }
 
-        /* --- MOBILE NAV HIDDEN BY DEFAULT ON DESKTOP --- */
-        .mobile-nav {
-            display: none !important;
+        /* --- MOBILE NAV HIDDEN BY DEFAULT ON DESKTOP (>1024px) --- */
+        @media (min-width: 1025px) {
+            .mobile-nav {
+                display: none !important;
+            }
         }
 
         /* --- AMBIENT CINEMATIC BACKGROUND --- */
@@ -6474,7 +6476,8 @@
             
             halls.forEach(hall => {
                 const hallName = hall.name;
-                const sessions = (hall.sessions || []).filter(s => s && s.time); 
+                const rawSessions = Array.isArray(hall.sessions) ? hall.sessions : (hall.sessions ? [hall.sessions] : []);
+                const sessions = rawSessions.filter(s => s && s.time); 
                 
                 const card = document.createElement('div');
                 card.className = 'hall-card ios-card glass';
@@ -7852,7 +7855,8 @@
         };
         window.updateStatus = updateStatus;
 
-        init();
+        // NOTE: init() is called by the readyState guard above (lines 7465-7489).
+        // Do NOT call init() here again — it would run twice concurrently.
     </script>
 <!-- Welcome Modal -->
 <div class="modal" id="welcome-modal">
