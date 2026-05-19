@@ -286,6 +286,11 @@
             --shadow-premium: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
         }
 
+        /* --- MOBILE NAV HIDDEN BY DEFAULT ON DESKTOP --- */
+        .mobile-nav {
+            display: none !important;
+        }
+
         /* --- AMBIENT CINEMATIC BACKGROUND --- */
         .liquid-bg {
             position: fixed;
@@ -1370,7 +1375,7 @@
                 display: flex !important;
                 z-index: 10000 !important;
                 position: fixed;
-                bottom: 1.25rem;
+                bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px)) !important;
                 left: 1rem;
                 right: 1rem;
                 height: 72px;
@@ -3133,7 +3138,7 @@
             #mobile-tab-bar.mobile-nav {
                 left: 1rem !important;
                 right: 1rem !important;
-                bottom: 1.25rem !important;
+                bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px)) !important;
                 height: 64px !important;
                 padding: 0 10px !important;
                 border-radius: 24px !important;
@@ -3143,7 +3148,7 @@
                 border: 1px solid rgba(255, 255, 255, 0.12) !important;
                 box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5) !important;
                 display: flex !important;
-            z-index: 9999 !important;
+                z-index: 10000 !important;
                 align-items: center !important;
                 justify-content: space-around !important;
                 gap: 5px;
@@ -4335,9 +4340,17 @@
                 activeBtn = document.querySelector(`.nav-tabs .tab-btn[data-tab="${view}"]`)
                     || document.querySelector(`#mobile-tab-bar .mobile-nav-item[data-tab="${view}"]`);
             }
+            if (!view && activeBtn) {
+                view = activeBtn.getAttribute('data-tab');
+            }
+            
             // Update UI State for both Desktop and Mobile
             document.querySelectorAll('.tab-btn, .mobile-nav-item').forEach(b => b.classList.remove('active'));
-            if (activeBtn) activeBtn.classList.add('active');
+            if (view) {
+                document.querySelectorAll(`.tab-btn[data-tab="${view}"], .mobile-nav-item[data-tab="${view}"]`).forEach(b => b.classList.add('active'));
+            } else if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
             
             // Clean view classes
             document.body.classList.remove(
@@ -4488,9 +4501,14 @@
                     runSafe(loadContacts, 'Contacts')
                 ]);
 
-                // Default Tab
-                const tabLive = document.querySelector('.mobile-nav-item[data-tab="live"]');
-                if (tabLive) switchTab('live', tabLive);
+                // Default Tab based on department filter
+                const savedDept = localStorage.getItem('kinopolis_selected_dept') || '';
+                let defaultTab = 'live';
+                if (savedDept === 'popcorn' || savedDept === 'becher') {
+                    defaultTab = 'action';
+                }
+                const defaultBtn = document.querySelector(`.mobile-nav-item[data-tab="${defaultTab}"]`) || document.querySelector(`.tab-btn[data-tab="${defaultTab}"]`);
+                if (defaultBtn) switchTab(defaultTab, defaultBtn);
 
                 // Setup toggle for Auslässe
                 const auslaesseBtn = document.getElementById('auslaesse-toggle-btn');
@@ -4545,9 +4563,20 @@
                     setInterval(checkPersonalNeed, 10000); // Sync help status every 10s
                 }
                 
-                // Initialize default tab
-                const activeBtn = document.querySelector('.mobile-nav-item.active') || document.querySelector('.tab-btn.active') || document.getElementById('tab-live');
-                if (activeBtn) switchTab('live', activeBtn);
+                // Initialize default tab based on stored department or active button
+                const activeBtn = document.querySelector('.mobile-nav-item.active') || document.querySelector('.tab-btn.active');
+                if (activeBtn) {
+                    const activeTab = activeBtn.getAttribute('data-tab') || 'live';
+                    switchTab(activeTab, activeBtn);
+                } else {
+                    const savedDept = localStorage.getItem('kinopolis_selected_dept') || '';
+                    let defaultTab = 'live';
+                    if (savedDept === 'popcorn' || savedDept === 'becher') {
+                        defaultTab = 'action';
+                    }
+                    const defaultBtn = document.querySelector(`.mobile-nav-item[data-tab="${defaultTab}"]`) || document.querySelector(`.tab-btn[data-tab="${defaultTab}"]`) || document.getElementById('tab-live');
+                    if (defaultBtn) switchTab(defaultTab, defaultBtn);
+                }
                 
                 clearTimeout(initTimeout);
             } catch (error) {
