@@ -3334,7 +3334,7 @@
 <span style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.7; font-weight: 800;">Aktualisieren</span>
 </div>
 </div>
-<div class="container"><div class="card-container news-section glass einstellungen-section" id="internal-news-container" style="display: none; margin-bottom: 1rem;">
+<div class="container"><div class="card-container news-section glass" id="internal-news-container" style="display: none; margin-bottom: 1rem;">
 <div class="card-header" onclick="toggleSection('news-content', 'news-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
 <span class="alert-icon-small">📢</span>
@@ -3977,7 +3977,7 @@
 <span>Made with ❤️ for Kinopolis</span>
 </div>
 </div>
-</div></div>
+</div>
 
 
 <!-- Date Selection in Settings -->
@@ -4057,6 +4057,7 @@
                         </div>
                     </div>
                 </section>
+</div>
 <!-- INTERNAL NEWS (Moved to Settings) -->
 <!-- Staff Notes Section (Moved to Bottom) -->
 <script>
@@ -5773,7 +5774,6 @@
             const textEl = document.getElementById('display-date-text');
             const subEl = document.getElementById('display-date-sub');
             const settingsTextEl = document.querySelector('.settings-date-text');
-            if(!textEl || !subEl) return;
             
             const isToday = displayDate.toDateString() === today.toDateString();
             const tomorrow = new Date(today);
@@ -5789,9 +5789,10 @@
             else if (isYesterday) dayName = 'Gestern';
             else dayName = displayDate.toLocaleDateString('de-DE', { weekday: 'long' });
 
-            textEl.innerText = dayName;
             const dateStr = displayDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
-            subEl.innerText = dateStr;
+            
+            if (textEl) textEl.innerText = dayName;
+            if (subEl) subEl.innerText = dateStr;
             
             if (settingsTextEl) {
                 settingsTextEl.innerText = `${dayName}, ${dateStr}`;
