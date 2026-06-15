@@ -812,6 +812,93 @@
     </div>
 
     <script>
+        // --- CINEMA TRANSITION ---
+        function runCinemaTransition() {
+            if (localStorage.getItem('cinema_transitions') === 'false') return;
+
+            const style = document.createElement('style');
+            style.innerHTML = `
+                .ticket-tear-overlay {
+                    position: fixed;
+                    top: 0; left: 0;
+                    width: 100vw; height: 100vh;
+                    pointer-events: none;
+                    z-index: 1000000;
+                    display: flex;
+                    overflow: hidden;
+                }
+                .ticket-half {
+                    width: 50.5vw; height: 100vh;
+                    background: linear-gradient(135deg, #16161a, #0b0b0c);
+                    box-shadow: inset 0 0 80px rgba(0,0,0,0.9);
+                    display: flex; align-items: center; justify-content: center;
+                    transition: transform 1.4s cubic-bezier(0.77, 0, 0.175, 1);
+                    position: relative;
+                }
+                .ticket-half.left {
+                    transform: translateX(0);
+                    border-right: 2px dashed rgba(255,255,255,0.15);
+                }
+                .ticket-half.right {
+                    transform: translateX(0);
+                    border-left: 2px dashed rgba(255,255,255,0.15);
+                }
+                .ticket-tear-overlay.tear .ticket-half.left {
+                    transform: translateX(-100%);
+                }
+                .ticket-tear-overlay.tear .ticket-half.right {
+                    transform: translateX(100%);
+                }
+                .ticket-half::after {
+                    content: '';
+                    position: absolute; top: 50%;
+                    width: 44px; height: 44px;
+                    background: #050507;
+                    border-radius: 50%;
+                    transform: translateY(-50%);
+                    z-index: 10;
+                }
+                .ticket-half.left::after { right: -22px; }
+                .ticket-half.right::after { left: -22px; }
+                .ticket-brand {
+                    font-family: 'Outfit', sans-serif;
+                    font-size: 2.2rem; font-weight: 950;
+                    color: #ff3b30; letter-spacing: 4px;
+                    text-transform: uppercase;
+                    text-shadow: 0 4px 15px rgba(255, 59, 48, 0.4);
+                    transform: rotate(-90deg);
+                    opacity: 0.85; user-select: none;
+                }
+                .ticket-brand.right-brand {
+                    color: #ffffff;
+                    text-shadow: 0 4px 15px rgba(255,255,255,0.2);
+                    transform: rotate(90deg);
+                }
+            `;
+            document.head.appendChild(style);
+
+            const overlay = document.createElement('div');
+            overlay.className = 'ticket-tear-overlay';
+            overlay.innerHTML = `
+                <div class="ticket-half left">
+                    <div class="ticket-brand">Kinopolis</div>
+                </div>
+                <div class="ticket-half right">
+                    <div class="ticket-brand right-brand">Automation</div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            setTimeout(() => {
+                overlay.classList.add('tear');
+                setTimeout(() => {
+                    overlay.remove();
+                    style.remove();
+                }, 1600);
+            }, 400);
+        }
+        runCinemaTransition();
+
         // --- AUTH & GUARD ---
         window.addEventListener('load', async () => {
             if (window.AUTH) {

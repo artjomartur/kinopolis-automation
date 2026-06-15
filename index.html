@@ -3397,7 +3397,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+            transition: transform 1.4s cubic-bezier(0.77, 0, 0.175, 1);
             position: relative;
         }
         .ticket-half.left {
@@ -4606,36 +4606,7 @@
 
         function switchTab(view, btn) {
             try {
-                const transitionsEnabled = localStorage.getItem('cinema_transitions') !== 'false';
-                if (transitionsEnabled) {
-                    let overlay = document.querySelector('.ticket-tear-overlay');
-                    if (!overlay) {
-                        overlay = document.createElement('div');
-                        overlay.className = 'ticket-tear-overlay';
-                        overlay.innerHTML = `
-                            <div class="ticket-half left">
-                                <div class="ticket-brand">Kinopolis</div>
-                            </div>
-                            <div class="ticket-half right">
-                                <div class="ticket-brand right-brand">Automation</div>
-                            </div>
-                        `;
-                        document.body.appendChild(overlay);
-                    }
-                    
-                    // Force reflow
-                    overlay.offsetHeight;
-                    
-                    switchTabInner(view, btn);
-                    
-                    overlay.classList.add('tear');
-                    
-                    setTimeout(() => {
-                        overlay.remove();
-                    }, 600);
-                } else {
-                    switchTabInner(view, btn);
-                }
+                switchTabInner(view, btn);
             } catch (err) {
                 console.error('switchTab:', err);
             }
@@ -4996,6 +4967,30 @@
                 if (splashEl) {
                     splashEl.classList.add('fade-out');
                     setTimeout(() => splashEl.style.display = 'none', 1000);
+                }
+
+                // Ticket-Abreiß-Effekt beim Betreten des Dashboards
+                if (localStorage.getItem('cinema_transitions') !== 'false') {
+                    const overlay = document.createElement('div');
+                    overlay.className = 'ticket-tear-overlay';
+                    overlay.innerHTML = `
+                        <div class="ticket-half left">
+                            <div class="ticket-brand">Kinopolis</div>
+                        </div>
+                        <div class="ticket-half right">
+                            <div class="ticket-brand right-brand">Automation</div>
+                        </div>
+                    `;
+                    document.body.appendChild(overlay);
+
+                    // Force reflow
+                    overlay.offsetHeight;
+
+                    // Start der Abreiß-Animation verzögern, damit es mit dem Splash-Screen harmoniert
+                    setTimeout(() => {
+                        overlay.classList.add('tear');
+                        setTimeout(() => overlay.remove(), 1600);
+                    }, 400);
                 }
 
                 // Popcorn-Animation auslösen, falls ein erfolgreicher Login stattgefunden hat
