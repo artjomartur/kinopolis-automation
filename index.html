@@ -8532,8 +8532,6 @@
         window.downloadShiftReportPDF = downloadShiftReportPDF;
         
         function calculateEndTime(startTime, duration) {
-
-        function calculateEndTime(startTime, duration) {
             if (!startTime || typeof startTime !== 'string' || !startTime.includes(':')) return '--:--';
             const [h, m] = startTime.split(':').map(Number);
             const totalMinutes = h * 60 + m + duration;
