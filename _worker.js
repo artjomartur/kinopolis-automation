@@ -1190,6 +1190,80 @@ app.delete('/api/messages/:id', async (c) => {
     }
     return c.json({ success: true });
 });
+
+// --- LOST & FOUND API ---
+app.get('/api/lostfound', async (c) => {
+    if (!c.env.DB) return c.json([]);
+    const location = c.req.query('location') || 'kp';
+    try {
+        await c.env.DB.prepare(`
+            CREATE TABLE IF NOT EXISTS lost_found (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                location TEXT NOT NULL,
+                what TEXT NOT NULL,
+                category TEXT NOT NULL,
+                found_where TEXT NOT NULL,
+                found_by TEXT NOT NULL,
+                image_url TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `).run();
+        
+        const { results } = await c.env.DB.prepare(
+            'SELECT * FROM lost_found WHERE location = ? ORDER BY created_at DESC'
+        ).bind(location).all();
+        return c.json(results || []);
+    } catch (e) {
+        console.error("lostfound GET error:", e);
+        return c.json([]);
+    }
+});
+
+app.post('/api/lostfound', async (c) => {
+    if (!c.env.DB) return c.json({ success: false, error: 'Database not available' });
+    try {
+        await c.env.DB.prepare(`
+            CREATE TABLE IF NOT EXISTS lost_found (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                location TEXT NOT NULL,
+                what TEXT NOT NULL,
+                category TEXT NOT NULL,
+                found_where TEXT NOT NULL,
+                found_by TEXT NOT NULL,
+                image_url TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `).run();
+
+        const { location, what, category, found_where, found_by, image_url } = await c.req.json();
+        if (!location || !what || !category || !found_where || !found_by) {
+            return c.json({ success: false, error: 'Missing fields' }, 400);
+        }
+
+        await c.env.DB.prepare(`
+            INSERT INTO lost_found (location, what, category, found_where, found_by, image_url)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `).bind(location, what, category, found_where, found_by, image_url || null).run();
+
+        return c.json({ success: true });
+    } catch (e) {
+        console.error("lostfound POST error:", e);
+        return c.json({ success: false, error: e.message }, 500);
+    }
+});
+
+app.delete('/api/lostfound/:id', async (c) => {
+    if (!c.env.DB) return c.json({ success: false, error: 'Database not available' });
+    const id = c.req.param('id');
+    try {
+        await c.env.DB.prepare('DELETE FROM lost_found WHERE id = ?').bind(id).run();
+        return c.json({ success: true });
+    } catch (e) {
+        console.error("lostfound DELETE error:", e);
+        return c.json({ success: false, error: e.message }, 500);
+    }
+});
+
 // --- INVENTORY & MHD API ---
 app.get('/api/inventory', async (c) => {
     if (!c.env.DB) return c.json({ waren: [], eis: [], getraenke: [], slushy: [] });

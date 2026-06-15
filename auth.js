@@ -176,6 +176,7 @@ const AUTH = {
                 errorEl.style.color = '#00ff66';
                 errorEl.style.display = 'block';
             }
+            sessionStorage.setItem('trigger_login_popcorn', 'true');
             setTimeout(() => location.reload(), 800);
         } else {
             this.showError(res.error || 'Anmeldung fehlgeschlagen');
@@ -222,6 +223,7 @@ const AUTH = {
 
     enableGuestMode() {
         localStorage.setItem('kp_guest_mode', 'true');
+        sessionStorage.setItem('trigger_login_popcorn', 'true');
         location.reload();
     },
 

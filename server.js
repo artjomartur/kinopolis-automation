@@ -322,7 +322,32 @@ app.get('/api/auth/me', (req, res) => {
     res.json({ user: { email: 'admin@kinopolis.de', name: 'Local Admin', role: 'admin' } });
 });
 
-app.get('/api/lostfound', (req, res) => res.json([]));
+let localLostFound = [];
+app.get('/api/lostfound', (req, res) => {
+    const location = req.query.location || 'kp';
+    res.json(localLostFound.filter(item => item.location === location));
+});
+app.post('/api/lostfound', (req, res) => {
+    const { location, what, category, found_where, found_by, image_url } = req.body;
+    const newItem = {
+        id: Date.now(),
+        location,
+        what,
+        category,
+        found_where,
+        found_by,
+        image_url,
+        created_at: new Date().toISOString()
+    };
+    localLostFound.unshift(newItem);
+    res.json({ success: true });
+});
+app.delete('/api/lostfound/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    localLostFound = localLostFound.filter(item => item.id !== id);
+    res.json({ success: true });
+});
+
 app.get('/api/inventory', (req, res) => res.json({ waren: [], eis: [], getraenke: [], slushy: [] }));
 app.get('/api/contacts', (req, res) => res.json([]));
 app.get('/api/checklist', (req, res) => res.json({}));

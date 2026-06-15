@@ -122,3 +122,16 @@ CREATE TABLE IF NOT EXISTS inventory_counts (
 );
 
 CREATE INDEX IF NOT EXISTS idx_inv_counts_date ON inventory_counts(date);
+
+CREATE TABLE IF NOT EXISTS lost_found (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    location TEXT NOT NULL,
+    what TEXT NOT NULL,
+    category TEXT NOT NULL,
+    found_where TEXT NOT NULL,
+    found_by TEXT NOT NULL,
+    image_url TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_lost_found_location ON lost_found(location);

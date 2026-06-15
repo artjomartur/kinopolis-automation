@@ -3229,6 +3229,226 @@
         .hall-header * { pointer-events: none; }
         .hall-header { cursor: pointer; }
 
+        /* --- VISUAL LOST & FOUND --- */
+        .lf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .lf-card {
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.02);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .lf-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+            border-color: rgba(255,255,255,0.12);
+        }
+        .lf-card-image-wrapper {
+            position: relative;
+            height: 150px;
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .lf-card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .lf-card-placeholder {
+            font-size: 3.5rem;
+            opacity: 0.6;
+        }
+        .lf-card-content {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            gap: 0.5rem;
+        }
+        .lf-card-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #fff;
+            margin: 0;
+            line-height: 1.3;
+        }
+        .lf-badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .lf-badge {
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .lf-badge.category-kleidung { background: rgba(52, 152, 219, 0.15); color: #5dade2; border: 1px solid rgba(52, 152, 219, 0.25); }
+        .lf-badge.category-wertsachen { background: rgba(155, 89, 182, 0.15); color: #af7ac5; border: 1px solid rgba(155, 89, 182, 0.25); }
+        .lf-badge.category-elektronik { background: rgba(241, 196, 15, 0.15); color: #f4d03f; border: 1px solid rgba(241, 196, 15, 0.25); }
+        .lf-badge.category-sonstiges { background: rgba(149, 165, 166, 0.15); color: #bdc3c7; border: 1px solid rgba(149, 165, 166, 0.25); }
+        
+        .lf-meta-row {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .lf-date {
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.3);
+            margin-top: auto;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .lf-image-preview-container {
+            width: 100%;
+            height: 160px;
+            border-radius: 12px;
+            border: 2px dashed rgba(255,255,255,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+            background: rgba(255,255,255,0.02);
+            transition: all 0.2s;
+        }
+        .lf-image-preview-container:hover {
+            border-color: var(--primary-blue);
+            background: rgba(0, 122, 255, 0.03);
+        }
+        .lf-image-preview-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* --- TICKET TEAR TRANSITIONS & SWITCH SLIDER --- */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 26px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(255,255,255,0.1);
+            transition: .3s;
+            border-radius: 34px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        .switch input:checked + .slider {
+            background-color: var(--primary-red) !important;
+        }
+        .switch input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        .ticket-tear-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1000000;
+            display: flex;
+            overflow: hidden;
+        }
+        .ticket-half {
+            width: 50.5vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #16161a, #0b0b0c);
+            box-shadow: inset 0 0 80px rgba(0,0,0,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+            position: relative;
+        }
+        .ticket-half.left {
+            transform: translateX(0);
+            border-right: 2px dashed rgba(255,255,255,0.15);
+        }
+        .ticket-half.right {
+            transform: translateX(0);
+            border-left: 2px dashed rgba(255,255,255,0.15);
+        }
+        .ticket-tear-overlay.tear .ticket-half.left {
+            transform: translateX(-100%);
+        }
+        .ticket-tear-overlay.tear .ticket-half.right {
+            transform: translateX(100%);
+        }
+        .ticket-half::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 44px;
+            height: 44px;
+            background: #050507;
+            border-radius: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+        .ticket-half.left::after {
+            right: -22px;
+        }
+        .ticket-half.right::after {
+            left: -22px;
+        }
+        .ticket-brand {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 950;
+            color: #ff3b30;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            text-shadow: 0 4px 15px rgba(255, 59, 48, 0.4);
+            transform: rotate(-90deg);
+            opacity: 0.85;
+            user-select: none;
+        }
+        .ticket-brand.right-brand {
+            color: #ffffff;
+            text-shadow: 0 4px 15px rgba(255,255,255,0.2);
+            transform: rotate(90deg);
+        }
+
     </style>
 </head>
 <body class="dark-mode">
@@ -3822,15 +4042,27 @@
 </div>
 <!-- Theme & Appearance -->
 <div class="card-container glass einstellungen-section" style="margin-bottom: 1rem;">
-<div class="card-header" style="padding: 1.25rem;">
-<div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
-<span class="alert-icon-small">🌓</span>
-<h2 style="font-size: 1.25rem;">Erscheinungsbild</h2>
-</div>
-<button class="btn-primary" onclick="toggleTheme()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.9rem;">
-                    Design wechseln <span id="settings-theme-icon">🌙</span>
-</button>
-</div>
+    <div class="card-header" style="padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; align-items: stretch;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0;">
+                <span class="alert-icon-small">🌓</span>
+                <h2 style="font-size: 1.25rem;">Erscheinungsbild</h2>
+            </div>
+            <button class="btn-primary" onclick="toggleTheme()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.9rem;">
+                Design wechseln <span id="settings-theme-icon">🌙</span>
+            </button>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.08);">
+            <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                <span style="font-size: 0.95rem; font-weight: 600; color: white;">🎟️ Ticket-Übergangseffekt</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Zeigt eine Kinokarten-Animation beim Wechseln von Tabs</span>
+            </div>
+            <label class="switch" style="position: relative; display: inline-block; width: 46px; height: 26px;">
+                <input type="checkbox" id="cinema-transitions-toggle" onchange="toggleCinemaTransitions(this.checked)" style="opacity: 0; width: 0; height: 0;">
+                <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .3s; border-radius: 34px; border: 1px solid rgba(255,255,255,0.15);"></span>
+            </label>
+        </div>
+    </div>
 </div>
 <div class="card-container glass einstellungen-section" style="margin-bottom: 1rem;">
 <div class="card-header" onclick="toggleSection('links-content', 'links-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
@@ -4189,9 +4421,35 @@
             return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
         }
 
+        function parseDateSafe(dateStr) {
+            if (!dateStr) return null;
+            let cleanStr = String(dateStr).replace(' ', 'T');
+            if (/^\d+$/.test(cleanStr)) {
+                let timestamp = parseInt(cleanStr);
+                if (timestamp < 50000000000) {
+                    timestamp *= 1000;
+                }
+                return new Date(timestamp);
+            }
+            const d = new Date(cleanStr);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        function formatDateTimeSafe(dateStr) {
+            const d = parseDateSafe(dateStr);
+            if (!d || d.getTime() <= 0) return 'Gerade eben';
+            return d.toLocaleString('de-DE');
+        }
+
+        function formatDateOnlySafe(dateStr) {
+            const d = parseDateSafe(dateStr);
+            if (!d || d.getTime() <= 0) return 'K.A.';
+            return d.toLocaleDateString('de-DE');
+        }
+
         function formatTime(isoStr) {
-            const date = new Date(isoStr);
-            return date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+            const date = parseDateSafe(isoStr);
+            return date ? date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '';
         }
 
         async function runSafe(fn, errorMsg, timeoutMs = 8000) {
@@ -4342,9 +4600,42 @@
 
 
 
+        function toggleCinemaTransitions(checked) {
+            localStorage.setItem('cinema_transitions', checked ? 'true' : 'false');
+        }
+
         function switchTab(view, btn) {
             try {
-                switchTabInner(view, btn);
+                const transitionsEnabled = localStorage.getItem('cinema_transitions') !== 'false';
+                if (transitionsEnabled) {
+                    let overlay = document.querySelector('.ticket-tear-overlay');
+                    if (!overlay) {
+                        overlay = document.createElement('div');
+                        overlay.className = 'ticket-tear-overlay';
+                        overlay.innerHTML = `
+                            <div class="ticket-half left">
+                                <div class="ticket-brand">Kinopolis</div>
+                            </div>
+                            <div class="ticket-half right">
+                                <div class="ticket-brand right-brand">Automation</div>
+                            </div>
+                        `;
+                        document.body.appendChild(overlay);
+                    }
+                    
+                    // Force reflow
+                    overlay.offsetHeight;
+                    
+                    switchTabInner(view, btn);
+                    
+                    overlay.classList.add('tear');
+                    
+                    setTimeout(() => {
+                        overlay.remove();
+                    }, 600);
+                } else {
+                    switchTabInner(view, btn);
+                }
             } catch (err) {
                 console.error('switchTab:', err);
             }
@@ -4429,6 +4720,102 @@
 
         // Tab-Wechsel: onclick auf den Buttons (zuverlässig); switchTab fängt Fehler per try/catch ab.
 
+        function triggerPopcornAnimation() {
+            let container = document.getElementById('popcorn-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'popcorn-container';
+                container.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    pointer-events: none;
+                    z-index: 999999;
+                    overflow: hidden;
+                `;
+                document.body.appendChild(container);
+            }
+            
+            const particleCount = 60 + Math.floor(Math.random() * 20);
+            const particles = [];
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.innerText = '🍿';
+                particle.style.cssText = `
+                    position: absolute;
+                    user-select: none;
+                    pointer-events: none;
+                    font-size: ${24 + Math.random() * 20}px;
+                    will-change: transform, opacity;
+                    transform-origin: center;
+                    transform: translate3d(${window.innerWidth / 2}px, ${window.innerHeight + 50}px, 0);
+                    opacity: 1;
+                `;
+                container.appendChild(particle);
+                
+                // physics variables
+                const angle = (Math.random() * 60 + 60) * Math.PI / 180; // 60 to 120 deg
+                const speed = 14 + Math.random() * 16;
+                const vx = Math.cos(angle) * speed * (Math.random() > 0.5 ? 1 : -1);
+                const vy = -Math.sin(angle) * speed;
+                
+                particles.push({
+                    el: particle,
+                    x: window.innerWidth / 2 + (Math.random() - 0.5) * 60,
+                    y: window.innerHeight + 50,
+                    vx: vx,
+                    vy: vy,
+                    rot: Math.random() * 360,
+                    rotSpeed: (Math.random() - 0.5) * 15,
+                    opacity: 1,
+                    scale: 0.8 + Math.random() * 0.4,
+                    decay: 0.005 + Math.random() * 0.005
+                });
+            }
+            
+            const gravity = 0.45;
+            let lastTime = performance.now();
+            
+            function update(time) {
+                const delta = Math.min((time - lastTime) / 16.666, 3);
+                lastTime = time;
+                
+                let activeCount = 0;
+                
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i];
+                    if (p.opacity <= 0 || p.y > window.innerHeight + 100) {
+                        if (p.el.parentNode) {
+                            p.el.parentNode.removeChild(p.el);
+                        }
+                        continue;
+                    }
+                    
+                    activeCount++;
+                    
+                    p.x += p.vx * delta;
+                    p.vy += gravity * delta;
+                    p.y += p.vy * delta;
+                    p.rot += p.rotSpeed * delta;
+                    p.opacity -= p.decay * delta;
+                    
+                    p.el.style.transform = `translate3d(${p.x}px, ${p.y}px, 0) rotate(${p.rot}deg) scale(${p.scale})`;
+                    p.el.style.opacity = p.opacity;
+                }
+                
+                if (activeCount > 0) {
+                    requestAnimationFrame(update);
+                } else {
+                    container.remove();
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+
         // --- APP START ---
         // 1. IMMEDIATE SPLASH SCREEN FAILSAFE
         setTimeout(() => {
@@ -4463,6 +4850,12 @@
                     const sIcon = document.getElementById('settings-theme-icon');
                     if (icon) icon.innerText = '☀️';
                     if (sIcon) sIcon.innerText = '☀️';
+                }
+
+                // Cinema Transitions Toggle Init
+                const transitionsToggle = document.getElementById('cinema-transitions-toggle');
+                if (transitionsToggle) {
+                    transitionsToggle.checked = localStorage.getItem('cinema_transitions') !== 'false';
                 }
 
                 // Auth Init
@@ -4603,6 +4996,16 @@
                 if (splashEl) {
                     splashEl.classList.add('fade-out');
                     setTimeout(() => splashEl.style.display = 'none', 1000);
+                }
+
+                // Popcorn-Animation auslösen, falls ein erfolgreicher Login stattgefunden hat
+                if (sessionStorage.getItem('trigger_login_popcorn') === 'true') {
+                    sessionStorage.removeItem('trigger_login_popcorn');
+                    setTimeout(() => {
+                        if (typeof triggerPopcornAnimation === 'function') {
+                            triggerPopcornAnimation();
+                        }
+                    }, 500);
                 }
             }
         }
@@ -5494,7 +5897,7 @@
                         </div>
                         <div style="text-align: right;">
                             <div style="font-family: monospace; font-weight: 800; color: ${isNear ? '#ff3b30' : '#f1c40f'};">${item.mhd_date}</div>
-                            <div style="font-size: 0.6rem; opacity: 0.4;">${new Date(item.created_at).toLocaleDateString()}</div>
+                            <div style="font-size: 0.6rem; opacity: 0.4;">${formatDateOnlySafe(item.created_at)}</div>
                         </div>
                     </div>
                 `}).join('');
@@ -5980,6 +6383,65 @@
             localStorage.setItem('welcome_seen_beta', 'true');
         }
 
+        let currentLfImageBase64 = null;
+
+        function compressImage(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 400;
+                    const MAX_HEIGHT = 400;
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    callback(dataUrl);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleLfImageUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const container = document.getElementById('lf-img-preview-container');
+                const placeholder = document.getElementById('lf-preview-placeholder');
+                const img = document.getElementById('lf-preview-img');
+                
+                placeholder.innerHTML = '⌛ Wird komprimiert...';
+                
+                compressImage(file, function(base64) {
+                    currentLfImageBase64 = base64;
+                    placeholder.style.display = 'none';
+                    img.src = base64;
+                    img.style.display = 'block';
+                    
+                    container.style.borderColor = 'var(--primary-blue)';
+                    container.style.boxShadow = '0 0 15px rgba(0, 122, 255, 0.2)';
+                });
+            }
+        }
+
         function openLfModal() {
             document.getElementById('lf-modal').classList.add('active');
         }
@@ -5989,6 +6451,32 @@
             document.getElementById('lf-category').value = '';
             document.getElementById('lf-where').value = '';
             document.getElementById('lf-who').value = '';
+            
+            // Reset image uploader
+            currentLfImageBase64 = null;
+            const fileInput = document.getElementById('lf-image-input');
+            if (fileInput) fileInput.value = '';
+            
+            const placeholder = document.getElementById('lf-preview-placeholder');
+            if (placeholder) {
+                placeholder.style.display = 'flex';
+                placeholder.innerHTML = `
+                    <span style="font-size: 2rem;">📸</span>
+                    Foto aufnehmen oder auswählen
+                `;
+            }
+            
+            const img = document.getElementById('lf-preview-img');
+            if (img) {
+                img.src = '';
+                img.style.display = 'none';
+            }
+            
+            const container = document.getElementById('lf-img-preview-container');
+            if (container) {
+                container.style.borderColor = 'rgba(255,255,255,0.15)';
+                container.style.boxShadow = 'none';
+            }
         }
         async function loadLfItems() {
             const list = document.getElementById('lf-items-list');
@@ -6022,38 +6510,67 @@
                 }
                 
                 list.innerHTML = '';
+                const grid = document.createElement('div');
+                grid.className = 'lf-grid';
+                list.appendChild(grid);
+
                 items.forEach((item) => {
+                    let placeholderEmoji = '🧸';
+                    const category = item.category || 'Sonstiges';
+                    if (category === 'Kleidung') placeholderEmoji = '👕';
+                    if (category === 'Wertsachen') placeholderEmoji = '💎';
+                    if (category === 'Elektronik') placeholderEmoji = '📱';
+                    if (category === 'Sonstiges') placeholderEmoji = '📦';
+
+                    // Clean category name for class selectors (German to ASCII slug)
+                    const catLower = category.toLowerCase()
+                        .replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue');
+                    const badgeClass = `lf-badge category-${catLower}`;
+
                     const el = document.createElement('div');
-                    el.className = 'glass';
-                    el.style.cssText = 'padding: 1.2rem; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;';
+                    el.className = 'lf-card glass';
+                    
                     el.innerHTML = `
-                        <div style="flex: 1;">
-                            <div style="font-weight: 700; font-size: 1.1rem; color: white;">${item.what}</div>
-                            <div style="display: flex; gap: 1rem; margin-top: 0.4rem; font-size: 0.82rem; color: var(--text-muted);">
-                                <span>📂 ${item.category}</span>
-                                <span>📍 ${item.found_where}</span>
-                            </div>
-                            <div style="margin-top: 0.4rem; font-size: 0.75rem; color: rgba(255,255,255,0.3);">
-                                Gefunden am ${new Date(item.created_at).toLocaleString('de-DE')} von ${item.found_by}
-                            </div>
+                        <div class="lf-card-image-wrapper">
+                            ${item.image_url ? 
+                                `<img src="${item.image_url}" class="lf-card-image" alt="${item.what}">` : 
+                                `<span class="lf-card-placeholder">${placeholderEmoji}</span>`
+                            }
                         </div>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <button onclick="deleteLfItem(${item.id})" style="
-                                background: rgba(229,9,20,0.08);
-                                border: 1px solid rgba(229,9,20,0.25);
-                                color: #ff6b6b;
+                        <div class="lf-card-content">
+                            <h4 class="lf-card-title">${item.what}</h4>
+                            <div class="lf-badge-row">
+                                <span class="${badgeClass}">${category}</span>
+                            </div>
+                            <div class="lf-meta-row" style="margin-top: 0.25rem; font-size: 0.8rem; color: var(--text-muted);">
+                                <span>📍</span>
+                                <span>${item.found_where}</span>
+                            </div>
+                            <div class="lf-meta-row" style="font-size: 0.8rem; color: var(--text-muted);">
+                                <span>👤</span>
+                                <span>Gefunden von ${item.found_by}</span>
+                            </div>
+                            <div class="lf-date" style="font-size: 0.72rem; color: rgba(255,255,255,0.3); margin-top: auto; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.05);">
+                                Gefunden am ${formatDateTimeSafe(item.created_at)}
+                            </div>
+                            <button onclick="deleteLfItem(${item.id})" class="btn-primary" style="
+                                width: 100%;
+                                background: rgba(229, 9, 20, 0.1);
+                                border: 1px solid rgba(229, 9, 20, 0.3);
+                                color: #ff4d4d;
+                                padding: 0.6rem;
+                                border-radius: 10px;
+                                font-weight: 700;
+                                font-size: 0.85rem;
                                 cursor: pointer;
-                                font-size: 0.82rem;
-                                padding: 5px 12px;
-                                border-radius: 6px;
-                                font-weight: 600;
-                                transition: background 0.2s;
-                            " onmouseover="this.style.background='rgba(229,9,20,0.18)'" onmouseout="this.style.background='rgba(229,9,20,0.08)'">
-                                ✅ Als abgeholt markieren
+                                margin-top: 0.5rem;
+                                transition: all 0.2s;
+                            " onmouseover="this.style.background='rgba(229, 9, 20, 0.2)'; this.style.borderColor='rgba(229, 9, 20, 0.5)';" onmouseout="this.style.background='rgba(229, 9, 20, 0.1)'; this.style.borderColor='rgba(229, 9, 20, 0.3)';">
+                                ✅ Abgeholt / Erledigt
                             </button>
                         </div>
                     `;
-                    list.appendChild(el);
+                    grid.appendChild(el);
                 });
             } catch (e) {
                 list.innerHTML = '<div style="padding: 2rem; color: #ff4d4d;">Fehler beim Laden des Fundbüros.</div>';
@@ -6090,7 +6607,8 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         location: currentCity,
-                        what, category, found_where: where, found_by: who
+                        what, category, found_where: where, found_by: who,
+                        image_url: currentLfImageBase64
                     })
                 });
                 
@@ -6166,7 +6684,7 @@
                         <div class="news-header">
                             <span class="news-title">${item.title}</span>
                             <div style="display: flex; align-items: center; gap: 1rem;">
-                                <span class="news-meta">${new Date(item.created_at).toLocaleString('de-DE')} von ${item.author}</span>
+                                <span class="news-meta">${formatDateTimeSafe(item.created_at)} von ${item.author}</span>
                             </div>
                         </div>
                         ${galleryHtml}
@@ -6851,7 +7369,8 @@
 
                 const meta = completedMeta.get(t.id);
                 const authorBadge = isDone && meta && meta.author ? (() => {
-                    const ts = meta.completed_at ? new Date(meta.completed_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '';
+                    const completedDate = parseDateSafe(meta.completed_at);
+                    const ts = completedDate ? completedDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '';
                     return `<div style="font-size:0.72rem; color:#2ecc71; margin-top:3px; font-weight:600; opacity:0.9;">✅ ${meta.author}${ts ? ' · ' + ts + ' Uhr' : ''}</div>`;
                 })() : '';
 
@@ -7941,6 +8460,17 @@
 </select>
 <input class="input-field" id="lf-where" placeholder="Wo genau? (z.B. Kino 4, Platz 8A)" required="" type="text">
 <input class="input-field" id="lf-who" placeholder="Wer hat es gefunden? (Dein Name)" required="" type="text">
+<div style="display: flex; flex-direction: column; gap: 0.4rem;">
+    <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: bold; text-transform: uppercase;">Foto hinzufügen (Optional)</label>
+    <div class="lf-image-preview-container" id="lf-img-preview-container" onclick="document.getElementById('lf-image-input').click()">
+        <span id="lf-preview-placeholder" style="font-size: 0.9rem; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 2rem;">📸</span>
+            Foto aufnehmen oder auswählen
+        </span>
+        <img id="lf-preview-img" class="lf-image-preview-img" style="display: none;" />
+    </div>
+    <input type="file" id="lf-image-input" accept="image/*" style="display: none;" onchange="handleLfImageUpload(this)">
+</div>
 </input></input></input></div>
 <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
 <button class="btn-secondary" onclick="closeLfModal()" style="flex: 1;">Abbrechen</button>
