@@ -10,6 +10,27 @@ app.onError((err, c) => {
     return c.json({ error: 'Internal Server Error', message: err.message }, 500);
 });
 
+let isDbMigrated = false;
+
+app.use('*', async (c, next) => {
+    if (!isDbMigrated && c.env.DB) {
+        try {
+            await c.env.DB.prepare('ALTER TABLE users ADD COLUMN xp INTEGER DEFAULT 0;').run();
+            console.log('Migration: Added xp column to users table.');
+        } catch (e) {
+            // Ignore error if column already exists
+        }
+        try {
+            await c.env.DB.prepare('ALTER TABLE occupancy_archive ADD COLUMN location TEXT;').run();
+            console.log('Migration: Added location column to occupancy_archive table.');
+        } catch (e) {
+            // Ignore error if column already exists
+        }
+        isDbMigrated = true;
+    }
+    await next();
+});
+
 // Helper for consistent Kinopolis requests
 async function fetchKinopolis(url) {
     return await fetch(url, {
@@ -369,15 +390,75 @@ app.get('/api/auth/me', async (c) => {
     try {
         const payload = await verify(token, JWT_SECRET, 'HS256');
         
+        let dbUser = null;
+        if (c.env.DB) {
+            dbUser = await c.env.DB.prepare(
+                'SELECT id, email, first_name, last_name, location, employee_number, role, xp FROM users WHERE id = ?'
+            ).bind(payload.id).first();
+        }
+
+        const user = dbUser ? {
+            id: dbUser.id,
+            email: dbUser.email,
+            name: `${dbUser.first_name} ${dbUser.last_name}`,
+            first_name: dbUser.first_name,
+            last_name: dbUser.last_name,
+            location: dbUser.location,
+            employee_number: dbUser.employee_number,
+            role: dbUser.role,
+            xp: dbUser.xp || 0
+        } : { ...payload, xp: 0 };
+
         // Failsafe: Ensure specific email is always admin
-        if (payload.email === 'hi@artjombecker.com' || payload.email === 'artjomb.2001@gmail.com') {
-            payload.role = 'admin';
+        if (user.email === 'hi@artjombecker.com' || user.email === 'artjomb.2001@gmail.com') {
+            user.role = 'admin';
         }
         
-        return c.json({ user: payload });
+        return c.json({ user });
     } catch (e) {
         console.error('JWT Verification Failed:', e.message);
         return c.json({ error: 'Ungültiger Token', message: e.message }, 401);
+    }
+});
+
+app.post('/api/auth/add-xp', async (c) => {
+    const authHeader = c.req.header('Authorization');
+    if (!authHeader) return c.json({ error: 'Nicht autorisiert' }, 401);
+    try {
+        const payload = await verify(authHeader.split(' ')[1], JWT_SECRET, 'HS256');
+        const { amount, reason } = await c.req.json();
+        if (!amount) return c.json({ error: 'Amount is required' }, 400);
+        if (!c.env.DB) return c.json({ error: 'Datenbank nicht verfügbar' }, 500);
+
+        // Update user's XP
+        await c.env.DB.prepare('UPDATE users SET xp = COALESCE(xp, 0) + ? WHERE id = ?')
+            .bind(amount, payload.id).run();
+
+        // Get updated XP
+        const user = await c.env.DB.prepare('SELECT xp FROM users WHERE id = ?')
+            .bind(payload.id).first();
+
+        console.log(`XP awarded to user ${payload.id}: +${amount} XP (${reason || 'no reason'})`);
+        return c.json({ success: true, xp: user ? user.xp : 0 });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+app.get('/api/auth/leaderboard', async (c) => {
+    if (!c.env.DB) return c.json({ error: 'Datenbank nicht verfügbar' }, 500);
+    const location = c.req.query('location') || 'kp';
+    try {
+        const result = await c.env.DB.prepare(`
+            SELECT first_name, last_name, role, xp 
+            FROM users 
+            WHERE location = ? 
+            ORDER BY COALESCE(xp, 0) DESC, id ASC
+            LIMIT 10
+        `).bind(location).all();
+        return c.json({ leaderboard: result.results || [] });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
     }
 });
 
@@ -460,6 +541,52 @@ app.post('/api/auth/shift-report', async (c) => {
 
         const s = getEmailStyles(theme);
 
+        // Save shift XP to user in D1 Database
+        if (c.env.DB && xp) {
+            try {
+                await c.env.DB.prepare('UPDATE users SET xp = COALESCE(xp, 0) + ? WHERE id = ?')
+                    .bind(xp, payload.id).run();
+                console.log(`Saved shift XP (+${xp}) to user ${payload.id} in DB.`);
+            } catch (dbXpErr) {
+                console.error("Failed to update user XP in shift report:", dbXpErr);
+            }
+        }
+
+        // Fetch shift logs written by this user today
+        let logNotesHtml = '';
+        if (c.env.DB) {
+            try {
+                const todayStr = new Date().toISOString().split('T')[0];
+                const authorSearch = `%${payload.first_name}%`;
+                const logs = await c.env.DB.prepare(`
+                    SELECT message, priority, created_at 
+                    FROM shift_logs 
+                    WHERE location = ? AND date(created_at) = ? AND (author LIKE ? OR message LIKE ?)
+                    ORDER BY created_at ASC
+                `).bind(payload.location || 'kp', todayStr, authorSearch, authorSearch).all();
+
+                if (logs.results && logs.results.length > 0) {
+                    logNotesHtml = `
+                        <div style="background:rgba(255,255,255,0.02);border-radius:18px;padding:24px;border:1px solid ${s.borderColor};margin-top:20px;">
+                            <h3 style="font-size:12px;color:${s.mutedColor};text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;margin-top:0;">Deine Logbuch-Einträge von heute</h3>
+                            ${logs.results.map(l => {
+                                const timeStr = new Date(l.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                                const prioBadge = l.priority === 'dringend' ? '<span style="color:#ff3d47;font-weight:bold;">🔴 Dringend</span>' : (l.priority === 'wichtig' ? '<span style="color:#ffb900;font-weight:bold;">⚠️ Wichtig</span>' : '');
+                                return `
+                                    <div style="padding:12px 0;border-bottom:1px solid ${s.borderColor};">
+                                        <div style="font-size:11px;color:${s.mutedColor};margin-bottom:4px;">${timeStr} Uhr ${prioBadge ? ' &bull; ' + prioBadge : ''}</div>
+                                        <div style="color:${s.textColor};font-size:14px;line-height:1.4;">${l.message}</div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                console.error("Failed to fetch shift logs for report email:", e);
+            }
+        }
+
         const mailRes = await fetch('https://api.resend.com/emails', {
             method: 'POST',
             headers: {
@@ -530,6 +657,9 @@ app.post('/api/auth/shift-report', async (c) => {
                                 <span style="background:rgba(255, 171, 0, 0.15);color:#ffab00;padding:4px 12px;border-radius:50px;font-size:12px;font-weight:800;">${posters || 0}</span>
                             </div>
                         </div>
+
+                        <!-- Shift Logs written by User -->
+                        ${logNotesHtml}
 
                         <!-- Feedback Prompt -->
                         <div style="margin-top: 30px; text-align: center; background: rgba(0, 120, 255, 0.05); padding: 24px; border-radius: 18px; border: 1px solid rgba(0, 120, 255, 0.1);">
@@ -2628,4 +2758,48 @@ app.get('/api/diag', async (c) => {
         env: Object.keys(c.env),
         location: c.req.query('location') || 'kp'
     });
+});
+
+app.get('/api/stats/occupancy-history', async (c) => {
+    if (!c.env.DB) return c.json({ error: 'Datenbank nicht verfügbar' }, 500);
+    const location = c.req.query('location') || 'kp';
+    try {
+        // 1. Last 14 days visitor trend
+        const trend = await c.env.DB.prepare(`
+            SELECT date, SUM(max_sold) as total_visitors 
+            FROM occupancy_archive 
+            WHERE location = ? 
+            GROUP BY date 
+            ORDER BY date DESC 
+            LIMIT 14
+        `).bind(location).all();
+        
+        // 2. Average occupancy percent by hour bucket (08:00 to 23:00)
+        const hourly = await c.env.DB.prepare(`
+            SELECT SUBSTR(time, 1, 2) || ':00' as hour_bucket, 
+                   AVG(CAST(max_sold AS REAL) / CAST(CASE WHEN capacity > 0 THEN capacity ELSE 1 END AS REAL)) * 100 as avg_occupancy_percent
+            FROM occupancy_archive
+            WHERE location = ?
+            GROUP BY hour_bucket
+            ORDER BY hour_bucket ASC
+        `).bind(location).all();
+
+        // 3. Top movies in last 30 days
+        const movies = await c.env.DB.prepare(`
+            SELECT title, SUM(max_sold) as total_sold
+            FROM occupancy_archive
+            WHERE location = ? AND date >= date('now', '-30 days')
+            GROUP BY title
+            ORDER BY total_sold DESC
+            LIMIT 5
+        `).bind(location).all();
+
+        return c.json({
+            trend: (trend.results || []).reverse(),
+            hourly: hourly.results || [],
+            movies: movies.results || []
+        });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
 });

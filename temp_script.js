@@ -2456,7 +2456,7 @@
                             <div class="time">Start: ${nextMovie.time} ${isEndDay ? 'Uhr (Morgen)' : 'Uhr'}</div>
                         </div>
                     </div>
-                    <button class="btn-primary" onclick="markPosterDone('${alertId}', this)" style="margin-top: 1rem; width: 100%;">
+                    <button class="btn-done-poster" onclick="markPosterDone('${alertId}', this)" style="margin-top: 1rem; width: 100%;">
                         <span class="icon">✅</span> Erledigt
                     </button>
                 </div>

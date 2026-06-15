@@ -74,6 +74,7 @@ CREATE TABLE IF NOT EXISTS users (
     employee_number TEXT,
     password_hash TEXT NOT NULL,
     role TEXT DEFAULT 'user',
+    xp INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

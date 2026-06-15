@@ -125,6 +125,12 @@ const AUTH = {
         style.innerHTML = `
             .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 10000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
             .modal.active { display: flex; opacity: 1; }
+            #auth-modal { overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; padding: 2rem 1rem !important; box-sizing: border-box !important; }
+            #auth-modal-content { margin: auto !important; max-width: 400px !important; width: 100% !important; box-sizing: border-box !important; }
+            @media (max-width: 480px) {
+                #auth-modal { align-items: flex-start !important; }
+                #auth-modal-content { margin-top: 2rem !important; margin-bottom: 2rem !important; padding: 1.5rem !important; }
+            }
             .glass { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(20px); border-radius: 24px; }
             .btn-primary { background: linear-gradient(135deg, #e50914, #ff3d47); color: white; border: none; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3); }
             .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(229, 9, 20, 0.5); filter: brightness(1.1); }
@@ -424,6 +430,14 @@ const AUTH = {
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span style="color: var(--text-muted); font-size: 0.85rem;">Standort</span>
                         <span style="font-weight: 600; font-size: 0.9rem;">${this.user.location.toUpperCase()}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Rang</span>
+                        <span style="font-weight: 700; font-size: 0.9rem; color: #f1c40f;">Level ${Math.floor((this.user.xp || 0) / 150) + 1} (${['Anfänger', 'Fortgeschrittener', 'Profi', 'Experte', 'Legende', 'Kino-Gott'][Math.min(5, Math.floor((this.user.xp || 0) / 150))]})</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Erfahrungspunkte</span>
+                        <span style="font-weight: 700; font-size: 0.9rem; color: #2ecc71;">${this.user.xp || 0} XP</span>
                     </div>
                     <!-- DEPT SELECTOR -->
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.05);">
