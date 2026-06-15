@@ -2842,6 +2842,14 @@
         body.einstellungen-active .einstellungen-section { display: block !important; }
         body.admin-active .admin-section { display: block !important; }
 
+        /* Interne Mitteilungen display rules */
+        #internal-news-container {
+            display: none !important;
+        }
+        body.einstellungen-active #internal-news-container.has-news {
+            display: block !important;
+        }
+
         /* Actions/Tools Group */
         body.action-active .intern-section, 
         body.action-active .tools-section, 
@@ -3334,23 +3342,7 @@
 <span style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.7; font-weight: 800;">Aktualisieren</span>
 </div>
 </div>
-<div class="container"><div class="card-container news-section glass" id="internal-news-container" style="display: none; margin-bottom: 1rem;">
-<div class="card-header" onclick="toggleSection('news-content', 'news-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
-<div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
-<span class="alert-icon-small">📢</span>
-<h2 style="font-size: 1.25rem;">Interne Mitteilungen</h2>
-<span class="badge" id="news-badge">0</span>
-</div>
-<button class="toggle-btn" id="news-toggle-btn" style="pointer-events: none;">
-<svg height="24" viewbox="0 0 24 24" width="24"><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path></svg>
-</button>
-</div>
-<div class="collapsible-content" id="news-content" style="padding: 0 1.25rem 1.25rem;">
-<div id="news-list">
-<!-- Loaded dynamically -->
-</div>
-</div>
-</div>
+<div class="container">
 
 <div class="dashboard-header">
 <div class="dashboard-header-left">
@@ -3753,6 +3745,25 @@
 </div>
 </div>
 <!-- Interner Kontakt (BL) -->
+<!-- INTERNE MITTEILUNGEN (IM) -->
+<div class="card-container news-section glass" id="internal-news-container" style="margin-bottom: 1.5rem;">
+<div class="card-header" onclick="toggleSection('news-content', 'news-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
+<div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
+<span class="alert-icon-small">📢</span>
+<h2 style="font-size: 1.25rem;">Interne Mitteilungen</h2>
+<span class="badge" id="news-badge">0</span>
+</div>
+<button class="toggle-btn" id="news-toggle-btn" style="pointer-events: none;">
+<svg height="24" viewbox="0 0 24 24" width="24"><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path></svg>
+</button>
+</div>
+<div class="collapsible-content" id="news-content" style="padding: 0 1.25rem 1.25rem;">
+<div id="news-list">
+<!-- Loaded dynamically -->
+</div>
+</div>
+</div>
+
 <!-- SCHICHT-VERWALTUNG (IN EINSTELLUNGEN) -->
 <div class="card-container glass einstellungen-section" style="margin-bottom: 1.5rem; border-color: rgba(46, 204, 113, 0.4); background: linear-gradient(135deg, rgba(46, 204, 113, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
 <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
@@ -6133,13 +6144,13 @@
             const list = document.getElementById('news-list');
             
             if (!news || news.length === 0) {
-                container.style.display = 'none';
+                container.classList.remove('has-news');
                 list.innerHTML = '';
                 return;
             }
 
-            container.style.display = 'block';
-            const badge = document.getElementById('news-count-badge');
+            container.classList.add('has-news');
+            const badge = document.getElementById('news-badge');
             if (badge) badge.textContent = news.length;
             list.innerHTML = news.map(item => {
                 const images = item.images || (item.image_url ? [item.image_url] : []);

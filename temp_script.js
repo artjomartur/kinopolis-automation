@@ -1548,13 +1548,13 @@
             const list = document.getElementById('news-list');
             
             if (!news || news.length === 0) {
-                container.style.display = 'none';
+                container.classList.remove('has-news');
                 list.innerHTML = '';
                 return;
             }
 
-            container.style.display = 'block';
-            const badge = document.getElementById('news-count-badge');
+            container.classList.add('has-news');
+            const badge = document.getElementById('news-badge');
             if (badge) badge.textContent = news.length;
             list.innerHTML = news.map(item => {
                 const images = item.images || (item.image_url ? [item.image_url] : []);
