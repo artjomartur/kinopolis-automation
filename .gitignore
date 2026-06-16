@@ -41,3 +41,10 @@ test_occupancy.js
 parse_test*.js
 .env
 .dev.vars
+
+# Local development logs
+*.log
+local_dev*.log
+
+# Temporary files
+temp_*
