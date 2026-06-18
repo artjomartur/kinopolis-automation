@@ -136,3 +136,20 @@ CREATE TABLE IF NOT EXISTS lost_found (
 );
 
 CREATE INDEX IF NOT EXISTS idx_lost_found_location ON lost_found(location);
+
+CREATE TABLE IF NOT EXISTS tech_tickets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    location TEXT NOT NULL,
+    hall TEXT NOT NULL,
+    category TEXT NOT NULL, -- 'licht' | 'ton' | 'bild' | 'sitz' | 'sauberkeit' | 'sonstiges'
+    description TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'offen', -- 'offen' | 'in_arbeit' | 'erledigt'
+    created_by TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    resolved_by TEXT,
+    resolved_at DATETIME
+);
+
+CREATE INDEX IF NOT EXISTS idx_tech_tickets_location_status ON tech_tickets(location, status);
+CREATE INDEX IF NOT EXISTS idx_tech_tickets_created_at ON tech_tickets(created_at);

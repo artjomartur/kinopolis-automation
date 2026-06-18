@@ -348,6 +348,62 @@ app.delete('/api/lostfound/:id', (req, res) => {
     res.json({ success: true });
 });
 
+// Tech-Tickets: lightweight ticketing for cinema-tech issues (light, sound, seats, etc.)
+// TODO: auth check on PATCH/DELETE (currently no auth layer in mock server)
+let localTechTickets = [];
+
+app.get('/api/tech-tickets', (req, res) => {
+    const location = req.query.location || 'kp';
+    const status = req.query.status; // optional filter: 'offen' | 'in_arbeit' | 'erledigt'
+    let items = localTechTickets.filter(t => t.location === location);
+    if (status) items = items.filter(t => t.status === status);
+    res.json(items.sort((a, b) => b.created_at.localeCompare(a.created_at)));
+});
+
+app.post('/api/tech-tickets', (req, res) => {
+    const { location, hall, category, description, created_by } = req.body || {};
+    if (!hall || !category || !description) {
+        return res.status(400).json({ error: 'hall, category, description erforderlich' });
+    }
+    const ticket = {
+        id: Date.now(),
+        location: location || 'kp',
+        hall,
+        category,
+        description,
+        status: 'offen',
+        created_by: created_by || 'Anonym',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        resolved_by: null,
+        resolved_at: null
+    };
+    localTechTickets.unshift(ticket);
+    res.json({ success: true, ticket });
+});
+
+app.patch('/api/tech-tickets/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const t = localTechTickets.find(x => x.id === id);
+    if (!t) return res.status(404).json({ error: 'Nicht gefunden' });
+    const { status, resolved_by } = req.body || {};
+    if (status && ['offen', 'in_arbeit', 'erledigt'].includes(status)) {
+        t.status = status;
+        t.updated_at = new Date().toISOString();
+        if (status === 'erledigt') {
+            t.resolved_by = resolved_by || 'Unbekannt';
+            t.resolved_at = new Date().toISOString();
+        }
+    }
+    res.json({ success: true, ticket: t });
+});
+
+app.delete('/api/tech-tickets/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    localTechTickets = localTechTickets.filter(t => t.id !== id);
+    res.json({ success: true });
+});
+
 app.get('/api/inventory', (req, res) => res.json({ waren: [], eis: [], getraenke: [], slushy: [] }));
 app.get('/api/contacts', (req, res) => res.json([]));
 app.get('/api/checklist', (req, res) => res.json({}));

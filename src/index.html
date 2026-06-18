@@ -3982,6 +3982,7 @@
 <option value="tl">👔 Teamleiter (TL)</option>
 <option value="bl">🏢 Betriebsleitung (BL)</option>
 <option style="color: var(--primary-blue);" value="lostfound">🧸 Fundbüro (Lost &amp; Found)</option>
+<option style="color: #ff6b35;" value="tech">🛠️ Technik-Störung (Ticket)</option>
 </select>
 </div>
 <!-- Container for Checklists -->
@@ -4017,6 +4018,45 @@
 </div>
 <div id="lf-items-list" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem;"></div>
 <button onclick="openLfModal()" onmouseout="this.style.opacity='1'" onmouseover="this.style.opacity='0.85'" style="width: 100%; border-radius: 8px; font-weight: bold; font-size: 1rem; background: var(--primary-red); color: white; border: none; padding: 0.8rem 1rem; cursor: pointer; transition: opacity 0.2s;"><span class="icon">➕</span> Gefundenen Gegenstand eintragen</button>
+</div>
+<!-- Container for Tech-Tickets -->
+<div id="ws-tech-container" style="display: none;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+<h3 style="color: #ff6b35; font-size: 1.1rem;">🛠️ Technik-Störungen</h3>
+<span class="badge" id="tech-count-badge" style="background: #ff6b35;">0</span>
+</div>
+<p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Direkt ein Ticket für Vorführer/Technik erstellen. Status: Offen → In Arbeit → Erledigt.</p>
+<!-- Form -->
+<div style="background: rgba(255, 107, 53, 0.05); border: 1px solid rgba(255, 107, 53, 0.2); padding: 1rem; border-radius: 12px; margin-bottom: 1rem;">
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem;">
+<div>
+<label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Saal</label>
+<select class="input-field" id="tech-hall-select" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.9rem; width: 100%;"></select>
+</div>
+<div>
+<label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Kategorie</label>
+<select class="input-field" id="tech-category-select" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.9rem; width: 100%;">
+<option value="licht">💡 Licht</option>
+<option value="ton">🔊 Ton</option>
+<option value="bild">📽️ Bild / Leinwand</option>
+<option value="sitz">🪑 Sitzplatz</option>
+<option value="sauberkeit">🧹 Sauberkeit</option>
+<option value="sonstiges">🔧 Sonstiges</option>
+</select>
+</div>
+</div>
+<input class="input-field" id="tech-description-input" maxlength="240" placeholder="Kurz beschreiben (z.B. „Kratzen bei lauter Szene, ca. 30 min")" style="width: 100%; padding: 0.65rem 0.85rem; margin-bottom: 0.5rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 8px; font-size: 0.9rem;" type="text"/>
+<button class="btn-primary" onclick="submitTechTicket()" style="width: 100%; background: linear-gradient(135deg, #ff6b35, #e85a2b); color: white; border: none; font-weight: bold; padding: 0.85rem; border-radius: 10px; font-size: 0.95rem; cursor: pointer;">🚨 Störung melden</button>
+</div>
+<!-- Status-Filter -->
+<div id="tech-filter-bar" style="display: flex; gap: 0.4rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
+<button class="tech-filter-btn active" data-status="" onclick="setTechFilter(this, '')" style="padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; background: rgba(255, 107, 53, 0.25); border: 1px solid #ff6b35; color: #ff6b35;">Alle</button>
+<button class="tech-filter-btn" data-status="offen" onclick="setTechFilter(this, 'offen')" style="padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: var(--text-muted);">🔴 Offen</button>
+<button class="tech-filter-btn" data-status="in_arbeit" onclick="setTechFilter(this, 'in_arbeit')" style="padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: var(--text-muted);">🟡 In Arbeit</button>
+<button class="tech-filter-btn" data-status="erledigt" onclick="setTechFilter(this, 'erledigt')" style="padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: var(--text-muted);">🟢 Erledigt</button>
+</div>
+<!-- Liste -->
+<div id="tech-items-list" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
 </div>
 </div>
 </div>
@@ -6644,13 +6684,21 @@
             if (!selector) return;
             const checklistContainer = document.getElementById('ws-checklist-container');
             const lfContainer = document.getElementById('ws-lostfound-container');
+            const techContainer = document.getElementById('ws-tech-container');
             const activeItems = document.getElementById('active-checklist-items');
             const group = selector.value;
 
             if (group === 'lostfound') {
                 if (checklistContainer) checklistContainer.style.display = 'none';
                 if (lfContainer) lfContainer.style.display = 'block';
+                if (techContainer) techContainer.style.display = 'none';
                 await loadLfItems();
+            } else if (group === 'tech') {
+                if (checklistContainer) checklistContainer.style.display = 'none';
+                if (lfContainer) lfContainer.style.display = 'none';
+                if (techContainer) techContainer.style.display = 'block';
+                populateTechHallSelect();
+                await loadTechTickets();
             } else {
                 if (lfContainer) lfContainer.style.display = 'none';
                 if (checklistContainer) checklistContainer.style.display = 'block';
@@ -6678,6 +6726,197 @@
                 // Pre-fill name from localStorage
                 const nameInput = document.getElementById('ws-name-input');
                 if (nameInput) nameInput.value = localStorage.getItem('kinopolis_shift_name') || '';
+            }
+        }
+
+        // ===== Tech-Tickets (Ticketing light) =====
+        let techTicketCache = [];
+        let techFilterStatus = '';
+
+        const TECH_CATEGORY_LABELS = {
+            licht: '💡 Licht',
+            ton: '🔊 Ton',
+            bild: '📽️ Bild',
+            sitz: '🪑 Sitz',
+            sauberkeit: '🧹 Sauberkeit',
+            sonstiges: '🔧 Sonstiges'
+        };
+
+        const TECH_STATUS_LABELS = {
+            offen: '🔴 Offen',
+            in_arbeit: '🟡 In Arbeit',
+            erledigt: '🟢 Erledigt'
+        };
+
+        function canManageTechTickets() {
+            const role = window.AUTH && AUTH.user ? AUTH.user.role : null;
+            return role === 'admin' || role === 'vorfuehrer';
+        }
+
+        function populateTechHallSelect() {
+            const sel = document.getElementById('tech-hall-select');
+            if (!sel) return;
+            const halls = window._lastHallsGrouped && Array.isArray(window._lastHallsGrouped)
+                ? window._lastHallsGrouped.map(h => h.name).filter(Boolean)
+                : [];
+            // Always provide a sensible fallback set so the form is usable even before sessions load
+            const fallback = ['Saal 1', 'Saal 2', 'Saal 3', 'Saal 4', 'Saal 5', 'Saal 6'];
+            const list = halls.length ? halls : fallback;
+            sel.innerHTML = list.map(h => `<option value="${h.replace(/"/g, '&quot;')}">${h}</option>`).join('');
+        }
+
+        function setTechFilter(btn, status) {
+            techFilterStatus = status;
+            document.querySelectorAll('.tech-filter-btn').forEach(b => {
+                b.classList.remove('active');
+                b.style.background = 'rgba(255,255,255,0.05)';
+                b.style.borderColor = 'rgba(255,255,255,0.15)';
+                b.style.color = 'var(--text-muted)';
+            });
+            btn.classList.add('active');
+            btn.style.background = 'rgba(255, 107, 53, 0.25)';
+            btn.style.borderColor = '#ff6b35';
+            btn.style.color = '#ff6b35';
+            loadTechTickets();
+        }
+
+        async function loadTechTickets() {
+            const list = document.getElementById('tech-items-list');
+            const badge = document.getElementById('tech-count-badge');
+            if (!list) return;
+            list.innerHTML = '<div style="text-align: center; padding: 1rem; color: var(--text-muted); font-size: 0.85rem;">Lade Tickets…</div>';
+            try {
+                const qs = new URLSearchParams({ location: currentCity || 'kp' });
+                if (techFilterStatus) qs.set('status', techFilterStatus);
+                const res = await fetch(`/api/tech-tickets?${qs.toString()}`);
+                if (!res.ok) throw new Error('API Fehler');
+                const items = await res.json();
+                techTicketCache = Array.isArray(items) ? items : [];
+                renderTechTickets();
+            } catch (e) {
+                console.error('Tech-Tickets laden fehlgeschlagen', e);
+                list.innerHTML = '<div style="text-align: center; padding: 1rem; color: var(--text-muted); font-size: 0.85rem;">⚠️ Tickets konnten nicht geladen werden.</div>';
+                if (badge) badge.textContent = '0';
+            }
+        }
+
+        function renderTechTickets() {
+            const list = document.getElementById('tech-items-list');
+            const badge = document.getElementById('tech-count-badge');
+            if (!list) return;
+            const items = techTicketCache;
+            const canManage = canManageTechTickets();
+            const selfAuthor = window.AUTH && AUTH.user ? `${AUTH.user.first_name || ''} ${AUTH.user.last_name || ''}`.trim() : '';
+            if (badge) {
+                const openCount = techTicketCache.filter(t => t.status !== 'erledigt').length;
+                badge.textContent = openCount;
+            }
+            if (!items.length) {
+                list.innerHTML = '<div style="text-align: center; padding: 1rem; color: var(--text-muted); font-size: 0.85rem;">Keine Tickets' + (techFilterStatus ? ` mit Status „${TECH_STATUS_LABELS[techFilterStatus] || techFilterStatus}"` : '') + '.</div>';
+                return;
+            }
+            list.innerHTML = items.map(t => {
+                const cat = TECH_CATEGORY_LABELS[t.category] || t.category;
+                const status = TECH_STATUS_LABELS[t.status] || t.status;
+                const createdAt = t.created_at ? new Date(t.created_at).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+                const isOwn = selfAuthor && t.created_by === selfAuthor;
+                const canDelete = isOwn || canManage;
+                const borderColor = t.status === 'offen' ? 'rgba(231, 76, 60, 0.4)' : t.status === 'in_arbeit' ? 'rgba(241, 196, 15, 0.4)' : 'rgba(46, 204, 113, 0.3)';
+                const bgGradient = t.status === 'offen'
+                    ? 'linear-gradient(135deg, rgba(231, 76, 60, 0.08) 0%, rgba(20, 20, 25, 0.6) 100%)'
+                    : t.status === 'in_arbeit'
+                    ? 'linear-gradient(135deg, rgba(241, 196, 15, 0.08) 0%, rgba(20, 20, 25, 0.6) 100%)'
+                    : 'linear-gradient(135deg, rgba(46, 204, 113, 0.06) 0%, rgba(20, 20, 25, 0.6) 100%)';
+                const safeDesc = (t.description || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                const safeHall = (t.hall || '').replace(/</g, '&lt;');
+                const safeBy = (t.created_by || '').replace(/</g, '&lt;');
+                const resolvedBy = t.resolved_by ? (t.resolved_by + '').replace(/</g, '&lt;') : '';
+                const resolvedAt = t.resolved_at ? new Date(t.resolved_at).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+                return `
+                    <div style="background: ${bgGradient}; border: 1px solid ${borderColor}; border-radius: 12px; padding: 0.85rem 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.4rem;">
+                            <div>
+                                <strong style="color: white; font-size: 1rem;">${safeHall}</strong>
+                                <span style="margin-left: 0.5rem; color: var(--text-muted); font-size: 0.8rem;">${cat}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                <span style="font-size: 0.8rem; font-weight: 600;">${status}</span>
+                                ${canDelete ? `<button onclick="deleteTechTicket(${t.id})" title="Löschen" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem; padding: 0; line-height: 1;">🗑️</button>` : ''}
+                            </div>
+                        </div>
+                        <p style="margin: 0 0 0.5rem 0; color: white; font-size: 0.92rem; line-height: 1.4;">${safeDesc}</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem;">
+                            <span style="font-size: 0.72rem; color: var(--text-muted);">Gemeldet von <strong>${safeBy}</strong> · ${createdAt}</span>
+                            ${t.status === 'erledigt' && resolvedBy ? `<span style="font-size: 0.72rem; color: #2ecc71;">✓ Erledigt von <strong>${resolvedBy}</strong>${resolvedAt ? ' · ' + resolvedAt : ''}</span>` : ''}
+                        </div>
+                        ${canManage && t.status !== 'erledigt' ? `
+                        <div style="display: flex; gap: 0.4rem; margin-top: 0.6rem;">
+                            ${t.status === 'offen' ? `<button onclick="setTechTicketStatus(${t.id}, 'in_arbeit')" style="flex: 1; padding: 0.5rem; background: rgba(241, 196, 15, 0.15); border: 1px solid rgba(241, 196, 15, 0.4); color: #f1c40f; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer;">🔧 Übernehmen</button>` : ''}
+                            <button onclick="setTechTicketStatus(${t.id}, 'erledigt')" style="flex: 1; padding: 0.5rem; background: rgba(46, 204, 113, 0.15); border: 1px solid rgba(46, 204, 113, 0.4); color: #2ecc71; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer;">✅ Erledigt</button>
+                        </div>` : (!canManage && t.status !== 'erledigt' ? `<div style="margin-top: 0.5rem; font-size: 0.72rem; color: var(--text-muted); font-style: italic;">Wird vom Vorführer/Technik bearbeitet</div>` : '')}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function submitTechTicket() {
+            const hallEl = document.getElementById('tech-hall-select');
+            const catEl = document.getElementById('tech-category-select');
+            const descEl = document.getElementById('tech-description-input');
+            if (!hallEl || !catEl || !descEl) return;
+            const hall = hallEl.value.trim();
+            const category = catEl.value;
+            const description = descEl.value.trim();
+            if (!hall || !category || !description) {
+                showToast('Bitte Saal, Kategorie und Beschreibung ausfüllen.', true);
+                return;
+            }
+            const author = (window.AUTH && AUTH.user) ? `${AUTH.user.first_name || ''} ${AUTH.user.last_name || ''}`.trim() || 'Anonym' : 'Anonym';
+            try {
+                const res = await fetch('/api/tech-tickets', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        location: currentCity || 'kp',
+                        hall, category, description,
+                        created_by: author
+                    })
+                });
+                if (!res.ok) throw new Error('API Fehler');
+                descEl.value = '';
+                showToast('✅ Störung gemeldet');
+                await loadTechTickets();
+            } catch (e) {
+                console.error('Tech-Ticket konnte nicht erstellt werden', e);
+                showToast('Fehler beim Melden der Störung.', true);
+            }
+        }
+
+        async function setTechTicketStatus(id, status) {
+            const author = (window.AUTH && AUTH.user) ? `${AUTH.user.first_name || ''} ${AUTH.user.last_name || ''}`.trim() || 'Anonym' : 'Anonym';
+            try {
+                const res = await fetch(`/api/tech-tickets/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status, resolved_by: author })
+                });
+                if (!res.ok) throw new Error('API Fehler');
+                await loadTechTickets();
+            } catch (e) {
+                console.error('Tech-Ticket Status-Update fehlgeschlagen', e);
+                showToast('Status konnte nicht aktualisiert werden.', true);
+            }
+        }
+
+        async function deleteTechTicket(id) {
+            if (!confirm('Dieses Ticket wirklich löschen?')) return;
+            try {
+                const res = await fetch(`/api/tech-tickets/${id}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error('API Fehler');
+                await loadTechTickets();
+            } catch (e) {
+                console.error('Tech-Ticket löschen fehlgeschlagen', e);
+                showToast('Ticket konnte nicht gelöscht werden.', true);
             }
         }
 
@@ -7338,8 +7577,9 @@
 
                 renderDashboard(sessions);
                 renderTasks(sessions);
-                updateAlerts(sessions, lastTomData || []); 
+                updateAlerts(sessions, lastTomData || []);
                 renderStats(sessions);
+                window._lastHallsGrouped = sessions; // Cache for Tech-Ticket-Saaal-Dropdown
             } catch (error) {
                 console.error('Fetch error:', error);
                 document.getElementById('status-indicator').classList.add('offline');
@@ -8771,38 +9011,38 @@
             // Sofort lokalen Meta-Eintrag setzen damit der Autor direkt sichtbar ist
             const selfAuthor = window.AUTH && AUTH.user ? `${AUTH.user.first_name} ${AUTH.user.last_name}` : 'Unbekannt';
             completedMeta.set(id, { author: selfAuthor, completed_at: new Date().toISOString() });
-            
+
+            // Filmtitel aus der Alert-Karte extrahieren, damit er mit der Cloud synchronisiert wird
+            const alertEl = btn ? btn.closest('.poster-change-alert') : null;
+            const movieTitle = alertEl ? (alertEl.querySelector('.next-movie-info h3')?.textContent?.trim() || '') : '';
+
             saveTaskState();
-            await syncTaskState(id, 'poster', true, title);
             renderLiveTasks();
 
-            if (btn) {
-                const alert = btn.closest('.poster-change-alert');
-                if (alert) {
-                    const inModal = !!alert.closest('#poster-urgent-modal-body');
-                    if (inModal) {
-                        window._posterUrgentQueue = (window._posterUrgentQueue || []).filter(a => a.alertId !== id);
-                        alert.remove();
-                        showPosterUrgentModalStep(window._posterUrgentQueue);
-                    } else {
-                        alert.style.opacity = '0';
-                        alert.style.transform = 'scale(0.9)';
-                        alert.style.pointerEvents = 'none';
-                        setTimeout(() => {
-                            alert.remove();
-                            const alertsContainer = document.getElementById('poster-alerts');
-                            if (alertsContainer) {
-                                const count = alertsContainer.children.length;
-                                document.getElementById('alert-count-badge').textContent = count;
-                                if (count === 0) document.getElementById('poster-alerts-container').style.display = 'none';
-                            }
-                        }, 300);
-                    }
+            if (alertEl) {
+                const inModal = !!alertEl.closest('#poster-urgent-modal-body');
+                if (inModal) {
+                    window._posterUrgentQueue = (window._posterUrgentQueue || []).filter(a => a.alertId !== id);
+                    alertEl.remove();
+                    showPosterUrgentModalStep(window._posterUrgentQueue);
+                } else {
+                    alertEl.style.opacity = '0';
+                    alertEl.style.transform = 'scale(0.9)';
+                    alertEl.style.pointerEvents = 'none';
+                    setTimeout(() => {
+                        alertEl.remove();
+                        const alertsContainer = document.getElementById('poster-alerts');
+                        if (alertsContainer) {
+                            const count = alertsContainer.children.length;
+                            document.getElementById('alert-count-badge').textContent = count;
+                            if (count === 0) document.getElementById('poster-alerts-container').style.display = 'none';
+                        }
+                    }, 300);
                 }
             }
 
             try {
-                await syncTaskState(id, 'poster', true, title);
+                await syncTaskState(id, 'poster', true, movieTitle);
             } catch(e) {
                 console.error("Poster sync failed:", e);
             }
@@ -9327,12 +9567,6 @@
 <div style="background: rgba(0, 120, 255, 0.08); border: 1px solid rgba(0, 120, 255, 0.15); padding: 1rem; border-radius: 16px; text-align: center;">
 <p style="line-height: 1.5; margin: 0; color: var(--primary-blue); font-size: 0.85rem;"><strong>Tipp:</strong> Starte deine Schicht im Profil-Menü, um XP zu sammeln!</p>
 </div>
-</div>
-<div class="card-container glass danger-zone" style="margin-top: 2rem;">
-<h2 style="color: #ff4d4d; margin-top: 0;">Notfall / Dringend</h2>
-<p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Löst einen sofortigen Alarm auf allen Geräten im Kino aus (Pausenraum, Einlass, TL-Tablet).</p>
-<input id="sos-text" placeholder="Womit brauchst du Hilfe?" style="width:100%; padding:1rem; border-radius:12px; margin-bottom:1rem; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.5); color:#fff; font-family: Outfit;" type="text"/>
-<button class="emergency-btn" onclick="sendEmergency()">🚨 HILFERUF SENDEN</button>
 </div>
 <div class="modal-actions" style="justify-content: center;">
 <button class="btn-primary" onclick="closeWelcomeModal()" style="width: 100%; padding: 1.25rem; font-size: 1.1rem; border-radius: 16px; font-weight: 800; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); border: none; color: white;">Verstanden &amp; Loslegen</button>
