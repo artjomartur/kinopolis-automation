@@ -404,6 +404,57 @@ app.delete('/api/tech-tickets/:id', (req, res) => {
     res.json({ success: true });
 });
 
+// Seating-Snapshots: row-level utilization data for cleaning-optimization analytics
+// Real data: hook to Kinopolis occupancy scraping per hall+showtime
+// Mock-Generator: deterministic per hallId, 4 snapshots across the day
+let localSeatingSnapshots = {};
+
+function generateMockSeating(hallId) {
+    const seed = [...(hallId || '')].reduce((a, c) => a + c.charCodeAt(0), 0);
+    const rand = (n) => Math.floor((Math.sin(seed + n) * 10000) % 1 * 10000 + 10000) % 10000 / 10000;
+    const ROWS = 10;
+    const SEATS_PER_ROW = 25;
+    // Realistic distribution: front rows emptier, back rows fuller
+    const baseOccupancy = (rowIdx) => 0.95 - (rowIdx / ROWS) * 0.85; // row 0 ≈ 95%, row 9 ≈ 10%
+    const makeRows = (jitter) => Array.from({ length: ROWS }, (_, i) => {
+        const total = SEATS_PER_ROW;
+        const occ = Math.max(0, Math.min(total, Math.round((baseOccupancy(i) + (rand(i + jitter) - 0.5) * 0.4) * total)));
+        const map = Array.from({ length: total }, (_, s) => s < occ ? 'O' : 'X').join('');
+        return { row: i + 1, label: `Reihe ${i + 1}`, total_seats: total, occupied: occ, seat_map: map };
+    });
+    const now = Date.now();
+    return Array.from({ length: 4 }, (_, i) => ({
+        taken_at: new Date(now - (3 - i) * 3 * 3600 * 1000).toISOString(),
+        sessions: [
+            { title: 'Mario', time: '14:00', rows: makeRows(i * 10) },
+            { title: 'Der Kuss', time: '17:30', rows: makeRows(i * 10 + 1) },
+            { title: 'Abendprogramm', time: '20:30', rows: makeRows(i * 10 + 2) }
+        ]
+    }));
+}
+
+app.get('/api/seating/:hallId', (req, res) => {
+    const hallId = req.params.hallId;
+    const date = req.query.date || new Date().toISOString().split('T')[0];
+    const key = `${hallId}_${date}`;
+    if (!localSeatingSnapshots[key]) {
+        localSeatingSnapshots[key] = { hall: hallId, date, snapshots: generateMockSeating(hallId) };
+    }
+    res.json(localSeatingSnapshots[key]);
+});
+
+app.post('/api/seating/:hallId', (req, res) => {
+    const hallId = req.params.hallId;
+    const date = req.query.date || new Date().toISOString().split('T')[0];
+    const key = `${hallId}_${date}`;
+    if (!localSeatingSnapshots[key]) localSeatingSnapshots[key] = { hall: hallId, date, snapshots: [] };
+    localSeatingSnapshots[key].snapshots.push({
+        taken_at: new Date().toISOString(),
+        sessions: req.body && Array.isArray(req.body.sessions) ? req.body.sessions : []
+    });
+    res.json({ success: true, count: localSeatingSnapshots[key].snapshots.length });
+});
+
 app.get('/api/inventory', (req, res) => res.json({ waren: [], eis: [], getraenke: [], slushy: [] }));
 app.get('/api/contacts', (req, res) => res.json([]));
 app.get('/api/checklist', (req, res) => res.json({}));

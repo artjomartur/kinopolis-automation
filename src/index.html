@@ -3983,6 +3983,8 @@
 <option value="bl">🏢 Betriebsleitung (BL)</option>
 <option style="color: var(--primary-blue);" value="lostfound">🧸 Fundbüro (Lost &amp; Found)</option>
 <option style="color: #ff6b35;" value="tech">🛠️ Technik-Störung (Ticket)</option>
+<option style="color: var(--primary-blue);" value="fsk">🎫 FSK-Prüfung (Counter)</option>
+<option style="color: var(--primary-blue);" value="seating">🪑 Reihen-Auslastung (TL)</option>
 </select>
 </div>
 <!-- Container for Checklists -->
@@ -4057,6 +4059,61 @@
 </div>
 <!-- Liste -->
 <div id="tech-items-list" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+</div>
+<!-- Container for FSK-Validator (Counter) -->
+<div id="ws-fsk-container" style="display: none;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+<h3 style="color: var(--primary-blue); font-size: 1.1rem;">🎫 FSK &amp; JuSchG Schnell-Prüfung</h3>
+<span class="badge" style="background: var(--primary-blue);">Counter</span>
+</div>
+<p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Rechtlich verbindliche Einlass-Prüfung gemäß §11 JuSchG.</p>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem;">
+<div>
+<label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">FSK</label>
+<select class="input-field" id="fsk-fsk-select" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.95rem; width: 100%;">
+<option value="0">FSK 0 (Freigabe ohne Altersbeschränkung)</option>
+<option value="6">FSK 6</option>
+<option value="12" selected>FSK 12</option>
+<option value="16">FSK 16</option>
+<option value="18">FSK 18 (keine Jugendlichen)</option>
+</select>
+</div>
+<div>
+<label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Vorstellungs-Beginn</label>
+<input class="input-field" id="fsk-start-input" type="time" value="20:00" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.95rem; width: 100%;"/>
+</div>
+</div>
+<div style="margin-bottom: 0.75rem;">
+<label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Dauer (Minuten)</label>
+<input class="input-field" id="fsk-duration-input" type="number" min="30" max="400" value="120" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.95rem; width: 100%;"/>
+</div>
+<div style="margin-bottom: 0.75rem;">
+<label style="font-size: 0.85rem; color: var(--primary-blue); display: block; margin-bottom: 0.3rem; font-weight: 700;">🪪 Geburtsdatum der Person</label>
+<input class="input-field" id="fsk-birth-input" type="date" style="background: rgba(0,0,0,0.4); border: 2px solid var(--primary-blue); color: white; padding: 0.9rem; border-radius: 12px; font-size: 1.4rem; font-weight: 700; width: 100%; letter-spacing: 0.02em;"/>
+</div>
+<label style="display: flex; align-items: center; gap: 0.6rem; padding: 0.7rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 0.75rem; cursor: pointer;">
+<input id="fsk-guardian-input" type="checkbox" style="width: 1.3rem; height: 1.3rem; accent-color: var(--primary-blue); cursor: pointer;"/>
+<span style="font-size: 0.95rem; color: white;">In Begleitung Erziehungsberechtigter (Eltern/Erziehungsberechtigte dabei)</span>
+</label>
+<!-- Verdict-Banner -->
+<div id="fsk-result-banner" style="border-radius: 14px; padding: 1.25rem 1.5rem; text-align: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);">
+<div style="font-size: 1.5rem; font-weight: 900; color: var(--text-muted);">⏳ Bitte Geburtsdatum eingeben</div>
+</div>
+</div>
+<!-- Container for Seating-Analytics (TL) -->
+<div id="ws-seating-container" style="display: none;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+<h3 style="color: var(--primary-blue); font-size: 1.1rem;">🪑 Reihen-Auslastung &amp; Reinigungs-Empfehlung</h3>
+<span class="badge" style="background: var(--primary-blue);">TL</span>
+</div>
+<p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Snapshot-basierte Auswertung pro Saal. Fokus-Reihen für Reinigung identifizieren.</p>
+<div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
+<select id="seating-hall-select" onchange="loadSeatingData()" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.95rem; flex: 1; min-width: 140px;"></select>
+<button onclick="loadSeatingData(true)" style="background: rgba(46, 204, 113, 0.15); border: 1px solid rgba(46, 204, 113, 0.4); color: #2ecc71; padding: 0.55rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer;">📸 Snapshot jetzt</button>
+</div>
+<div id="seating-snapshot-info" style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.75rem;"></div>
+<div id="seating-heatmap" style="display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem;"></div>
+<div id="seating-recommendation" style="background: rgba(241, 196, 15, 0.1); border: 1px solid rgba(241, 196, 15, 0.4); border-radius: 12px; padding: 1rem; color: white; font-size: 0.9rem; line-height: 1.5;"></div>
 </div>
 </div>
 </div>
