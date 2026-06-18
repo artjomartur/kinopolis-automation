@@ -415,7 +415,7 @@ function generateMockSeating(hallId) {
     const ROWS = 10;
     const SEATS_PER_ROW = 25;
     // Realistic distribution: front rows emptier, back rows fuller
-    const baseOccupancy = (rowIdx) => 0.95 - (rowIdx / ROWS) * 0.85; // row 0 ≈ 95%, row 9 ≈ 10%
+    const baseOccupancy = (rowIdx) => 0.10 + (rowIdx / Math.max(1, ROWS - 1)) * 0.85; // row 0 ≈ 10%, row 9 ≈ 95%
     const makeRows = (jitter) => Array.from({ length: ROWS }, (_, i) => {
         const total = SEATS_PER_ROW;
         const occ = Math.max(0, Math.min(total, Math.round((baseOccupancy(i) + (rand(i + jitter) - 0.5) * 0.4) * total)));
@@ -448,9 +448,10 @@ app.post('/api/seating/:hallId', (req, res) => {
     const date = req.query.date || new Date().toISOString().split('T')[0];
     const key = `${hallId}_${date}`;
     if (!localSeatingSnapshots[key]) localSeatingSnapshots[key] = { hall: hallId, date, snapshots: [] };
+    const fallbackSessions = generateMockSeating(`${hallId}_${Date.now()}`).slice(-1)[0].sessions;
     localSeatingSnapshots[key].snapshots.push({
         taken_at: new Date().toISOString(),
-        sessions: req.body && Array.isArray(req.body.sessions) ? req.body.sessions : []
+        sessions: req.body && Array.isArray(req.body.sessions) && req.body.sessions.length ? req.body.sessions : fallbackSessions
     });
     res.json({ success: true, count: localSeatingSnapshots[key].snapshots.length });
 });

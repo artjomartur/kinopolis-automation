@@ -4047,7 +4047,7 @@
 </select>
 </div>
 </div>
-<input class="input-field" id="tech-description-input" maxlength="240" placeholder="Kurz beschreiben (z.B. „Kratzen bei lauter Szene, ca. 30 min")" style="width: 100%; padding: 0.65rem 0.85rem; margin-bottom: 0.5rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 8px; font-size: 0.9rem;" type="text"/>
+<input class="input-field" id="tech-description-input" maxlength="240" placeholder="Kurz beschreiben (z.B. Kratzen bei lauter Szene, ca. 30 min)" style="width: 100%; padding: 0.65rem 0.85rem; margin-bottom: 0.5rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 8px; font-size: 0.9rem;" type="text"/>
 <button class="btn-primary" onclick="submitTechTicket()" style="width: 100%; background: linear-gradient(135deg, #ff6b35, #e85a2b); color: white; border: none; font-weight: bold; padding: 0.85rem; border-radius: 10px; font-size: 0.95rem; cursor: pointer;">🚨 Störung melden</button>
 </div>
 <!-- Status-Filter -->
@@ -6742,21 +6742,38 @@
             const checklistContainer = document.getElementById('ws-checklist-container');
             const lfContainer = document.getElementById('ws-lostfound-container');
             const techContainer = document.getElementById('ws-tech-container');
+            const fskContainer = document.getElementById('ws-fsk-container');
+            const seatingContainer = document.getElementById('ws-seating-container');
             const activeItems = document.getElementById('active-checklist-items');
             const group = selector.value;
-
-            if (group === 'lostfound') {
-                if (checklistContainer) checklistContainer.style.display = 'none';
-                if (lfContainer) lfContainer.style.display = 'block';
-                if (techContainer) techContainer.style.display = 'none';
-                await loadLfItems();
-            } else if (group === 'tech') {
+            const hideWorkstationPanels = () => {
                 if (checklistContainer) checklistContainer.style.display = 'none';
                 if (lfContainer) lfContainer.style.display = 'none';
+                if (techContainer) techContainer.style.display = 'none';
+                if (fskContainer) fskContainer.style.display = 'none';
+                if (seatingContainer) seatingContainer.style.display = 'none';
+            };
+
+            if (group === 'lostfound') {
+                hideWorkstationPanels();
+                if (lfContainer) lfContainer.style.display = 'block';
+                await loadLfItems();
+            } else if (group === 'tech') {
+                hideWorkstationPanels();
                 if (techContainer) techContainer.style.display = 'block';
                 populateTechHallSelect();
                 await loadTechTickets();
+            } else if (group === 'fsk') {
+                hideWorkstationPanels();
+                if (fskContainer) fskContainer.style.display = 'block';
+                initFskValidator();
+            } else if (group === 'seating') {
+                hideWorkstationPanels();
+                if (seatingContainer) seatingContainer.style.display = 'block';
+                populateSeatingHallSelect();
+                await loadSeatingData();
             } else {
+                hideWorkstationPanels();
                 if (lfContainer) lfContainer.style.display = 'none';
                 if (checklistContainer) checklistContainer.style.display = 'block';
                 
@@ -6975,6 +6992,291 @@
                 console.error('Tech-Ticket löschen fehlgeschlagen', e);
                 showToast('Ticket konnte nicht gelöscht werden.', true);
             }
+        }
+
+        // ===== FSK & JuSchG Validator (Counter) =====
+        const FSK_RESULT_PLACEHOLDER = '<div style="font-size: 1.5rem; font-weight: 900; color: var(--text-muted);">Bitte Geburtsdatum eingeben</div>';
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function calculateAge(birthDateISO, now = new Date()) {
+            if (!birthDateISO) return null;
+            const birthDate = new Date(`${birthDateISO}T00:00:00`);
+            if (Number.isNaN(birthDate.getTime()) || birthDate > now) return null;
+            let age = now.getFullYear() - birthDate.getFullYear();
+            const monthDiff = now.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < birthDate.getDate())) age--;
+            return age;
+        }
+
+        function endTimeTotalMin(startHHMM, durationMin) {
+            if (!startHHMM || !startHHMM.includes(':')) return null;
+            const [h, m] = startHHMM.split(':').map(Number);
+            const duration = Number(durationMin);
+            if (!Number.isFinite(h) || !Number.isFinite(m) || !Number.isFinite(duration) || duration <= 0) return null;
+            return h * 60 + m + duration;
+        }
+
+        function formatTotalMin(totalMin) {
+            if (!Number.isFinite(totalMin)) return '--:--';
+            const normalized = ((Math.round(totalMin) % 1440) + 1440) % 1440;
+            const h = Math.floor(normalized / 60);
+            const m = normalized % 60;
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        }
+
+        function requiredAgeForEndTime(endMin) {
+            if (!Number.isFinite(endMin)) return 0;
+            if (endMin > 24 * 60) return 18;
+            if (endMin > 22 * 60) return 16;
+            if (endMin > 20 * 60) return 14;
+            return 0;
+        }
+
+        function validateCinemaEntry({ fsk, startTime, durationMin, birthDateISO, hasGuardian = false, now = new Date() }) {
+            const fskAge = Number(fsk);
+            const age = calculateAge(birthDateISO, now);
+            const endMin = endTimeTotalMin(startTime, durationMin);
+            const timeRequiredAge = requiredAgeForEndTime(endMin);
+            if (age === null || endMin === null || !Number.isFinite(fskAge)) {
+                return { allowed: null, age, endMin, endTime: formatTotalMin(endMin), reasons: ['Bitte alle Felder korrekt ausfüllen.'] };
+            }
+
+            const reasons = [];
+            const fskPassed = age >= fskAge || (fskAge === 12 && age >= 6 && hasGuardian);
+            if (!fskPassed) {
+                if (fskAge === 12 && age >= 6) {
+                    reasons.push('FSK 12 ist unter 12 Jahren nur in Begleitung der Eltern oder Erziehungsberechtigten zulässig.');
+                } else {
+                    reasons.push(`FSK ${fskAge}: Person ist ${age} Jahre alt und damit zu jung.`);
+                }
+            }
+
+            if (timeRequiredAge && age < timeRequiredAge) {
+                const boundary = timeRequiredAge === 14 ? '20:00' : timeRequiredAge === 16 ? '22:00' : '24:00';
+                reasons.push(`§11 JuSchG: Vorstellung endet um ${formatTotalMin(endMin)} und damit nach ${boundary}; erforderlich ist mindestens ${timeRequiredAge} Jahre.`);
+            }
+
+            const allowed = reasons.length === 0;
+            if (!reasons.length) {
+                const passText = fskAge === 12 && age < 12 && hasGuardian
+                    ? 'FSK 12 mit Eltern/Erziehungsberechtigten erfüllt.'
+                    : `FSK ${fskAge} erfüllt.`;
+                reasons.push(`${passText} JuSchG-Zeitgrenze erfüllt; Ende ${formatTotalMin(endMin)}.`);
+            }
+
+            return {
+                allowed,
+                age,
+                fskAge,
+                endMin,
+                endTime: formatTotalMin(endMin),
+                timeRequiredAge,
+                reasons
+            };
+        }
+
+        function initFskValidator() {
+            const ids = ['fsk-fsk-select', 'fsk-start-input', 'fsk-duration-input', 'fsk-birth-input', 'fsk-guardian-input'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && !el.dataset.fskBound) {
+                    el.addEventListener('input', updateFskVerdict);
+                    el.addEventListener('change', updateFskVerdict);
+                    el.dataset.fskBound = 'true';
+                }
+            });
+            updateFskVerdict();
+        }
+
+        function updateFskVerdict() {
+            const banner = document.getElementById('fsk-result-banner');
+            if (!banner) return;
+            const birthDateISO = document.getElementById('fsk-birth-input')?.value || '';
+            if (!birthDateISO) {
+                banner.style.background = 'rgba(255,255,255,0.04)';
+                banner.style.borderColor = 'rgba(255,255,255,0.1)';
+                banner.innerHTML = FSK_RESULT_PLACEHOLDER;
+                return;
+            }
+
+            const result = validateCinemaEntry({
+                fsk: document.getElementById('fsk-fsk-select')?.value,
+                startTime: document.getElementById('fsk-start-input')?.value,
+                durationMin: document.getElementById('fsk-duration-input')?.value,
+                birthDateISO,
+                hasGuardian: !!document.getElementById('fsk-guardian-input')?.checked
+            });
+            const isAllowed = result.allowed === true;
+            const mainColor = isAllowed ? '#2ecc71' : '#e74c3c';
+            banner.style.background = isAllowed ? 'rgba(46, 204, 113, 0.14)' : 'rgba(231, 76, 60, 0.16)';
+            banner.style.borderColor = isAllowed ? 'rgba(46, 204, 113, 0.55)' : 'rgba(231, 76, 60, 0.65)';
+            banner.innerHTML = `
+                <div style="font-size: clamp(1.65rem, 6vw, 2.6rem); font-weight: 1000; line-height: 1; color: ${mainColor}; margin-bottom: 0.55rem;">
+                    ${isAllowed ? 'ZULASSEN' : 'ZUGANG VERWEIGERT'}
+                </div>
+                <div style="font-size: 0.95rem; color: white; margin-bottom: 0.55rem;">
+                    Alter: <strong>${result.age ?? '--'}</strong> Jahre · Ende: <strong>${result.endTime}</strong>
+                </div>
+                <div style="font-size: 0.88rem; color: ${isAllowed ? '#dfffea' : '#ffe0df'}; line-height: 1.45; text-align: left;">
+                    ${result.reasons.map(r => `<div>• ${escapeHtml(r)}</div>`).join('')}
+                </div>
+            `;
+        }
+
+        // ===== Seating Plan Analytics (Row Utilization) =====
+        let seatingCache = null;
+
+        function populateSeatingHallSelect() {
+            const sel = document.getElementById('seating-hall-select');
+            if (!sel) return;
+            const halls = window._lastHallsGrouped && Array.isArray(window._lastHallsGrouped)
+                ? window._lastHallsGrouped.map(h => h.name).filter(Boolean)
+                : [];
+            const fallback = ['Saal 1', 'Saal 2', 'Saal 3', 'Saal 4', 'Saal 5', 'Saal 6'];
+            const current = sel.value;
+            const list = halls.length ? halls : fallback;
+            sel.innerHTML = list.map(h => `<option value="${escapeHtml(h)}">${escapeHtml(h)}</option>`).join('');
+            if (current && list.includes(current)) sel.value = current;
+        }
+
+        function aggregateRowUtilization(snapshots = []) {
+            const rows = new Map();
+            snapshots.forEach(snapshot => {
+                (snapshot.sessions || []).forEach(session => {
+                    (session.rows || []).forEach(row => {
+                        const key = String(row.row ?? row.label);
+                        const occupied = Number(row.occupied ?? row.occupied_seats ?? 0);
+                        const total = Number(row.total_seats ?? row.total ?? 0);
+                        if (!rows.has(key)) {
+                            rows.set(key, {
+                                row: Number(row.row) || key,
+                                label: row.label || `Reihe ${key}`,
+                                occupiedSum: 0,
+                                totalSum: 0,
+                                maxOccupied: 0,
+                                hits: 0,
+                                sessions: []
+                            });
+                        }
+                        const entry = rows.get(key);
+                        entry.occupiedSum += Math.max(0, occupied);
+                        entry.totalSum += Math.max(0, total);
+                        entry.maxOccupied = Math.max(entry.maxOccupied, occupied);
+                        if (occupied > 0) {
+                            entry.hits += 1;
+                            entry.sessions.push(`${session.time || '--:--'} ${session.title || ''}`.trim());
+                        }
+                    });
+                });
+            });
+            return [...rows.values()]
+                .map(row => ({
+                    ...row,
+                    utilization: row.totalSum > 0 ? Math.round((row.occupiedSum / row.totalSum) * 100) : 0,
+                    sessions: [...new Set(row.sessions)].slice(0, 4)
+                }))
+                .sort((a, b) => Number(a.row) - Number(b.row));
+        }
+
+        function rowUtilizationColor(pct) {
+            if (pct >= 80) return '#e74c3c';
+            if (pct >= 55) return '#f1c40f';
+            if (pct >= 25) return '#3498db';
+            return '#2ecc71';
+        }
+
+        function collectFocusRanges(rows, threshold = 70) {
+            const ranges = [];
+            let start = null;
+            let end = null;
+            rows.forEach(r => {
+                const rowNum = Number(r.row);
+                if (r.utilization >= threshold) {
+                    if (start === null) start = rowNum;
+                    end = rowNum;
+                } else if (start !== null) {
+                    ranges.push(start === end ? `Reihe ${start}` : `Reihe ${start}-${end}`);
+                    start = null;
+                    end = null;
+                }
+            });
+            if (start !== null) ranges.push(start === end ? `Reihe ${start}` : `Reihe ${start}-${end}`);
+            return ranges;
+        }
+
+        function generateCleaningRecommendation(rows, hallName) {
+            if (!rows.length) return 'Keine Sitzplatzdaten vorhanden.';
+            const focus = collectFocusRanges(rows, 70);
+            const medium = rows.filter(r => r.utilization >= 35 && r.utilization < 70).map(r => `Reihe ${r.row}`);
+            const empty = rows.filter(r => r.utilization === 0).map(r => `Reihe ${r.row}`);
+            if (focus.length) {
+                return `${hallName}: Schwerpunktreinigung auf ${focus.join(', ')}. Diese Reihen waren stark ausgelastet; Vorder-/Nebenbereiche kurz gegenprüfen.${medium.length ? ` Mittel belastet: ${medium.slice(0, 5).join(', ')}.` : ''}`;
+            }
+            return `${hallName}: Keine stark belegten Reihen. Normale Reinigung reicht.${empty.length ? ` Leer/kaum genutzt: ${empty.slice(0, 6).join(', ')}.` : ''}`;
+        }
+
+        async function loadSeatingData(createSnapshot = false) {
+            const hall = document.getElementById('seating-hall-select')?.value || 'Saal 1';
+            const heatmap = document.getElementById('seating-heatmap');
+            const info = document.getElementById('seating-snapshot-info');
+            const recommendation = document.getElementById('seating-recommendation');
+            if (!heatmap) return;
+            heatmap.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--text-muted);">Lade Reihen-Auswertung...</div>';
+            if (createSnapshot) {
+                await fetch(`/api/seating/${encodeURIComponent(hall)}?date=${new Date().toISOString().split('T')[0]}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+            }
+            try {
+                const res = await fetch(`/api/seating/${encodeURIComponent(hall)}?date=${new Date().toISOString().split('T')[0]}`);
+                if (!res.ok) throw new Error('Seating API Fehler');
+                seatingCache = await res.json();
+                const snapshots = Array.isArray(seatingCache.snapshots) ? seatingCache.snapshots : [];
+                const rows = aggregateRowUtilization(snapshots);
+                renderSeatingHeatmap(rows, hall);
+                if (info) {
+                    const last = snapshots.length ? new Date(snapshots[snapshots.length - 1].taken_at).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : 'keine';
+                    info.textContent = `${snapshots.length} Snapshot(s) ausgewertet · letzter Snapshot: ${last}`;
+                }
+                if (recommendation) recommendation.textContent = generateCleaningRecommendation(rows, hall);
+                if (createSnapshot) showToast('📸 Sitzplan-Snapshot gespeichert');
+            } catch (e) {
+                console.error('Seating-Daten konnten nicht geladen werden', e);
+                heatmap.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--text-muted);">⚠️ Reihen-Auswertung nicht verfügbar.</div>';
+                if (recommendation) recommendation.textContent = 'Keine Empfehlung möglich, weil die Sitzplatzdaten nicht geladen werden konnten.';
+            }
+        }
+
+        function renderSeatingHeatmap(rows, hallName) {
+            const heatmap = document.getElementById('seating-heatmap');
+            if (!heatmap) return;
+            if (!rows.length) {
+                heatmap.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--text-muted);">Keine Reihen-Daten vorhanden.</div>';
+                return;
+            }
+            heatmap.innerHTML = rows.map(row => {
+                const color = rowUtilizationColor(row.utilization);
+                const sessions = row.sessions.length ? ` · ${escapeHtml(row.sessions.join(', '))}` : '';
+                return `
+                    <div style="display: grid; grid-template-columns: minmax(74px, 94px) 1fr minmax(44px, auto); gap: 0.55rem; align-items: center; padding: 0.5rem 0.65rem; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;">
+                        <div style="color: white; font-weight: 700; font-size: 0.86rem;">Reihe ${escapeHtml(row.row)}</div>
+                        <div title="${escapeHtml(hallName)} ${escapeHtml(row.label)}${sessions}" style="height: 16px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden;">
+                            <div style="height: 100%; width: ${Math.max(2, row.utilization)}%; background: ${color}; box-shadow: 0 0 10px ${color}55;"></div>
+                        </div>
+                        <div style="text-align: right; color: ${color}; font-weight: 800; font-size: 0.85rem;">${row.utilization}%</div>
+                    </div>
+                `;
+            }).join('');
         }
 
         async function toggleChecklistItem(id) {
