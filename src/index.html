@@ -8422,6 +8422,36 @@
                 return; 
             }
             
+            // Helper to check if a session is finished
+            const isSessionFinished = (s) => {
+                if (!s || !s.time) return true;
+                if (s.time.includes(':')) {
+                    const [h, m] = s.time.split(':').map(Number);
+                    const startMin = h * 60 + m;
+                    const endMin = startMin + (s.duration || 0);
+                    return currentMinutes > endMin;
+                }
+                return true;
+            };
+
+            // Helper to check if a hall is finished (all sessions are finished)
+            const isHallFinished = (hall) => {
+                const rawSessions = Array.isArray(hall.sessions) ? hall.sessions : (hall.sessions ? [hall.sessions] : []);
+                const sessions = rawSessions.filter(s => s && s.time);
+                if (sessions.length === 0) return true;
+                return sessions.every(isSessionFinished);
+            };
+
+            // Sort halls: active/future first, finished last. Secondary sort: alphabetically
+            halls.sort((a, b) => {
+                const aFinished = isHallFinished(a);
+                const bFinished = isHallFinished(b);
+                if (aFinished !== bFinished) {
+                    return aFinished ? 1 : -1;
+                }
+                return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+            });
+
             halls.forEach(hall => {
                 const hallName = hall.name;
                 const rawSessions = Array.isArray(hall.sessions) ? hall.sessions : (hall.sessions ? [hall.sessions] : []);
@@ -8487,9 +8517,14 @@
                 }).join('');
 
                 // Default to collapsed unless explicitly expanded
-                let isCollapsed = localStorage.getItem(`hall_collapsed_${hallName}`);
+                let isCollapsed = sessionStorage.getItem(`hall_collapsed_${hallName}`);
                 if (isCollapsed === null) isCollapsed = true;
                 else isCollapsed = (isCollapsed === 'true');
+
+                // Force finished halls to be collapsed by default
+                if (isHallFinished(hall)) {
+                    isCollapsed = true;
+                }
 
                 card.innerHTML = `
                     <div class="hall-header ${isCollapsed ? 'collapsed' : ''}" onclick="toggleHall(this, '${hallName}')">
@@ -9652,7 +9687,7 @@
             header.classList.toggle('collapsed', !wasCollapsed);
             sessionsList.classList.toggle('collapsed', !wasCollapsed);
             
-            if (hallName) localStorage.setItem(`hall_collapsed_${hallName}`, !wasCollapsed);
+            if (hallName) sessionStorage.setItem(`hall_collapsed_${hallName}`, !wasCollapsed);
         }
 
         const POSTER_URGENT_POPUP_DELAY_MS = 1600;
