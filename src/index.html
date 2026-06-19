@@ -4562,6 +4562,20 @@
                                 <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .3s; border-radius: 34px; border: 1px solid rgba(255,255,255,0.15);"></span>
                             </label>
                         </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 0.25rem;">
+                            <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                                <span style="font-size: 0.95rem; font-weight: 600; color: white;">🎨 Akzentfarbe</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Passe das Farbschema des Dashboards an</span>
+                            </div>
+                            <div class="theme-selector-container" style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                                <div id="theme-dot-red" class="theme-dot" onclick="setAccentTheme('red')" style="width: 32px; height: 32px; border-radius: 50%; background: #ff3b30; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s;" title="Kinopolis Rot"></div>
+                                <div id="theme-dot-gold" class="theme-dot" onclick="setAccentTheme('gold')" style="width: 32px; height: 32px; border-radius: 50%; background: #ffcc00; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s;" title="Kino Gold"></div>
+                                <div id="theme-dot-cyan" class="theme-dot" onclick="setAccentTheme('cyan')" style="width: 32px; height: 32px; border-radius: 50%; background: #00f2fe; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s;" title="Neon Cyan"></div>
+                                <div id="theme-dot-green" class="theme-dot" onclick="setAccentTheme('green')" style="width: 32px; height: 32px; border-radius: 50%; background: #00ff66; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s;" title="Matrix Green"></div>
+                                <div id="theme-dot-purple" class="theme-dot" onclick="setAccentTheme('purple')" style="width: 32px; height: 32px; border-radius: 50%; background: #a855f7; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s;" title="Royal Purple"></div>
+                                <div id="theme-dot-orange" class="theme-dot" onclick="setAccentTheme('orange')" style="width: 32px; height: 32px; border-radius: 50%; background: #ff9500; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s;" title="Sunset Orange"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -5223,6 +5237,176 @@
                     contentEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             }
+        };
+
+        const ACCENT_THEMES = {
+            'red': { color: '#ff3b30', rgb: '255, 59, 48' },
+            'gold': { color: '#ffcc00', rgb: '255, 204, 0' },
+            'cyan': { color: '#00f2fe', rgb: '0, 242, 254' },
+            'green': { color: '#00ff66', rgb: '0, 255, 102' },
+            'purple': { color: '#a855f7', rgb: '168, 85, 247' },
+            'orange': { color: '#ff9500', rgb: '255, 149, 0' }
+        };
+
+        window.setAccentTheme = function(themeId) {
+            const theme = ACCENT_THEMES[themeId] || ACCENT_THEMES['red'];
+            document.documentElement.style.setProperty('--primary-red', theme.color);
+            document.documentElement.style.setProperty('--primary-red-rgb', theme.rgb);
+            localStorage.setItem('kp_accent_theme', themeId);
+
+            // Update dots styles
+            document.querySelectorAll('.theme-dot').forEach(dot => {
+                dot.style.transform = 'none';
+                dot.style.borderColor = 'rgba(255,255,255,0.1)';
+                dot.style.boxShadow = 'none';
+            });
+            const activeDot = document.getElementById(`theme-dot-${themeId}`);
+            if (activeDot) {
+                activeDot.style.transform = 'scale(1.18)';
+                activeDot.style.borderColor = '#fff';
+                activeDot.style.boxShadow = `0 0 15px rgba(${theme.rgb}, 0.7)`;
+            }
+
+            const sosBtn = document.getElementById('help-floating-btn');
+            if (sosBtn) {
+                sosBtn.style.boxShadow = `0 8px 25px rgba(${theme.rgb}, 0.4)`;
+            }
+        };
+
+        // Load stored theme on startup
+        (function() {
+            const savedTheme = localStorage.getItem('kp_accent_theme') || 'red';
+            setTimeout(() => {
+                if (window.setAccentTheme) window.setAccentTheme(savedTheme);
+            }, 50);
+        })();
+
+        window.openInteractiveHallMap = function(hallName, movieTitle, sold, capacity, time) {
+            const modal = document.getElementById('hall-map-modal');
+            if (!modal) return;
+
+            document.getElementById('hall-map-title').innerText = hallName;
+            document.getElementById('hall-map-movie').innerText = movieTitle;
+            document.getElementById('hall-map-time').innerText = `Uhrzeit: ${time} · Live-Sitzbelegung`;
+            document.getElementById('hall-map-stats').innerText = `Belegt: ${sold} / ${capacity} (${Math.round((sold/capacity)*100)}%)`;
+
+            const gridContainer = document.getElementById('hall-map-seats-grid');
+            gridContainer.innerHTML = '';
+
+            // Calculate layout size dynamically based on capacity
+            let rows = 10;
+            if (capacity < 60) rows = 6;
+            else if (capacity < 120) rows = 8;
+            else if (capacity > 250) rows = 12;
+
+            const cols = Math.ceil(capacity / rows);
+
+            // Create array of seat positions
+            const seats = [];
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    // Back-middle seats get a higher weight score (people buy these first)
+                    const rowFactor = (r + 1) / rows; // 0.1 to 1.0 (back rows are near rows-1)
+                    const colFactor = 1 - Math.abs(c - (cols - 1) / 2) / (cols / 2); // 0.0 to 1.0 (center cols is 1.0)
+                    
+                    const score = rowFactor * 0.65 + colFactor * 0.35;
+                    
+                    seats.push({
+                        row: r,
+                        col: c,
+                        score: score,
+                        status: 'free'
+                    });
+                }
+            }
+
+            // Sort by score descending to mark best seats as occupied first
+            seats.sort((a, b) => b.score - a.score);
+
+            // Block a small fraction of seats (e.g. 3%)
+            const blockedCount = Math.round(capacity * 0.03);
+            for (let i = 0; i < blockedCount && i < seats.length; i++) {
+                seats[seats.length - 1 - i].status = 'blocked';
+            }
+
+            // Assign sold tickets
+            let soldAssigned = 0;
+            for (let i = 0; i < seats.length; i++) {
+                if (seats[i].status === 'free' && soldAssigned < sold) {
+                    seats[i].status = 'sold';
+                    soldAssigned++;
+                }
+            }
+
+            // Group back by row index and sort columns to render
+            const rowsMap = {};
+            seats.forEach(s => {
+                if (!rowsMap[s.row]) rowsMap[s.row] = [];
+                rowsMap[s.row].push(s);
+            });
+
+            Object.keys(rowsMap).sort((a, b) => a - b).forEach(r => {
+                const rowDiv = document.createElement('div');
+                rowDiv.style.display = 'flex';
+                rowDiv.style.gap = '6px';
+                rowDiv.style.alignItems = 'center';
+
+                // Left row letter
+                const rowLabel = document.createElement('span');
+                rowLabel.innerText = String.fromCharCode(65 + parseInt(r));
+                rowLabel.style.fontSize = '0.75rem';
+                rowLabel.style.color = 'var(--text-muted)';
+                rowLabel.style.width = '16px';
+                rowLabel.style.textAlign = 'right';
+                rowLabel.style.marginRight = '8px';
+                rowDiv.appendChild(rowLabel);
+
+                // Row seats
+                rowsMap[r].sort((a, b) => a.col - b.col).forEach(s => {
+                    const seatDot = document.createElement('div');
+                    seatDot.style.width = '14px';
+                    seatDot.style.height = '14px';
+                    seatDot.style.borderRadius = '4px';
+                    seatDot.style.transition = 'all 0.2s ease';
+                    
+                    if (s.status === 'sold') {
+                        seatDot.style.background = '#e74c3c';
+                        seatDot.style.boxShadow = '0 0 4px rgba(231, 76, 60, 0.4)';
+                    } else if (s.status === 'blocked') {
+                        seatDot.style.background = 'rgba(255,255,255,0.15)';
+                    } else {
+                        seatDot.style.background = '#2ecc71';
+                        seatDot.style.boxShadow = '0 0 4px rgba(46, 204, 113, 0.3)';
+                    }
+
+                    seatDot.onmouseover = () => {
+                        seatDot.style.transform = 'scale(1.25)';
+                        seatDot.style.zIndex = '10';
+                    };
+                    seatDot.onmouseout = () => {
+                        seatDot.style.transform = 'none';
+                    };
+
+                    seatDot.title = `Reihe ${String.fromCharCode(65 + s.row)}, Sitz ${s.col + 1} (${s.status === 'sold' ? 'Belegt' : (s.status === 'blocked' ? 'Gesperrt' : 'Frei')})`;
+                    rowDiv.appendChild(seatDot);
+                });
+
+                // Right row letter
+                const rowLabelRight = rowLabel.cloneNode(true);
+                rowLabelRight.style.marginLeft = '8px';
+                rowLabelRight.style.marginRight = '0';
+                rowLabelRight.style.textAlign = 'left';
+                rowDiv.appendChild(rowLabelRight);
+
+                gridContainer.appendChild(rowDiv);
+            });
+
+            modal.classList.add('active');
+        };
+
+        window.closeHallMapModal = function() {
+            const modal = document.getElementById('hall-map-modal');
+            if (modal) modal.classList.remove('active');
         };
 
         // Initial UI Update
@@ -8260,6 +8444,9 @@
                         isActive = currentMinutes >= startMin && currentMinutes <= endMin;
                     }
 
+                    const escapedHall = hallName.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    const escapedTitle = s.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
                     return `
                         <div class="session-item ${isActive ? 'active' : ''}">
                             <div class="session-time-col">
@@ -8274,9 +8461,9 @@
                                     ${s.date ? `<span class="session-date-badge">${s.date}</span>` : ''}
                                 </div>
                                 <div class="countdown-timer" data-start="${startMin}" data-end="${endMin}"></div>
-                                <div class="occupancy-wrapper">
+                                <div class="occupancy-wrapper" onclick="window.openInteractiveHallMap('${escapedHall}', '${escapedTitle}', ${s.sold}, ${s.capacity}, '${s.time}')" style="cursor: pointer;" title="Klicken für Saalplan">
                                     <div class="occupancy-header">
-                                        <span>Auslastung</span>
+                                        <span>Auslastung 🪑 (Saalplan)</span>
                                         <span class="occupancy-val">${s.sold} / ${s.capacity}</span>
                                     </div>
                                     <div class="occupancy-track">
@@ -10370,6 +10557,52 @@
         // Failsafe: if content is added dynamically, re-init after 2 seconds
         setTimeout(initReveals, 2000);
     </script>
+    <!-- Hall Seat Map Modal -->
+    <div class="modal" id="hall-map-modal">
+        <div class="modal-content glass" style="max-width: 600px; width: 95%; padding: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+                <div>
+                    <h2 class="modal-title" id="hall-map-title">Saal 1</h2>
+                    <p id="hall-map-movie" style="color: var(--primary-blue); font-size: 0.95rem; font-weight: 700; margin-top: 0.25rem;">Film-Titel</p>
+                    <p id="hall-map-time" style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.1rem;">Schichtzeit: 14:00 Uhr</p>
+                </div>
+                <button onclick="closeHallMapModal()" class="btn-primary" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.8rem; border-radius: 8px; font-size: 0.85rem;">Schließen</button>
+            </div>
+            
+            <!-- Screen indicator -->
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div style="width: 80%; height: 6px; background: linear-gradient(to right, transparent, rgba(255,255,255,0.3) 20%, rgba(255,255,255,0.3) 80%, transparent); margin: 0 auto 0.5rem; border-radius: 3px; box-shadow: 0 -4px 10px rgba(255,255,255,0.1);"></div>
+                <span style="font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.2em; text-transform: uppercase;">LEINWAND</span>
+            </div>
+
+            <!-- Seat grid -->
+            <div id="hall-map-seats-grid" style="display: flex; flex-direction: column; gap: 6px; align-items: center; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.04); overflow-x: auto; max-height: 350px;">
+                 <!-- Dynamic rows of seats -->
+            </div>
+
+            <!-- Legend & Stats -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1rem;">
+                <div style="display: flex; gap: 1rem; font-size: 0.75rem;">
+                    <div style="display: flex; align-items: center; gap: 0.35rem;">
+                        <div style="width: 12px; height: 12px; border-radius: 3px; background: #2ecc71;"></div>
+                        <span>Frei</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.35rem;">
+                        <div style="width: 12px; height: 12px; border-radius: 3px; background: #e74c3c;"></div>
+                        <span>Belegt</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.35rem;">
+                        <div style="width: 12px; height: 12px; border-radius: 3px; background: rgba(255,255,255,0.15);"></div>
+                        <span>Gesperrt</span>
+                    </div>
+                </div>
+                <div id="hall-map-stats" style="font-size: 0.85rem; font-weight: 700; color: #fff;">
+                     Belegt: 0 / 0 (0%)
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="help-floating-btn" onclick="openHelpModal()" style="position: fixed; right: 1.5rem; bottom: 6.5rem; z-index: 9999; width: 56px; height: 56px; border-radius: 28px; background: var(--primary-red); color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 25px rgba(229, 9, 20, 0.4); border: 2px solid rgba(255,255,255,0.2); cursor: pointer; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
         <span style="font-size: 1.5rem;">🆘</span>
     </div>
