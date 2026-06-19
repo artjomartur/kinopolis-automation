@@ -542,14 +542,18 @@ const AUTH = {
     },
 
     showProfile() {
-        if (!this.user && localStorage.getItem('kp_guest_mode') !== 'true') {
+        if (!this.user) {
             this.showLoginModal();
             return;
         }
         if (window.switchTab) {
-            const settingsBtn = document.getElementById('tab-einstellungen') 
-                || document.querySelector(`#mobile-tab-bar .mobile-nav-item[data-tab="mehr"]`);
-            window.switchTab('einstellungen', settingsBtn);
+            const isMobile = window.innerWidth <= 768;
+            const settingsBtn = isMobile 
+                ? document.querySelector(`#mobile-tab-bar .mobile-nav-item[data-tab="mehr"]`)
+                : document.getElementById('tab-einstellungen');
+            
+            const targetTab = isMobile ? 'mehr' : 'einstellungen';
+            window.switchTab(targetTab, settingsBtn);
             if (window.setSettingsPage) {
                 window.setSettingsPage('profile');
             }
