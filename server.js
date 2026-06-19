@@ -408,6 +408,7 @@ app.delete('/api/tech-tickets/:id', (req, res) => {
 // Real data: hook to Kinopolis occupancy scraping per hall+showtime
 // Mock-Generator: deterministic per hallId, 4 snapshots across the day
 let localSeatingSnapshots = {};
+let localChecklist = {};
 
 function generateMockSeating(hallId) {
     const seed = [...(hallId || '')].reduce((a, c) => a + c.charCodeAt(0), 0);
@@ -458,7 +459,30 @@ app.post('/api/seating/:hallId', (req, res) => {
 
 app.get('/api/inventory', (req, res) => res.json({ waren: [], eis: [], getraenke: [], slushy: [] }));
 app.get('/api/contacts', (req, res) => res.json([]));
-app.get('/api/checklist', (req, res) => res.json({}));
+app.get('/api/checklist', (req, res) => {
+    const location = req.query.location || 'kp';
+    const items = localChecklist[location] || {};
+    const results = Object.keys(items).map(taskId => ({
+        task_id: taskId,
+        is_completed: items[taskId].is_completed ? 1 : 0,
+        completed_by: items[taskId].completed_by
+    }));
+    res.json(results);
+});
+app.post('/api/checklist', (req, res) => {
+    const { location, task_id, is_completed, completed_by } = req.body;
+    if (!location || !task_id) {
+        return res.status(400).json({ error: 'Missing parameters' });
+    }
+    if (!localChecklist[location]) {
+        localChecklist[location] = {};
+    }
+    localChecklist[location][task_id] = {
+        is_completed: !!is_completed,
+        completed_by: completed_by || ''
+    };
+    res.json({ success: true });
+});
 app.get('/api/hall-status', (req, res) => res.json([]));
 app.get('/api/task-completions', (req, res) => res.json([]));
 app.get('/api/personal-need', (req, res) => res.json([]));

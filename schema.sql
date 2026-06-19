@@ -153,3 +153,16 @@ CREATE TABLE IF NOT EXISTS tech_tickets (
 
 CREATE INDEX IF NOT EXISTS idx_tech_tickets_location_status ON tech_tickets(location, status);
 CREATE INDEX IF NOT EXISTS idx_tech_tickets_created_at ON tech_tickets(created_at);
+
+CREATE TABLE IF NOT EXISTS checklists (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    location TEXT NOT NULL,
+    task_id TEXT NOT NULL,
+    is_completed INTEGER DEFAULT 0,
+    completed_by TEXT,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(location, task_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_checklists_location ON checklists(location);
+

@@ -1123,6 +1123,45 @@ const STATIC_MESSAGES = [
     { id: 0, title: 'Willkommen', content: 'Willkommen im Kinopolis Automation Dashboard. Nutze das Übergabebuch für wichtige Infos.', author: 'System', created_at: new Date().toISOString() }
 ];
 
+// Checklist API
+app.get('/api/checklist', async (c) => {
+    const location = c.req.query('location') || 'kp';
+    if (!c.env.DB) return c.json([]);
+    try {
+        const { results } = await c.env.DB.prepare(
+            'SELECT task_id, is_completed, completed_by FROM checklists WHERE location = ?'
+        ).bind(location).all();
+        return c.json(results || []);
+    } catch (e) {
+        return c.json([]);
+    }
+});
+
+app.post('/api/checklist', async (c) => {
+    try {
+        const { location, task_id, is_completed, completed_by } = await c.req.json();
+        if (!location || !task_id) {
+            return c.json({ error: 'Missing parameters' }, 400);
+        }
+        if (!c.env.DB) return c.json({ error: 'DB not available' }, 500);
+        
+        const is_completed_int = is_completed ? 1 : 0;
+        
+        await c.env.DB.prepare(
+            `INSERT INTO checklists (location, task_id, is_completed, completed_by, updated_at) 
+             VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+             ON CONFLICT(location, task_id) DO UPDATE SET 
+             is_completed = excluded.is_completed,
+             completed_by = excluded.completed_by,
+             updated_at = CURRENT_TIMESTAMP`
+        ).bind(location, task_id, is_completed_int, completed_by || '').run();
+        
+        return c.json({ success: true });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
 // Announcements / Handover API
 app.get('/api/announcements/latest', async (c) => {
     try {
