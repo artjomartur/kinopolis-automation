@@ -31,7 +31,7 @@ const AUTH = {
                     this.updateUI(); // Update again with fresh user data
                 } else if (res.status === 401) {
                     console.error('AUTH: Token expired or invalid');
-                    // Optional: this.logout(false);
+                    this.logout(true);
                 }
             }).catch(e => {
                 console.error('AUTH: Background check failed', e);
@@ -398,6 +398,10 @@ const AUTH = {
     },
 
     showProfileModal() {
+        if (!this.user) {
+            this.showLoginModal();
+            return;
+        }
         const modal = document.getElementById('auth-modal');
         const content = modal.querySelector('.modal-content');
         
@@ -542,7 +546,11 @@ const AUTH = {
 
     // Alias for inline HTML onclick calls
     showProfile() {
-        this.showProfileModal();
+        if (!this.user) {
+            this.showLoginModal();
+        } else {
+            this.showProfileModal();
+        }
     }
 };
 
