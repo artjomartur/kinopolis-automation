@@ -2878,6 +2878,123 @@
         /* Mobile Nav Role-based Visibility */
         body.role-user .nav-stats { display: none !important; }
 
+        /* --- SETTINGS TABBED LAYOUT --- */
+        body:not(.role-tl):not(.role-bl):not(.role-admin) .tl-only { display: none !important; }
+        
+        .settings-layout {
+            display: flex;
+            gap: 2rem;
+            min-height: 500px;
+            margin-top: 1.5rem;
+            border-radius: var(--card-radius);
+            padding: 1.5rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            margin-bottom: 2rem;
+        }
+
+        .settings-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 250px;
+            flex-shrink: 0;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            padding-right: 1.5rem;
+        }
+
+        body.light-mode .settings-nav {
+            border-right-color: rgba(0, 0, 0, 0.06);
+        }
+
+        .settings-nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.85rem 1.25rem;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .settings-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-main);
+        }
+
+        body.light-mode .settings-nav-btn:hover {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .settings-nav-btn.active {
+            background: rgba(var(--primary-blue-rgb), 0.15);
+            border: 1px solid rgba(var(--primary-blue-rgb), 0.3);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(var(--primary-blue-rgb), 0.1);
+        }
+
+        body.light-mode .settings-nav-btn.active {
+            background: rgba(var(--primary-blue-rgb), 0.1);
+            color: var(--primary-blue);
+            border-color: rgba(var(--primary-blue-rgb), 0.2);
+        }
+
+        .settings-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .settings-page {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .settings-page.active {
+            display: block;
+        }
+
+        /* Responsiveness for Settings */
+        @media (max-width: 768px) {
+            .settings-layout {
+                flex-direction: column;
+                gap: 1.5rem;
+                padding: 1rem;
+            }
+            .settings-nav {
+                width: 100%;
+                flex-direction: row;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                padding-right: 0;
+                padding-bottom: 1rem;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                white-space: nowrap;
+                scrollbar-width: none;
+            }
+            .settings-nav::-webkit-scrollbar {
+                display: none;
+            }
+            .settings-nav-btn {
+                width: auto;
+                padding: 0.65rem 1rem;
+                font-size: 0.85rem;
+            }
+            body.light-mode .settings-nav {
+                border-bottom-color: rgba(0, 0, 0, 0.06);
+            }
+        }
+
         /* Welcome Modal Styles */
         .modal {
             position: fixed;
@@ -4301,318 +4418,386 @@
 </div>
 </div>
 
-<!-- SCHICHT-VERWALTUNG (IN EINSTELLUNGEN) -->
-<div class="card-container glass einstellungen-section" style="margin-bottom: 1.5rem; border-color: rgba(46, 204, 113, 0.4); background: linear-gradient(135deg, rgba(46, 204, 113, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
-<div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
-<div style="display: flex; align-items: center; gap: 0.75rem;">
-<span class="alert-icon-small">🕒</span>
-<h2 style="font-size: 1.25rem;">Schicht-Verwaltung</h2>
-</div>
-</div>
-<div style="padding: 1rem 1.5rem 1.5rem;">
-<p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Starte oder beende deinen Dienst, um die Arbeitszeit im Blick zu behalten.</p>
-<div style="display: flex; flex-direction: column; gap: 1rem;">
-<button class="shift-btn btn-primary" onclick="shiftCheckin()" style="width: 100%; padding: 1rem; border-radius: 12px; font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
-                        🟢 Schicht starten
-                    </button>
-<div id="shift-status-text-alt" style="text-align: center; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600;"></div>
-</div>
-</div>
-</div>
-<div class="card-container glass einstellungen-section" id="feedback-section" style="margin-bottom: 1rem; border-color: rgba(0, 120, 255, 0.4); background: linear-gradient(135deg, rgba(0, 120, 255, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
-<div class="card-header" style="padding: 1.25rem;">
-<a href="#" onclick="openFeedback('bl'); return false;" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem; width: 100%;">
-<div style="background: rgba(0, 120, 255, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📩</div>
-<div style="flex: 1;">
-<h2 style="font-size: 1.25rem; margin-bottom: 0.2rem; color: #fff;">Vertrauliches BL-Feedback</h2>
-<span style="font-size: 0.85rem; color: var(--text-muted);">Nachricht direkt an die Betriebsleitung senden (Anregungen, Probleme, Lob)</span>
-</div>
-<div style="color: var(--primary-blue); font-weight: bold;">Verfassen ❯</div>
-</a>
-</div>
-</div>
-<!-- Team Leader Portal -->
-<div class="card-container glass einstellungen-section" style="margin-bottom: 2rem; border-color: rgba(168, 85, 247, 0.4); background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
-<div class="card-header" style="padding: 1.25rem;">
-<a href="/tl.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem; width: 100%;" target="_blank">
-<div style="background: rgba(168, 85, 247, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🚨</div>
-<div style="flex: 1;">
-<h2 style="font-size: 1.25rem; margin-bottom: 0.2rem; color: #fff;">Teamleiter-Portal</h2>
-<span style="font-size: 0.85rem; color: var(--text-muted);">Echtzeit-Übersicht für Funk &amp; Transfers, sowie KI-Pausenempfehlungen.</span>
-</div>
-<div style="color: #a855f7; font-weight: bold;">Portal öffnen ❯</div>
-</a>
-</div>
-</div>
-<!-- Admin Portal (Standalone) -->
-<div class="card-container glass einstellungen-section" style="margin-bottom: 2rem; border-color: rgba(168, 85, 247, 0.4); background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
-<div class="card-header" style="padding: 1.25rem;">
-<a href="/admin.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem; width: 100%;" target="_blank">
-<div style="background: rgba(168, 85, 247, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🔒</div>
-<div style="flex: 1;">
-<h2 style="font-size: 1.25rem; margin-bottom: 0.2rem; color: #fff;">Admin Portal</h2>
-<span style="font-size: 0.85rem; color: var(--text-muted);">Sichtbare Module verwalten, Mitteilungen schreiben und Daten exportieren.</span>
-</div>
-<div style="color: #a855f7; font-weight: bold;">Portal öffnen ❯</div>
-</a>
-</div>
-</div>
-<!-- Theme & Appearance -->
-<div class="card-container glass einstellungen-section" style="margin-bottom: 1rem;">
-    <div class="card-header" style="padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; align-items: stretch;">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0;">
-                <span class="alert-icon-small">🌓</span>
-                <h2 style="font-size: 1.25rem;">Erscheinungsbild</h2>
-            </div>
-            <button class="btn-primary" onclick="toggleTheme()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.9rem;">
-                Design wechseln <span id="settings-theme-icon">🌙</span>
-            </button>
+<!-- TABBED SETTINGS PANEL WRAPPER -->
+<div class="einstellungen-section" id="settings-tab-wrapper">
+    <div class="settings-layout">
+        <!-- Sidebar Navigation -->
+        <div class="settings-nav">
+            <button class="settings-nav-btn active" onclick="window.setSettingsPage('profile', this); return false;">👤 Profil &amp; Rang</button>
+            <button class="settings-nav-btn" onclick="window.setSettingsPage('shift', this); return false;">🕒 Schicht-Dienst</button>
+            <button class="settings-nav-btn" onclick="window.setSettingsPage('appearance', this); return false;">🌓 Design &amp; Tag</button>
+            <button class="settings-nav-btn" onclick="window.setSettingsPage('push', this); return false;">🔔 Push-Benachrichtigungen</button>
+            <button class="settings-nav-btn" onclick="window.setSettingsPage('links', this); return false;">🔗 Links &amp; Handbücher</button>
+            <button class="settings-nav-btn" onclick="window.setSettingsPage('leaderboard', this); return false;">👑 Bestenliste</button>
+            <button class="settings-nav-btn tl-only" id="settings-nav-portals" onclick="window.setSettingsPage('portals', this); return false;">🚨 Portale (TL/Admin)</button>
+            <button class="settings-nav-btn" onclick="window.setSettingsPage('feedback', this); return false;">📩 BL-Feedback</button>
+            <button class="settings-nav-btn" onclick="window.setSettingsPage('about', this); return false;">ℹ️ Über die App</button>
         </div>
-        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.08);">
-            <div style="display: flex; flex-direction: column; gap: 0.2rem;">
-                <span style="font-size: 0.95rem; font-weight: 600; color: white;">🎟️ Ticket-Übergangseffekt</span>
-                <span style="font-size: 0.75rem; color: var(--text-muted);">Zeigt eine Kinokarten-Animation beim Wechseln von Tabs</span>
-            </div>
-            <label class="switch" style="position: relative; display: inline-block; width: 46px; height: 26px;">
-                <input type="checkbox" id="cinema-transitions-toggle" onchange="toggleCinemaTransitions(this.checked)" style="opacity: 0; width: 0; height: 0;">
-                <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .3s; border-radius: 34px; border: 1px solid rgba(255,255,255,0.15);"></span>
-            </label>
-        </div>
-    </div>
-</div>
-<div class="card-container glass einstellungen-section" style="margin-bottom: 1rem;">
-<div class="card-header" onclick="toggleSection('links-content', 'links-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
-<div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
-<span class="alert-icon-small">🔗</span>
-<h2 style="font-size: 1.25rem;">Links &amp; Handbücher</h2>
-</div>
-<button class="toggle-btn collapsed" id="links-toggle-btn" style="pointer-events: none;">
-<svg height="24" viewbox="0 0 24 24" width="24">
-<path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path>
-</svg>
-</button>
-</div>
-<div class="collapsible-content collapsed" id="links-content" style="padding: 0 1.5rem 1.5rem;">
-<!-- External Links -->
-<div style="margin-bottom: 1rem;">
-<h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.75rem;">Externe Links</h3>
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-<a class="stat-card" href="https://walter.kinopolis.net" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;" target="_blank">
-<span style="font-size: 2rem;">🌐</span>
-<div>
-<div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Walter</div>
-<div style="font-size: 0.8rem; color: var(--text-muted);">(Tagesbeginn &amp; Abschluss)</div>
-</div>
-</a>
-<a class="stat-card" href="https://eu.atoss.com" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;" target="_blank">
-<span style="font-size: 2rem;">📅</span>
-<div>
-<div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Dienstplan</div>
-<div style="font-size: 0.8rem; color: var(--text-muted);">Schichtplan ansehen</div>
-</div>
-</a>
-<a class="stat-card" href="archive.html" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;" target="_blank">
-<span style="font-size: 2rem;">🗃️</span>
-<div>
-<div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Archiv</div>
-<div style="font-size: 0.8rem; color: var(--text-muted);">Alte Notizen &amp; Bilder</div>
-</div>
-</a>
-</div>
-</div>
-<!-- Handbücher -->
-<div>
-<h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">Handbücher</h3>
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-<a class="stat-card" href="/docs/Leitfaden%20schwierige%20G%C3%A4ste.pdf" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem; border-color: rgba(0, 120, 255, 0.4); background: rgba(0, 120, 255, 0.05);" target="_blank">
-<span style="font-size: 2rem;">👔</span>
-<div>
-<div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Schwierige Gäste</div>
-<div style="font-size: 0.8rem; color: var(--text-muted);">PDF Leitfaden für alle</div>
-</div>
-</a>
-<a class="stat-card" href="#" onclick="alert('Handbuch Kasse: Demnächst verfügbar!'); return false;" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;">
-<span style="font-size: 2rem;">💰</span>
-<div>
-<div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Kasse</div>
-<div style="font-size: 0.8rem; color: var(--text-muted);">Verkauf &amp; Gutscheine</div>
-</div>
-</a>
-<a class="stat-card" href="https://app.360learning.com/home/content/all" rel="noopener" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem; border-color: rgba(46, 204, 113, 0.4); background: rgba(46, 204, 113, 0.05);" target="_blank">
-<span style="font-size: 2rem;">🎓</span>
-<div>
-<div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Schulungsplattform</div>
-<div style="font-size: 0.8rem; color: var(--text-muted);">360learning · Online-Kurse</div>
-</div>
-</a>
-</div>
-</div>
-</div>
-</div>
-<!-- GAMIFICATION: PROGRESS BAR (Moved to Stats) -->
-<div class="dashboard-grid live-section" id="dashboard">
-<div class="loading-state" id="loading">
-<div class="spinner"></div>
-<div class="loading-text">Abrufen der Live-Daten...</div>
-</div>
-</div>
-<!-- USER PROFILE & GAMIFICATION CARD -->
-<div class="card-container glass einstellungen-section" id="user-gamification-section" style="margin-bottom: 1.5rem; border-color: rgba(0, 120, 255, 0.3);">
-    <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <span class="alert-icon-small">🏆</span>
-            <h2 style="font-size: 1.25rem;">Dein Profil & Rang</h2>
-        </div>
-    </div>
-    <div style="padding: 1rem 1.5rem 1.5rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-            <div>
-                <div style="font-weight: 800; font-size: 1.1rem; color: white;" id="settings-username-label">Lade Profil...</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted);" id="settings-role-label">Mitarbeiter</div>
-            </div>
-            <div style="text-align: right;">
-                <div style="font-weight: 800; font-size: 0.95rem; color: #f1c40f;">Level <span id="level-name-label">1</span></div>
-                <div id="xp-display" style="font-size: 1.1rem; font-weight: 900; color: #2ecc71;">0 XP</div>
-            </div>
-        </div>
-        <div class="progress-container" style="height: 12px; background: rgba(255,255,255,0.05); border-radius: 6px; overflow: hidden; margin-bottom: 0.5rem; border: 1px solid rgba(255,255,255,0.05);">
-            <div class="progress-bar" id="xp-bar" style="width: 0%; height: 100%; background: linear-gradient(to right, #3498db, #2ecc71); transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 15px rgba(52, 152, 219, 0.4);"></div>
-        </div>
-        <div id="xp-status" style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1.5rem;">Erledige Aufgaben, um XP zu sammeln!</div>
 
-        <!-- Leaderboard (Bestenliste) Accordion/Section -->
-        <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.25rem; margin-top: 1.25rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; cursor: pointer;" onclick="toggleLeaderboard()">
-                <div style="font-size: 0.95rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
-                    <span>👑</span> Mitarbeiter Bestenliste (Top 10)
+        <!-- Pages Content -->
+        <div class="settings-content">
+            <!-- PAGE: Profile / Guest -->
+            <div class="settings-page active" id="settings-page-profile">
+                <!-- Logged-in Profile view -->
+                <div id="settings-profile-logged-in" style="display: none;">
+                    <div class="card-container glass" id="user-gamification-section" style="margin-bottom: 1.5rem; border-color: rgba(0, 120, 255, 0.3);">
+                        <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <span class="alert-icon-small">🏆</span>
+                                <h2 style="font-size: 1.25rem;">Dein Profil &amp; Rang</h2>
+                            </div>
+                        </div>
+                        <div style="padding: 1rem 1.5rem 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                <div>
+                                    <div style="font-weight: 800; font-size: 1.1rem; color: white;" id="settings-username-label">Lade Profil...</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted);" id="settings-role-label">Mitarbeiter</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-weight: 800; font-size: 0.95rem; color: #f1c40f;">Level <span id="level-name-label">1</span></div>
+                                    <div id="xp-display" style="font-size: 1.1rem; font-weight: 900; color: #2ecc71;">0 XP</div>
+                                </div>
+                            </div>
+                            <div class="progress-container" style="height: 12px; background: rgba(255,255,255,0.05); border-radius: 6px; overflow: hidden; margin-bottom: 0.5rem; border: 1px solid rgba(255,255,255,0.05);">
+                                <div class="progress-bar" id="xp-bar" style="width: 0%; height: 100%; background: linear-gradient(to right, #3498db, #2ecc71); transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 15px rgba(52, 152, 219, 0.4);"></div>
+                            </div>
+                            <div id="xp-status" style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1.5rem;">Erledige Aufgaben, um XP zu sammeln!</div>
+                            
+                            <!-- DEPT SELECTOR (Moved from old modal) -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08);">
+                                <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                                    <span style="font-size: 0.95rem; font-weight: 600; color: white;">🎟️ Aktiver Bereich</span>
+                                    <span style="font-size: 0.75rem; color: var(--text-muted);">Filtere die Aufgaben auf dem Dashboard</span>
+                                </div>
+                                <select id="settings-dept-select" onchange="if(window.selectDept) window.selectDept(this.value)" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 0.5rem 1rem; font-size: 0.9rem; font-weight: 600; outline: none; cursor: pointer;">
+                                    <option value="einlass">🎟️ Einlass</option>
+                                    <option value="kasse">💰 Kasse</option>
+                                    <option value="theke">🍿 Theke</option>
+                                    <option value="tl">👔 TL / BL</option>
+                                    <option value="alles">🌐 Alles</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action buttons card -->
+                    <div class="card-container glass" style="margin-bottom: 1.5rem; padding: 1.5rem;">
+                        <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: #fff;">Konto-Aktionen</h3>
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <button onclick="AUTH.showChangePassword(); return false;" class="btn-secondary" style="width: 100%; padding: 1rem; border-radius: var(--button-radius); font-weight: 700; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; cursor: pointer; transition: all 0.2s;">
+                                🔑 Passwort ändern
+                            </button>
+                            <button onclick="if(confirm('Möchtest du das Dashboard neu laden und alle Caches leeren? Dies behebt Darstellungsfehler.')){ localStorage.clear(); sessionStorage.clear(); if('serviceWorker' in navigator){ navigator.serviceWorker.getRegistrations().then(regs => { for(let r of regs) r.unregister(); }); } caches.keys().then(names => { for(let n of names) caches.delete(n); }); setTimeout(() => { window.location.href = window.location.origin + '/?reset=true'; }, 500); }" class="btn-secondary" style="width: 100%; padding: 1rem; border-radius: var(--button-radius); font-weight: 700; background: rgba(241,196,15,0.15); border: 1px solid #f1c40f; color: white; cursor: pointer; transition: all 0.2s;">
+                                🔄 App aktualisieren (Cache leeren)
+                            </button>
+                            <button onclick="AUTH.logout(); return false;" class="btn-primary" style="width: 100%; padding: 1rem; border-radius: var(--button-radius); font-weight: 800; background: linear-gradient(135deg, #e50914, #ff3d47); border: none; color: white; cursor: pointer; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);">
+                                🚪 Abmelden
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <span id="leaderboard-arrow" style="font-size: 0.8rem; opacity: 0.7;">▼ Zeigen</span>
+
+                <!-- Guest mode Profile view -->
+                <div id="settings-profile-guest" style="display: none;">
+                    <div class="card-container glass" style="border-color: rgba(255, 255, 255, 0.15); padding: 2.5rem; text-align: center;">
+                        <div style="font-size: 3.5rem; margin-bottom: 1rem;">👤</div>
+                        <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #fff;">Gast-Modus</h2>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 320px; margin: 0 auto 2rem; line-height: 1.5;">
+                            Du bist aktuell als Gast angemeldet. Melde dich an, um Schichten zu starten, Aufgaben abzuschließen und XP zu sammeln!
+                        </p>
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 280px; margin: 0 auto;">
+                            <button class="btn-primary" onclick="AUTH.showLoginModal(); return false;" style="width: 100%; padding: 0.85rem; border-radius: 12px; font-weight: 800; font-size: 0.95rem;">
+                                🔑 Jetzt Anmelden
+                            </button>
+                            <button class="btn-secondary" onclick="AUTH.showLoginModal(); AUTH.showRegister(); return false;" style="width: 100%; padding: 0.85rem; border-radius: 12px; font-weight: 700; font-size: 0.9rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; cursor: pointer;">
+                                📝 Registrieren
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div id="leaderboard-content" style="display: none; transition: all 0.3s ease;">
-                <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 0.5rem;">
-                    <thead>
-                        <tr style="text-align: left; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <th style="padding: 0.5rem 0.25rem;">Platz</th>
-                            <th style="padding: 0.5rem 0.25rem;">Name</th>
-                            <th style="padding: 0.5rem 0.25rem; text-align: right;">Erfahrung (XP)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="leaderboard-table-body">
-                        <!-- Loaded dynamically -->
-                        <tr><td colspan="3" style="text-align: center; padding: 1rem; color: var(--text-muted);">Lade Bestenliste...</td></tr>
-                    </tbody>
-                </table>
+
+            <!-- PAGE: Shift -->
+            <div class="settings-page" id="settings-page-shift">
+                <div class="card-container glass" style="margin-bottom: 1.5rem; border-color: rgba(46, 204, 113, 0.4); background: linear-gradient(135deg, rgba(46, 204, 113, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
+                    <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span class="alert-icon-small">🕒</span>
+                            <h2 style="font-size: 1.25rem;">Schicht-Verwaltung</h2>
+                        </div>
+                    </div>
+                    <div style="padding: 1rem 1.5rem 1.5rem;">
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Starte oder beende deinen Dienst, um die Arbeitszeit im Blick zu behalten.</p>
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <button class="shift-btn btn-primary" onclick="shiftCheckin()" style="width: 100%; padding: 1rem; border-radius: 12px; font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+                                🟢 Schicht starten
+                            </button>
+                            <div id="shift-status-text-alt" style="text-align: center; font-size: 0.9rem; color: var(--primary-blue); font-weight: 600;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: Appearance / Date Selector -->
+            <div class="settings-page" id="settings-page-appearance">
+                <!-- Theme Settings -->
+                <div class="card-container glass" style="margin-bottom: 1.5rem;">
+                    <div class="card-header" style="padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; align-items: stretch;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0;">
+                                <span class="alert-icon-small">🌓</span>
+                                <h2 style="font-size: 1.25rem;">Erscheinungsbild</h2>
+                            </div>
+                            <button class="btn-primary" onclick="toggleTheme()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.9rem;">
+                                Design wechseln <span id="settings-theme-icon">🌙</span>
+                            </button>
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.08);">
+                            <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                                <span style="font-size: 0.95rem; font-weight: 600; color: white;">🎟️ Ticket-Übergangseffekt</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Zeigt eine Kinokarten-Animation beim Wechseln von Tabs</span>
+                            </div>
+                            <label class="switch" style="position: relative; display: inline-block; width: 46px; height: 26px;">
+                                <input type="checkbox" id="cinema-transitions-toggle" onchange="toggleCinemaTransitions(this.checked)" style="opacity: 0; width: 0; height: 0;">
+                                <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .3s; border-radius: 34px; border: 1px solid rgba(255,255,255,0.15);"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Date Selector Settings -->
+                <div class="card-container glass" style="margin-bottom: 1rem; border-color: rgba(0, 120, 255, 0.3);">
+                    <div class="card-header" style="padding: 1.25rem 1.25rem 0.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span class="alert-icon-small">📅</span>
+                            <h2 style="font-size: 1.25rem;">Tag auswählen</h2>
+                        </div>
+                    </div>
+                    <div style="padding: 1rem 1.5rem 1.5rem;">
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Wähle den Tag aus, für den du die Daten sehen möchtest.</p>
+                        <div class="date-navigator" style="width: 100%; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 0.5rem;">
+                            <button class="nav-btn" onclick="changeDate(-1)">
+                                <svg height="24" viewbox="0 0 24 24" width="24"><path d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" fill="currentColor"></path></svg>
+                            </button>
+                            <div class="date-display" style="text-align: center; min-width: 120px;">
+                                <span class="settings-date-text" style="font-weight: 700; color: #fff;">Heute</span>
+                            </div>
+                            <button class="nav-btn" onclick="changeDate(1)">
+                                <svg height="24" viewbox="0 0 24 24" width="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" fill="currentColor"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: Push -->
+            <div class="settings-page" id="settings-page-push">
+                <div class="card-container glass" style="margin-bottom: 1rem;">
+                    <div class="card-header" onclick="toggleSection('push-settings-content', 'push-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
+                            <span class="alert-icon-small">🔔</span>
+                            <h2 style="font-size: 1.25rem;">Push-Benachrichtigungen</h2>
+                            <span class="badge" id="push-status-badge" style="background: var(--text-muted); font-size: 0.7rem;">Deaktiviert</span>
+                        </div>
+                        <button class="toggle-btn collapsed" id="push-toggle-btn" style="pointer-events: none;">
+                            <svg height="24" viewbox="0 0 24 24" width="24"><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path></svg>
+                        </button>
+                    </div>
+                    <div class="collapsible-content collapsed" id="push-settings-content" style="padding: 0 1.5rem 1.5rem;">
+                        <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 0.5rem;">
+                            <div id="push-unsupported" style="display: none; background: rgba(229, 9, 20, 0.1); border: 1px solid rgba(229, 9, 20, 0.2); padding: 1rem; border-radius: 12px; margin-bottom: 0.5rem;">
+                                <p style="color: #ff4d4d; font-size: 0.85rem;">⚠️ Dein Browser unterstützt keine Push-Benachrichtigungen oder du musst die App zum Home-Bildschirm hinzufügen (iOS).</p>
+                            </div>
+                            <div class="btn-push-premium" id="push-main-card" onclick="togglePushSubscription()">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <div class="status-dot" id="push-status-dot"></div>
+                                    <div class="push-info-text">
+                                        <h4 id="push-main-label">Benachrichtigungen aktivieren</h4>
+                                        <p id="push-sub-label">Wichtige Infos direkt aufs Handy erhalten</p>
+                                    </div>
+                                </div>
+                                <div class="spinner" id="push-spinner" style="width: 20px; height: 20px; display: none; margin: 0;"></div>
+                                <svg height="20" id="push-chevron" style="opacity: 0.5;" viewbox="0 0 24 24" width="20"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" fill="currentColor"></path></svg>
+                            </div>
+                            <button class="btn-primary" onclick="submitMessage()">Nachricht senden</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: Links -->
+            <div class="settings-page" id="settings-page-links">
+                <div class="card-container glass" style="margin-bottom: 1rem;">
+                    <div class="card-header" onclick="toggleSection('links-content', 'links-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
+                            <span class="alert-icon-small">🔗</span>
+                            <h2 style="font-size: 1.25rem;">Links &amp; Handbücher</h2>
+                        </div>
+                        <button class="toggle-btn collapsed" id="links-toggle-btn" style="pointer-events: none;">
+                            <svg height="24" viewbox="0 0 24 24" width="24">
+                                <path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="collapsible-content collapsed" id="links-content" style="padding: 0 1.5rem 1.5rem;">
+                        <div style="margin-bottom: 1rem;">
+                            <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.75rem;">Externe Links</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                <a class="stat-card" href="https://walter.kinopolis.net" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;" target="_blank">
+                                    <span style="font-size: 2rem;">🌐</span>
+                                    <div>
+                                        <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Walter</div>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">(Tagesbeginn &amp; Abschluss)</div>
+                                    </div>
+                                </a>
+                                <a class="stat-card" href="https://eu.atoss.com" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;" target="_blank">
+                                    <span style="font-size: 2rem;">📅</span>
+                                    <div>
+                                        <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Dienstplan</div>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">Schichtplan ansehen</div>
+                                    </div>
+                                </a>
+                                <a class="stat-card" href="archive.html" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;" target="_blank">
+                                    <span style="font-size: 2rem;">🗃️</span>
+                                    <div>
+                                        <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Archiv</div>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">Alte Notizen &amp; Bilder</div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin-bottom: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">Handbücher</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                <a class="stat-card" href="/docs/Leitfaden%20schwierige%20G%C3%A4ste.pdf" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem; border-color: rgba(0, 120, 255, 0.4); background: rgba(0, 120, 255, 0.05);" target="_blank">
+                                    <span style="font-size: 2rem;">👔</span>
+                                    <div>
+                                        <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Schwierige Gäste</div>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">PDF Leitfaden für alle</div>
+                                    </div>
+                                </a>
+                                <a class="stat-card" href="#" onclick="alert('Handbuch Kasse: Demnächst verfügbar!'); return false;" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem;">
+                                    <span style="font-size: 2rem;">💰</span>
+                                    <div>
+                                        <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Kasse</div>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">Verkauf &amp; Gutscheine</div>
+                                    </div>
+                                </a>
+                                <a class="stat-card" href="https://app.360learning.com/home/content/all" rel="noopener" style="text-decoration: none; color: inherit; display: flex; flex-direction: row; align-items: center; gap: 1rem; padding: 1rem; border-color: rgba(46, 204, 113, 0.4); background: rgba(46, 204, 113, 0.05);" target="_blank">
+                                    <span style="font-size: 2rem;">🎓</span>
+                                    <div>
+                                        <div class="stat-label" style="margin-bottom: 0; color: white; text-transform: none;">Schulungsplattform</div>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">360learning · Online-Kurse</div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: Leaderboard -->
+            <div class="settings-page" id="settings-page-leaderboard">
+                <div class="card-container glass" style="margin-bottom: 1.5rem; border-color: rgba(0, 120, 255, 0.3);">
+                    <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span>👑</span>
+                            <h2 style="font-size: 1.25rem;">Mitarbeiter Bestenliste (Top 10)</h2>
+                        </div>
+                    </div>
+                    <div style="padding: 1rem 1.5rem 1.5rem;">
+                        <div id="leaderboard-content" style="transition: all 0.3s ease;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 0.5rem;">
+                                <thead>
+                                    <tr style="text-align: left; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                        <th style="padding: 0.5rem 0.25rem;">Platz</th>
+                                        <th style="padding: 0.5rem 0.25rem;">Name</th>
+                                        <th style="padding: 0.5rem 0.25rem; text-align: right;">Erfahrung (XP)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaderboard-table-body">
+                                    <!-- Loaded dynamically -->
+                                    <tr><td colspan="3" style="text-align: center; padding: 1rem; color: var(--text-muted);">Lade Bestenliste...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: Portals -->
+            <div class="settings-page" id="settings-page-portals">
+                <!-- Team Leader Portal -->
+                <div class="card-container glass" style="margin-bottom: 1.5rem; border-color: rgba(168, 85, 247, 0.4); background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
+                    <div class="card-header" style="padding: 1.25rem;">
+                        <a href="/tl.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem; width: 100%;" target="_blank">
+                            <div style="background: rgba(168, 85, 247, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🚨</div>
+                            <div style="flex: 1;">
+                                <h2 style="font-size: 1.25rem; margin-bottom: 0.2rem; color: #fff;">Teamleiter-Portal</h2>
+                                <span style="font-size: 0.85rem; color: var(--text-muted);">Echtzeit-Übersicht für Funk &amp; Transfers, sowie KI-Pausenempfehlungen.</span>
+                            </div>
+                            <div style="color: #a855f7; font-weight: bold;">Portal öffnen ❯</div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Admin Portal -->
+                <div class="card-container glass" style="margin-bottom: 1.5rem; border-color: rgba(168, 85, 247, 0.4); background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
+                    <div class="card-header" style="padding: 1.25rem;">
+                        <a href="/admin.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem; width: 100%;" target="_blank">
+                            <div style="background: rgba(168, 85, 247, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🔒</div>
+                            <div style="flex: 1;">
+                                <h2 style="font-size: 1.25rem; margin-bottom: 0.2rem; color: #fff;">Admin Portal</h2>
+                                <span style="font-size: 0.85rem; color: var(--text-muted);">Sichtbare Module verwalten, Mitteilungen schreiben und Daten exportieren.</span>
+                            </div>
+                            <div style="color: #a855f7; font-weight: bold;">Portal öffnen ❯</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: Feedback -->
+            <div class="settings-page" id="settings-page-feedback">
+                <div class="card-container glass" id="feedback-section" style="margin-bottom: 1rem; border-color: rgba(0, 120, 255, 0.4); background: linear-gradient(135deg, rgba(0, 120, 255, 0.05) 0%, rgba(20, 20, 25, 0.6) 100%);">
+                    <div class="card-header" style="padding: 1.25rem;">
+                        <a href="#" onclick="openFeedback('bl'); return false;" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem; width: 100%;">
+                            <div style="background: rgba(0, 120, 255, 0.2); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📩</div>
+                            <div style="flex: 1;">
+                                <h2 style="font-size: 1.25rem; margin-bottom: 0.2rem; color: #fff;">Vertrauliches BL-Feedback</h2>
+                                <span style="font-size: 0.85rem; color: var(--text-muted);">Nachricht direkt an die Betriebsleitung senden (Anregungen, Probleme, Lob)</span>
+                            </div>
+                            <div style="color: var(--primary-blue); font-weight: bold;">Verfassen ❯</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: About -->
+            <div class="settings-page" id="settings-page-about">
+                <div class="card-container glass" style="margin-bottom: 2rem;">
+                    <div style="padding: 1.5rem; border-left: 4px solid var(--primary-red); background: rgba(229, 9, 20, 0.03); border-radius: 20px;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                            <span style="font-size: 1.5rem;">🚀</span>
+                            <h2 style="font-size: 1.25rem;">Über Kinopolis Automation</h2>
+                        </div>
+                        <p style="font-size: 0.95rem; line-height: 1.6; color: #fff; margin-bottom: 1rem;">
+                            <strong>Das Betriebssystem für dein Kino.</strong> Vernetzt, effizient und modern. 
+                        </p>
+                        <p style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+                            Von Mitarbeitern für Mitarbeiter entwickelt, um den Kinobetrieb ins 21. Jahrhundert zu heben. 
+                            Echtzeit-Kommunikation, intelligente Aufgabenplanung und ein digitales Gedächtnis für jeden Standort. 
+                            Kinopolis Automation ist nicht nur ein Tool – es ist die Zentrale für einen reibungslosen Ablauf hinter den Kulissen.
+                        </p>
+                        <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; font-size: 0.75rem; color: rgba(255,255,255,0.3);">
+                            <span>Version 1.0 (April 2026)</span>
+                            <span>•</span>
+                            <span>Made with ❤️ for Kinopolis</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
-<div class="card-container glass einstellungen-section" style="margin-bottom: 1rem;">
-<div class="card-header" onclick="toggleSection('push-settings-content', 'push-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
-<div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
-<span class="alert-icon-small">🔔</span>
-<h2 style="font-size: 1.25rem;">Push-Benachrichtigungen</h2>
-<span class="badge" id="push-status-badge" style="background: var(--text-muted); font-size: 0.7rem;">Deaktiviert</span>
-</div>
-<button class="toggle-btn collapsed" id="push-toggle-btn" style="pointer-events: none;">
-<svg height="24" viewbox="0 0 24 24" width="24"><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path></svg>
-</button>
-</div>
-<div class="collapsible-content collapsed" id="push-settings-content" style="padding: 0 1.5rem 1.5rem;">
-<div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 0.5rem;">
-<div id="push-unsupported" style="display: none; background: rgba(229, 9, 20, 0.1); border: 1px solid rgba(229, 9, 20, 0.2); padding: 1rem; border-radius: 12px; margin-bottom: 0.5rem;">
-<p style="color: #ff4d4d; font-size: 0.85rem;">⚠️ Dein Browser unterstützt keine Push-Benachrichtigungen oder du musst die App zum Home-Bildschirm hinzufügen (iOS).</p>
-</div>
-<!-- Premium Push Button / Card -->
-<div class="btn-push-premium" id="push-main-card" onclick="togglePushSubscription()">
-<div style="display: flex; align-items: center; gap: 1rem;">
-<div class="status-dot" id="push-status-dot"></div>
-<div class="push-info-text">
-<h4 id="push-main-label">Benachrichtigungen aktivieren</h4>
-<p id="push-sub-label">Wichtige Infos direkt aufs Handy erhalten</p>
-</div>
-</div>
-<div class="spinner" id="push-spinner" style="width: 20px; height: 20px; display: none; margin: 0;"></div>
-<svg height="20" id="push-chevron" style="opacity: 0.5;" viewbox="0 0 24 24" width="20"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" fill="currentColor"></path></svg>
-</div>
-<button class="btn-primary" onclick="submitMessage()">Nachricht senden</button>
-</div>
-</div>
-</div>
-<!-- Help Request Modal -->
-<div class="modal" id="help-modal">
-<div class="modal-content glass" style="max-width: 450px;">
-<div style="text-align: center; margin-bottom: 1.5rem;">
-<div style="background: rgba(231,76,60,0.1); width: 64px; height: 64px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; border: 1px solid rgba(231,76,60,0.2);">
-<span style="font-size: 1.8rem;">🆘</span>
-</div>
-<h2 class="modal-title">Hilfe anfordern</h2>
-<p style="color: var(--text-muted); font-size: 0.85rem;">Beschreibe kurz, wobei du Unterstützung benötigst.</p>
-</div>
-<div style="margin-bottom: 1.25rem;">
-<label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">An wen?</label>
-<select class="input-field" id="help-recipient" style="width: 100%;">
-<option value="TL">Teamleitung (TL)</option>
-<option value="Technik">Technik / Vorführer</option>
-<option value="Leitung">Betriebsleitung (BL)</option>
-</select>
-</div>
-<div style="margin-bottom: 1.5rem;">
-<label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Grund / Nachricht</label>
-<textarea class="input-field" id="help-reason" placeholder="z.B. Starker Andrang an Kasse 3, Wechselgeld benötigt..." style="height: 100px; resize: none;"></textarea>
-</div>
-<div class="modal-actions" style="gap: 0.75rem;">
-<button class="btn-secondary" onclick="closeHelpModal()" style="flex: 1;">Abbrechen</button>
-<button class="btn-primary" onclick="submitHelpRequest()" style="flex: 2; background: var(--primary-red); border: none;">🚀 Ruf senden</button>
-</div>
-</div>
-</div>
-<div class="card-container glass einstellungen-section" style="margin-bottom: 2rem;">
-<div style="padding: 1.5rem; border-left: 4px solid var(--primary-red); background: rgba(229, 9, 20, 0.03); border-radius: 20px;">
-<div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-<span style="font-size: 1.5rem;">🚀</span>
-<h2 style="font-size: 1.25rem;">Über Kinopolis Automation</h2>
-</div>
-<p style="font-size: 0.95rem; line-height: 1.6; color: #fff; margin-bottom: 1rem;">
-<strong>Das Betriebssystem für dein Kino.</strong> Vernetzt, effizient und modern. 
-                </p>
-<p style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
-                    Von Mitarbeitern für Mitarbeiter entwickelt, um den Kinobetrieb ins 21. Jahrhundert zu heben. 
-                    Echtzeit-Kommunikation, intelligente Aufgabenplanung und ein digitales Gedächtnis für jeden Standort. 
-                    Kinopolis Automation ist nicht nur ein Tool – es ist die Zentrale für einen reibungslosen Ablauf hinter den Kulissen.
-                </p>
-<div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; font-size: 0.75rem; color: rgba(255,255,255,0.3);">
-<span>Version 1.0 (April 2026)</span>
-<span>•</span>
-<span>Made with ❤️ for Kinopolis</span>
-</div>
-</div>
-</div>
-
-
-<!-- Date Selection in Settings -->
-<div class="card-container glass einstellungen-section" style="margin-bottom: 1rem; border-color: rgba(0, 120, 255, 0.3);">
-<div class="card-header" style="padding: 1.25rem 1.25rem 0.5rem;">
-<div style="display: flex; align-items: center; gap: 0.75rem;">
-<span class="alert-icon-small">📅</span>
-<h2 style="font-size: 1.25rem;">Tag auswählen</h2>
-</div>
-</div>
-<div style="padding: 1rem 1.5rem 1.5rem;">
-<p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Wähle den Tag aus, für den du die Daten sehen möchtest.</p>
-<div class="date-navigator" style="width: 100%; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 0.5rem;">
-<button class="nav-btn" onclick="changeDate(-1)">
-<svg height="24" viewbox="0 0 24 24" width="24"><path d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" fill="currentColor"></path></svg>
-</button>
-<div class="date-display" style="text-align: center; min-width: 120px;">
-<span class="settings-date-text" style="font-weight: 700; color: #fff;">Heute</span>
-</div>
-<button class="nav-btn" onclick="changeDate(1)">
-<svg height="24" viewbox="0 0 24 24" width="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" fill="currentColor"></path></svg>
-</button>
-</div>
-</div>
 </div>
 <!-- Info / Pitch Card -->
 
@@ -4910,6 +5095,22 @@
             const usernameLabel = document.getElementById('settings-username-label');
             const roleLabel = document.getElementById('settings-role-label');
             
+            const loggedInDiv = document.getElementById('settings-profile-logged-in');
+            const guestDiv = document.getElementById('settings-profile-guest');
+
+            if (window.AUTH && AUTH.user) {
+                if (loggedInDiv) loggedInDiv.style.display = 'block';
+                if (guestDiv) guestDiv.style.display = 'none';
+                
+                const deptSelect = document.getElementById('settings-dept-select');
+                if (deptSelect) {
+                    deptSelect.value = localStorage.getItem('kinopolis_selected_dept') || 'alles';
+                }
+            } else {
+                if (loggedInDiv) loggedInDiv.style.display = 'none';
+                if (guestDiv) guestDiv.style.display = 'block';
+            }
+
             if (xpDisplay) xpDisplay.innerText = `${totalXP} XP`;
             
             const level = Math.floor(totalXP / 150) + 1;
@@ -4989,6 +5190,41 @@
             }
         }
         
+        window.setSettingsPage = function(pageId, btn) {
+            // Hide all pages
+            document.querySelectorAll('.settings-content .settings-page').forEach(p => {
+                p.classList.remove('active');
+            });
+            // Show selected page
+            const selectedPage = document.getElementById(`settings-page-${pageId}`);
+            if (selectedPage) {
+                selectedPage.classList.add('active');
+            }
+            // Update navigation button active class
+            document.querySelectorAll('.settings-nav-btn').forEach(b => {
+                b.classList.remove('active');
+            });
+            if (btn) {
+                btn.classList.add('active');
+            } else {
+                const activeNavBtn = document.querySelector(`.settings-nav-btn[onclick*="'${pageId}'"]`);
+                if (activeNavBtn) activeNavBtn.classList.add('active');
+            }
+            
+            // Auto-load leaderboard if the tab is opened
+            if (pageId === 'leaderboard') {
+                loadLeaderboard();
+            }
+
+            // Scroll settings content into view on mobile
+            if (window.innerWidth <= 768) {
+                const contentEl = document.querySelector('.settings-content');
+                if (contentEl) {
+                    contentEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        };
+
         // Initial UI Update
         document.addEventListener('DOMContentLoaded', updateXPUI);
 
@@ -5119,6 +5355,12 @@
                 document.body.classList.add('mehr-active', 'stats-active', 'kontakte-active', 'info-active', 'einstellungen-active');
                 if (titleEl) titleEl.innerText = 'Mehr & Infos' + suffix;
                 loadUpcomingMovies();
+                if (window.setSettingsPage) {
+                    const activeSubBtn = document.querySelector('.settings-nav-btn.active');
+                    if (!activeSubBtn) {
+                        window.setSettingsPage('profile');
+                    }
+                }
             } else if (view === 'stats') {
                 document.body.classList.add('stats-active');
                 if (titleEl) titleEl.innerText = 'Statistik & Auswertung' + suffix;
@@ -5137,6 +5379,12 @@
             } else if (view === 'einstellungen') {
                 document.body.classList.add('einstellungen-active');
                 if (titleEl) titleEl.innerText = 'Einstellungen' + suffix;
+                if (window.setSettingsPage) {
+                    const activeSubBtn = document.querySelector('.settings-nav-btn.active');
+                    if (!activeSubBtn) {
+                        window.setSettingsPage('profile');
+                    }
+                }
             } else {
                 document.body.classList.add(view + '-active');
                 if (titleEl) titleEl.innerText = view.charAt(0).toUpperCase() + view.slice(1) + suffix;
@@ -8483,6 +8731,12 @@
             const allSessions = (hallsGrouped || []).flatMap(h => h.sessions || []).filter(s => s && s.time);
             if (allSessions.length === 0) {
                 container.style.display = 'none';
+                const liveWidget = document.getElementById('occupancy-widget');
+                const liveVal = document.getElementById('live-occupancy');
+                if (liveWidget && liveVal) {
+                    liveVal.innerText = '0';
+                    liveWidget.style.display = 'none';
+                }
                 return;
             }
             container.style.display = 'block';
@@ -8514,6 +8768,14 @@
                     topSession = s;
                 }
             });
+
+            // Update live header badge
+            const liveWidget = document.getElementById('occupancy-widget');
+            const liveVal = document.getElementById('live-occupancy');
+            if (liveWidget && liveVal) {
+                liveVal.innerText = totalSold;
+                liveWidget.style.display = 'flex';
+            }
 
             // Top Film
             let topMovie = { title: 'Keine Daten', sold: 0, poster: null };

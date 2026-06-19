@@ -385,15 +385,12 @@ const AUTH = {
                     <span>👤</span> ${this.user.name || 'Profil'}
                 </div>
             `;
-            userBtn.onclick = () => this.showProfileModal();
+            userBtn.onclick = () => this.showProfile();
             userBtn.title = 'Profil & Einstellungen';
         } else if (localStorage.getItem('kp_guest_mode') === 'true') {
-            userBtn.innerHTML = '<span>👤</span> Gast (Anmelden)';
-            userBtn.onclick = () => {
-                localStorage.removeItem('kp_guest_mode');
-                location.reload();
-            };
-            userBtn.title = 'Klick zum Anmelden';
+            userBtn.innerHTML = '<span>👤</span> Gast';
+            userBtn.onclick = () => this.showProfile();
+            userBtn.title = 'Profil & Einstellungen';
         }
     },
 
@@ -544,12 +541,18 @@ const AUTH = {
         }
     },
 
-    // Alias for inline HTML onclick calls
     showProfile() {
-        if (!this.user) {
+        if (!this.user && localStorage.getItem('kp_guest_mode') !== 'true') {
             this.showLoginModal();
-        } else {
-            this.showProfileModal();
+            return;
+        }
+        if (window.switchTab) {
+            const settingsBtn = document.getElementById('tab-einstellungen') 
+                || document.querySelector(`#mobile-tab-bar .mobile-nav-item[data-tab="mehr"]`);
+            window.switchTab('einstellungen', settingsBtn);
+            if (window.setSettingsPage) {
+                window.setSettingsPage('profile');
+            }
         }
     }
 };
