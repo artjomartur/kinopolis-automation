@@ -139,6 +139,7 @@
             }
             showToast(`⚙️ Dashboard für "${dept.toUpperCase()}" optimiert.`);
         }
+        window.selectDept = selectDept;
 
         function closeHandoverModal() {
             const modal = document.getElementById('handover-modal');
@@ -5493,6 +5494,7 @@
                 console.error('switchTab:', err);
             }
         }
+        window.switchTab = switchTab;
 
         function switchTabInner(view, btn) {
             let activeBtn = btn && btn.classList ? btn : null;
