@@ -2846,7 +2846,7 @@
         body.info-active .info-section { display: block !important; }
         body.stats-active .stats-section { display: block !important; }
         body.kontakte-active .kontakte-section { display: block !important; }
-        body.einstellungen-active .einstellungen-section { display: block !important; }
+        body.einstellungen-active .einstellungen-section { display: flex !important; }
         body.admin-active .admin-section { display: block !important; }
 
         /* Interne Mitteilungen display rules */
@@ -2882,17 +2882,37 @@
         /* --- SETTINGS TABBED LAYOUT --- */
         body:not(.role-tl):not(.role-bl):not(.role-admin) .tl-only { display: none !important; }
         
+        .einstellungen-section {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10000;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            display: none !important;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        
         .settings-layout {
             display: flex;
             gap: 2rem;
             min-height: 500px;
-            margin-top: 1.5rem;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
             border-radius: var(--card-radius);
             padding: 1.5rem;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             backdrop-filter: blur(20px);
-            margin-bottom: 2rem;
+            position: relative;
         }
 
         .settings-nav {
@@ -3760,7 +3780,7 @@
 <button class="tab-btn tools-tab-btn tab-funk" data-tab="funk" id="tab-funk" onclick="switchTab('funk', this); return false;" type="button">📡 Funk</button>
 <button class="tab-btn tab-intern" data-tab="intern" id="tab-intern" onclick="switchTab('intern', this); return false;" type="button">🛠️ Tools</button>
 <button class="tab-btn tab-info" data-tab="info" id="tab-info" onclick="switchTab('info', this); return false;" type="button">🍿 Filme</button>
-<button class="tab-btn tab-einstellungen" data-tab="einstellungen" id="tab-einstellungen" onclick="switchTab('einstellungen', this); return false;" type="button">⚙️ Einstellungen</button>
+
 </div>
 
 <!-- LIVE OVERVIEW DASHBOARD -->
@@ -4428,9 +4448,28 @@
 </div>
 </div>
 
+<!-- SAAL STATUS SECTION -->
+<div class="card-container glass" style="margin-bottom: 1.5rem;" id="halls-section-wrapper">
+    <div class="card-header" onclick="toggleSection('halls-content', 'halls-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
+            <span class="alert-icon-small">🎦</span>
+            <h2 style="font-size: 1.25rem;">Säle</h2>
+        </div>
+        <button class="toggle-btn" id="halls-toggle-btn" style="pointer-events: none;">
+            <svg height="24" viewBox="0 0 24 24" width="24" style="transform: rotate(180deg);"><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path></svg>
+        </button>
+    </div>
+    <div class="collapsible-content" id="halls-content" style="display: none; padding: 0 1.25rem 1.25rem 1.25rem;">
+        <div id="hall-status-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; margin-top: 1rem;">
+            <!-- Halls are rendered here -->
+        </div>
+    </div>
+</div>
+
 <!-- TABBED SETTINGS PANEL WRAPPER -->
 <div class="einstellungen-section" id="settings-tab-wrapper">
     <div class="settings-layout">
+        <button onclick="document.body.classList.remove('einstellungen-active', 'mehr-active'); document.body.style.overflow='auto';" style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 2rem; color: var(--text-muted); cursor: pointer; z-index: 10;">&times;</button>
         <!-- Sidebar Navigation -->
         <div class="settings-nav">
             <button class="settings-nav-btn active" onclick="window.setSettingsPage('profile', this); return false;">👤 Profil &amp; Rang</button>

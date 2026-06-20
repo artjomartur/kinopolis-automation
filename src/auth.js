@@ -67,16 +67,16 @@ const AUTH = {
                         <div style="margin-bottom: 2rem; position: relative;">
                             <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase;">Passwort</label>
                             <input type="password" id="login-password" class="glass-input" placeholder="••••••••" style="width: 100%; padding: 1rem; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;">
-                            <button onclick="AUTH.showForgotPassword()" style="position: absolute; right: 0; bottom: -20px; background: none; border: none; color: var(--text-muted); font-size: 0.75rem; cursor: pointer; font-weight: 600;">Passwort vergessen?</button>
+                            <button id="forgot-pwd-btn" style="position: absolute; right: 0; bottom: -20px; background: none; border: none; color: var(--text-muted); font-size: 0.75rem; cursor: pointer; font-weight: 600;">Passwort vergessen?</button>
                         </div>
                         
-                        <button onclick="AUTH.handleLogin()" id="login-btn" class="btn-primary" style="width: 100%; padding: 1rem; border-radius: 12px; font-weight: 800; font-size: 1rem; margin-bottom: 1rem;">
+                        <button id="login-btn" class="btn-primary" style="width: 100%; padding: 1rem; border-radius: 12px; font-weight: 800; font-size: 1rem; margin-bottom: 1rem;">
                             Anmelden
                         </button>
                         
                         <div style="text-align: center; display: flex; flex-direction: column; gap: 0.75rem;">
-                            <button onclick="AUTH.showRegister()" style="background: none; border: none; color: var(--primary-blue); font-weight: 600; cursor: pointer; font-size: 0.9rem;">Noch kein Konto? Jetzt registrieren</button>
-                            <button onclick="AUTH.enableGuestMode()" style="background: none; border: none; color: var(--text-muted); font-weight: 500; cursor: pointer; font-size: 0.8rem;">Im Gast-Modus fortfahren (Eingeschränkt)</button>
+                            <button id="show-reg-btn" style="background: none; border: none; color: var(--primary-blue); font-weight: 600; cursor: pointer; font-size: 0.9rem;">Noch kein Konto? Jetzt registrieren</button>
+                            <button id="guest-btn" style="background: none; border: none; color: var(--text-muted); font-weight: 500; cursor: pointer; font-size: 0.8rem;">Im Gast-Modus fortfahren (Eingeschränkt)</button>
                         </div>
                     </div>
 
@@ -108,8 +108,8 @@ const AUTH = {
                             <input type="password" id="reg-password" class="glass-input" placeholder="Sicheres Passwort" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;">
                         </div>
                         
-                        <button onclick="AUTH.handleRegister()" id="reg-btn" class="btn-primary" style="width: 100%; padding: 1rem; border-radius: 12px; font-weight: 800;">Konto erstellen</button>
-                        <button onclick="AUTH.showLogin()" style="width: 100%; background: none; border: none; color: var(--text-muted); margin-top: 1rem; cursor: pointer;">Zurück zum Login</button>
+                        <button id="reg-btn" class="btn-primary" style="width: 100%; padding: 1rem; border-radius: 12px; font-weight: 800;">Konto erstellen</button>
+                        <button id="show-login-btn" style="width: 100%; background: none; border: none; color: var(--text-muted); margin-top: 1rem; cursor: pointer;">Zurück zum Login</button>
                     </div>
                 </div>
             </div>
@@ -119,6 +119,14 @@ const AUTH = {
         modalContainer.id = 'auth-modal-container';
         modalContainer.innerHTML = modalHtml;
         document.body.appendChild(modalContainer);
+
+        // Explicit event bindings to bypass module scope issues
+        document.getElementById('login-btn').addEventListener('click', () => this.handleLogin());
+        document.getElementById('guest-btn').addEventListener('click', () => this.enableGuestMode());
+        document.getElementById('reg-btn').addEventListener('click', () => this.handleRegister());
+        document.getElementById('show-reg-btn').addEventListener('click', () => this.showRegister());
+        document.getElementById('show-login-btn').addEventListener('click', () => this.showLogin());
+        document.getElementById('forgot-pwd-btn').addEventListener('click', () => this.showForgotPassword());
 
         // Add Modal CSS
         const style = document.createElement('style');
@@ -542,21 +550,10 @@ const AUTH = {
     },
 
     showProfile() {
-        if (!this.user) {
-            this.showLoginModal();
-            return;
-        }
-        if (window.switchTab) {
-            const isMobile = window.innerWidth <= 768;
-            const settingsBtn = isMobile 
-                ? document.querySelector(`#mobile-tab-bar .mobile-nav-item[data-tab="mehr"]`)
-                : document.getElementById('tab-einstellungen');
-            
-            const targetTab = isMobile ? 'mehr' : 'einstellungen';
-            window.switchTab(targetTab, settingsBtn);
-            if (window.setSettingsPage) {
-                window.setSettingsPage('profile');
-            }
+        document.body.classList.add('einstellungen-active');
+        document.body.style.overflow = 'hidden';
+        if (window.setSettingsPage) {
+            window.setSettingsPage('profile');
         }
     }
 };
