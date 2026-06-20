@@ -727,8 +727,7 @@
             padding: 0.6rem 4rem;
             border-bottom: 1px solid var(--surface-border);
             margin-bottom: 0.75rem;
-            background: rgba(10, 10, 13, 0.8);
-            backdrop-filter: blur(24px);
+            background: #0a0a0d;
             position: sticky;
             top: 0;
             z-index: 100;
@@ -3202,14 +3201,12 @@
                 top: 0;
                 z-index: 120;
                 padding: max(0.5rem, env(safe-area-inset-top, 0px)) max(0.75rem, env(safe-area-inset-right, 0px)) 0.65rem max(0.75rem, env(safe-area-inset-left, 0px)) !important;
-                background: rgba(10, 10, 13, 0.72) !important;
-                backdrop-filter: blur(16px) saturate(160%);
-                -webkit-backdrop-filter: blur(16px) saturate(160%);
+                background: #0a0a0d !important;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
                 margin-bottom: 0.5rem !important;
             }
             body.light-mode header {
-                background: rgba(255, 255, 255, 0.82) !important;
+                background: #ffffff !important;
                 border-bottom-color: rgba(0, 0, 0, 0.06) !important;
             }
             .header-inner {
@@ -4449,23 +4446,7 @@
 </div>
 </div>
 
-<!-- SAAL STATUS SECTION -->
-<div class="card-container glass" style="margin-bottom: 1.5rem;" id="halls-section-wrapper">
-    <div class="card-header" onclick="toggleSection('halls-content', 'halls-toggle-btn')" style="cursor: pointer; padding: 1.25rem;">
-        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0; flex: 1;">
-            <span class="alert-icon-small">🎦</span>
-            <h2 style="font-size: 1.25rem;">Säle</h2>
-        </div>
-        <button class="toggle-btn" id="halls-toggle-btn" style="pointer-events: none;">
-            <svg height="24" viewBox="0 0 24 24" width="24" style="transform: rotate(180deg);"><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path></svg>
-        </button>
-    </div>
-    <div class="collapsible-content" id="halls-content" style="display: none; padding: 0 1.25rem 1.25rem 1.25rem;">
-        <div id="hall-status-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; margin-top: 1rem;">
-            <!-- Halls are rendered here -->
-        </div>
-    </div>
-</div>
+
 
 <!-- TABBED SETTINGS PANEL WRAPPER -->
 <div class="einstellungen-section" id="settings-tab-wrapper">
