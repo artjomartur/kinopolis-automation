@@ -489,6 +489,32 @@ app.get('/api/personal-need', (req, res) => res.json([]));
 app.get('/api/announcements/latest', (req, res) => res.json({ success: false }));
 app.get('/api/upcoming', (req, res) => res.json([]));
 app.get('/api/mhd', (req, res) => res.json([]));
+
+// Mock Analytics Endpoint
+app.get('/api/analytics', (req, res) => {
+    // Generate mock historical data for the last 7 days
+    const data = [];
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        data.push({
+            date: d.toISOString().split('T')[0],
+            visitors: Math.floor(Math.random() * 2000) + 500,
+            occupancy_percent: Math.floor(Math.random() * 60) + 20
+        });
+    }
+    res.json(data);
+});
+
+// Mock Chat Endpoint
+app.post('/api/chat', (req, res) => {
+    const { message } = req.body;
+    console.log(`[LOCAL AI MOCK] received: ${message}`);
+    setTimeout(() => {
+        res.json({ reply: "Hallo! Ich bin der Mock-Assistent (Lokal). In der Cloudflare-Version werde ich durch echtes Llama-3 ersetzt! Du hast gefragt: " + message });
+    }, 1000);
+});
+
 app.post('/api/feedback', (req, res) => res.json({ success: true }));
 app.post('/api/auth/login', (req, res) => res.json({ token: 'mock-token', user: { email: 'admin@kinopolis.de', name: 'Local Admin' } }));
 

@@ -47,16 +47,17 @@ self.addEventListener('fetch', (event) => {
         return;
     }
     
-    // CACHE-FIRST strategy for static assets
+    // STALE-WHILE-REVALIDATE strategy for static assets
     event.respondWith(
-        caches.match(event.request).then(response => {
-            return response || fetch(event.request).then(res => {
-                if (res.status === 200) {
-                    const copy = res.clone();
+        caches.match(event.request).then(cachedResponse => {
+            const fetchPromise = fetch(event.request).then(networkResponse => {
+                if (networkResponse.status === 200) {
+                    const copy = networkResponse.clone();
                     caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
                 }
-                return res;
+                return networkResponse;
             });
+            return cachedResponse || fetchPromise;
         })
     );
 });

@@ -2455,6 +2455,71 @@ app.delete('/api/contacts/:id', async (c) => {
     }
 });
 
+// --- ANALYTICS API ---
+app.get('/api/analytics', async (c) => {
+    try {
+        if (!c.env.DB) {
+            // Mock data fallback if no DB
+            const data = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                data.push({
+                    date: d.toISOString().split('T')[0],
+                    visitors: Math.floor(Math.random() * 2000) + 500,
+                    occupancy_percent: Math.floor(Math.random() * 60) + 20
+                });
+            }
+            return c.json(data);
+        }
+
+        // Real data fetch from occupancy_archive
+        const results = await c.env.DB.prepare(`
+            SELECT date, SUM(max_sold) as visitors, AVG(CAST(max_sold AS FLOAT)/CAST(capacity AS FLOAT)) * 100 as occupancy_percent
+            FROM occupancy_archive
+            WHERE capacity > 0
+            GROUP BY date
+            ORDER BY date DESC
+            LIMIT 7
+        `).all();
+        
+        return c.json(results.results || []);
+    } catch (e) {
+        console.error('Analytics fetch error:', e);
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+// --- AI CHAT ASSISTANT API ---
+app.post('/api/chat', async (c) => {
+    try {
+        const { message, context } = await c.req.json();
+        if (!message) return c.json({ error: 'Message required' }, 400);
+
+        if (!c.env.AI) {
+            return c.json({ reply: "Cloudflare AI ist nicht verfügbar. Mock-Antwort auf: " + message });
+        }
+
+        const systemPrompt = `Du bist ein hilfreicher KI-Assistent für Kinomitarbeiter von Kinopolis.
+        Beantworte Fragen der Mitarbeiter kurz und präzise auf Deutsch.
+        Aktueller Kontext (z.B. Spielplan):
+        ${context || 'Kein Spielplan verfügbar.'}`;
+
+        const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+            messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: message }
+            ],
+            max_tokens: 300
+        });
+
+        return c.json({ reply: response.response });
+    } catch (e) {
+        console.error('AI Chat Error:', e);
+        return c.json({ error: e.message }, 500);
+    }
+});
+
 // --- AI PLAN SCANNER + MODELL FALLBACK ---
 app.post('/api/ai-agree', async (c) => {
     return c.json({ success: true });
