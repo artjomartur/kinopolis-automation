@@ -11329,9 +11329,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 500);
 });
+function resetAndTestOli() {
+    localStorage.removeItem('oli_onboarding_done');
+    oliStep = 1;
+    
+    // Reset UI
+    document.getElementById('oli-progress-bar').style.width = '25%';
+    document.getElementById('oli-step-title').innerText = 'Bärenstarkes Hallo! 🐻';
+    document.getElementById('oli-step-desc').innerText = 'Ich bin OLI, der Kinobär und dein persönlicher Assistent. Bevor es losgeht, lass uns kurz dein Dashboard einrichten.';
+    document.getElementById('oli-next-btn').innerText = 'Los geht\\'s';
+    
+    document.getElementById('oli-step-role-content').style.display = 'none';
+    document.getElementById('oli-step-goal-content').style.display = 'none';
+    document.getElementById('oli-step-location-content').style.display = 'none';
+    
+    document.getElementById('oli-onboarding-modal').style.display = 'flex';
+    document.getElementById('oli-onboarding-modal').style.opacity = '1';
+    
+    animateOli(true);
+}
 </script>
 
-    <button id="debug-onboarding-btn" onclick="localStorage.removeItem('oli_onboarding_done'); checkOliOnboarding();" style="position: fixed; bottom: 20px; left: 20px; z-index: 10000; background: var(--primary-red); color: white; border: none; border-radius: 50px; padding: 10px 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(226,28,43,0.3);">
+    <button id="debug-onboarding-btn" onclick="resetAndTestOli();" style="position: fixed; bottom: 20px; left: 20px; z-index: 10000; background: var(--primary-red); color: white; border: none; border-radius: 50px; padding: 10px 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(226,28,43,0.3);">
         🐻 Onboarding Testen
     </button>
     
