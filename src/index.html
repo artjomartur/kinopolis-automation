@@ -17,7 +17,28 @@
             });
             window.location.href = window.location.pathname;
         }
-    </script>
+    
+function resetAndTestOli() {
+    localStorage.removeItem('oli_onboarding_done');
+    oliStep = 1;
+    
+    // Reset UI
+    document.getElementById('oli-progress-bar').style.width = '25%';
+    document.getElementById('oli-step-title').innerText = 'Bärenstarkes Hallo! 🐻';
+    document.getElementById('oli-step-desc').innerText = 'Ich bin OLI, der Kinobär und dein persönlicher Assistent. Bevor es losgeht, lass uns kurz dein Dashboard einrichten.';
+    document.getElementById('oli-next-btn').innerText = 'Los geht\'s';
+    
+    document.getElementById('oli-step-role-content').style.display = 'none';
+    document.getElementById('oli-step-goal-content').style.display = 'none';
+    document.getElementById('oli-step-location-content').style.display = 'none';
+    
+    document.getElementById('oli-onboarding-modal').style.display = 'flex';
+    document.getElementById('oli-onboarding-modal').style.opacity = '1';
+    
+    animateOli(true);
+}
+</script>
+
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
 <title>Kinopolis Dashboard V1.0</title>
