@@ -37,7 +37,7 @@ function resetAndTestOli() {
     document.getElementById('oli-onboarding-modal').style.display = 'flex';
     document.getElementById('oli-onboarding-modal').style.opacity = '1';
     
-    animateOli(true);
+    
 }
 </script>
 
@@ -10772,8 +10772,8 @@ function resetAndTestOli() {
         
         <div style="padding: 1.5rem 2rem 2.5rem 2rem; display: flex; flex-direction: column; align-items: center; text-align: center;">
             <div id="oli-avatar-container" style="width: 130px; height: 130px; border-radius: 50%; overflow: hidden; border: 6px solid #fff; margin-bottom: 1rem; box-shadow: 0 12px 25px rgba(0,0,0,0.1); position: relative; z-index: 2;">
-                <img id="oli-avatar-img" src="/assets/Oli/Oli_1.png" style="width: 100%; height: 100%; object-fit: cover; object-position: center; animation: duoBounce 3s infinite ease-in-out; display: none;" />
-                <video id="oli-avatar-vid" src="/assets/Oli/Oli_1.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; object-position: center; animation: duoBounce 3s infinite ease-in-out; display: block;"></video>
+                <img id="oli-avatar-img" src="/assets/Oli/Oli_1.png" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: none;" />
+                <video id="oli-avatar-vid" src="/assets/Oli/Oli_1.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;"></video>
             </div>
             
             <div style="background: #fff; color: #4b4b4b; position: relative; margin-bottom: 1.5rem; width: 100%;">
@@ -11202,7 +11202,7 @@ function checkOliOnboarding() {
             document.getElementById('oli-step-role-content').style.display = 'none';
             document.getElementById('oli-step-goal-content').style.display = 'none';
             document.getElementById('oli-step-location-content').style.display = 'none';
-            animateOli(true);
+            
         }, 800);
     }
 }
@@ -11232,7 +11232,7 @@ function selectOliRole(role) {
     event.currentTarget.style.borderBottom = '2px solid #84d8ff';
     event.currentTarget.style.background = '#ddf4ff';
     event.currentTarget.style.transform = 'translateY(4px)';
-    animateOli();
+    
 }
 
 function selectOliGoal(goal) {
@@ -11246,7 +11246,7 @@ function selectOliGoal(goal) {
     event.currentTarget.style.borderBottom = '2px solid #84d8ff';
     event.currentTarget.style.background = '#ddf4ff';
     event.currentTarget.style.transform = 'translateY(4px)';
-    animateOli();
+    
 }
 
 function pushBtn() {
@@ -11312,7 +11312,7 @@ function nextOliStep() {
         goalContent.style.display = 'none';
         locContent.style.display = 'none';
         setOliMedia(2);
-        animateOli();
+        
     } 
     else if (oliStep === 3) {
         progress.style.width = '75%';
@@ -11322,7 +11322,7 @@ function nextOliStep() {
         goalContent.style.display = 'flex';
         locContent.style.display = 'none';
         setOliMedia(3);
-        animateOli();
+        
     }
     else if (oliStep === 4) {
         progress.style.width = '90%';
@@ -11333,7 +11333,7 @@ function nextOliStep() {
         locContent.style.display = 'block';
         btn.innerText = 'Los geht\'s!';
         setOliMedia(4);
-        animateOli();
+        
     }
     else if (oliStep > 4) {
         const selected = document.getElementById('oli-kino-select').value;
@@ -11415,7 +11415,7 @@ function resetAndTestOli() {
     document.getElementById('oli-onboarding-modal').style.display = 'flex';
     document.getElementById('oli-onboarding-modal').style.opacity = '1';
     
-    animateOli(true);
+    
 }
 </script>
 
