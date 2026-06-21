@@ -253,11 +253,48 @@ app.post('/api/auth/setup-link', async (c) => {
                     to: email.toLowerCase(),
                     subject: 'Dein Kinopolis Setup-Link',
                     html: `
-                        <div style="font-family:sans-serif; background:#1a1b1f; color:#fff; padding: 40px; text-align: center;">
-                            <h1 style="color:#e50914;">Hallo ${first_name}!</h1>
-                            <p>Klicke auf den folgenden Link, um dich einzuloggen und dein Setup abzuschließen:</p>
-                            <a href="${setupLink}" style="display:inline-block; margin-top:20px; background:#e50914; color:#fff; padding:15px 30px; text-decoration:none; border-radius:12px; font-weight:bold;">Zum Setup</a>
-                        </div>
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="utf-8">
+                            <style>
+                                body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #0f1014; color: #ffffff; }
+                                .container { max-width: 600px; margin: 0 auto; background-color: #1a1b1f; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
+                                .header { padding: 40px 20px; text-align: center; background: linear-gradient(135deg, #1a1b1f 0%, #0a0a0d 100%); }
+                                .logo { width: 180px; margin-bottom: 20px; }
+                                .content { padding: 40px; text-align: center; }
+                                .hero-text { font-size: 24px; font-weight: 800; color: #ffffff; margin-bottom: 16px; letter-spacing: -0.02em; }
+                                .body-text { color: #94a3b8; line-height: 1.6; font-size: 16px; margin-bottom: 32px; }
+                                .btn { display: inline-block; background: linear-gradient(135deg, #e50914, #ff3d47); color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 14px; font-weight: 800; font-size: 16px; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3); }
+                                .footer { padding: 32px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
+                                .footer-text { color: #475569; font-size: 12px; }
+                            </style>
+                        </head>
+                        <body>
+                            <div style="padding: 20px;">
+                                <div class="container">
+                                    <div class="header">
+                                        <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" alt="Kinopolis" class="logo">
+                                    </div>
+                                    <div class="content">
+                                        <h1 class="hero-text">Hallo ${first_name}!</h1>
+                                        <p class="body-text">
+                                            Willkommen beim <strong>Kinopolis Automation Dashboard</strong>.<br><br>
+                                            Dein Account wurde soeben für dich reserviert. Klicke auf den Button, um dich sicher einzuloggen und das Setup (z.B. Passwort) abzuschließen:
+                                        </p>
+                                        <a href="${setupLink}" class="btn">Account einrichten</a>
+                                        <p class="body-text" style="font-size: 12px; margin-top: 24px;">Dieser Link ist aus Sicherheitsgründen 24 Stunden gültig.</p>
+                                    </div>
+                                     <div class="footer">
+                                         <p class="footer-text">
+                                             Dies ist eine automatische Systemnachricht.<br>
+                                             © 2026 Kinopolis Automation
+                                         </p>
+                                     </div>
+                                </div>
+                            </div>
+                        </body>
+                        </html>
                     `
                 })
             });

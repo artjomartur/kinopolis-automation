@@ -10118,11 +10118,6 @@ function resetAndTestOli() {
                 const params = new URLSearchParams(window.location.search);
                 if (params.get('feedback') === 'true') {
                     setTimeout(() => openFeedback('bl'), 1500);
-                } else if (localStorage.getItem('dev_info_seen') !== 'true') {
-                    setTimeout(() => {
-                        openFeedback('artjom');
-                        localStorage.setItem('dev_info_seen', 'true');
-                    }, 2500);
                 }
             });
         } else {
@@ -10130,11 +10125,6 @@ function resetAndTestOli() {
             const params = new URLSearchParams(window.location.search);
             if (params.get('feedback') === 'true') {
                 setTimeout(() => openFeedback('bl'), 1500);
-            } else if (localStorage.getItem('dev_info_seen') !== 'true') {
-                setTimeout(() => {
-                    openFeedback('artjom');
-                    localStorage.setItem('dev_info_seen', 'true');
-                }, 2500);
             }
         }
         
@@ -11461,61 +11451,6 @@ function resetAndTestOli() {
     
 
 <!-- Forced Feedback Modal -->
-<div class="modal" id="forced-feedback-modal" style="z-index: 10001; background: rgba(0,0,0,0.5); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
-    <div class="modal-content glass" style="max-width: 420px; padding: 0; overflow: hidden; position: relative; border-radius: 28px; box-shadow: 0 24px 60px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1);">
-        <div style="padding: 2.5rem 2rem; display: flex; flex-direction: column; align-items: center; text-align: center;">
-            <div style="width: 130px; height: 130px; border-radius: 50%; overflow: hidden; border: 4px solid rgba(255,255,255,0.1); margin-bottom: 1rem; box-shadow: 0 12px 25px rgba(0,0,0,0.4); position: relative; z-index: 2;">
-                <!-- Fallback to png if mp4 doesn't exist yet -->
-                <video id="oli-lab-vid" src="/assets/Oli/Oli_5.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;" onerror="this.style.display='none'; document.getElementById('oli-lab-img').style.display='block';"></video>
-                <img id="oli-lab-img" src="/assets/Oli/Oli_5.png" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: none;" />
-            </div>
-            
-            <div style="background: transparent; color: white; position: relative; margin-bottom: 1.5rem; width: 100%;">
-                <h2 style="margin-bottom: 0.5rem; font-family: 'Outfit', sans-serif; font-size: 1.6rem; font-weight: 800; color: #fff;">Labor-Check! 🔬</h2>
-                <p style="font-size: 1.1rem; line-height: 1.4; color: #ccc; font-weight: 500;">Wie läuft's im Dashboard? Gibt es etwas, das wir noch verbessern können?</p>
-            </div>
-            
-            <div style="width: 100%; display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1.5rem;">
-                <textarea id="forced-feedback-text" placeholder="Deine ehrliche Meinung..." style="width: 100%; border: 2px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); border-radius: 16px; padding: 1rem; font-size: 1rem; color: #fff; font-family: inherit; resize: none; min-height: 100px; transition: all 0.2s;" onfocus="this.style.border='2px solid #e50914'; this.style.outline='none';" onblur="this.style.border='2px solid rgba(255,255,255,0.1)';"></textarea>
-            </div>
-
-            <div style="width: 100%; display: flex; gap: 1rem;">
-                <button onclick="document.getElementById('forced-feedback-modal').classList.remove('active'); setTimeout(()=>document.getElementById('forced-feedback-modal').style.display='none', 300)" style="flex: 1; padding: 1rem; border-radius: 16px; font-size: 1.1rem; font-weight: 700; color: #fff; background: rgba(255,255,255,0.1); border: none; border-bottom: 4px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.2s; font-family: 'Outfit', sans-serif;">Später</button>
-                <button onclick="submitForcedFeedback()" style="flex: 2; padding: 1rem; border-radius: 16px; font-size: 1.1rem; font-weight: 700; color: white; background: #e50914; border: none; border-bottom: 4px solid #b20710; cursor: pointer; transition: all 0.2s; font-family: 'Outfit', sans-serif;">Feedback senden</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-function submitForcedFeedback() {
-    const text = document.getElementById('forced-feedback-text').value;
-    if(text.trim() === '') {
-        alert('Bitte gib ein Feedback ein!');
-        return;
-    }
-    document.getElementById('forced-feedback-text').value = '';
-    document.getElementById('forced-feedback-modal').classList.remove('active');
-    document.getElementById('forced-feedback-modal').style.display = 'none';
-    if (typeof confetti === 'function') {
-        confetti({ particleCount: 50, spread: 70, origin: { y: 0.6 } });
-    }
-    // Set cookie/storage so we don't annoy them for a while
-    localStorage.setItem('oli_last_feedback', Date.now().toString());
-}
-
-function forceFeedbackCheck() {
-    setTimeout(() => {
-        // ALWAYS show for testing
-        const modal = document.getElementById('forced-feedback-modal');
-        modal.style.display = 'flex';
-        // Need to add .active to trigger CSS transforms for mobile/tablet
-        setTimeout(() => modal.classList.add('active'), 10);
-    }, 2000);
-}
-
-document.addEventListener('DOMContentLoaded', forceFeedbackCheck);
-</script>
 </body>
 
 </html>
