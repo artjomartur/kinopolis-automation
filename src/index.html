@@ -11197,6 +11197,7 @@ function nextOliStep() {
         
         btn.disabled = true;
         btn.innerText = 'Lädt...';
+        setOliMedia(4);
         
         fetch('/api/auth/setup-complete', {
             method: 'POST',

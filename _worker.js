@@ -342,6 +342,65 @@ app.post('/api/auth/setup-complete', async (c) => {
             exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 7)
         }, JWT_SECRET);
 
+        const resendKey = c.env.RESEND_API_KEY;
+        if (resendKey) {
+            await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${resendKey}` },
+                body: JSON.stringify({
+                    from: 'Kinopolis System <hi@artjombecker.com>',
+                    to: user.email.toLowerCase(),
+                    subject: 'Setup abgeschlossen! 🎉',
+                    html: `
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="utf-8">
+                            <style>
+                                body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #0f1014; color: #ffffff; }
+                                .container { max-width: 600px; margin: 0 auto; background-color: #1a1b1f; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
+                                .header { padding: 40px 20px; text-align: center; background: linear-gradient(135deg, #1a1b1f 0%, #0a0a0d 100%); }
+                                .logo { width: 180px; margin-bottom: 20px; }
+                                .content { padding: 40px; text-align: center; }
+                                .hero-text { font-size: 24px; font-weight: 800; color: #ffffff; margin-bottom: 16px; letter-spacing: -0.02em; }
+                                .body-text { color: #94a3b8; line-height: 1.6; font-size: 16px; margin-bottom: 32px; }
+                                .btn { display: inline-block; background: linear-gradient(135deg, #e50914, #ff3d47); color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 14px; font-weight: 800; font-size: 16px; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3); }
+                                .footer { padding: 32px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
+                                .footer-text { color: #475569; font-size: 12px; }
+                            </style>
+                        </head>
+                        <body>
+                            <div style="padding: 20px;">
+                                <div class="container">
+                                    <div class="header">
+                                        <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" alt="Kinopolis" class="logo">
+                                    </div>
+                                    <div class="content">
+                                        <div style="text-align: center; margin-bottom: 24px;">
+                                            <img src="https://kinopolis.artjombecker.com/assets/Oli/Oli_4.png" alt="Oli der Kinobär" style="width: 120px; height: 120px; object-fit: cover; border-radius: 50%; box-shadow: 0 8px 24px rgba(229, 9, 20, 0.2); background: #222;">
+                                        </div>
+                                        <h1 class="hero-text">Dein Account ist startklar, ${user.first_name}! 🚀</h1>
+                                        <p class="body-text">
+                                            Das Setup war erfolgreich! Dein Kinopolis Automation Account ist nun aktiviert und einsatzbereit.<br><br>
+                                            Du kannst dich ab sofort auf dem Dashboard einloggen und direkt loslegen.
+                                        </p>
+                                        <a href="https://kinopolis.artjombecker.com/" class="btn">Zum Dashboard</a>
+                                    </div>
+                                     <div class="footer">
+                                         <p class="footer-text">
+                                             Dies ist eine automatische Systemnachricht.<br>
+                                             © 2026 Kinopolis Automation
+                                         </p>
+                                     </div>
+                                </div>
+                            </div>
+                        </body>
+                        </html>
+                    `
+                })
+            }).catch(e => console.error("Error sending confirmation email:", e));
+        }
+
         return c.json({ 
             success: true, 
             token,
