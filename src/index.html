@@ -11444,7 +11444,7 @@ function resetAndTestOli() {
             </div>
 
             <div style="width: 100%; display: flex; gap: 1rem;">
-                <button onclick="document.getElementById('forced-feedback-modal').style.display='none'" style="flex: 1; padding: 1rem; border-radius: 16px; font-size: 1.1rem; font-weight: 700; color: #999; background: #f0f0f0; border: none; border-bottom: 4px solid #dcdcdc; cursor: pointer; transition: all 0.2s; font-family: 'Outfit', sans-serif;">Später</button>
+                <button onclick="document.getElementById('forced-feedback-modal').classList.remove('active'); setTimeout(()=>document.getElementById('forced-feedback-modal').style.display='none', 300)" style="flex: 1; padding: 1rem; border-radius: 16px; font-size: 1.1rem; font-weight: 700; color: #999; background: #f0f0f0; border: none; border-bottom: 4px solid #dcdcdc; cursor: pointer; transition: all 0.2s; font-family: 'Outfit', sans-serif;">Später</button>
                 <button onclick="submitForcedFeedback()" style="flex: 2; padding: 1rem; border-radius: 16px; font-size: 1.1rem; font-weight: 700; color: white; background: #58cc02; border: none; border-bottom: 4px solid #58a700; cursor: pointer; transition: all 0.2s; font-family: 'Outfit', sans-serif;">Feedback senden</button>
             </div>
         </div>
@@ -11459,6 +11459,7 @@ function submitForcedFeedback() {
         return;
     }
     document.getElementById('forced-feedback-text').value = '';
+    document.getElementById('forced-feedback-modal').classList.remove('active');
     document.getElementById('forced-feedback-modal').style.display = 'none';
     if (typeof confetti === 'function') {
         confetti({ particleCount: 50, spread: 70, origin: { y: 0.6 } });
@@ -11470,7 +11471,10 @@ function submitForcedFeedback() {
 function forceFeedbackCheck() {
     setTimeout(() => {
         // ALWAYS show for testing
-        document.getElementById('forced-feedback-modal').style.display = 'flex';
+        const modal = document.getElementById('forced-feedback-modal');
+        modal.style.display = 'flex';
+        // Need to add .active to trigger CSS transforms for mobile/tablet
+        setTimeout(() => modal.classList.add('active'), 10);
     }, 2000);
 }
 
