@@ -11211,7 +11211,10 @@ function checkOliOnboarding() {
         }
 
         setTimeout(() => {
-            document.getElementById('oli-onboarding-modal').style.display = 'flex';
+            const modal = document.getElementById('oli-onboarding-modal');
+            modal.style.display = 'flex';
+            modal.style.opacity = '1';
+            setTimeout(() => modal.classList.add('active'), 10);
             document.getElementById('oli-step-location-content').style.display = 'none';
             document.getElementById('oli-step-password-content').style.display = 'none';
         }, 500);
