@@ -5381,133 +5381,6 @@ function resetAndTestOli() {
             }, 50);
         })();
 
-        window.openInteractiveHallMap = function(hallName, movieTitle, sold, capacity, time) {
-            const modal = document.getElementById('hall-map-modal');
-            if (!modal) return;
-
-            document.getElementById('hall-map-title').innerText = hallName;
-            document.getElementById('hall-map-movie').innerText = movieTitle;
-            document.getElementById('hall-map-time').innerText = `Uhrzeit: ${time} · Live-Sitzbelegung`;
-            document.getElementById('hall-map-stats').innerText = `Belegt: ${sold} / ${capacity} (${Math.round((sold/capacity)*100)}%)`;
-
-            const gridContainer = document.getElementById('hall-map-seats-grid');
-            gridContainer.innerHTML = '';
-
-            // Calculate layout size dynamically based on capacity
-            let rows = 10;
-            if (capacity < 60) rows = 6;
-            else if (capacity < 120) rows = 8;
-            else if (capacity > 250) rows = 12;
-
-            const cols = Math.ceil(capacity / rows);
-
-            // Create array of seat positions
-            const seats = [];
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    // Back-middle seats get a higher weight score (people buy these first)
-                    const rowFactor = (r + 1) / rows; // 0.1 to 1.0 (back rows are near rows-1)
-                    const colFactor = 1 - Math.abs(c - (cols - 1) / 2) / (cols / 2); // 0.0 to 1.0 (center cols is 1.0)
-                    
-                    const score = rowFactor * 0.65 + colFactor * 0.35;
-                    
-                    seats.push({
-                        row: r,
-                        col: c,
-                        score: score,
-                        status: 'free'
-                    });
-                }
-            }
-
-            // Sort by score descending to mark best seats as occupied first
-            seats.sort((a, b) => b.score - a.score);
-
-            // Block a small fraction of seats (e.g. 3%)
-            const blockedCount = Math.round(capacity * 0.03);
-            for (let i = 0; i < blockedCount && i < seats.length; i++) {
-                seats[seats.length - 1 - i].status = 'blocked';
-            }
-
-            // Assign sold tickets
-            let soldAssigned = 0;
-            for (let i = 0; i < seats.length; i++) {
-                if (seats[i].status === 'free' && soldAssigned < sold) {
-                    seats[i].status = 'sold';
-                    soldAssigned++;
-                }
-            }
-
-            // Group back by row index and sort columns to render
-            const rowsMap = {};
-            seats.forEach(s => {
-                if (!rowsMap[s.row]) rowsMap[s.row] = [];
-                rowsMap[s.row].push(s);
-            });
-
-            Object.keys(rowsMap).sort((a, b) => a - b).forEach(r => {
-                const rowDiv = document.createElement('div');
-                rowDiv.style.display = 'flex';
-                rowDiv.style.gap = '6px';
-                rowDiv.style.alignItems = 'center';
-
-                // Left row letter
-                const rowLabel = document.createElement('span');
-                rowLabel.innerText = String.fromCharCode(65 + parseInt(r));
-                rowLabel.style.fontSize = '0.75rem';
-                rowLabel.style.color = 'var(--text-muted)';
-                rowLabel.style.width = '16px';
-                rowLabel.style.textAlign = 'right';
-                rowLabel.style.marginRight = '8px';
-                rowDiv.appendChild(rowLabel);
-
-                // Row seats
-                rowsMap[r].sort((a, b) => a.col - b.col).forEach(s => {
-                    const seatDot = document.createElement('div');
-                    seatDot.style.width = '14px';
-                    seatDot.style.height = '14px';
-                    seatDot.style.borderRadius = '4px';
-                    seatDot.style.transition = 'all 0.2s ease';
-                    
-                    if (s.status === 'sold') {
-                        seatDot.style.background = '#e74c3c';
-                        seatDot.style.boxShadow = '0 0 4px rgba(231, 76, 60, 0.4)';
-                    } else if (s.status === 'blocked') {
-                        seatDot.style.background = 'rgba(255,255,255,0.15)';
-                    } else {
-                        seatDot.style.background = '#e50914';
-                        seatDot.style.boxShadow = '0 0 4px rgba(229, 9, 20, 0.3)';
-                    }
-
-                    seatDot.onmouseover = () => {
-                        seatDot.style.transform = 'scale(1.25)';
-                        seatDot.style.zIndex = '10';
-                    };
-                    seatDot.onmouseout = () => {
-                        seatDot.style.transform = 'none';
-                    };
-
-                    seatDot.title = `Reihe ${String.fromCharCode(65 + s.row)}, Sitz ${s.col + 1} (${s.status === 'sold' ? 'Belegt' : (s.status === 'blocked' ? 'Gesperrt' : 'Frei')})`;
-                    rowDiv.appendChild(seatDot);
-                });
-
-                // Right row letter
-                const rowLabelRight = rowLabel.cloneNode(true);
-                rowLabelRight.style.marginLeft = '8px';
-                rowLabelRight.style.marginRight = '0';
-                rowLabelRight.style.textAlign = 'left';
-                rowDiv.appendChild(rowLabelRight);
-
-                gridContainer.appendChild(rowDiv);
-            });
-
-            modal.classList.add('active');
-        };
-
-        window.closeHallMapModal = function() {
-            const modal = document.getElementById('hall-map-modal');
-            if (modal) modal.classList.remove('active');
-        };
 
         // Initial UI Update
         document.addEventListener('DOMContentLoaded', updateXPUI);
@@ -8603,9 +8476,9 @@ function resetAndTestOli() {
                                     ${s.date ? `<span class="session-date-badge">${s.date}</span>` : ''}
                                 </div>
                                 <div class="countdown-timer" data-start="${startMin}" data-end="${endMin}"></div>
-                                <div class="occupancy-wrapper" onclick="window.openInteractiveHallMap('${escapedHall}', '${escapedTitle}', ${s.sold}, ${s.capacity}, '${s.time}')" style="cursor: pointer;" title="Klicken für Saalplan">
+                                <div class="occupancy-wrapper">
                                     <div class="occupancy-header">
-                                        <span>Auslastung 🪑 (Saalplan)</span>
+                                        <span>Auslastung 🪑</span>
                                         <span class="occupancy-val">${s.sold} / ${s.capacity}</span>
                                     </div>
                                     <div class="occupancy-track">
@@ -10694,51 +10567,7 @@ function resetAndTestOli() {
         // Failsafe: if content is added dynamically, re-init after 2 seconds
         setTimeout(initReveals, 2000);
     </script>
-    <!-- Hall Seat Map Modal -->
-    <div class="modal" id="hall-map-modal">
-        <div class="modal-content glass" style="max-width: 600px; width: 95%; padding: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
-                <div>
-                    <h2 class="modal-title" id="hall-map-title">Saal 1</h2>
-                    <p id="hall-map-movie" style="color: var(--primary-blue); font-size: 0.95rem; font-weight: 700; margin-top: 0.25rem;">Film-Titel</p>
-                    <p id="hall-map-time" style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.1rem;">Schichtzeit: 14:00 Uhr</p>
-                </div>
-                <button onclick="closeHallMapModal()" class="btn-primary" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.8rem; border-radius: 8px; font-size: 0.85rem;">Schließen</button>
-            </div>
-            
-            <!-- Screen indicator -->
-            <div style="text-align: center; margin-bottom: 2rem;">
-                <div style="width: 80%; height: 6px; background: linear-gradient(to right, transparent, rgba(255,255,255,0.3) 20%, rgba(255,255,255,0.3) 80%, transparent); margin: 0 auto 0.5rem; border-radius: 3px; box-shadow: 0 -4px 10px rgba(255,255,255,0.1);"></div>
-                <span style="font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.2em; text-transform: uppercase;">LEINWAND</span>
-            </div>
 
-            <!-- Seat grid -->
-            <div id="hall-map-seats-grid" style="display: flex; flex-direction: column; gap: 6px; align-items: center; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.04); overflow-x: auto; max-height: 350px;">
-                 <!-- Dynamic rows of seats -->
-            </div>
-
-            <!-- Legend & Stats -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1rem;">
-                <div style="display: flex; gap: 1rem; font-size: 0.75rem;">
-                    <div style="display: flex; align-items: center; gap: 0.35rem;">
-                        <div style="width: 12px; height: 12px; border-radius: 3px; background: #e50914;"></div>
-                        <span>Frei</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 0.35rem;">
-                        <div style="width: 12px; height: 12px; border-radius: 3px; background: #e74c3c;"></div>
-                        <span>Belegt</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 0.35rem;">
-                        <div style="width: 12px; height: 12px; border-radius: 3px; background: rgba(255,255,255,0.15);"></div>
-                        <span>Gesperrt</span>
-                    </div>
-                </div>
-                <div id="hall-map-stats" style="font-size: 0.85rem; font-weight: 700; color: #fff;">
-                     Belegt: 0 / 0 (0%)
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div id="help-floating-btn" onclick="openHelpModal()" style="position: fixed; right: 1.5rem; bottom: 6.5rem; z-index: 9999; width: 56px; height: 56px; border-radius: 28px; background: var(--primary-red); color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 25px rgba(229, 9, 20, 0.4); border: 2px solid rgba(255,255,255,0.2); cursor: pointer; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
         <span style="font-size: 1.5rem;">🆘</span>
@@ -10783,10 +10612,22 @@ function resetAndTestOli() {
                     <div style="position: relative;">
                         <select id="oli-kino-select" style="width: 100%; padding: 1.2rem; border-radius: 16px; border: 2px solid rgba(255,255,255,0.1); border-bottom: 6px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.8); color: white; font-weight: 800; font-size: 1.15rem; outline: none; cursor: pointer; appearance: none;">
                             <option value="">Bitte Kino wählen...</option>
+                            <option value="ab">Aschaffenburg: KINOPOLIS</option>
+                            <option value="bh">Bad Homburg: KINOPOLIS</option>
+                            <option value="bn">Bonn / Bad Godesberg: KINOPOLIS</option>
                             <option value="kp">Darmstadt: KINOPOLIS</option>
                             <option value="cd">Darmstadt: Citydome</option>
                             <option value="rx">Darmstadt: Rex</option>
-                            <option value="su">Sulzbach: KINOPOLIS</option>
+                            <option value="fg">Freiberg: KINOPOLIS</option>
+                            <option value="gi">Gießen: KINOPOLIS</option>
+                            <option value="hu">Hanau: KINOPOLIS</option>
+                            <option value="ko">Koblenz: KINOPOLIS</option>
+                            <option value="la">Landshut: KINOPOLIS</option>
+                            <option value="su">Main-Taunus (Sulzbach): KINOPOLIS</option>
+                            <option value="ma">München: Mathäser Filmpalast</option>
+                            <option value="gp">München: Gloria Palast</option>
+                            <option value="ro">Rosenheim: Citydome</option>
+                            <option value="vi">Viernheim: KINOPOLIS</option>
                         </select>
                         <div style="position: absolute; right: 1.2rem; top: 50%; transform: translateY(-70%); pointer-events: none; font-size: 1.2rem; color: #fff;">▼</div>
                     </div>
@@ -11369,6 +11210,10 @@ function nextOliStep() {
             if (data.success && data.token) {
                 progress.style.width = '100%';
                 localStorage.setItem('kp_auth_token', data.token);
+                localStorage.setItem('kp_user', JSON.stringify(data.user));
+                if (data.user && data.user.location) {
+                    localStorage.setItem('current_city', data.user.location);
+                }
                 if (window.AUTH) {
                     window.AUTH.token = data.token;
                     window.AUTH.user = data.user;
@@ -11454,10 +11299,7 @@ function resetAndTestOli() {
 }
 </script>
 
-    <button id="debug-onboarding-btn" onclick="resetAndTestOli();" style="position: fixed; bottom: 20px; left: 20px; z-index: 10000; background: var(--primary-red); color: white; border: none; border-radius: 50px; padding: 10px 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(226,28,43,0.3);">
-        🐻 Onboarding Testen
-    </button>
-    
+
 
 <!-- Forced Feedback Modal -->
 </body>

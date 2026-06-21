@@ -277,6 +277,9 @@ app.post('/api/auth/setup-link', async (c) => {
                                         <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png" alt="Kinopolis" class="logo">
                                     </div>
                                     <div class="content">
+                                        <div style="text-align: center; margin-bottom: 24px;">
+                                            <img src="https://kinopolis.artjombecker.com/assets/Oli/Oli_1.png" alt="Oli der Kinobär" style="width: 120px; height: 120px; object-fit: cover; border-radius: 50%; box-shadow: 0 8px 24px rgba(229, 9, 20, 0.2); background: #222;">
+                                        </div>
                                         <h1 class="hero-text">Hallo ${first_name}!</h1>
                                         <p class="body-text">
                                             Willkommen beim <strong>Kinopolis Automation Dashboard</strong>.<br><br>
