@@ -10817,19 +10817,25 @@ function resetAndTestOli() {
 
 <!-- AI Chat Assistant -->
 <div id="ai-chat-fab" style="position: fixed; bottom: 20px; right: 20px; width: 64px; height: 64px; border-radius: 50%; background: #1a1b1f; box-shadow: 0 10px 25px rgba(229, 9, 20, 0.4); display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 9999; transition: transform 0.3s; overflow: hidden; border: 2px solid var(--primary-red);" onclick="document.getElementById('ai-chat-modal').style.display='flex'">
-<img src="/assets/Oli/Oli_1.png" style="width: 80%; height: 80%; object-fit: contain; animation: duoBounce 3s infinite ease-in-out; flex-shrink: 0; transform: translateY(5px);" />
+<img src="/assets/Oli/Oli_6.png" style="width: 80%; height: 80%; object-fit: contain; animation: duoBounce 3s infinite ease-in-out; flex-shrink: 0; transform: translateY(5px);" />
 </div>
 
-<div id="ai-chat-modal" style="display: none; position: fixed; bottom: 90px; right: 20px; width: 350px; height: 450px; background: var(--surface); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--shadow-premium); z-index: 9998; flex-direction: column; overflow: hidden;">
+<div id="ai-chat-modal" style="display: none; position: fixed; bottom: 90px; right: 20px; width: 350px; height: 550px; background: var(--surface); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--shadow-premium); z-index: 9998; flex-direction: column; overflow: hidden;">
     <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center;">
         <h3 style="margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
             <div style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--primary-red); background: #1a1b1f; display: flex; justify-content: center; align-items: center; overflow: hidden;">
-                <img src="/assets/Oli/Oli_1.png" style="width: 80%; height: 80%; object-fit: contain; animation: duoBounce 3s infinite ease-in-out; transform: translateY(3px);" />
+                <img src="/assets/Oli/Oli_6.png" style="width: 80%; height: 80%; object-fit: contain; animation: duoBounce 3s infinite ease-in-out; transform: translateY(3px);" />
             </div>
             OLI (KI-Assist)
         </h3>
         <button onclick="document.getElementById('ai-chat-modal').style.display='none'" style="background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem;">&times;</button>
     </div>
+    
+    <!-- OLI 6 Video Header inside Chat -->
+    <div style="height: 140px; background: #1a1b1f; overflow: hidden; display: flex; justify-content: center; align-items: center; border-bottom: 2px solid var(--primary-red);">
+        <video src="/assets/Oli/Oli_6.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+    </div>
+
     <div id="ai-chat-messages" style="flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem;">
         <div style="background: rgba(0, 122, 255, 0.1); border: 1px solid rgba(0, 122, 255, 0.2); padding: 0.75rem; border-radius: 12px; align-self: flex-start; max-width: 85%;">
             Bärenstarkes Hallo! 🐻 Ich bin OLI, dein Kino-Assistent. Wie kann ich dir heute helfen?
