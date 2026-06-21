@@ -226,10 +226,10 @@ app.post('/api/auth/setup-link', async (c) => {
         
         let setupToken;
         if (!user) {
-            // Create user without password
+            // Create user without password (using placeholder to satisfy NOT NULL constraint if present)
             const result = await c.env.DB.prepare(
-                'INSERT INTO users (email, first_name, last_name, location, role) VALUES (?, ?, ?, ?, ?)'
-            ).bind(email.toLowerCase(), first_name, last_name, 'kp', 'user').run();
+                'INSERT INTO users (email, first_name, last_name, location, role, password_hash) VALUES (?, ?, ?, ?, ?, ?)'
+            ).bind(email.toLowerCase(), first_name, last_name, 'kp', 'user', 'PENDING_SETUP').run();
             setupToken = await sign({ email: email.toLowerCase(), first_name, last_name, is_new: true, exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) }, JWT_SECRET);
             
             // Save setup token
