@@ -11411,8 +11411,14 @@ function nextOliStep() {
 
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const setupToken = urlParams.get('setup_token');
         const loginForm = document.getElementById('login-form');
-        if (loginForm && loginForm.style.display === 'none') {
+        
+        if (setupToken) {
+            if (loginForm) loginForm.style.display = 'none';
+            checkOliOnboarding();
+        } else if (loginForm && loginForm.style.display === 'none') {
             checkOliOnboarding();
         }
     }, 500);
