@@ -72,9 +72,10 @@ CREATE TABLE IF NOT EXISTS users (
     last_name TEXT NOT NULL,
     location TEXT NOT NULL,
     employee_number TEXT,
-    password_hash TEXT NOT NULL,
+    password_hash TEXT,
     role TEXT DEFAULT 'user',
     xp INTEGER DEFAULT 0,
+    setup_token TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

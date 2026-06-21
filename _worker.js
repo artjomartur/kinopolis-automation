@@ -211,6 +211,113 @@ app.post('/api/auth/register', async (c) => {
     }
 });
 
+// --- PASSWORDLESS SETUP / INVITE FLOW ---
+app.post('/api/auth/setup-link', async (c) => {
+    try {
+        const { email, first_name, last_name } = await c.req.json();
+        if (!email || !first_name || !last_name) {
+            return c.json({ error: 'Name und E-Mail erforderlich' }, 400);
+        }
+
+        if (!c.env.DB) return c.json({ error: 'Datenbank nicht verfügbar' }, 500);
+
+        // Check if user already exists
+        let user = await c.env.DB.prepare('SELECT id, password_hash FROM users WHERE email = ?').bind(email.toLowerCase()).first();
+        
+        let setupToken;
+        if (!user) {
+            // Create user without password
+            const result = await c.env.DB.prepare(
+                'INSERT INTO users (email, first_name, last_name, location, role) VALUES (?, ?, ?, ?, ?)'
+            ).bind(email.toLowerCase(), first_name, last_name, 'kp', 'user').run();
+            setupToken = await sign({ email: email.toLowerCase(), first_name, last_name, is_new: true, exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) }, JWT_SECRET);
+            
+            // Save setup token
+            await c.env.DB.prepare('UPDATE users SET setup_token = ? WHERE email = ?').bind(setupToken, email.toLowerCase()).run();
+        } else {
+            // Update setup token for existing user
+            setupToken = await sign({ email: email.toLowerCase(), first_name: user.first_name, last_name: user.last_name, is_new: false, exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) }, JWT_SECRET);
+            await c.env.DB.prepare('UPDATE users SET setup_token = ? WHERE id = ?').bind(setupToken, user.id).run();
+        }
+
+        // Send Email
+        const resendKey = c.env.RESEND_API_KEY;
+        const setupLink = \`https://kinopolis.artjombecker.com/?setup_token=\${setupToken}\`;
+        
+        if (resendKey) {
+            const s = getEmailStyles('dark'); // Default to dark for emails
+            await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': \`Bearer \${resendKey}\` },
+                body: JSON.stringify({
+                    from: 'Kinopolis System <hi@artjombecker.com>',
+                    to: email.toLowerCase(),
+                    subject: 'Dein Kinopolis Setup-Link',
+                    html: \`
+                        <div style="font-family:sans-serif; background:#1a1b1f; color:#fff; padding: 40px; text-align: center;">
+                            <h1 style="color:#e50914;">Hallo \${first_name}!</h1>
+                            <p>Klicke auf den folgenden Link, um dich einzuloggen und dein Setup abzuschließen:</p>
+                            <a href="\${setupLink}" style="display:inline-block; margin-top:20px; background:#e50914; color:#fff; padding:15px 30px; text-decoration:none; border-radius:12px; font-weight:bold;">Zum Setup</a>
+                        </div>
+                    \`
+                })
+            });
+        }
+
+        return c.json({ success: true, message: 'Link gesendet' });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+app.post('/api/auth/setup-complete', async (c) => {
+    try {
+        const { setup_token, location, password } = await c.req.json();
+        if (!setup_token || !location || !password) return c.json({ error: 'Fehlende Daten' }, 400);
+
+        let payload;
+        try {
+            payload = await verify(setup_token, JWT_SECRET, 'HS256');
+        } catch (err) {
+            return c.json({ error: 'Der Setup-Link ist ungültig oder abgelaufen.' }, 401);
+        }
+
+        const email = payload.email;
+        const user = await c.env.DB.prepare('SELECT * FROM users WHERE email = ? AND setup_token = ?').bind(email, setup_token).first();
+        
+        if (!user) return c.json({ error: 'Nutzer nicht gefunden oder Link bereits genutzt.' }, 404);
+
+        const password_hash = await hashPassword(password);
+        
+        await c.env.DB.prepare(
+            'UPDATE users SET location = ?, password_hash = ?, setup_token = NULL WHERE id = ?'
+        ).bind(location, password_hash, user.id).run();
+
+        // Generate standard auth token
+        const token = await sign({
+            id: user.id,
+            email: user.email,
+            name: \`\${user.first_name} \${user.last_name}\`,
+            location: location,
+            role: user.role,
+            exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 7)
+        }, JWT_SECRET);
+
+        return c.json({ 
+            success: true, 
+            token,
+            user: {
+                name: \`\${user.first_name} \${user.last_name}\`,
+                email: user.email,
+                location: location,
+                role: user.role
+            }
+        });
+    } catch (e) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
 app.post('/api/auth/login', async (c) => {
     try {
         const { email, password } = await c.req.json();

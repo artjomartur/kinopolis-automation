@@ -516,7 +516,21 @@ app.post('/api/chat', (req, res) => {
 });
 
 app.post('/api/feedback', (req, res) => res.json({ success: true }));
-app.post('/api/auth/login', (req, res) => res.json({ token: 'mock-token', user: { email: 'admin@kinopolis.de', name: 'Local Admin' } }));
+app.post('/api/auth/login', (req, res) => res.json({ token: 'mock-token', user: { email: 'admin@kinopolis.de', name: 'Local Admin', role: 'admin' } }));
+
+app.post('/api/auth/setup-link', (req, res) => {
+    console.log(`[LOCAL DEV] Magic link requested for ${req.body.email}`);
+    res.json({ success: true, message: 'Mock Link gesendet' });
+});
+
+app.post('/api/auth/setup-complete', (req, res) => {
+    console.log(`[LOCAL DEV] Setup completed for token ${req.body.setup_token} at ${req.body.location}`);
+    res.json({
+        success: true,
+        token: 'mock-setup-token',
+        user: { name: 'Local Tester', email: 'test@kinopolis.de', location: req.body.location, role: 'user' }
+    });
+});
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);

@@ -91,24 +91,12 @@ const AUTH = {
                                 <input type="text" id="reg-lastname" class="glass-input" placeholder="Mustermann" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;">
                             </div>
                         </div>
-                        <div style="margin-bottom: 1rem;">
+                        <div style="margin-bottom: 1.5rem;">
                             <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.4rem;">E-MAIL</label>
                             <input type="email" id="reg-email" class="glass-input" placeholder="email@beispiel.de" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;">
                         </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.4rem;">STANDORT</label>
-                            <select id="reg-location" class="glass-input" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;">
-                                <option value="kp">Darmstadt: KINOPOLIS</option>
-                                <option value="cd">Darmstadt: Citydome</option>
-                                <option value="rx">Darmstadt: Rex</option>
-                            </select>
-                        </div>
-                        <div style="margin-bottom: 1.5rem;">
-                            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.4rem;">PASSWORT</label>
-                            <input type="password" id="reg-password" class="glass-input" placeholder="Sicheres Passwort" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;">
-                        </div>
                         
-                        <button id="reg-btn" class="btn-primary" style="width: 100%; padding: 1rem; border-radius: 12px; font-weight: 800;">Konto erstellen</button>
+                        <button id="reg-btn" class="btn-primary" style="width: 100%; padding: 1rem; border-radius: 12px; font-weight: 800;">Setup-Link anfordern</button>
                         <button id="show-login-btn" style="width: 100%; background: none; border: none; color: var(--text-muted); margin-top: 1rem; cursor: pointer;">Zurück zum Login</button>
                     </div>
                 </div>
@@ -203,26 +191,38 @@ const AUTH = {
         const email = document.getElementById('reg-email').value;
         const firstName = document.getElementById('reg-firstname').value;
         const lastName = document.getElementById('reg-lastname').value;
-        const location = document.getElementById('reg-location').value;
-        const password = document.getElementById('reg-password').value;
         const btn = document.getElementById('reg-btn');
         const errorEl = document.getElementById('auth-error-msg');
         
         if (errorEl) errorEl.style.display = 'none';
-        if (!email || !password || !firstName || !lastName) return this.showError('Bitte alle Pflichtfelder ausfüllen');
+        if (!email || !firstName || !lastName) return this.showError('Bitte Name und E-Mail ausfüllen');
         
         btn.disabled = true;
-        btn.innerText = 'Wird erstellt...';
+        btn.innerText = 'Link wird gesendet...';
         
-        const res = await this.register(email, firstName, lastName, location, '', password);
+        const res = await this.register(email, firstName, lastName);
         if (res.success) {
-            alert('Konto erfolgreich erstellt! Du kannst dich jetzt anmelden.');
-            this.showLogin();
+            const content = document.getElementById('auth-modal-content');
+            if (content) {
+                content.innerHTML = `
+                    <div style="text-align:center;padding:1rem;">
+                        <div style="font-size:4rem;margin-bottom:1.5rem;animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);">📧</div>
+                        <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.75rem;">Link gesendet!</h2>
+                        <p style="color:#8E8E93;font-size:0.95rem;line-height:1.5;margin-bottom:2rem;">
+                            Wir haben einen Setup-Link an <strong style="color:white;">${email}</strong> geschickt.<br>
+                            Klicke darauf, um dein Konto fertig einzurichten.
+                        </p>
+                        <button onclick="location.reload()" class="btn-primary" style="width:100%;padding:1rem;border-radius:12px;font-weight:800;cursor:pointer;">
+                            Schließen
+                        </button>
+                    </div>
+                `;
+            }
         } else {
-            this.showError(res.error || 'Registrierung fehlgeschlagen');
+            this.showError(res.error || 'Fehler beim Senden des Links');
         }
         btn.disabled = false;
-        btn.innerText = 'Konto erstellen';
+        btn.innerText = 'Setup-Link anfordern';
     },
 
     showRegister() {
@@ -268,17 +268,17 @@ const AUTH = {
         }
     },
 
-    async register(email, firstName, lastName, location, empNum, password) {
+    async register(email, firstName, lastName) {
         try {
-            const res = await fetch('/api/auth/register', {
+            const res = await fetch('/api/auth/setup-link', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, first_name: firstName, last_name: lastName, location, employee_number: empNum, password })
+                body: JSON.stringify({ email, first_name: firstName, last_name: lastName })
             });
             const data = await res.json();
             return data;
         } catch (e) {
-            return { success: false, error: 'Registrierung fehlgeschlagen' };
+            return { success: false, error: 'Fehler beim Senden des Links' };
         }
     },
 
