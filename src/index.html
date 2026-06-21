@@ -3665,6 +3665,13 @@ function resetAndTestOli() {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+@keyframes oliBreathing {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+</style>
 </head>
 <body class="dark-mode">
 <!-- ULTIMATE SPLASH FAILSAFE -->
@@ -10753,110 +10760,7 @@ function resetAndTestOli() {
         
         <div style="padding: 2.5rem 2rem; display: flex; flex-direction: column; align-items: center; text-align: center;">
             <div id="oli-avatar-container" style="width: 160px; height: 160px; border-radius: 50%; overflow: hidden; border: 4px solid var(--primary-red); margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(255,0,0,0.4); transition: transform 0.3s ease;">
-                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%; display: block;">
-  <defs>
-    <radialGradient id="oli-bg" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#00a8ff" />
-      <stop offset="100%" stop-color="#007aff" />
-    </radialGradient>
-    <linearGradient id="oli-fur" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#D28C4B" />
-      <stop offset="100%" stop-color="#9E5B22" />
-    </linearGradient>
-    <linearGradient id="oli-snout" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFE4B5" />
-      <stop offset="100%" stop-color="#E6C280" />
-    </linearGradient>
-    <linearGradient id="oli-shirt" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FF3B30" />
-      <stop offset="100%" stop-color="#B31208" />
-    </linearGradient>
-    <filter id="oli-shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#000" flood-opacity="0.25"/>
-    </filter>
-
-    <style>
-      @keyframes oli-blink {
-        0%, 94%, 98% { transform: scaleY(1); }
-        96% { transform: scaleY(0.1); }
-      }
-      @keyframes oli-ear-l {
-        0%, 100% { transform: rotate(0deg); }
-        50% { transform: rotate(-10deg); }
-      }
-      @keyframes oli-ear-r {
-        0%, 100% { transform: rotate(0deg); }
-        50% { transform: rotate(10deg); }
-      }
-      @keyframes oli-wave {
-        0%, 100% { transform: rotate(0deg); }
-        25% { transform: rotate(-25deg); }
-        75% { transform: rotate(15deg); }
-      }
-      .oli-eye { animation: oli-blink 5s infinite; }
-      .oli-ear-left { transform-origin: 30% 30%; animation: oli-ear-l 4s infinite ease-in-out; }
-      .oli-ear-right { transform-origin: 70% 30%; animation: oli-ear-r 4s infinite ease-in-out 0.5s; }
-      .oli-paw { transform-origin: 165px 180px; animation: oli-wave 2s infinite ease-in-out; }
-    </style>
-  </defs>
-  
-  <circle cx="100" cy="100" r="100" fill="url(#oli-bg)" />
-  
-  <!-- Shirt -->
-  <path d="M 20 200 Q 100 120 180 200 Z" fill="url(#oli-shirt)" filter="url(#oli-shadow)" />
-  
-  <!-- Left Ear -->
-  <g class="oli-ear-left">
-    <circle cx="45" cy="65" r="22" fill="url(#oli-fur)" filter="url(#oli-shadow)" />
-    <circle cx="45" cy="65" r="12" fill="#E6C280" />
-  </g>
-  
-  <!-- Right Ear -->
-  <g class="oli-ear-right">
-    <circle cx="155" cy="65" r="22" fill="url(#oli-fur)" filter="url(#oli-shadow)" />
-    <circle cx="155" cy="65" r="12" fill="#E6C280" />
-  </g>
-  
-  <!-- Head -->
-  <circle cx="100" cy="105" r="60" fill="url(#oli-fur)" filter="url(#oli-shadow)" />
-  
-  <!-- Snout -->
-  <ellipse cx="100" cy="135" rx="35" ry="24" fill="url(#oli-snout)" filter="url(#oli-shadow)" />
-  
-  <!-- Nose -->
-  <ellipse cx="100" cy="120" rx="14" ry="9" fill="#2C1A14" />
-  <ellipse cx="95" cy="116" rx="4" ry="2" fill="#FFFFFF" opacity="0.5" />
-  
-  <!-- Mouth -->
-  <path d="M 100 129 L 100 142" stroke="#2C1A14" stroke-width="3" stroke-linecap="round" />
-  <path d="M 82 142 Q 100 156 118 142" stroke="#2C1A14" stroke-width="3" fill="none" stroke-linecap="round" />
-  
-  <!-- Eyes -->
-  <g class="oli-eye" style="transform-origin: 70px 95px;">
-    <circle cx="70" cy="95" r="8" fill="#2C1A14" />
-    <circle cx="67" cy="92" r="3" fill="#FFFFFF" />
-  </g>
-  <g class="oli-eye" style="transform-origin: 130px 95px;">
-    <circle cx="130" cy="95" r="8" fill="#2C1A14" />
-    <circle cx="127" cy="92" r="3" fill="#FFFFFF" />
-  </g>
-  
-  <!-- Cheeks -->
-  <ellipse cx="55" cy="115" rx="10" ry="5" fill="#FF3B30" opacity="0.3" />
-  <ellipse cx="145" cy="115" rx="10" ry="5" fill="#FF3B30" opacity="0.3" />
-
-  <!-- Waving Paw -->
-  <g class="oli-paw">
-    <g transform="rotate(-15 165 180)">
-      <rect x="145" y="110" width="36" height="80" rx="18" fill="url(#oli-fur)" filter="url(#oli-shadow)" />
-      <!-- Paw pads -->
-      <ellipse cx="163" cy="128" rx="10" ry="12" fill="#E6C280" />
-      <circle cx="151" cy="116" r="4" fill="#E6C280" />
-      <circle cx="163" cy="110" r="4" fill="#E6C280" />
-      <circle cx="175" cy="116" r="4" fill="#E6C280" />
-    </g>
-  </g>
-</svg>
+                <img src="https://trailer.kinopolis.de/media/img/kinobaer_desktop.jpg" style="width: 100%; height: 100%; object-fit: cover; object-position: center; animation: oliBreathing 3s ease-in-out infinite;" />
             </div>
             
             <div style="background: white; color: black; padding: 1.5rem; border-radius: 20px; position: relative; margin-bottom: 2rem; width: 100%; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
@@ -10908,218 +10812,12 @@ function resetAndTestOli() {
 
 <!-- AI Chat Assistant -->
 <div id="ai-chat-fab" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 10px 25px rgba(255, 0, 0, 0.4); display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 9999; transition: transform 0.3s; overflow: hidden; border: 2px solid var(--primary-red);" onclick="document.getElementById('ai-chat-modal').style.display='flex'">
-<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%; display: block;">
-  <defs>
-    <radialGradient id="oli-bg" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#00a8ff" />
-      <stop offset="100%" stop-color="#007aff" />
-    </radialGradient>
-    <linearGradient id="oli-fur" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#D28C4B" />
-      <stop offset="100%" stop-color="#9E5B22" />
-    </linearGradient>
-    <linearGradient id="oli-snout" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFE4B5" />
-      <stop offset="100%" stop-color="#E6C280" />
-    </linearGradient>
-    <linearGradient id="oli-shirt" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FF3B30" />
-      <stop offset="100%" stop-color="#B31208" />
-    </linearGradient>
-    <filter id="oli-shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#000" flood-opacity="0.25"/>
-    </filter>
-
-    <style>
-      @keyframes oli-blink {
-        0%, 94%, 98% { transform: scaleY(1); }
-        96% { transform: scaleY(0.1); }
-      }
-      @keyframes oli-ear-l {
-        0%, 100% { transform: rotate(0deg); }
-        50% { transform: rotate(-10deg); }
-      }
-      @keyframes oli-ear-r {
-        0%, 100% { transform: rotate(0deg); }
-        50% { transform: rotate(10deg); }
-      }
-      @keyframes oli-wave {
-        0%, 100% { transform: rotate(0deg); }
-        25% { transform: rotate(-25deg); }
-        75% { transform: rotate(15deg); }
-      }
-      .oli-eye { animation: oli-blink 5s infinite; }
-      .oli-ear-left { transform-origin: 30% 30%; animation: oli-ear-l 4s infinite ease-in-out; }
-      .oli-ear-right { transform-origin: 70% 30%; animation: oli-ear-r 4s infinite ease-in-out 0.5s; }
-      .oli-paw { transform-origin: 165px 180px; animation: oli-wave 2s infinite ease-in-out; }
-    </style>
-  </defs>
-  
-  <circle cx="100" cy="100" r="100" fill="url(#oli-bg)" />
-  
-  <!-- Shirt -->
-  <path d="M 20 200 Q 100 120 180 200 Z" fill="url(#oli-shirt)" filter="url(#oli-shadow)" />
-  
-  <!-- Left Ear -->
-  <g class="oli-ear-left">
-    <circle cx="45" cy="65" r="22" fill="url(#oli-fur)" filter="url(#oli-shadow)" />
-    <circle cx="45" cy="65" r="12" fill="#E6C280" />
-  </g>
-  
-  <!-- Right Ear -->
-  <g class="oli-ear-right">
-    <circle cx="155" cy="65" r="22" fill="url(#oli-fur)" filter="url(#oli-shadow)" />
-    <circle cx="155" cy="65" r="12" fill="#E6C280" />
-  </g>
-  
-  <!-- Head -->
-  <circle cx="100" cy="105" r="60" fill="url(#oli-fur)" filter="url(#oli-shadow)" />
-  
-  <!-- Snout -->
-  <ellipse cx="100" cy="135" rx="35" ry="24" fill="url(#oli-snout)" filter="url(#oli-shadow)" />
-  
-  <!-- Nose -->
-  <ellipse cx="100" cy="120" rx="14" ry="9" fill="#2C1A14" />
-  <ellipse cx="95" cy="116" rx="4" ry="2" fill="#FFFFFF" opacity="0.5" />
-  
-  <!-- Mouth -->
-  <path d="M 100 129 L 100 142" stroke="#2C1A14" stroke-width="3" stroke-linecap="round" />
-  <path d="M 82 142 Q 100 156 118 142" stroke="#2C1A14" stroke-width="3" fill="none" stroke-linecap="round" />
-  
-  <!-- Eyes -->
-  <g class="oli-eye" style="transform-origin: 70px 95px;">
-    <circle cx="70" cy="95" r="8" fill="#2C1A14" />
-    <circle cx="67" cy="92" r="3" fill="#FFFFFF" />
-  </g>
-  <g class="oli-eye" style="transform-origin: 130px 95px;">
-    <circle cx="130" cy="95" r="8" fill="#2C1A14" />
-    <circle cx="127" cy="92" r="3" fill="#FFFFFF" />
-  </g>
-  
-  <!-- Cheeks -->
-  <ellipse cx="55" cy="115" rx="10" ry="5" fill="#FF3B30" opacity="0.3" />
-  <ellipse cx="145" cy="115" rx="10" ry="5" fill="#FF3B30" opacity="0.3" />
-
-  <!-- Waving Paw -->
-  <g class="oli-paw">
-    <g transform="rotate(-15 165 180)">
-      <rect x="145" y="110" width="36" height="80" rx="18" fill="url(#oli-fur)" filter="url(#oli-shadow)" />
-      <!-- Paw pads -->
-      <ellipse cx="163" cy="128" rx="10" ry="12" fill="#E6C280" />
-      <circle cx="151" cy="116" r="4" fill="#E6C280" />
-      <circle cx="163" cy="110" r="4" fill="#E6C280" />
-      <circle cx="175" cy="116" r="4" fill="#E6C280" />
-    </g>
-  </g>
-</svg>
+<img src="https://trailer.kinopolis.de/media/img/kinobaer_teaser.jpg" style="width: 100%; height: 100%; object-fit: cover; object-position: center top; animation: oliBreathing 3s ease-in-out infinite;" />
 </div>
 
 <div id="ai-chat-modal" style="display: none; position: fixed; bottom: 90px; right: 20px; width: 350px; height: 450px; background: var(--surface); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--shadow-premium); z-index: 9998; flex-direction: column; overflow: hidden;">
     <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--primary-red);">
-  <defs>
-    <radialGradient id="oli-bg" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#00a8ff" />
-      <stop offset="100%" stop-color="#007aff" />
-    </radialGradient>
-    <linearGradient id="oli-fur" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#D28C4B" />
-      <stop offset="100%" stop-color="#9E5B22" />
-    </linearGradient>
-    <linearGradient id="oli-snout" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFE4B5" />
-      <stop offset="100%" stop-color="#E6C280" />
-    </linearGradient>
-    <linearGradient id="oli-shirt" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FF3B30" />
-      <stop offset="100%" stop-color="#B31208" />
-    </linearGradient>
-    <filter id="oli-shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#000" flood-opacity="0.25"/>
-    </filter>
-
-    <style>
-      @keyframes oli-blink {
-        0%, 94%, 98% { transform: scaleY(1); }
-        96% { transform: scaleY(0.1); }
-      }
-      @keyframes oli-ear-l {
-        0%, 100% { transform: rotate(0deg); }
-        50% { transform: rotate(-10deg); }
-      }
-      @keyframes oli-ear-r {
-        0%, 100% { transform: rotate(0deg); }
-        50% { transform: rotate(10deg); }
-      }
-      @keyframes oli-wave {
-        0%, 100% { transform: rotate(0deg); }
-        25% { transform: rotate(-25deg); }
-        75% { transform: rotate(15deg); }
-      }
-      .oli-eye { animation: oli-blink 5s infinite; }
-      .oli-ear-left { transform-origin: 30% 30%; animation: oli-ear-l 4s infinite ease-in-out; }
-      .oli-ear-right { transform-origin: 70% 30%; animation: oli-ear-r 4s infinite ease-in-out 0.5s; }
-      .oli-paw { transform-origin: 165px 180px; animation: oli-wave 2s infinite ease-in-out; }
-    </style>
-  </defs>
-  
-  <circle cx="100" cy="100" r="100" fill="url(#oli-bg)" />
-  
-  <!-- Shirt -->
-  <path d="M 20 200 Q 100 120 180 200 Z" fill="url(#oli-shirt)" filter="url(#oli-shadow)" />
-  
-  <!-- Left Ear -->
-  <g class="oli-ear-left">
-    <circle cx="45" cy="65" r="22" fill="url(#oli-fur)" filter="url(#oli-shadow)" />
-    <circle cx="45" cy="65" r="12" fill="#E6C280" />
-  </g>
-  
-  <!-- Right Ear -->
-  <g class="oli-ear-right">
-    <circle cx="155" cy="65" r="22" fill="url(#oli-fur)" filter="url(#oli-shadow)" />
-    <circle cx="155" cy="65" r="12" fill="#E6C280" />
-  </g>
-  
-  <!-- Head -->
-  <circle cx="100" cy="105" r="60" fill="url(#oli-fur)" filter="url(#oli-shadow)" />
-  
-  <!-- Snout -->
-  <ellipse cx="100" cy="135" rx="35" ry="24" fill="url(#oli-snout)" filter="url(#oli-shadow)" />
-  
-  <!-- Nose -->
-  <ellipse cx="100" cy="120" rx="14" ry="9" fill="#2C1A14" />
-  <ellipse cx="95" cy="116" rx="4" ry="2" fill="#FFFFFF" opacity="0.5" />
-  
-  <!-- Mouth -->
-  <path d="M 100 129 L 100 142" stroke="#2C1A14" stroke-width="3" stroke-linecap="round" />
-  <path d="M 82 142 Q 100 156 118 142" stroke="#2C1A14" stroke-width="3" fill="none" stroke-linecap="round" />
-  
-  <!-- Eyes -->
-  <g class="oli-eye" style="transform-origin: 70px 95px;">
-    <circle cx="70" cy="95" r="8" fill="#2C1A14" />
-    <circle cx="67" cy="92" r="3" fill="#FFFFFF" />
-  </g>
-  <g class="oli-eye" style="transform-origin: 130px 95px;">
-    <circle cx="130" cy="95" r="8" fill="#2C1A14" />
-    <circle cx="127" cy="92" r="3" fill="#FFFFFF" />
-  </g>
-  
-  <!-- Cheeks -->
-  <ellipse cx="55" cy="115" rx="10" ry="5" fill="#FF3B30" opacity="0.3" />
-  <ellipse cx="145" cy="115" rx="10" ry="5" fill="#FF3B30" opacity="0.3" />
-
-  <!-- Waving Paw -->
-  <g class="oli-paw">
-    <g transform="rotate(-15 165 180)">
-      <rect x="145" y="110" width="36" height="80" rx="18" fill="url(#oli-fur)" filter="url(#oli-shadow)" />
-      <!-- Paw pads -->
-      <ellipse cx="163" cy="128" rx="10" ry="12" fill="#E6C280" />
-      <circle cx="151" cy="116" r="4" fill="#E6C280" />
-      <circle cx="163" cy="110" r="4" fill="#E6C280" />
-      <circle cx="175" cy="116" r="4" fill="#E6C280" />
-    </g>
-  </g>
-</svg> OLI (KI-Assist)</h3>
+        <h3 style="margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;"><img src="https://trailer.kinopolis.de/media/img/kinobaer_desktop.jpg" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid var(--primary-red); animation: oliBreathing 3s ease-in-out infinite;" /> OLI (KI-Assist)</h3>
         <button onclick="document.getElementById('ai-chat-modal').style.display='none'" style="background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem;">&times;</button>
     </div>
     <div id="ai-chat-messages" style="flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem;">
