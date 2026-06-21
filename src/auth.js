@@ -37,7 +37,10 @@ const AUTH = {
                 console.error('AUTH: Background check failed', e);
             });
         } else {
-            this.showLoginModal();
+            const urlParams = new URLSearchParams(window.location.search);
+            if (!urlParams.get('setup_token')) {
+                this.showLoginModal();
+            }
         }
     },
 
