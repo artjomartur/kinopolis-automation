@@ -11223,28 +11223,28 @@ function animateOli(wobble = false) {
 
 function selectOliRole(role) {
     document.querySelectorAll('#oli-step-role-content .oli-choice-btn').forEach(btn => {
-        btn.style.border = '2px solid #e5e5e5';
-        btn.style.borderBottom = '6px solid #e5e5e5';
-        btn.style.background = 'white';
+        btn.style.border = '2px solid rgba(255,255,255,0.1)';
+        btn.style.borderBottom = '6px solid rgba(255,255,255,0.1)';
+        btn.style.background = 'rgba(255,255,255,0.05)';
         btn.style.transform = 'translateY(0)';
     });
-    event.currentTarget.style.border = '2px solid #84d8ff';
-    event.currentTarget.style.borderBottom = '2px solid #84d8ff';
-    event.currentTarget.style.background = '#ddf4ff';
+    event.currentTarget.style.border = '2px solid #e50914';
+    event.currentTarget.style.borderBottom = '2px solid #e50914';
+    event.currentTarget.style.background = 'rgba(229,9,20,0.2)';
     event.currentTarget.style.transform = 'translateY(4px)';
     
 }
 
 function selectOliGoal(goal) {
     document.querySelectorAll('#oli-step-goal-content .oli-choice-btn').forEach(btn => {
-        btn.style.border = '2px solid #e5e5e5';
-        btn.style.borderBottom = '6px solid #e5e5e5';
-        btn.style.background = 'white';
+        btn.style.border = '2px solid rgba(255,255,255,0.1)';
+        btn.style.borderBottom = '6px solid rgba(255,255,255,0.1)';
+        btn.style.background = 'rgba(255,255,255,0.05)';
         btn.style.transform = 'translateY(0)';
     });
-    event.currentTarget.style.border = '2px solid #84d8ff';
-    event.currentTarget.style.borderBottom = '2px solid #84d8ff';
-    event.currentTarget.style.background = '#ddf4ff';
+    event.currentTarget.style.border = '2px solid #e50914';
+    event.currentTarget.style.borderBottom = '2px solid #e50914';
+    event.currentTarget.style.background = 'rgba(229,9,20,0.2)';
     event.currentTarget.style.transform = 'translateY(4px)';
     
 }
@@ -11253,11 +11253,11 @@ function pushBtn() {
     const btn = document.getElementById('oli-next-btn');
     if (!btn) return;
     btn.style.transform = 'translateY(4px)';
-    btn.style.borderBottom = '2px solid #58a700';
+    btn.style.borderBottom = '2px solid #b20710';
     btn.style.marginBottom = '4px';
     setTimeout(() => {
         btn.style.transform = 'none';
-        btn.style.borderBottom = '6px solid #58a700';
+        btn.style.borderBottom = '6px solid #b20710';
         btn.style.marginBottom = '0';
         }, 150);
 }
@@ -11402,9 +11402,9 @@ function resetAndTestOli() {
     document.getElementById('oli-next-btn').innerText = "Los geht's";
     
     document.querySelectorAll('.oli-choice-btn').forEach(btn => {
-        btn.style.border = '2px solid #e5e5e5';
-        btn.style.borderBottom = '6px solid #e5e5e5';
-        btn.style.background = 'white';
+        btn.style.border = '2px solid rgba(255,255,255,0.1)';
+        btn.style.borderBottom = '6px solid rgba(255,255,255,0.1)';
+        btn.style.background = 'rgba(255,255,255,0.05)';
         btn.style.transform = 'translateY(0)';
     });
     
