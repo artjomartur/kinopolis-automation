@@ -242,24 +242,23 @@ app.post('/api/auth/setup-link', async (c) => {
 
         // Send Email
         const resendKey = c.env.RESEND_API_KEY;
-        const setupLink = \`https://kinopolis.artjombecker.com/?setup_token=\${setupToken}\`;
+        const setupLink = `https://kinopolis.artjombecker.com/?setup_token=${setupToken}`;
         
         if (resendKey) {
-            const s = getEmailStyles('dark'); // Default to dark for emails
             await fetch('https://api.resend.com/emails', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': \`Bearer \${resendKey}\` },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${resendKey}` },
                 body: JSON.stringify({
                     from: 'Kinopolis System <hi@artjombecker.com>',
                     to: email.toLowerCase(),
                     subject: 'Dein Kinopolis Setup-Link',
-                    html: \`
+                    html: `
                         <div style="font-family:sans-serif; background:#1a1b1f; color:#fff; padding: 40px; text-align: center;">
-                            <h1 style="color:#e50914;">Hallo \${first_name}!</h1>
+                            <h1 style="color:#e50914;">Hallo ${first_name}!</h1>
                             <p>Klicke auf den folgenden Link, um dich einzuloggen und dein Setup abzuschließen:</p>
-                            <a href="\${setupLink}" style="display:inline-block; margin-top:20px; background:#e50914; color:#fff; padding:15px 30px; text-decoration:none; border-radius:12px; font-weight:bold;">Zum Setup</a>
+                            <a href="${setupLink}" style="display:inline-block; margin-top:20px; background:#e50914; color:#fff; padding:15px 30px; text-decoration:none; border-radius:12px; font-weight:bold;">Zum Setup</a>
                         </div>
-                    \`
+                    `
                 })
             });
         }
@@ -297,7 +296,7 @@ app.post('/api/auth/setup-complete', async (c) => {
         const token = await sign({
             id: user.id,
             email: user.email,
-            name: \`\${user.first_name} \${user.last_name}\`,
+            name: `${user.first_name} ${user.last_name}`,
             location: location,
             role: user.role,
             exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 7)
@@ -307,7 +306,7 @@ app.post('/api/auth/setup-complete', async (c) => {
             success: true, 
             token,
             user: {
-                name: \`\${user.first_name} \${user.last_name}\`,
+                name: `${user.first_name} ${user.last_name}`,
                 email: user.email,
                 location: location,
                 role: user.role
