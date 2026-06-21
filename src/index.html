@@ -11469,9 +11469,8 @@ function submitForcedFeedback() {
 
 function forceFeedbackCheck() {
     setTimeout(() => {
-        if(localStorage.getItem('oli_onboarding_done') === 'true') {
-            document.getElementById('forced-feedback-modal').style.display = 'flex';
-        }
+        // ALWAYS show for testing
+        document.getElementById('forced-feedback-modal').style.display = 'flex';
     }, 2000);
 }
 
