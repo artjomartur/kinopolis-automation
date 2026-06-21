@@ -24,7 +24,7 @@ function resetAndTestOli() {
     
     // Reset UI
     document.getElementById('oli-progress-bar').style.width = '25%';
-    const avatarImg = document.getElementById('oli-avatar-img');
+    
     if(avatarImg) avatarImg.src = '/assets/Oli_1.png';
     document.getElementById('oli-step-title').innerText = 'Bärenstarkes Hallo! 🐻';
     document.getElementById('oli-step-desc').innerText = 'Ich bin OLI, der Kinobär und dein persönlicher Assistent. Bevor es losgeht, lass uns kurz dein Dashboard einrichten.';
@@ -10772,7 +10772,8 @@ function resetAndTestOli() {
         
         <div style="padding: 1.5rem 2rem 2.5rem 2rem; display: flex; flex-direction: column; align-items: center; text-align: center;">
             <div id="oli-avatar-container" style="width: 130px; height: 130px; border-radius: 50%; overflow: hidden; border: 6px solid #fff; margin-bottom: 1rem; box-shadow: 0 12px 25px rgba(0,0,0,0.1); position: relative; z-index: 2;">
-                <img id="oli-avatar-img" src="/assets/Oli_1.png" style="width: 100%; height: 100%; object-fit: cover; object-position: center; animation: duoBounce 3s infinite ease-in-out;" />
+                <img id="oli-avatar-img" src="/assets/Oli/Oli_1.png" style="width: 100%; height: 100%; object-fit: cover; object-position: center; animation: duoBounce 3s infinite ease-in-out; display: none;" />
+                <video id="oli-avatar-vid" src="/assets/Oli/Oli_1.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; object-position: center; animation: duoBounce 3s infinite ease-in-out; display: block;"></video>
             </div>
             
             <div style="background: #fff; color: #4b4b4b; position: relative; margin-bottom: 1.5rem; width: 100%;">
@@ -11261,6 +11262,33 @@ function pushBtn() {
         }, 150);
 }
 
+function setOliMedia(step) {
+    const img = document.getElementById('oli-avatar-img');
+    const vid = document.getElementById('oli-avatar-vid');
+    if (!img || !vid) return;
+    
+    // Config: which step uses which media type
+    const mediaTypes = {
+        1: 'mp4',
+        2: 'png',
+        3: 'png',
+        4: 'png'
+    };
+    
+    const type = mediaTypes[step] || 'png';
+    
+    if (type === 'mp4') {
+        img.style.display = 'none';
+        vid.style.display = 'block';
+        vid.src = `/assets/Oli/Oli_${step}.mp4`;
+        vid.play();
+    } else {
+        vid.style.display = 'none';
+        img.style.display = 'block';
+        img.src = `/assets/Oli/Oli_${step}.png`;
+    }
+}
+
 function nextOliStep() {
     pushBtn();
     
@@ -11283,7 +11311,7 @@ function nextOliStep() {
         roleContent.style.display = 'flex';
         goalContent.style.display = 'none';
         locContent.style.display = 'none';
-        if (avatarImg) avatarImg.src = '/assets/Oli_2.png';
+        setOliMedia(2);
         animateOli();
     } 
     else if (oliStep === 3) {
@@ -11293,7 +11321,7 @@ function nextOliStep() {
         roleContent.style.display = 'none';
         goalContent.style.display = 'flex';
         locContent.style.display = 'none';
-        if (avatarImg) avatarImg.src = '/assets/Oli_3.png';
+        setOliMedia(3);
         animateOli();
     }
     else if (oliStep === 4) {
@@ -11304,7 +11332,7 @@ function nextOliStep() {
         goalContent.style.display = 'none';
         locContent.style.display = 'block';
         btn.innerText = 'Los geht\'s!';
-        if (avatarImg) avatarImg.src = '/assets/Oli_4.png';
+        setOliMedia(4);
         animateOli();
     }
     else if (oliStep > 4) {
