@@ -1583,6 +1583,11 @@ app.get('/api/lostfound', async (c) => {
             )
         `).run();
         
+        // Self-healing migration for existing databases missing image_url column
+        try {
+            await c.env.DB.prepare('ALTER TABLE lost_found ADD COLUMN image_url TEXT').run();
+        } catch (_) {}
+        
         const { results } = await c.env.DB.prepare(
             'SELECT * FROM lost_found WHERE location = ? ORDER BY created_at DESC'
         ).bind(location).all();
@@ -1608,6 +1613,11 @@ app.post('/api/lostfound', async (c) => {
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `).run();
+
+        // Self-healing migration for existing databases missing image_url column
+        try {
+            await c.env.DB.prepare('ALTER TABLE lost_found ADD COLUMN image_url TEXT').run();
+        } catch (_) {}
 
         const { location, what, category, found_where, found_by, image_url } = await c.req.json();
         if (!location || !what || !category || !found_where || !found_by) {

@@ -53,87 +53,8 @@ function resetAndTestOli() {
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&amp;family=Outfit:wght@500;700&amp;display=swap" rel="stylesheet"/>
 <script>
-        // --- PROFESSIONAL CINEMATIC JINGLE (High-End Texture) ---
-        window.playStartupSound = function() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const now = ctx.currentTime;
-
-                const playProEpic = () => {
-                    // 1. SUBSONIC IMPACT (The "Taiko" Hit)
-                    const impact = ctx.createOscillator();
-                    const impactGain = ctx.createGain();
-                    impact.type = 'triangle';
-                    impact.frequency.setValueAtTime(40, now);
-                    impact.frequency.exponentialRampToValueAtTime(20, now + 0.1);
-                    impact.connect(impactGain);
-                    impactGain.connect(ctx.destination);
-                    impactGain.gain.setValueAtTime(0.6, now);
-                    impactGain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
-                    impact.start(now);
-                    impact.stop(now + 1.2);
-
-                    // 2. PROFESSIONAL TEXTURE (Open 5ths & Octaves - No "Happy" Major)
-                    // Frequencies: C2, G2, C3, G3, C4, G4 (Power Chord structure)
-                    const stack = [65.41, 98.00, 130.81, 196.00, 261.63, 392.00];
-                    
-                    stack.forEach((freq, i) => {
-                        [-1, 0, 1].forEach(d => { // Subtle detune for thickness
-                            const osc = ctx.createOscillator();
-                            const filter = ctx.createBiquadFilter();
-                            const gain = ctx.createGain();
-                            
-                            osc.type = 'sawtooth';
-                            osc.frequency.setValueAtTime(freq, now);
-                            osc.detune.setValueAtTime(d * 1.2, now);
-                            
-                            filter.type = 'lowpass';
-                            filter.frequency.setValueAtTime(20, now);
-                            filter.frequency.exponentialRampToValueAtTime(1200, now + 2.0);
-                            
-                            osc.connect(filter);
-                            filter.connect(gain);
-                            gain.connect(ctx.destination);
-                            
-                            const start = now + (i * 0.08);
-                            gain.gain.setValueAtTime(0, start);
-                            gain.gain.linearRampToValueAtTime(0.12, start + 1.2);
-                            gain.gain.exponentialRampToValueAtTime(0.001, start + 4.5);
-                            
-                            osc.start(start);
-                            osc.stop(start + 4.5);
-                        });
-                    });
-
-                    // 3. WARM CHIME RESOLUTION (Replaced high-pitch with warm C6)
-                    const chime = ctx.createOscillator();
-                    const chimeGain = ctx.createGain();
-                    chime.type = 'sine';
-                    chime.frequency.setValueAtTime(1046.50, now + 1.5); // C6 - Warmer
-                    chime.connect(chimeGain);
-                    chimeGain.connect(ctx.destination);
-                    chimeGain.gain.setValueAtTime(0, now + 1.5);
-                    chimeGain.gain.linearRampToValueAtTime(0.06, now + 1.8);
-                    chimeGain.gain.exponentialRampToValueAtTime(0.001, now + 5.0);
-                    chime.start(now + 1.5);
-                    chime.stop(now + 5.0);
-
-                    // Visual feedback
-                    const btns = document.querySelectorAll('[onclick*="playStartupSound"], [onclick*="window.playStartupSound"]');
-                    btns.forEach(btn => {
-                        const orig = btn.innerText;
-                        btn.innerText = '🎭 KINO ATMOSPHÄRE';
-                        setTimeout(() => btn.innerText = orig, 1500);
-                    });
-                };
-
-                if (ctx.state === 'suspended') {
-                    ctx.resume().then(playProEpic);
-                } else {
-                    playProEpic();
-                }
-            } catch (e) { console.error('Pro Jingle error:', e); }
-        };
+        // --- STARTUP SOUND DISABLED ---
+        window.playStartupSound = function() {};
 
         // --- DEPARTMENT FILTERING LOGIC ---
         function selectDept(dept) {
@@ -2625,9 +2546,20 @@ function resetAndTestOli() {
             background: rgba(229, 9, 20, 0.15) !important;
         }
 
+        .status-upcoming.hall-ready {
+            color: #2ecc71 !important;
+            background: rgba(46, 204, 113, 0.15) !important;
+        }
+
         .status-running {
             color: #ff4d4d !important;
             background: rgba(255, 77, 77, 0.15) !important;
+            animation: status-blink 1.5s ease-in-out infinite;
+        }
+
+        .status-running.hall-ready {
+            color: #2ecc71 !important;
+            background: rgba(46, 204, 113, 0.15) !important;
             animation: status-blink 1.5s ease-in-out infinite;
         }
 
@@ -5096,22 +5028,21 @@ function resetAndTestOli() {
             vid.style.display = 'none';
 
             if (type === 'greeting') {
-                vid.src = '/assets/Oli/Oli_Greeting.mp4';
+                vid.src = '/assets/Oli/Oli_1.mp4';
                 vid.style.display = 'block';
                 vid.play();
             } else if (type === 'goodbye') {
-                vid.src = '/assets/Oli/Oli_Goodbye.mp4';
+                vid.src = '/assets/Oli/Oli_5.mp4';
                 vid.style.display = 'block';
                 vid.play();
             } else if (type === 'error') {
-                img.src = '/assets/Oli/Oli_Error.png';
+                img.src = 'https://trailer.kinopolis.de/media/img/kinobaer_desktop.jpg';
                 img.style.display = 'block';
             } else if (type === 'success') {
-                vid.src = '/assets/Oli/Oli_Success.mp4';
-                vid.style.display = 'block';
-                vid.play();
+                img.src = '/assets/Oli/Oli_Success.png';
+                img.style.display = 'block';
             } else {
-                img.src = '/assets/Oli/Oli_1.png';
+                img.src = 'https://trailer.kinopolis.de/media/img/kinobaer_desktop.jpg';
                 img.style.display = 'block';
             }
 
@@ -5796,7 +5727,7 @@ function resetAndTestOli() {
                     }
                 }
 
-                if (typeof playStartupSound === 'function') playStartupSound();
+                // Startup sound disabled
                 if (typeof checkAndPromptDepartment === 'function') checkAndPromptDepartment();
 
                 // Setup Mobile Nav Scroll Effect
@@ -6636,6 +6567,7 @@ function resetAndTestOli() {
                     </div>
                 `;
             }).join('');
+            if (window.updateCountdowns) updateCountdowns();
         }
 
         function cycleHallStatus(hall) {
@@ -7121,15 +7053,18 @@ function resetAndTestOli() {
             timers.forEach(timer => {
                 const startMin = parseInt(timer.dataset.start);
                 const endMin = parseInt(timer.dataset.end);
+                const hallName = timer.dataset.hall || '';
+                const hallId = parseInt(hallName.replace(/\D/g, ''));
+                const isReady = hallId && HALL_STATUS[hallId] === 'ready';
                 
                 if (currentMin < startMin) {
                     const diff = startMin - currentMin;
                     timer.innerText = `Beginnt in ${diff} Min.`;
-                    timer.className = 'countdown-timer status-upcoming';
+                    timer.className = 'countdown-timer status-upcoming' + (isReady ? ' hall-ready' : '');
                 } else if (currentMin < endMin) {
                     const diff = endMin - currentMin;
                     timer.innerText = `Läuft - noch ${diff} Min.`;
-                    timer.className = 'countdown-timer status-running';
+                    timer.className = 'countdown-timer status-running' + (isReady ? ' hall-ready' : '');
                 } else {
                     timer.innerText = `Beendet`;
                     timer.className = 'countdown-timer status-finished';
@@ -8563,7 +8498,7 @@ function resetAndTestOli() {
                                     ${getFskTagsHtml(s)}
                                     ${s.date ? `<span class="session-date-badge">${s.date}</span>` : ''}
                                 </div>
-                                <div class="countdown-timer" data-start="${startMin}" data-end="${endMin}"></div>
+                                <div class="countdown-timer" data-start="${startMin}" data-end="${endMin}" data-hall="${escapedHall}"></div>
                                 <div class="occupancy-wrapper">
                                     <div class="occupancy-header">
                                         <span>Auslastung 🪑</span>
@@ -8937,27 +8872,6 @@ function resetAndTestOli() {
 
             badge.textContent = totalActive;
             container.style.display = liveTasks.length > 0 ? 'block' : 'none';
-
-            // Add Help Button if not present
-            if (!document.getElementById('help-button')) {
-                const helpBtn = document.createElement('button');
-                helpBtn.id = 'help-button';
-                helpBtn.className = 'btn-secondary';
-                helpBtn.style.width = '100%';
-                helpBtn.style.marginTop = '2.5rem';
-                helpBtn.style.padding = '1.25rem';
-                helpBtn.style.borderRadius = '16px';
-                helpBtn.style.fontWeight = '800';
-                helpBtn.style.fontSize = '1.1rem';
-                helpBtn.style.display = 'flex';
-                helpBtn.style.alignItems = 'center';
-                helpBtn.style.justifyContent = 'center';
-                helpBtn.style.gap = '0.75rem';
-                helpBtn.style.border = '2px solid rgba(255,255,255,0.1)';
-                helpBtn.onclick = openHelpModal;
-                container.appendChild(helpBtn);
-                updateHelpButtonUI();
-            }
         }
 
         function getKpStationTasks(hallsGrouped) {
