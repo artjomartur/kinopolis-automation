@@ -11273,59 +11273,111 @@ function printLostFoundLabel(id) {
         format: [80, 50]
     });
     
-    // Draw boundary border
-    doc.setDrawColor(229, 9, 20); // Kinopolis Red
+    // Determine category-specific color & tag text
+    let color = [192, 57, 43]; // Default: Kinopolis Red (Sonstiges)
+    let categoryTag = "SONSTIGES";
+    
+    if (item.category === "Kleidung") {
+        color = [41, 128, 185]; // Blue
+        categoryTag = "KLEIDUNG";
+    } else if (item.category === "Wertsachen") {
+        color = [230, 126, 34]; // Gold/Orange
+        categoryTag = "WERTSACHEN";
+    } else if (item.category === "Elektronik") {
+        color = [142, 68, 173]; // Purple
+        categoryTag = "ELEKTRONIK";
+    }
+    
+    // Draw boundary border with category color
+    doc.setDrawColor(color[0], color[1], color[2]);
     doc.setLineWidth(1.5);
     doc.rect(2, 2, 76, 46);
     
-    // Title
+    // Draw colored header banner background
+    doc.setFillColor(color[0], color[1], color[2]);
+    doc.rect(2, 2, 76, 9, 'F');
+    
+    // Header Title
     doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.setTextColor(229, 9, 20);
+    doc.setFontSize(10.5);
+    doc.setTextColor(255, 255, 255);
     doc.text("KINOPOLIS FUNDSACHE", 4, 8);
     
-    // Separator line
-    doc.setDrawColor(200, 200, 200);
-    doc.setLineWidth(0.3);
-    doc.line(4, 10, 76, 10);
+    // Category Tag Text
+    doc.setFontSize(8.5);
+    doc.text(categoryTag, 65, 8, { align: 'right' });
+    
+    // Draw category-specific vector icon in white in the top right
+    doc.setStrokeColor(255, 255, 255);
+    doc.setLineWidth(0.4);
+    
+    if (item.category === "Kleidung") {
+        // Hanger icon
+        doc.line(69, 7.5, 74, 7.5); // bottom bar
+        doc.line(69, 7.5, 71.5, 5.2); // left slant
+        doc.line(74, 7.5, 71.5, 5.2); // right slant
+        doc.line(71.5, 5.2, 71.5, 4.2); // hook base
+        // hook curve (drawn with lines)
+        doc.line(71.5, 4.2, 72.5, 3.8);
+        doc.line(72.5, 3.8, 73.0, 4.2);
+    } else if (item.category === "Wertsachen") {
+        // Diamond icon
+        doc.line(71.5, 3.8, 74.0, 5.8);
+        doc.line(74.0, 5.8, 71.5, 7.8);
+        doc.line(71.5, 7.8, 69.0, 5.8);
+        doc.line(69.0, 5.8, 71.5, 3.8);
+        // Inner detail line
+        doc.line(69.0, 5.8, 74.0, 5.8);
+    } else if (item.category === "Elektronik") {
+        // Smartphone icon
+        doc.rect(70.0, 3.8, 3.5, 4.8);
+        doc.setFillColor(255, 255, 255);
+        doc.circle(71.75, 7.8, 0.25, 'F'); // home button
+    } else {
+        // Box icon for Sonstiges
+        doc.rect(69.5, 4.8, 4.0, 3.2);
+        doc.line(69.5, 4.8, 71.5, 3.8); // lid left
+        doc.line(73.5, 4.8, 71.5, 3.8); // lid right
+        doc.line(71.5, 4.8, 71.5, 8.0); // central vertical tape
+    }
     
     // Details
     doc.setFont('Helvetica', 'normal');
-    doc.setFontSize(8);
+    doc.setFontSize(8.5);
     doc.setTextColor(50, 50, 50);
     
     doc.setFont('Helvetica', 'bold');
-    doc.text("Gegenstand:", 4, 16);
+    doc.text("Gegenstand:", 4, 17);
     doc.setFont('Helvetica', 'normal');
-    doc.text(item.what.substring(0, 32), 24, 16);
+    doc.text(item.what.substring(0, 32), 24, 17);
     
     doc.setFont('Helvetica', 'bold');
-    doc.text("Kategorie:", 4, 22);
+    doc.text("Kategorie:", 4, 23);
     doc.setFont('Helvetica', 'normal');
-    doc.text(item.category, 24, 22);
+    doc.text(item.category, 24, 23);
     
     doc.setFont('Helvetica', 'bold');
-    doc.text("Ort:", 4, 28);
+    doc.text("Ort:", 4, 29);
     doc.setFont('Helvetica', 'normal');
-    doc.text(item.found_where.substring(0, 32), 24, 28);
+    doc.text(item.found_where.substring(0, 32), 24, 29);
     
     doc.setFont('Helvetica', 'bold');
-    doc.text("Finder:", 4, 34);
+    doc.text("Finder:", 4, 35);
     doc.setFont('Helvetica', 'normal');
-    doc.text(item.found_by.substring(0, 32), 24, 34);
+    doc.text(item.found_by.substring(0, 32), 24, 35);
     
     doc.setFont('Helvetica', 'bold');
-    doc.text("Datum:", 4, 40);
+    doc.text("Datum:", 4, 41);
     doc.setFont('Helvetica', 'normal');
     const d = new Date(item.created_at);
     const dateText = d.toLocaleDateString('de-DE') + " " + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-    doc.text(dateText, 24, 40);
+    doc.text(dateText, 24, 41);
     
     // Unique ID footer
     doc.setFont('Helvetica', 'bold');
     doc.setFontSize(7);
-    doc.setTextColor(120, 120, 120);
-    doc.text(`ID: #${item.id} · Kinopolis Automation`, 4, 45);
+    doc.setTextColor(140, 140, 140);
+    doc.text(`ID: #${item.id} · Kinopolis Automation`, 4, 46);
     
     doc.save(`Fundsache_${item.id}.pdf`);
     showToast("Fundsachen-Etikett heruntergeladen!");
