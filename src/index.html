@@ -4152,31 +4152,39 @@ function resetAndTestOli() {
 <div id="ws-fsk-container" style="display: none;">
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
 <div style="display: flex; align-items: center; gap: 12px;">
-    <img src="/assets/Oli/Oli_Security.png" alt="Oli Security" style="width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary-blue);">
+    <img src="/assets/Oli/Oli_Security.png" alt="Oli Security" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary-blue);">
     <h3 style="color: var(--primary-blue); font-size: 1.1rem; margin: 0;">🎫 FSK &amp; JuSchG Schnell-Prüfung</h3>
 </div>
 <span class="badge" style="background: var(--primary-blue);">Counter</span>
 </div>
 <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Rechtlich verbindliche Einlass-Prüfung gemäß §11 JuSchG.</p>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem;">
-<div>
-<label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">FSK</label>
-<select class="input-field" id="fsk-fsk-select" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.95rem; width: 100%;">
-<option value="0">FSK 0 (Freigabe ohne Altersbeschränkung)</option>
-<option value="6">FSK 6</option>
-<option value="12" selected>FSK 12</option>
-<option value="16">FSK 16</option>
-<option value="18">FSK 18 (keine Jugendlichen)</option>
-</select>
-</div>
-<div>
-<label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Vorstellungs-Beginn</label>
-<input class="input-field" id="fsk-start-input" type="time" value="20:00" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.95rem; width: 100%;"/>
-</div>
-</div>
 <div style="margin-bottom: 0.75rem;">
-<label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Dauer (Minuten)</label>
-<input class="input-field" id="fsk-duration-input" type="number" min="30" max="400" value="120" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.95rem; width: 100%;"/>
+    <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Vorstellung auswählen</label>
+    <select class="input-field" id="fsk-session-select" style="background: rgba(0,0,0,0.4); border: 2px solid var(--primary-blue); color: white; padding: 0.75rem; border-radius: 8px; font-size: 0.95rem; width: 100%;" onchange="onFskSessionChange(this.value)">
+        <option value="">Manuelle Eingabe...</option>
+    </select>
+</div>
+<div id="fsk-manual-fields" style="display: block;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem;">
+    <div>
+    <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">FSK</label>
+    <select class="input-field" id="fsk-fsk-select" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.95rem; width: 100%;">
+    <option value="0">FSK 0 (Freigabe ohne Altersbeschränkung)</option>
+    <option value="6">FSK 6</option>
+    <option value="12" selected>FSK 12</option>
+    <option value="16">FSK 16</option>
+    <option value="18">FSK 18 (keine Jugendlichen)</option>
+    </select>
+    </div>
+    <div>
+    <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Vorstellungs-Beginn</label>
+    <input class="input-field" id="fsk-start-input" type="time" value="20:00" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.95rem; width: 100%;"/>
+    </div>
+    </div>
+    <div style="margin-bottom: 0.75rem;">
+    <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Dauer (Minuten)</label>
+    <input class="input-field" id="fsk-duration-input" type="number" min="30" max="400" value="120" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.95rem; width: 100%;"/>
+    </div>
 </div>
 <div style="margin-bottom: 0.75rem;">
 <label style="font-size: 0.85rem; color: var(--primary-blue); display: block; margin-bottom: 0.3rem; font-weight: 700;">🪪 Geburtsdatum der Person</label>
@@ -7448,6 +7456,7 @@ function resetAndTestOli() {
                     el.dataset.fskBound = 'true';
                 }
             });
+            if (window.populateFskSessions) populateFskSessions();
             updateFskVerdict();
         }
 
@@ -7473,7 +7482,7 @@ function resetAndTestOli() {
             const mainColor = isAllowed ? '#2ecc71' : '#e74c3c';
             banner.style.background = isAllowed ? 'rgba(46, 204, 113, 0.14)' : 'rgba(231, 76, 60, 0.16)';
             banner.style.borderColor = isAllowed ? 'rgba(46, 204, 113, 0.55)' : 'rgba(231, 76, 60, 0.65)';
-            const oliImgHtml = !isAllowed ? `<img src="/assets/Oli/Oli_Error.png" alt="Oli Error" style="width: 60px; height: 60px; border-radius: 50%; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);">` : '';
+            const oliImgHtml = !isAllowed ? `<img src="/assets/Oli/Oli_Error.png" alt="Oli Error" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);">` : '';
             banner.innerHTML = `
                 ${oliImgHtml}
                 <div style="font-size: clamp(1.65rem, 6vw, 2.6rem); font-weight: 1000; line-height: 1; color: ${mainColor}; margin-bottom: 0.55rem;">
@@ -7487,6 +7496,88 @@ function resetAndTestOli() {
                 </div>
             `;
         }
+
+        function populateFskSessions() {
+            const select = document.getElementById('fsk-session-select');
+            if (!select) return;
+            
+            select.innerHTML = '<option value="">Manuelle Eingabe...</option>';
+            
+            if (!Array.isArray(window.lastData)) {
+                window.fskSessions = [];
+                return;
+            }
+            
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+            
+            const sessions = [];
+            window.lastData.forEach(hall => {
+                if (Array.isArray(hall.sessions)) {
+                    hall.sessions.forEach(s => {
+                        if (s.time && s.time.includes(':')) {
+                            const [h, m] = s.time.split(':').map(Number);
+                            const startMin = h * 60 + m;
+                            
+                            // Show sessions starting from 30 minutes ago onwards
+                            if (startMin >= currentMinutes - 30) {
+                                sessions.push({
+                                    title: s.title,
+                                    time: s.time,
+                                    duration: s.duration || 120,
+                                    fsk: s.fsk || 'FSK 12',
+                                    hall: hall.name,
+                                    startMin: startMin
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+            
+            sessions.sort((a, b) => a.startMin - b.startMin);
+            window.fskSessions = sessions;
+            
+            sessions.forEach((s, idx) => {
+                const option = document.createElement('option');
+                option.value = idx;
+                option.textContent = `${s.time} - ${s.title} (${s.fsk || 'FSK ?'}) [Saal ${s.hall}]`;
+                select.appendChild(option);
+            });
+        }
+        window.populateFskSessions = populateFskSessions;
+
+        function onFskSessionChange(val) {
+            const fskSelect = document.getElementById('fsk-fsk-select');
+            const startInput = document.getElementById('fsk-start-input');
+            const durationInput = document.getElementById('fsk-duration-input');
+            const manualFieldsContainer = document.getElementById('fsk-manual-fields');
+            
+            if (val === '') {
+                if (manualFieldsContainer) manualFieldsContainer.style.display = 'block';
+                return;
+            }
+            
+            const idx = parseInt(val, 10);
+            const session = (window.fskSessions || [])[idx];
+            if (!session) return;
+            
+            if (fskSelect) {
+                let fskAge = "12";
+                const match = session.fsk.match(/(\d+)/);
+                if (match) fskAge = match[1];
+                else if (session.fsk.includes('0')) fskAge = "0";
+                fskSelect.value = fskAge;
+            }
+            
+            if (startInput) startInput.value = session.time;
+            if (durationInput) durationInput.value = session.duration;
+            
+            if (manualFieldsContainer) manualFieldsContainer.style.display = 'none';
+            
+            updateFskVerdict();
+        }
+        window.onFskSessionChange = onFskSessionChange;
 
         // ===== Seating Plan Analytics (Row Utilization) =====
         let seatingCache = null;
@@ -8337,6 +8428,7 @@ function resetAndTestOli() {
                 lastUpdateTime = new Date();
                 
                 if (window.updatePopcornPrognosis) updatePopcornPrognosis();
+                if (window.populateFskSessions) populateFskSessions();
                 
                 // Clear state if date changed (optional, but good for cleanliness)
                 const todayStr = new Date().toISOString().split('T')[0];
