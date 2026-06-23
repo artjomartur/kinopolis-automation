@@ -7956,13 +7956,24 @@ function resetAndTestOli() {
                 });
                 
                 if (res.ok) {
-                    closeLfModal();
-                    loadLfItems();
-                    if (typeof showToast === 'function') showToast("Fundsache erfolgreich gespeichert");
-                    updateGamification();
+                    const data = await res.json().catch(() => ({}));
+                    if (data && data.success === false) {
+                        if (typeof showToast === 'function') showToast("Fehler beim Speichern: " + (data.error || "Unbekannter Fehler"), true);
+                    } else {
+                        closeLfModal();
+                        loadLfItems();
+                        if (typeof showToast === 'function') showToast("Fundsache erfolgreich gespeichert");
+                        updateGamification();
+                    }
+                } else {
+                    const errData = await res.json().catch(() => ({}));
+                    if (typeof showToast === 'function') {
+                        showToast("Fehler beim Speichern: " + (errData.error || res.statusText || "Serverfehler"), true);
+                    }
                 }
             } catch (e) {
-                if (typeof showToast === 'function') showToast("Fehler beim Speichern", true);
+                console.error("Save lostfound error:", e);
+                if (typeof showToast === 'function') showToast("Fehler beim Speichern: " + e.message, true);
             }
         }
 
