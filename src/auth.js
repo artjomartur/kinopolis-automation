@@ -441,7 +441,7 @@ const AUTH = {
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span style="color: var(--text-muted); font-size: 0.85rem;">Standort</span>
-                        <span style="font-weight: 600; font-size: 0.9rem;">${this.user.location.toUpperCase()}</span>
+                        <span style="font-weight: 600; font-size: 0.9rem;">${(this.user.location || 'kp').toUpperCase()}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span style="color: var(--text-muted); font-size: 0.85rem;">Rang</span>

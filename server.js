@@ -319,7 +319,7 @@ app.get('/api/locations', (req, res) => {
 
 // STUBS for missing APIs to prevent frontend crashes
 app.get('/api/auth/me', (req, res) => {
-    res.json({ user: { email: 'admin@kinopolis.de', name: 'Local Admin', role: 'admin' } });
+    res.json({ user: { email: 'admin@kinopolis.de', name: 'Local Admin', role: 'admin', location: 'kp' } });
 });
 
 let localLostFound = [];
@@ -516,7 +516,41 @@ app.post('/api/chat', (req, res) => {
 });
 
 app.post('/api/feedback', (req, res) => res.json({ success: true }));
-app.post('/api/auth/login', (req, res) => res.json({ token: 'mock-token', user: { email: 'admin@kinopolis.de', name: 'Local Admin', role: 'admin' } }));
+app.post('/api/auth/login', (req, res) => res.json({ token: 'mock-token', user: { email: 'admin@kinopolis.de', name: 'Local Admin', role: 'admin', location: 'kp' } }));
+
+// Mock endpoint for historical occupancy stats
+app.get('/api/stats/occupancy-history', (req, res) => {
+    const location = req.query.location || 'kp';
+    
+    // Generate trend data (last 7 days)
+    const trend = [];
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        trend.push({
+            date: d.toISOString().split('T')[0],
+            total_visitors: Math.floor(Math.random() * 2000) + 500
+        });
+    }
+
+    // Generate hourly avg data
+    const hours = ['11:00', '13:00', '15:00', '17:00', '19:00', '21:00', '23:00'];
+    const hourly = hours.map(h => ({
+        hour_bucket: h,
+        avg_occupancy_percent: Math.floor(Math.random() * 50) + 10
+    }));
+
+    // Generate movies data
+    const movies = [
+        { title: 'Super Mario Bros. Film', total_sold: 1450 },
+        { title: 'Dune: Part Two', total_sold: 980 },
+        { title: 'John Wick: Chapter 4', total_sold: 720 },
+        { title: 'Oppenheimer', total_sold: 530 },
+        { title: 'Barbie', total_sold: 410 }
+    ];
+
+    res.json({ trend, hourly, movies });
+});
 
 app.post('/api/auth/setup-link', (req, res) => {
     console.log(`[LOCAL DEV] Magic link requested for ${req.body.email}`);
