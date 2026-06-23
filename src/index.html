@@ -7801,7 +7801,7 @@ function resetAndTestOli() {
 
         let currentLfImageBase64 = null;
 
-        function compressImage(file, callback) {
+        function compressLostFoundImage(file, callback) {
             try {
                 const img = new Image();
                 const objectUrl = URL.createObjectURL(file);
@@ -7910,7 +7910,7 @@ function resetAndTestOli() {
                     }
                 }, 3000);
                 
-                compressImage(file, function(base64) {
+                compressLostFoundImage(file, function(base64) {
                     if (finished) return;
                     finished = true;
                     clearTimeout(timeoutId);
@@ -11577,6 +11577,9 @@ function printLostFoundLabel(id) {
     }
 }
 window.printLostFoundLabel = printLostFoundLabel;
+window.updateGamification = function() {
+    console.log("updateGamification stub called");
+};
 
 function updatePopcornPrognosis() {
     let totalTickets = 0;
