@@ -7470,9 +7470,9 @@ function resetAndTestOli() {
                 hasGuardian: !!document.getElementById('fsk-guardian-input')?.checked
             });
             const isAllowed = result.allowed === true;
-            const mainColor = isAllowed ? '#e50914' : '#e74c3c';
-            banner.style.background = isAllowed ? 'rgba(229, 9, 20, 0.14)' : 'rgba(231, 76, 60, 0.16)';
-            banner.style.borderColor = isAllowed ? 'rgba(229, 9, 20, 0.55)' : 'rgba(231, 76, 60, 0.65)';
+            const mainColor = isAllowed ? '#2ecc71' : '#e74c3c';
+            banner.style.background = isAllowed ? 'rgba(46, 204, 113, 0.14)' : 'rgba(231, 76, 60, 0.16)';
+            banner.style.borderColor = isAllowed ? 'rgba(46, 204, 113, 0.55)' : 'rgba(231, 76, 60, 0.65)';
             const oliImgHtml = !isAllowed ? `<img src="/assets/Oli/Oli_Error.png" alt="Oli Error" style="width: 60px; height: 60px; border-radius: 50%; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);">` : '';
             banner.innerHTML = `
                 ${oliImgHtml}
