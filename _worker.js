@@ -1565,6 +1565,21 @@ app.delete('/api/messages/:id', async (c) => {
     return c.json({ success: true });
 });
 
+// --- IMAGES API (R2) ---
+app.get('/api/images/:key', async (c) => {
+    if (!c.env.R2_BUCKET) return c.text('R2 Bucket not configured', 500);
+    const key = c.req.param('key');
+    const object = await c.env.R2_BUCKET.get(key);
+    if (!object) return c.text('Image not found', 404);
+    
+    const headers = new Headers();
+    object.writeHttpMetadata(headers);
+    headers.set('etag', object.httpEtag);
+    headers.set('Cache-Control', 'public, max-age=31536000');
+    
+    return new Response(object.body, { headers });
+});
+
 // --- LOST & FOUND API ---
 app.get('/api/lostfound', async (c) => {
     if (!c.env.DB) return c.json([]);
@@ -1624,10 +1639,52 @@ app.post('/api/lostfound', async (c) => {
             return c.json({ success: false, error: 'Missing fields' }, 400);
         }
 
+        // Handle Base64 R2 upload if image_url is a base64 Data URL
+        let finalImageUrl = image_url || null;
+        if (image_url && image_url.startsWith('data:image/')) {
+            if (c.env.R2_BUCKET) {
+                try {
+                    const matches = image_url.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+                    if (matches && matches.length === 3) {
+                        const contentType = matches[1];
+                        const base64Data = matches[2];
+                        
+                        // Decode base64 to byte array
+                        const binary = atob(base64Data);
+                        const buffer = new Uint8Array(binary.length);
+                        for (let i = 0; i < binary.length; i++) {
+                            buffer[i] = binary.charCodeAt(i);
+                        }
+                        
+                        // Generate unique key
+                        const ext = contentType.split('/')[1] || 'jpg';
+                        const key = `lf_${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${ext}`;
+                        
+                        // Upload to R2 bucket - pass Uint8Array buffer directly
+                        await c.env.R2_BUCKET.put(key, buffer, {
+                            httpMetadata: { contentType }
+                        });
+                        
+                        finalImageUrl = `/api/images/${key}`;
+                    }
+                } catch (r2Err) {
+                    console.error("R2 Upload failed, falling back to base64 check:", r2Err);
+                    if (image_url.length > 100000) {
+                        return c.json({ success: false, error: 'Bilder-Upload in R2 fehlgeschlagen. Bild ist zu groß für die SQLite-Datenbank.' }, 400);
+                    }
+                }
+            } else {
+                console.warn("R2 Bucket not configured! Checking base64 size.");
+                if (image_url.length > 100000) {
+                    return c.json({ success: false, error: 'D1_ERROR: Das Bild ist zu groß (SQLITE_TOOBIG) und R2_BUCKET ist in Cloudflare nicht konfiguriert.' }, 400);
+                }
+            }
+        }
+
         await c.env.DB.prepare(`
             INSERT INTO lost_found (location, what, category, found_where, found_by, image_url)
             VALUES (?, ?, ?, ?, ?, ?)
-        `).bind(location, what, category, found_where, found_by, image_url || null).run();
+        `).bind(location, what, category, found_where, found_by, finalImageUrl).run();
 
         return c.json({ success: true });
     } catch (e) {
@@ -1640,6 +1697,19 @@ app.delete('/api/lostfound/:id', async (c) => {
     if (!c.env.DB) return c.json({ success: false, error: 'Database not available' });
     const id = c.req.param('id');
     try {
+        // Query to check if there is an associated R2 image to delete
+        try {
+            const item = await c.env.DB.prepare('SELECT image_url FROM lost_found WHERE id = ?').bind(id).first();
+            if (item && item.image_url && item.image_url.startsWith('/api/images/') && c.env.R2_BUCKET) {
+                const key = item.image_url.split('/api/images/')[1];
+                if (key) {
+                    await c.env.R2_BUCKET.delete(key);
+                }
+            }
+        } catch (r2DelErr) {
+            console.error("R2 deletion failed during lostfound delete:", r2DelErr);
+        }
+
         await c.env.DB.prepare('DELETE FROM lost_found WHERE id = ?').bind(id).run();
         return c.json({ success: true });
     } catch (e) {
@@ -2296,10 +2366,7 @@ app.post('/api/push/broadcast', async (c) => {
     }
 });
 
-// R2 Image Proxy (Fallback)
-app.get('/api/images/:key', async (c) => {
-    return c.json({ error: 'Not Found' }, 404);
-});
+
 
 app.post('/api/ai-agree', async (c) => {
     try {

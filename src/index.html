@@ -4096,13 +4096,10 @@ function resetAndTestOli() {
 <input id="lf-search" oninput="loadLfItems()" placeholder="🔍 Suchen..." style="flex: 1; min-width: 140px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.9rem; outline: none;" type="text"/>
 <select id="lf-filter-cat" onchange="loadLfItems()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.9rem;">
 <option value="">Alle Kategorien</option>
-<option>Kleidung</option>
-<option>Elektronik</option>
-<option>Schmuck</option>
-<option>Spielzeug</option>
-<option>Dokumente</option>
-<option>Taschen</option>
-<option>Sonstiges</option>
+<option value="Kleidung">👕 Kleidung</option>
+<option value="Wertsachen">💎 Wertsachen</option>
+<option value="Elektronik">📱 Elektronik</option>
+<option value="Sonstiges">📦 Sonstiges</option>
 </select>
 </div>
 <div id="lf-items-list" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem;"></div>
@@ -11487,7 +11484,7 @@ function printLostFoundLabel(id) {
         doc.text(categoryTag, 65, 8, { align: 'right' });
         
         // Draw category-specific vector icon in white in the top right
-        doc.setStrokeColor(255, 255, 255);
+        doc.setDrawColor(255, 255, 255);
         doc.setLineWidth(0.4);
         
         if (catName === "Kleidung") {
