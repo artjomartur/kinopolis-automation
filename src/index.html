@@ -10776,7 +10776,7 @@ function resetAndTestOli() {
 </div>
 
 <!-- AI Chat Assistant -->
-<div id="ai-chat-fab" style="position: fixed; bottom: 20px; right: 20px; width: 64px; height: 64px; border-radius: 50%; background: #1a1b1f; box-shadow: 0 10px 25px rgba(229, 9, 20, 0.4); display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 9999; transition: transform 0.3s; overflow: hidden; border: 2px solid var(--primary-red);" onclick="document.getElementById('ai-chat-modal').style.display='flex'">
+<div id="ai-chat-fab" style="position: fixed; bottom: 20px; right: 20px; width: 64px; height: 64px; border-radius: 50%; background: #1a1b1f; box-shadow: 0 10px 25px rgba(229, 9, 20, 0.4); display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 9999; transition: transform 0.3s; overflow: hidden; border: 2px solid var(--primary-red);" onclick="openAiChat()">
 <img src="/assets/Oli/Oli_6.png" style="width: 80%; height: 80%; object-fit: contain; animation: duoBounce 3s infinite ease-in-out; flex-shrink: 0; transform: translateY(5px);" />
 </div>
 
@@ -10788,7 +10788,7 @@ function resetAndTestOli() {
             </div>
             OLI (KI-Assist)
         </h3>
-        <button onclick="document.getElementById('ai-chat-modal').style.display='none'" style="background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem;">&times;</button>
+        <button onclick="closeAiChat()" style="background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem;">&times;</button>
     </div>
     
     <!-- OLI 6 Video Header inside Chat -->
@@ -10808,6 +10808,20 @@ function resetAndTestOli() {
 </div>
 
 <script>
+// --- AI CHAT TOGGLES TO PREVENT OVERLAPS ---
+function openAiChat() {
+    document.getElementById('ai-chat-modal').style.display = 'flex';
+    document.getElementById('ai-chat-fab').style.display = 'none';
+    const sos = document.getElementById('help-floating-btn');
+    if (sos) sos.style.display = 'none';
+}
+function closeAiChat() {
+    document.getElementById('ai-chat-modal').style.display = 'none';
+    document.getElementById('ai-chat-fab').style.display = 'flex';
+    const sos = document.getElementById('help-floating-btn');
+    if (sos) sos.style.display = 'flex';
+}
+
 // --- TELEGRAM SETTINGS ---
 function saveTelegramSettings() {
     const val = document.getElementById('telegram-chat-id').value;
