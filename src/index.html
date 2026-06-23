@@ -4802,7 +4802,7 @@ function resetAndTestOli() {
 <!-- Info / Pitch Card -->
 
 <!-- Statistics Section -->
-<section class="stats-section tl-only" id="stats-section-container" style="display: none; margin-bottom: 4rem;">
+<section class="stats-section tl-only" id="stats-section-container" style="margin-bottom: 4rem;">
     <div class="section-header card-header" onclick="toggleSection('stats-content', 'stats-toggle-btn')" style="cursor: pointer; padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
         <div style="display: flex; align-items: center; gap: 0.8rem; flex: 1;">
             <span class="alert-icon-small" style="font-size: 1.4rem;">📊</span>
@@ -8484,8 +8484,6 @@ function resetAndTestOli() {
                       document.getElementById('auslaesse-list').innerHTML = '';
                       const auslaesseContainer = document.getElementById('auslaesse-section-container');
                       if (auslaesseContainer) auslaesseContainer.style.display = 'none';
-                      const statsContainer = document.getElementById('stats-section-container');
-                      if (statsContainer) statsContainer.style.display = 'none';
                       return;
                 }
 
@@ -9057,7 +9055,7 @@ function resetAndTestOli() {
             
             const allSessions = (hallsGrouped || []).flatMap(h => h.sessions || []).filter(s => s && s.time);
             if (allSessions.length === 0) {
-                container.style.display = 'none';
+                grid.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 2rem; grid-column: 1/-1;"><p>📊 Noch keine Vorstellungsdaten für heute vorhanden.</p></div>`;
                 const liveWidget = document.getElementById('occupancy-widget');
                 const liveVal = document.getElementById('live-occupancy');
                 if (liveWidget && liveVal) {
@@ -9066,7 +9064,6 @@ function resetAndTestOli() {
                 }
                 return;
             }
-            container.style.display = 'block';
 
             // Trigger historical analytics loading if needed
             if (loadedHistoricalCity !== currentCity) {
