@@ -4072,7 +4072,6 @@ function resetAndTestOli() {
 <option style="color: var(--primary-blue);" value="lostfound">🧸 Fundbüro (Lost &amp; Found)</option>
 <option style="color: #ff6b35;" value="tech">🛠️ Technik-Störung (Ticket)</option>
 <option style="color: var(--primary-blue);" value="fsk">🎫 FSK-Prüfung (Counter)</option>
-<option style="color: var(--primary-blue);" value="seating">🪑 Reihen-Auslastung (TL)</option>
 </select>
 </div>
 <!-- Container for Checklists -->
@@ -4197,22 +4196,6 @@ function resetAndTestOli() {
 <!-- Verdict-Banner -->
 <div id="fsk-result-banner" style="border-radius: 14px; padding: 1.25rem 1.5rem; text-align: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);">
 <div style="font-size: 1.5rem; font-weight: 900; color: var(--text-muted);">⏳ Bitte Geburtsdatum eingeben</div>
-</div>
-</div>
-<!-- Container for Seating-Analytics (TL) -->
-<div id="ws-seating-container" style="display: none;">
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-<h3 style="color: var(--primary-blue); font-size: 1.1rem;">🪑 Reihen-Auslastung &amp; Reinigungs-Empfehlung</h3>
-<span class="badge" style="background: var(--primary-blue);">TL</span>
-</div>
-<p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Snapshot-basierte Auswertung pro Saal. Fokus-Reihen für Reinigung identifizieren.</p>
-<div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
-<select id="seating-hall-select" onchange="loadSeatingData()" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.95rem; flex: 1; min-width: 140px;"></select>
-<button onclick="loadSeatingData(true)" style="background: rgba(229, 9, 20, 0.15); border: 1px solid rgba(229, 9, 20, 0.4); color: #e50914; padding: 0.55rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer;">📸 Snapshot jetzt</button>
-</div>
-<div id="seating-snapshot-info" style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.75rem;"></div>
-<div id="seating-heatmap" style="display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem;"></div>
-<div id="seating-recommendation" style="background: rgba(241, 196, 15, 0.1); border: 1px solid rgba(241, 196, 15, 0.4); border-radius: 12px; padding: 1rem; color: white; font-size: 0.9rem; line-height: 1.5;"></div>
 </div>
 </div>
 </div>
