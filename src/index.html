@@ -4883,12 +4883,29 @@ function resetAndTestOli() {
         // --- ERROR TRACKING ---
         window.onerror = function(msg, url, line, col, error) {
             console.error('GLOBAL ERROR:', msg, 'at', line, ':', col);
+            const errStr = `Fehler: ${msg} (Zeile ${line}:${col})`;
+            if (typeof showToast === 'function') {
+                showToast(errStr, true);
+            } else {
+                alert(errStr);
+            }
             const statusText = document.getElementById('current-time-display');
             if (statusText && statusText.innerText === 'Verbinde...') {
                 statusText.innerText = 'Fehler beim Start';
                 statusText.style.color = '#ff4d4d';
             }
         };
+
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Unhandled rejection:', event.reason);
+            const msg = event.reason ? (event.reason.message || event.reason) : 'Unbekannter Promise-Fehler';
+            const errStr = `Promise-Fehler: ${msg}`;
+            if (typeof showToast === 'function') {
+                showToast(errStr, true);
+            } else {
+                alert(errStr);
+            }
+        });
 
         // --- GLOBALS & STATE ---
         const API_URL = '/api/sessions';
@@ -7878,11 +7895,43 @@ function resetAndTestOli() {
                 
                 placeholder.innerHTML = '⌛ Wird komprimiert...';
                 
+                let finished = false;
+                const timeoutId = setTimeout(() => {
+                    if (!finished) {
+                        finished = true;
+                        placeholder.innerHTML = '⚠️ Komprimierung übersprungen - lade Originalbild...';
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            currentLfImageBase64 = e.target.result;
+                            placeholder.style.display = 'none';
+                            img.src = e.target.result;
+                            img.style.display = 'block';
+                            container.style.borderColor = 'var(--primary-blue)';
+                            container.style.boxShadow = '0 0 15px rgba(0, 122, 255, 0.2)';
+                            showToast("Bild geladen (Komprimierung übersprungen)");
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }, 3000);
+                
                 compressImage(file, function(base64) {
+                    if (finished) return;
+                    finished = true;
+                    clearTimeout(timeoutId);
+                    
                     if (!base64) {
-                        placeholder.innerHTML = '⚠️ Fehler beim Komprimieren - Bitte anderes Foto wählen';
-                        container.style.borderColor = '#e74c3c';
-                        container.style.boxShadow = '0 0 15px rgba(231, 76, 60, 0.2)';
+                        // If compression failed, still try to load raw file as fallback instead of failing completely!
+                        placeholder.innerHTML = '⚠️ Komprimierungsfehler - lade Originalbild...';
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            currentLfImageBase64 = e.target.result;
+                            placeholder.style.display = 'none';
+                            img.src = e.target.result;
+                            img.style.display = 'block';
+                            container.style.borderColor = 'var(--primary-blue)';
+                            container.style.boxShadow = '0 0 15px rgba(0, 122, 255, 0.2)';
+                        };
+                        reader.readAsDataURL(file);
                         return;
                     }
                     currentLfImageBase64 = base64;
@@ -11384,129 +11433,152 @@ function resetAndTestOli() {
 }
 
 function printLostFoundLabel(id) {
-    const item = (window.LOST_FOUND_ITEMS || []).find(x => x.id === id);
-    if (!item) return;
-    
-    const { jsPDF } = window.jspdf;
-    if (!jsPDF) {
-        showToast("PDF-Bibliothek konnte nicht geladen werden.", true);
-        return;
+    try {
+        const item = (window.LOST_FOUND_ITEMS || []).find(x => String(x.id) === String(id));
+        if (!item) {
+            showToast("Gegenstand nicht gefunden.", true);
+            return;
+        }
+        
+        const { jsPDF } = window.jspdf;
+        if (!jsPDF) {
+            showToast("PDF-Bibliothek konnte nicht geladen werden.", true);
+            return;
+        }
+        
+        const doc = new jsPDF({
+            orientation: 'landscape',
+            unit: 'mm',
+            format: [80, 50]
+        });
+        
+        // Determine category-specific color & tag text
+        let color = [192, 57, 43]; // Default: Kinopolis Red (Sonstiges)
+        let categoryTag = "SONSTIGES";
+        const catName = item.category || 'Sonstiges';
+        
+        if (catName === "Kleidung") {
+            color = [41, 128, 185]; // Blue
+            categoryTag = "KLEIDUNG";
+        } else if (catName === "Wertsachen") {
+            color = [230, 126, 34]; // Gold/Orange
+            categoryTag = "WERTSACHEN";
+        } else if (catName === "Elektronik") {
+            color = [142, 68, 173]; // Purple
+            categoryTag = "ELEKTRONIK";
+        }
+        
+        // Draw boundary border with category color
+        doc.setDrawColor(color[0], color[1], color[2]);
+        doc.setLineWidth(1.5);
+        doc.rect(2, 2, 76, 46);
+        
+        // Draw colored header banner background
+        doc.setFillColor(color[0], color[1], color[2]);
+        doc.rect(2, 2, 76, 9, 'F');
+        
+        // Header Title
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(10.5);
+        doc.setTextColor(255, 255, 255);
+        doc.text("KINOPOLIS FUNDSACHE", 4, 8);
+        
+        // Category Tag Text
+        doc.setFontSize(8.5);
+        doc.text(categoryTag, 65, 8, { align: 'right' });
+        
+        // Draw category-specific vector icon in white in the top right
+        doc.setStrokeColor(255, 255, 255);
+        doc.setLineWidth(0.4);
+        
+        if (catName === "Kleidung") {
+            // Hanger icon
+            doc.line(69, 7.5, 74, 7.5);
+            doc.line(69, 7.5, 71.5, 5.2);
+            doc.line(74, 7.5, 71.5, 5.2);
+            doc.line(71.5, 5.2, 71.5, 4.2);
+            doc.line(71.5, 4.2, 72.5, 3.8);
+            doc.line(72.5, 3.8, 73.0, 4.2);
+        } else if (catName === "Wertsachen") {
+            // Diamond icon
+            doc.line(71.5, 3.8, 74.0, 5.8);
+            doc.line(74.0, 5.8, 71.5, 7.8);
+            doc.line(71.5, 7.8, 69.0, 5.8);
+            doc.line(69.0, 5.8, 71.5, 3.8);
+            doc.line(69.0, 5.8, 74.0, 5.8);
+        } else if (catName === "Elektronik") {
+            // Smartphone icon
+            doc.rect(70.0, 3.8, 3.5, 4.8);
+            doc.setFillColor(255, 255, 255);
+            doc.circle(71.75, 7.8, 0.25, 'F');
+        } else {
+            // Box icon for Sonstiges
+            doc.rect(69.5, 4.8, 4.0, 3.2);
+            doc.line(69.5, 4.8, 71.5, 3.8);
+            doc.line(73.5, 4.8, 71.5, 3.8);
+            doc.line(71.5, 4.8, 71.5, 8.0);
+        }
+        
+        // Details
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(50, 50, 50);
+        
+        const whatText = (item.what || "").substring(0, 32);
+        const whereText = (item.found_where || "").substring(0, 32);
+        const whoText = (item.found_by || "").substring(0, 32);
+        
+        doc.setFont('Helvetica', 'bold');
+        doc.text("Gegenstand:", 4, 17);
+        doc.setFont('Helvetica', 'normal');
+        doc.text(whatText, 24, 17);
+        
+        doc.setFont('Helvetica', 'bold');
+        doc.text("Kategorie:", 4, 23);
+        doc.setFont('Helvetica', 'normal');
+        doc.text(catName, 24, 23);
+        
+        doc.setFont('Helvetica', 'bold');
+        doc.text("Ort:", 4, 29);
+        doc.setFont('Helvetica', 'normal');
+        doc.text(whereText, 24, 29);
+        
+        doc.setFont('Helvetica', 'bold');
+        doc.text("Finder:", 4, 35);
+        doc.setFont('Helvetica', 'normal');
+        doc.text(whoText, 24, 35);
+        
+        doc.setFont('Helvetica', 'bold');
+        doc.text("Datum:", 4, 41);
+        doc.setFont('Helvetica', 'normal');
+        
+        let dateText = "--";
+        if (item.created_at) {
+            let dateClean = item.created_at;
+            if (typeof dateClean === 'string' && !dateClean.includes('T') && dateClean.includes(' ')) {
+                dateClean = dateClean.replace(' ', 'T');
+            }
+            const d = new Date(dateClean);
+            if (!isNaN(d.getTime())) {
+                dateText = d.toLocaleDateString('de-DE') + " " + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+            } else {
+                dateText = String(item.created_at);
+            }
+        }
+        doc.text(dateText, 24, 41);
+        
+        // Unique ID footer
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(7);
+        doc.setTextColor(140, 140, 140);
+        doc.text(`ID: #${item.id} · Kinopolis Automation`, 4, 46);
+        
+        doc.save(`Fundsache_${item.id}.pdf`);
+        showToast("Fundsachen-Etikett heruntergeladen!");
+    } catch (e) {
+        console.error("PDF generation failed:", e);
+        showToast("PDF-Fehler: " + e.message, true);
     }
-    
-    const doc = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: [80, 50]
-    });
-    
-    // Determine category-specific color & tag text
-    let color = [192, 57, 43]; // Default: Kinopolis Red (Sonstiges)
-    let categoryTag = "SONSTIGES";
-    
-    if (item.category === "Kleidung") {
-        color = [41, 128, 185]; // Blue
-        categoryTag = "KLEIDUNG";
-    } else if (item.category === "Wertsachen") {
-        color = [230, 126, 34]; // Gold/Orange
-        categoryTag = "WERTSACHEN";
-    } else if (item.category === "Elektronik") {
-        color = [142, 68, 173]; // Purple
-        categoryTag = "ELEKTRONIK";
-    }
-    
-    // Draw boundary border with category color
-    doc.setDrawColor(color[0], color[1], color[2]);
-    doc.setLineWidth(1.5);
-    doc.rect(2, 2, 76, 46);
-    
-    // Draw colored header banner background
-    doc.setFillColor(color[0], color[1], color[2]);
-    doc.rect(2, 2, 76, 9, 'F');
-    
-    // Header Title
-    doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(10.5);
-    doc.setTextColor(255, 255, 255);
-    doc.text("KINOPOLIS FUNDSACHE", 4, 8);
-    
-    // Category Tag Text
-    doc.setFontSize(8.5);
-    doc.text(categoryTag, 65, 8, { align: 'right' });
-    
-    // Draw category-specific vector icon in white in the top right
-    doc.setStrokeColor(255, 255, 255);
-    doc.setLineWidth(0.4);
-    
-    if (item.category === "Kleidung") {
-        // Hanger icon
-        doc.line(69, 7.5, 74, 7.5); // bottom bar
-        doc.line(69, 7.5, 71.5, 5.2); // left slant
-        doc.line(74, 7.5, 71.5, 5.2); // right slant
-        doc.line(71.5, 5.2, 71.5, 4.2); // hook base
-        // hook curve (drawn with lines)
-        doc.line(71.5, 4.2, 72.5, 3.8);
-        doc.line(72.5, 3.8, 73.0, 4.2);
-    } else if (item.category === "Wertsachen") {
-        // Diamond icon
-        doc.line(71.5, 3.8, 74.0, 5.8);
-        doc.line(74.0, 5.8, 71.5, 7.8);
-        doc.line(71.5, 7.8, 69.0, 5.8);
-        doc.line(69.0, 5.8, 71.5, 3.8);
-        // Inner detail line
-        doc.line(69.0, 5.8, 74.0, 5.8);
-    } else if (item.category === "Elektronik") {
-        // Smartphone icon
-        doc.rect(70.0, 3.8, 3.5, 4.8);
-        doc.setFillColor(255, 255, 255);
-        doc.circle(71.75, 7.8, 0.25, 'F'); // home button
-    } else {
-        // Box icon for Sonstiges
-        doc.rect(69.5, 4.8, 4.0, 3.2);
-        doc.line(69.5, 4.8, 71.5, 3.8); // lid left
-        doc.line(73.5, 4.8, 71.5, 3.8); // lid right
-        doc.line(71.5, 4.8, 71.5, 8.0); // central vertical tape
-    }
-    
-    // Details
-    doc.setFont('Helvetica', 'normal');
-    doc.setFontSize(8.5);
-    doc.setTextColor(50, 50, 50);
-    
-    doc.setFont('Helvetica', 'bold');
-    doc.text("Gegenstand:", 4, 17);
-    doc.setFont('Helvetica', 'normal');
-    doc.text(item.what.substring(0, 32), 24, 17);
-    
-    doc.setFont('Helvetica', 'bold');
-    doc.text("Kategorie:", 4, 23);
-    doc.setFont('Helvetica', 'normal');
-    doc.text(item.category, 24, 23);
-    
-    doc.setFont('Helvetica', 'bold');
-    doc.text("Ort:", 4, 29);
-    doc.setFont('Helvetica', 'normal');
-    doc.text(item.found_where.substring(0, 32), 24, 29);
-    
-    doc.setFont('Helvetica', 'bold');
-    doc.text("Finder:", 4, 35);
-    doc.setFont('Helvetica', 'normal');
-    doc.text(item.found_by.substring(0, 32), 24, 35);
-    
-    doc.setFont('Helvetica', 'bold');
-    doc.text("Datum:", 4, 41);
-    doc.setFont('Helvetica', 'normal');
-    const d = new Date(item.created_at);
-    const dateText = d.toLocaleDateString('de-DE') + " " + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-    doc.text(dateText, 24, 41);
-    
-    // Unique ID footer
-    doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(7);
-    doc.setTextColor(140, 140, 140);
-    doc.text(`ID: #${item.id} · Kinopolis Automation`, 4, 46);
-    
-    doc.save(`Fundsache_${item.id}.pdf`);
-    showToast("Fundsachen-Etikett heruntergeladen!");
 }
 window.printLostFoundLabel = printLostFoundLabel;
 
