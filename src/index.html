@@ -2856,6 +2856,7 @@ function resetAndTestOli() {
         
         .settings-layout {
             display: flex;
+            align-items: flex-start;
             gap: 2rem;
             min-height: 500px;
             max-width: 900px;
@@ -9048,13 +9049,14 @@ function resetAndTestOli() {
 
 
         function renderStats(hallsGrouped) {
-            if (!hallsGrouped || !Array.isArray(hallsGrouped)) return;
-            const container = document.getElementById('stats-section-container');
-            const grid = document.getElementById('stats-grid');
-            const chart = document.getElementById('hour-chart');
-            if (!container || !grid) return;
-            
-            const allSessions = (hallsGrouped || []).flatMap(h => h.sessions || []).filter(s => s && s.time);
+            try {
+                if (!hallsGrouped || !Array.isArray(hallsGrouped)) return;
+                const container = document.getElementById('stats-section-container');
+                const grid = document.getElementById('stats-grid');
+                const chart = document.getElementById('hour-chart');
+                if (!container || !grid) return;
+                
+                const allSessions = (hallsGrouped || []).flatMap(h => h.sessions || []).filter(s => s && s.time);
             if (allSessions.length === 0) {
                 grid.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 2rem; grid-column: 1/-1;"><p>📊 Noch keine Vorstellungsdaten für heute vorhanden.</p></div>`;
                 const liveWidget = document.getElementById('occupancy-widget');
@@ -9173,6 +9175,11 @@ function resetAndTestOli() {
                 `;
                 chart.appendChild(barWrapper);
             });
+            } catch (error) {
+                console.error("Error in renderStats:", error);
+                const grid = document.getElementById('stats-grid');
+                if (grid) grid.innerHTML = `<div style="color: red; padding: 2rem;">Error in renderStats: ${error.message}</div>`;
+            }
         }
 
         // ============================================================
