@@ -392,30 +392,18 @@ const AUTH = {
 
         if (this.user) {
             userBtn.innerHTML = `
-                <div style="display:flex;align-items:center;gap:10px;">
+                <div style="display:flex;align-items:center;gap:10px; pointer-events:none; user-select:none; -webkit-user-select:none;">
                     <span>👤</span> ${this.user.name || 'Profil'}
                 </div>
             `;
-            userBtn.onclick = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                try {
-                    this.showProfile();
-                } catch(err) {
-                    alert("Fehler beim Öffnen des Profils: " + err.message);
-                }
+            userBtn.onclick = () => {
+                this.showProfile();
             };
             userBtn.title = 'Profil & Einstellungen';
         } else if (localStorage.getItem('kp_guest_mode') === 'true') {
-            userBtn.innerHTML = '<span>👤</span> Gast';
-            userBtn.onclick = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                try {
-                    this.showProfile();
-                } catch(err) {
-                    alert("Fehler beim Öffnen des Profils: " + err.message);
-                }
+            userBtn.innerHTML = '<span style="pointer-events:none; user-select:none;">👤 Gast</span>';
+            userBtn.onclick = () => {
+                this.showProfile();
             };
             userBtn.title = 'Profil & Einstellungen';
         }
