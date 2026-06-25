@@ -396,11 +396,27 @@ const AUTH = {
                     <span>👤</span> ${this.user.name || 'Profil'}
                 </div>
             `;
-            userBtn.onclick = () => this.showProfile();
+            userBtn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                try {
+                    this.showProfile();
+                } catch(err) {
+                    alert("Fehler beim Öffnen des Profils: " + err.message);
+                }
+            };
             userBtn.title = 'Profil & Einstellungen';
         } else if (localStorage.getItem('kp_guest_mode') === 'true') {
             userBtn.innerHTML = '<span>👤</span> Gast';
-            userBtn.onclick = () => this.showProfile();
+            userBtn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                try {
+                    this.showProfile();
+                } catch(err) {
+                    alert("Fehler beim Öffnen des Profils: " + err.message);
+                }
+            };
             userBtn.title = 'Profil & Einstellungen';
         }
     },
@@ -553,10 +569,16 @@ const AUTH = {
     },
 
     showProfile() {
+        console.log("showProfile called");
+        try {
         document.body.classList.add('einstellungen-active');
         document.body.style.overflow = 'hidden';
         if (window.setSettingsPage) {
             window.setSettingsPage('profile');
+        }
+        } catch(e) {
+            alert("Error in showProfile: " + e.message);
+            console.error(e);
         }
     }
 };
