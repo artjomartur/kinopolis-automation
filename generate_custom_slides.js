@@ -14,32 +14,32 @@ const path = require('path');
         { 
             title: "Live-<br>Monitor", 
             subtitle: "Immer im Blick, was in den Sälen passiert. Auslastung und Laufzeiten in Echtzeit.", 
-            oli: "Oli_1.png",
-            img: "media__1782322445980.png" // 190KB Kino 1 Live
+            oli: "Oli_4_bgless.png",
+            img: "media__1782322445980.png"
         },
         { 
             title: "Digitales<br>Fundbüro", 
             subtitle: "Verlorene Gegenstände einfach eintragen und den Status per Klick aktualisieren.", 
-            oli: "Oli_2.png",
-            img: "media__1782322486868.png" // 311KB Fundbuero
+            oli: "Oli_2_bgless.png",
+            img: "media__1782322486868.png"
         },
         { 
             title: "Teamleiter-<br>Portal", 
-            subtitle: "Alle wichtigen Funktionen und Admin-Tools für die Schichtführung sicher hinterlegt.", 
-            oli: "Oli_3.png",
-            img: "media__1782321654685.png" // 327KB Portale
+            subtitle: "Alle wichtigen Funktionen, Ops Feed und Admin-Tools sicher hinterlegt.", 
+            oli: "Oli_3_bgless.png",
+            img: "media__1782426782263.png"
         },
         { 
-            title: "Kino-<br>Übersicht", 
-            subtitle: "Behalte alle Filme und Besucherzahlen für schnelle Handovers präzise im Auge.", 
-            oli: "Oli_5.png",
-            img: "media__1782321654664.png" // 311KB Viele Kino rows
+            title: "Aufgaben &<br>Checklisten", 
+            subtitle: "Effiziente Schicht-Organisation durch digitale Reinigungschecks und To-Do Listen.", 
+            oli: "Oli_5_bgless.png",
+            img: "media__1782426869132.png"
         },
         { 
-            title: "Dashboard<br>Overview", 
-            subtitle: "Dein smarter Begleiter für den Kino-Alltag. Alles Wichtige an einem Ort zentriert.", 
-            oli: "Oli_6.png",
-            img: "media__1782321654704.png" // 488KB Kino 3/4/5 collapsed
+            title: "FSK & JuSchG<br>Checker", 
+            subtitle: "Rechtlich verbindliche Einlass-Prüfung in Sekundenschnelle ohne langes Kopfrechnen.", 
+            oli: "Oli_6_bgless.png",
+            img: "media__1782426986516.png"
         }
     ];
 
@@ -100,8 +100,8 @@ const path = require('path');
                 .ipad-mockup img { 
                     width: 100%; 
                     height: 100%;
-                    object-fit: cover; 
-                    object-position: top center; 
+                    object-fit: contain;
+                    object-position: center; 
                     margin-top: 0px; 
                 }
                 
@@ -124,13 +124,15 @@ const path = require('path');
                 <div class="ipad-mockup">
                     <img src="${screenB64}" />
                 </div>
+                <img src="${oliB64}" class="oli-img" />
             </div>
         </body>
         </html>
         `;
 
         await slidePage.setContent(html, { waitUntil: 'load' });
-        await new Promise(r => setTimeout(r, 500));
+        await slidePage.evaluateHandle('document.fonts.ready');
+        await new Promise(r => setTimeout(r, 800));
 
         const slideFilename = path.join(baseDir, `slide_final_${i+1}.png`);
         await slidePage.screenshot({ path: slideFilename });
