@@ -566,6 +566,74 @@ app.post('/api/auth/setup-complete', (req, res) => {
     });
 });
 
+const webpush = require('web-push');
+const VAPID_PUBLIC_KEY = 'BCP-JGZbVBjKY1_blxAHw6bC5Ddf0nLAyPSp8q39kV7utFahZNyQZJ8KlV-ht6UKg07eAuVBVHJhVsaDMx1m7X8';
+const VAPID_PRIVATE_KEY = 'hZ-g14sGhFkq9L9JdkRAJuwfc70Ein69PK7EzUNHj04';
+webpush.setVapidDetails('mailto:test@kinopolis.local', VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+
+let pushSubscriptions = [];
+
+app.post('/api/push/subscribe', (req, res) => {
+    const { sub, location } = req.body;
+    if (sub) {
+        pushSubscriptions.push({ sub, location });
+    }
+    res.json({ success: true });
+});
+
+app.get('/api/push/last-notification', (req, res) => {
+    res.json({
+        title: 'Kinopolis Dashboard',
+        body: 'Dies ist eine Test-Benachrichtigung mit Bild! 🎬',
+        image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=800&q=80',
+        icon: '/logo-kinopolis-official.png',
+        tag: 'test-notification',
+        data: { url: '/' }
+    });
+});
+
+app.post('/api/push/test', async (req, res) => {
+    const payload = JSON.stringify({
+        title: '🎬 Test Push (Lokal)',
+        body: 'Dies ist eine manuelle Test-Benachrichtigung vom lokalen Server.',
+        data: { url: '/' }
+    });
+
+    const results = [];
+    for (const item of pushSubscriptions) {
+        try {
+            await webpush.sendNotification(item.sub, payload);
+            results.push({ status: 'Success (201)', endpoint: item.sub.endpoint.substring(0, 30) + '...' });
+        } catch (err) {
+            results.push({ status: 'Error', message: err.message });
+        }
+    }
+    res.json({ results });
+});
+
+app.post('/api/push/broadcast', async (req, res) => {
+    const { message, title } = req.body;
+    if (!message) return res.status(400).json({ error: 'Message required' });
+
+    const payload = JSON.stringify({
+        title: title || '📢 Kinopolis Nachricht (Lokal)',
+        body: message,
+        icon: '/logo-kinopolis-official.png',
+        data: { url: '/' }
+    });
+
+    let sent = 0;
+    for (const item of pushSubscriptions) {
+        try {
+            await webpush.sendNotification(item.sub, payload);
+            sent++;
+        } catch (e) {
+            console.error('Push send error', e);
+        }
+    }
+    res.json({ sent, message: 'Nachrichten gesendet (Lokal)' });
+});
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
