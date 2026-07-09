@@ -1,7 +1,4 @@
-<!DOCTYPE html>
-
-<html lang="de">
-<head>
+<!DOCTYPE html><html lang="de"><head>
 <script>
         // EMERGENCY CACHE CLEAR
         if (window.location.search.includes('reset=true')) {
@@ -41,17 +38,17 @@ function resetAndTestOli() {
 }
 </script>
 
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
 <title>Kinopolis Dashboard V1.0</title>
 <!-- Favicon: Kinopolis Logo -->
-<link href="/logo-kinopolis-official.png" rel="icon" type="image/png"/>
-<link href="/logo-kinopolis-official.png" rel="apple-touch-icon"/>
-<link href="manifest.json" rel="manifest"/>
-<meta content="#0a0a0d" name="theme-color"/>
-<meta content="yes" name="apple-mobile-web-app-capable"/>
-<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&amp;family=Outfit:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="/oli-favicon.png" rel="icon" type="image/png">
+<link href="/oli-favicon.png" rel="apple-touch-icon">
+<link href="manifest.json" rel="manifest">
+<meta content="#0a0a0d" name="theme-color">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&amp;family=Outfit:wght@500;700&amp;display=swap" rel="stylesheet">
 <script>
         // --- STARTUP SOUND DISABLED ---
         window.playStartupSound = function() {};
@@ -3593,7 +3590,78 @@ function resetAndTestOli() {
   100% { transform: translateY(0) scale(1, 1); }
 }
 </style>
-</head>
+<style id="navbar-styles">\n
+/* Bottom Tab Bar (Opal Glass Style) */
+body {
+  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+}
+.tab-bar {
+  position: fixed;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  left: 32px;
+  right: 32px;
+  height: 68px;
+  background: rgba(40, 40, 44, 0.7);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 24px 48px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  border-radius: 34px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
+  padding: 0 12px;
+}
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-btn svg {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  stroke-width: 2px;
+  width: 24px;
+  height: 24px;
+}
+.tab-btn--active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+.tab-btn--active svg {
+  stroke-width: 2.5px;
+  transform: translateY(-2px);
+  filter: drop-shadow(0 4px 8px rgba(255,255,255,0.2));
+}
+.tab-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  transition: all 0.3s ease;
+}
+.tab-btn--active .tab-label {
+  transform: scale(1.05);
+}
+@media (max-width: 480px) {
+  .tab-bar {
+    left: 16px;
+    right: 16px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+}
+\n</style></head>
 <body class="dark-mode">
 <!-- ULTIMATE SPLASH FAILSAFE -->
 <script>
@@ -3645,7 +3713,7 @@ function resetAndTestOli() {
 <div id="splash-screen">
 <div class="splash-glow"></div>
 <div class="splash-logo-container">
-<img alt="Kinopolis" class="splash-logo-img" src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png?20260323"/>
+<img alt="Kinopolis" class="splash-logo-img" src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png?20260323">
 </div>
 <div class="splash-text">Automation Dashboard</div>
 </div>
@@ -3684,7 +3752,7 @@ function resetAndTestOli() {
 <div class="header-inner">
 <div class="brand">
 <div class="logo-container">
-<img alt="Kinopolis" class="logo" id="brand-logo" src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png?20260323"/>
+<img alt="Kinopolis" class="logo" id="brand-logo" src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png?20260323">
 </div>
 </div>
 <div class="header-right">
@@ -3763,23 +3831,23 @@ function resetAndTestOli() {
 <div class="modal-content glass" style="max-width: 450px;">
 <h2 style="font-family: 'Outfit', sans-serif;">📢 Neue interne Mitteilung</h2>
 <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Schreibe eine Nachricht für das gesamte Team (Sichtbar für alle).</p>
-<input class="input-field" id="msg-title" placeholder="Kurzer Titel (z.B. Mario Film Menü)" style="margin-bottom: 1rem;" type="text"/>
+<input class="input-field" id="msg-title" placeholder="Kurzer Titel (z.B. Mario Film Menü)" style="margin-bottom: 1rem;" type="text">
 <div style="margin-bottom: 1rem;">
 <label onmouseout="this.style.background='rgba(255,255,255,0.05)'" onmouseover="this.style.background='rgba(255,255,255,0.1)'" style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); padding: 0.75rem; border-radius: 12px; cursor: pointer; transition: all 0.2s;">
 <span style="font-size: 1.2rem;">🖼️</span>
 <span style="font-size: 0.85rem; color: #fff;">Bild hochladen</span>
-<input accept="image/*" id="msg-image-file" onchange="handleMessageImage(this)" style="display: none;" type="file"/>
+<input accept="image/*" id="msg-image-file" onchange="handleMessageImage(this)" style="display: none;" type="file">
 </label>
 </div>
 <div id="msg-image-preview" style="display: none; margin-bottom: 1rem; position: relative;">
-<img id="msg-preview-img" style="width: 100%; height: 120px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);"/>
+<img id="msg-preview-img" style="width: 100%; height: 120px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
 <button onclick="removeMessageImage()" style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); border: none; color: white; width: 24px; height: 24px; border-radius: 50%; cursor: pointer;">✕</button>
 </div>
-<input class="input-field" id="msg-image-url" placeholder="Oder Bild-URL (z.B. imgur link)" style="margin-bottom: 1rem;" type="text"/>
+<input class="input-field" id="msg-image-url" placeholder="Oder Bild-URL (z.B. imgur link)" style="margin-bottom: 1rem;" type="text">
 <textarea class="input-field" id="msg-content" placeholder="Inhalt der Nachricht..." style="height: 120px; resize: none;"></textarea>
 <div style="margin-top: 1rem;">
 <label style="font-size: 0.8rem; color: var(--text-muted);">Absender (optional)</label>
-<input class="input-field" id="msg-author" placeholder="Dein Name oder Position" style="margin-top: 0.3rem;" type="text"/>
+<input class="input-field" id="msg-author" placeholder="Dein Name oder Position" style="margin-top: 0.3rem;" type="text">
 </div>
 <div class="modal-actions" style="margin-top: 2rem;">
 <button class="btn-secondary" onclick="closeMessageModal()">Abbrechen</button>
@@ -3884,7 +3952,7 @@ function resetAndTestOli() {
 </div>
 <div style="margin-bottom: 1rem;">
 <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Sonstiges / Anmerkungen</label>
-<input class="input-field" id="transfer-custom" placeholder="z.B. 2x Reinigungsmittel, 1x Rolle Zewa..." style="padding: 0.75rem;" type="text"/>
+<input class="input-field" id="transfer-custom" placeholder="z.B. 2x Reinigungsmittel, 1x Rolle Zewa..." style="padding: 0.75rem;" type="text">
 </div>
 <button class="btn-primary" onclick="sendTransferList()" style="width: 100%; background: linear-gradient(135deg, #e50914, #b20710); color: #fff; border: none; font-weight: bold; padding: 1rem; border-radius: 12px; font-size: 1.05rem;">
                     🚀 Transferliste an TL senden
@@ -3907,7 +3975,7 @@ function resetAndTestOli() {
 </div>
 <div style="margin-bottom: 1rem;">
 <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; display: block;">Sonstiges / Anmerkungen</label>
-<input class="input-field" id="eis-transfer-custom" placeholder="z.B. Eis Löffel fehlen..." style="padding: 0.75rem;" type="text"/>
+<input class="input-field" id="eis-transfer-custom" placeholder="z.B. Eis Löffel fehlen..." style="padding: 0.75rem;" type="text">
 </div>
 <button class="btn-primary" onclick="sendEisTransferList()" style="width: 100%; background: linear-gradient(135deg, #3498db, #2980b9); color: #fff; border: none; font-weight: bold; padding: 1rem; border-radius: 12px; font-size: 1.05rem;">
                     🚀 Eisliste an Küche senden
@@ -3932,7 +4000,7 @@ function resetAndTestOli() {
 </div>
 <div>
 <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Datum</label>
-<input class="input-field" id="mhd-date-input" style="width: 100%;" type="date"/>
+<input class="input-field" id="mhd-date-input" style="width: 100%;" type="date">
 </div>
 </div>
 <button class="btn-primary" onclick="submitMHD()" style="width: 100%; background: linear-gradient(135deg, #f1c40f, #f39c12); color: #fff; border: none; font-weight: bold; padding: 1rem; border-radius: 12px; font-size: 1.05rem;">
@@ -3961,7 +4029,7 @@ function resetAndTestOli() {
 <span class="badge" id="alert-count-badge">0</span>
 </div>
 <button class="toggle-btn" id="alerts-toggle-btn">
-<svg height="24" viewbox="0 0 24 24" width="24">
+<svg height="24" viewBox="0 0 24 24" width="24">
 <path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path>
 </svg>
 </button>
@@ -3978,7 +4046,7 @@ function resetAndTestOli() {
 <span class="auslass-disclaimer" id="tasks-disclaimer">Auslässe: Ca. Ende + 30m · Plakatwechsel: Pop-up unter „Dringende Hinweise“ (ca. 20 Min nach Start)</span>
 </div>
 <button class="toggle-btn" id="auslaesse-toggle-btn">
-<svg height="24" viewbox="0 0 24 24" width="24">
+<svg height="24" viewBox="0 0 24 24" width="24">
 <path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path>
 </svg>
 </button>
@@ -4000,16 +4068,16 @@ function resetAndTestOli() {
             <div style="display: flex; flex-direction: column; gap: 1.25rem;">
                 <div>
                     <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Popcorn Säcke (Anzahl)</label>
-                    <input class="input-field" id="pop-saecke" placeholder="0" style="width: 100%;" type="number"/>
+                    <input class="input-field" id="pop-saecke" placeholder="0" style="width: 100%;" type="number">
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div>
                         <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">KG Salz</label>
-                        <input class="input-field" id="pop-salz" placeholder="0" style="width: 100%;" type="number"/>
+                        <input class="input-field" id="pop-salz" placeholder="0" style="width: 100%;" type="number">
                     </div>
                     <div>
                         <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">KG Süß</label>
-                        <input class="input-field" id="pop-suess" placeholder="0" style="width: 100%;" type="number"/>
+                        <input class="input-field" id="pop-suess" placeholder="0" style="width: 100%;" type="number">
                     </div>
                 </div>
                 <button class="btn-primary" onclick="submitInventoryCount('popcorn')" style="width: 100%; background: linear-gradient(135deg, #f1c40f, #f39c12); color: #fff; border: none; font-weight: bold; padding: 1rem; border-radius: 12px;">
@@ -4033,21 +4101,21 @@ function resetAndTestOli() {
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div>
                         <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">0.5L Rot (Anzahl)</label>
-                        <input class="input-field" id="becher-05-rot" placeholder="0" style="width: 100%;" type="number"/>
+                        <input class="input-field" id="becher-05-rot" placeholder="0" style="width: 100%;" type="number">
                     </div>
                     <div>
                         <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">0.5L Grün (Anzahl)</label>
-                        <input class="input-field" id="becher-05-gruen" placeholder="0" style="width: 100%;" type="number"/>
+                        <input class="input-field" id="becher-05-gruen" placeholder="0" style="width: 100%;" type="number">
                     </div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div>
                         <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">1.0L Rot (Anzahl)</label>
-                        <input class="input-field" id="becher-10-rot" placeholder="0" style="width: 100%;" type="number"/>
+                        <input class="input-field" id="becher-10-rot" placeholder="0" style="width: 100%;" type="number">
                     </div>
                     <div>
                         <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">1.0L Grün (Anzahl)</label>
-                        <input class="input-field" id="becher-10-gruen" placeholder="0" style="width: 100%;" type="number"/>
+                        <input class="input-field" id="becher-10-gruen" placeholder="0" style="width: 100%;" type="number">
                     </div>
                 </div>
                 <button class="btn-primary" onclick="submitInventoryCount('becher')" style="width: 100%; background: linear-gradient(135deg, #3498db, #2980b9); color: #fff; border: none; font-weight: bold; padding: 1rem; border-radius: 12px;">
@@ -4066,7 +4134,7 @@ function resetAndTestOli() {
 <span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic; margin-left: auto;">Local Storage</span>
 </div>
 <button class="toggle-btn" id="ws-toggle-btn" style="pointer-events: none;">
-<svg height="24" viewbox="0 0 24 24" width="24"><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path></svg>
+<svg height="24" viewBox="0 0 24 24" width="24"><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path></svg>
 </button>
 </div>
 <div class="collapsible-content" id="workstation-content" style="padding: 0 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;">
@@ -4088,7 +4156,7 @@ function resetAndTestOli() {
 <div id="ws-checklist-container">
 <div style="margin-bottom: 1rem;">
 <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">👤 Dein Name (Pflicht zum Abhaken)</label>
-<input class="input-field" id="ws-name-input" oninput="localStorage.setItem('kinopolis_shift_name', this.value)" placeholder="Name eingeben..." style="padding: 0.6rem 0.9rem; font-size: 0.95rem;" type="text"/>
+<input class="input-field" id="ws-name-input" oninput="localStorage.setItem('kinopolis_shift_name', this.value)" placeholder="Name eingeben..." style="padding: 0.6rem 0.9rem; font-size: 0.95rem;" type="text">
 </div>
 <div id="active-checklist-items" style="display: flex; flex-direction: column; gap: 0.5rem;">
 <!-- Items injected by JS -->
@@ -4103,7 +4171,7 @@ function resetAndTestOli() {
 </div>
 <!-- Filter Bar -->
 <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
-<input id="lf-search" oninput="loadLfItems()" placeholder="🔍 Suchen..." style="flex: 1; min-width: 140px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.9rem; outline: none;" type="text"/>
+<input id="lf-search" oninput="loadLfItems()" placeholder="🔍 Suchen..." style="flex: 1; min-width: 140px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.9rem; outline: none;" type="text">
 <select id="lf-filter-cat" onchange="loadLfItems()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.9rem;">
 <option value="">Alle Kategorien</option>
 <option value="Kleidung">👕 Kleidung</option>
@@ -4141,7 +4209,7 @@ function resetAndTestOli() {
 </select>
 </div>
 </div>
-<input class="input-field" id="tech-description-input" maxlength="240" placeholder="Kurz beschreiben (z.B. Kratzen bei lauter Szene, ca. 30 min)" style="width: 100%; padding: 0.65rem 0.85rem; margin-bottom: 0.5rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 8px; font-size: 0.9rem;" type="text"/>
+<input class="input-field" id="tech-description-input" maxlength="240" placeholder="Kurz beschreiben (z.B. Kratzen bei lauter Szene, ca. 30 min)" style="width: 100%; padding: 0.65rem 0.85rem; margin-bottom: 0.5rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 8px; font-size: 0.9rem;" type="text">
 <button class="btn-primary" onclick="submitTechTicket()" style="width: 100%; background: linear-gradient(135deg, #ff6b35, #e85a2b); color: white; border: none; font-weight: bold; padding: 0.85rem; border-radius: 10px; font-size: 0.95rem; cursor: pointer;">🚨 Störung melden</button>
 </div>
 <!-- Status-Filter -->
@@ -4177,27 +4245,27 @@ function resetAndTestOli() {
     <select class="input-field" id="fsk-fsk-select" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.95rem; width: 100%;">
     <option value="0">FSK 0 (Freigabe ohne Altersbeschränkung)</option>
     <option value="6">FSK 6</option>
-    <option value="12" selected>FSK 12</option>
+    <option value="12" selected="">FSK 12</option>
     <option value="16">FSK 16</option>
     <option value="18">FSK 18 (keine Jugendlichen)</option>
     </select>
     </div>
     <div>
     <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Vorstellungs-Beginn</label>
-    <input class="input-field" id="fsk-start-input" type="time" value="20:00" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.95rem; width: 100%;"/>
+    <input class="input-field" id="fsk-start-input" type="time" value="20:00" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.95rem; width: 100%;">
     </div>
     </div>
     <div style="margin-bottom: 0.75rem;">
     <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Dauer (Minuten)</label>
-    <input class="input-field" id="fsk-duration-input" type="number" min="30" max="400" value="120" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.95rem; width: 100%;"/>
+    <input class="input-field" id="fsk-duration-input" type="number" min="30" max="400" value="120" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.95rem; width: 100%;">
     </div>
 </div>
 <div style="margin-bottom: 0.75rem;">
 <label style="font-size: 0.85rem; color: var(--primary-blue); display: block; margin-bottom: 0.3rem; font-weight: 700;">🪪 Geburtsdatum der Person</label>
-<input class="input-field" id="fsk-birth-input" type="date" style="background: rgba(0,0,0,0.4); border: 2px solid var(--primary-blue); color: white; padding: 0.9rem; border-radius: 12px; font-size: 1.4rem; font-weight: 700; width: 100%; letter-spacing: 0.02em;"/>
+<input class="input-field" id="fsk-birth-input" type="date" style="background: rgba(0,0,0,0.4); border: 2px solid var(--primary-blue); color: white; padding: 0.9rem; border-radius: 12px; font-size: 1.4rem; font-weight: 700; width: 100%; letter-spacing: 0.02em;">
 </div>
 <label style="display: flex; align-items: center; gap: 0.6rem; padding: 0.7rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 0.75rem; cursor: pointer;">
-<input id="fsk-guardian-input" type="checkbox" style="width: 1.3rem; height: 1.3rem; accent-color: var(--primary-blue); cursor: pointer;"/>
+<input id="fsk-guardian-input" type="checkbox" style="width: 1.3rem; height: 1.3rem; accent-color: var(--primary-blue); cursor: pointer;">
 <span style="font-size: 0.95rem; color: white;">In Begleitung Erziehungsberechtigter (Eltern/Erziehungsberechtigte dabei)</span>
 </label>
 <!-- Verdict-Banner -->
@@ -4215,7 +4283,7 @@ function resetAndTestOli() {
             <h2 style="font-size: 1.25rem;">Concession Rezepte &amp; SOP-Guides</h2>
         </div>
         <button class="toggle-btn" id="concession-toggle-btn" style="pointer-events: none;">
-            <svg height="24" viewbox="0 0 24 24" width="24"><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path></svg>
+            <svg height="24" viewBox="0 0 24 24" width="24"><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path></svg>
         </button>
     </div>
     
@@ -4261,7 +4329,7 @@ function resetAndTestOli() {
                         <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Kesselgröße</label>
                         <select id="popcorn-kettle-size" onchange="calculatePopcornIngredients()" class="input-field" style="padding: 0.5rem; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; width: 100%;">
                             <option value="8">Klein (8 oz) - Ca. 2 Port. M</option>
-                            <option selected value="16">Mittel (16 oz) - Ca. 4 Port. M</option>
+                            <option selected="" value="16">Mittel (16 oz) - Ca. 4 Port. M</option>
                             <option value="32">Groß (32 oz) - Ca. 8 Port. M</option>
                         </select>
                     </div>
@@ -4403,7 +4471,7 @@ function resetAndTestOli() {
 <span class="badge" id="news-badge">0</span>
 </div>
 <button class="toggle-btn" id="news-toggle-btn" style="pointer-events: none;">
-<svg height="24" viewbox="0 0 24 24" width="24"><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path></svg>
+<svg height="24" viewBox="0 0 24 24" width="24"><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path></svg>
 </button>
 </div>
 <div class="collapsible-content" id="news-content" style="padding: 0 1.25rem 1.25rem;">
@@ -4418,7 +4486,7 @@ function resetAndTestOli() {
 <!-- TABBED SETTINGS PANEL WRAPPER -->
 <div class="einstellungen-section" id="settings-tab-wrapper">
     <div class="settings-layout">
-        <button onclick="document.body.classList.remove('einstellungen-active', 'mehr-active'); document.body.style.overflow='auto';" style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 2rem; color: var(--text-muted); cursor: pointer; z-index: 10;">&times;</button>
+        <button onclick="document.body.classList.remove('einstellungen-active', 'mehr-active'); document.body.style.overflow='auto';" style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 2rem; color: var(--text-muted); cursor: pointer; z-index: 10;">×</button>
         <!-- Sidebar Navigation -->
         <div class="settings-nav">
             <button class="settings-nav-btn active" onclick="window.setSettingsPage('profile', this); return false;">👤 Profil &amp; Rang</button>
@@ -4580,13 +4648,13 @@ function resetAndTestOli() {
                         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Wähle den Tag aus, für den du die Daten sehen möchtest.</p>
                         <div class="date-navigator" style="width: 100%; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 0.5rem;">
                             <button class="nav-btn" onclick="changeDate(-1)">
-                                <svg height="24" viewbox="0 0 24 24" width="24"><path d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" fill="currentColor"></path></svg>
+                                <svg height="24" viewBox="0 0 24 24" width="24"><path d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" fill="currentColor"></path></svg>
                             </button>
                             <div class="date-display" style="text-align: center; min-width: 120px;">
                                 <span class="settings-date-text" style="font-weight: 700; color: #fff;">Heute</span>
                             </div>
                             <button class="nav-btn" onclick="changeDate(1)">
-                                <svg height="24" viewbox="0 0 24 24" width="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" fill="currentColor"></path></svg>
+                                <svg height="24" viewBox="0 0 24 24" width="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" fill="currentColor"></path></svg>
                             </button>
                         </div>
                     </div>
@@ -4603,7 +4671,7 @@ function resetAndTestOli() {
                             <span class="badge" id="push-status-badge" style="background: var(--text-muted); font-size: 0.7rem;">Deaktiviert</span>
                         </div>
                         <button class="toggle-btn collapsed" id="push-toggle-btn" style="pointer-events: none;">
-                            <svg height="24" viewbox="0 0 24 24" width="24"><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path></svg>
+                            <svg height="24" viewBox="0 0 24 24" width="24"><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path></svg>
                         </button>
                     </div>
                     <div class="collapsible-content collapsed" id="push-settings-content" style="padding: 0 1.5rem 1.5rem;">
@@ -4620,14 +4688,14 @@ function resetAndTestOli() {
                                     </div>
                                 </div>
                                 <div class="spinner" id="push-spinner" style="width: 20px; height: 20px; display: none; margin: 0;"></div>
-                                <svg height="20" id="push-chevron" style="opacity: 0.5;" viewbox="0 0 24 24" width="20"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" fill="currentColor"></path></svg>
+                                <svg height="20" id="push-chevron" style="opacity: 0.5;" viewBox="0 0 24 24" width="20"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" fill="currentColor"></path></svg>
                             </div>
                             <button class="btn-primary" onclick="submitMessage()">Nachricht senden</button>
                             <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 1rem 0;">
                             <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                                 <h4 style="color: white; font-size: 1rem;">Telegram Bot (Alternativ)</h4>
                                 <p style="color: var(--text-muted); font-size: 0.85rem;">Trage hier deine Chat ID ein, um Nachrichten per Telegram zu erhalten.</p>
-                                <input type="text" id="telegram-chat-id" placeholder="Chat ID (z.B. 123456789)" class="input-field" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.75rem;" />
+                                <input type="text" id="telegram-chat-id" placeholder="Chat ID (z.B. 123456789)" class="input-field" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.75rem;">
                                 <button class="btn-secondary" onclick="saveTelegramSettings()" style="padding: 0.5rem; border-radius: 8px; margin-top: 0.5rem;">Speichern</button>
                             </div>
     
@@ -4645,7 +4713,7 @@ function resetAndTestOli() {
                             <h2 style="font-size: 1.25rem;">Links &amp; Handbücher</h2>
                         </div>
                         <button class="toggle-btn collapsed" id="links-toggle-btn" style="pointer-events: none;">
-                            <svg height="24" viewbox="0 0 24 24" width="24">
+                            <svg height="24" viewBox="0 0 24 24" width="24">
                                 <path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path>
                             </svg>
                         </button>
@@ -4817,10 +4885,10 @@ function resetAndTestOli() {
     <div class="section-header card-header" onclick="toggleSection('stats-content', 'stats-toggle-btn')" style="cursor: pointer; padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
         <div style="display: flex; align-items: center; gap: 0.8rem; flex: 1;">
             <span class="alert-icon-small" style="font-size: 1.4rem;">📊</span>
-            <h2 style="margin: 0;">Analytik & Auswertung</h2>
+            <h2 style="margin: 0;">Analytik &amp; Auswertung</h2>
         </div>
         <button class="toggle-btn" id="stats-toggle-btn" style="pointer-events: none;">
-            <svg height="24" viewbox="0 0 24 24" width="24">
+            <svg height="24" viewBox="0 0 24 24" width="24">
                 <path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" fill="currentColor"></path>
             </svg>
         </button>
@@ -4828,7 +4896,7 @@ function resetAndTestOli() {
     
     <div class="collapsible-content" id="stats-content" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 2.5rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h3 style="color: white; margin: 0;">Historie & Prognose</h3>
+                <h3 style="color: white; margin: 0;">Historie &amp; Prognose</h3>
                 <div>
                     <button class="btn-secondary" onclick="exportPDF()" style="margin-right: 0.5rem;">📄 PDF</button>
                     <button class="btn-secondary" onclick="exportExcel()">📊 Excel</button>
@@ -4841,7 +4909,7 @@ function resetAndTestOli() {
             </div>
 
             <div class="card-container glass" style="padding: 1.5rem; margin-bottom: 1.5rem;">
-                <h4 style="margin-bottom: 0.5rem; color: var(--text-muted);">Wetter & Auslastungs-Prognose</h4>
+                <h4 style="margin-bottom: 0.5rem; color: var(--text-muted);">Wetter &amp; Auslastungs-Prognose</h4>
                 <div id="weather-widget" style="display: flex; align-items: center; gap: 1rem;">
                     <div style="font-size: 2.5rem;" id="weather-icon">☁️</div>
                     <div>
@@ -4921,9 +4989,9 @@ function resetAndTestOli() {
                 <div style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Lade Top Filme...</div>
             </div>
         </div>
-    </div>
-</section>
-</div>
+    </section></div>
+
+
 <!-- INTERNAL NEWS (Moved to Settings) -->
 <!-- Staff Notes Section (Moved to Bottom) -->
 <script>
@@ -10570,7 +10638,7 @@ function resetAndTestOli() {
 <div id="oli-toast" class="oli-toast">
     <div class="oli-toast-media">
         <img id="oli-toast-img" src="" alt="Oli" style="display: none; width: 100%; height: 100%; object-fit: cover;">
-        <video id="oli-toast-vid" src="" autoplay loop muted playsinline style="display: none; width: 100%; height: 100%; object-fit: cover;"></video>
+        <video id="oli-toast-vid" src="" autoplay="" loop="" muted="" playsinline="" style="display: none; width: 100%; height: 100%; object-fit: cover;"></video>
     </div>
     <div class="oli-toast-content">
         <span id="oli-toast-msg" style="font-weight: 700; font-size: 0.9rem;">Bärenstarker Start!</span>
@@ -10583,7 +10651,7 @@ function resetAndTestOli() {
 <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Nachricht direkt und vertraulich an die BL senden. Andere können das nicht lesen (interne Datenbank/Mail).</p>
 <div style="display: flex; flex-direction: column; gap: 1rem;">
 <textarea id="feedback-text" placeholder="Deine Nachricht (Anregungen, Probleme, Wünsche)..." style="margin: 0;"></textarea>
-<input class="input-field" id="feedback-contact" placeholder="Dein Name (freiwillig) – lass leer für anonym" style="background: rgba(255,255,255,0.05);" type="text"/>
+<input class="input-field" id="feedback-contact" placeholder="Dein Name (freiwillig) – lass leer für anonym" style="background: rgba(255,255,255,0.05);" type="text">
 </div>
 <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; color: var(--text-muted);">
                 Support &amp; Website: <a href="https://artjombecker.com" style="color: var(--primary-blue); text-decoration: none; font-weight: 600;" target="_blank">artjombecker.com</a>
@@ -10616,11 +10684,11 @@ function resetAndTestOli() {
             <span style="font-size: 2rem;">📸</span>
             Foto aufnehmen oder auswählen
         </span>
-        <img id="lf-preview-img" class="lf-image-preview-img" style="display: none;" />
+        <img id="lf-preview-img" class="lf-image-preview-img" style="display: none;">
     </div>
     <input type="file" id="lf-image-input" accept="image/*" style="display: none;" onchange="handleLfImageUpload(this)">
 </div>
-</input></input></input></div>
+</div>
 <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
 <button class="btn-secondary" onclick="closeLfModal()" style="flex: 1;">Abbrechen</button>
 <button class="btn-primary" onclick="saveLfItem()" style="flex: 1;">Speichern</button>
@@ -10780,8 +10848,8 @@ function resetAndTestOli() {
         
         <div style="padding: 1.5rem 2rem 2.5rem 2rem; display: flex; flex-direction: column; align-items: center; text-align: center;">
             <div id="oli-avatar-container" style="width: 130px; height: 130px; border-radius: 50%; overflow: hidden; border: 4px solid rgba(255,255,255,0.1); margin-bottom: 1rem; box-shadow: 0 12px 25px rgba(0,0,0,0.4); position: relative; z-index: 2;">
-                <img id="oli-avatar-img" src="/assets/Oli/Oli_1.png" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: none;" />
-                <video id="oli-avatar-vid" src="/assets/Oli/Oli_1.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;"></video>
+                <img id="oli-avatar-img" src="/assets/Oli/Oli_1.png" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: none;">
+                <video id="oli-avatar-vid" src="/assets/Oli/Oli_1.mp4" autoplay="" loop="" muted="" playsinline="" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;"></video>
             </div>
             
             <div style="background: transparent; color: white; position: relative; margin-bottom: 1.5rem; width: 100%;">
@@ -10829,23 +10897,23 @@ function resetAndTestOli() {
 
 <!-- AI Chat Assistant -->
 <div id="ai-chat-fab" style="position: fixed; bottom: 20px; right: 20px; width: 64px; height: 64px; border-radius: 50%; background: #1a1b1f; box-shadow: 0 10px 25px rgba(229, 9, 20, 0.4); display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 9999; transition: transform 0.3s; overflow: hidden; border: 2px solid var(--primary-red);" onclick="openAiChat()">
-<img src="/assets/Oli/Oli_6.png" style="width: 80%; height: 80%; object-fit: contain; animation: duoBounce 3s infinite ease-in-out; flex-shrink: 0; transform: translateY(5px);" />
+<img src="/assets/Oli/Oli_6.png" style="width: 80%; height: 80%; object-fit: contain; animation: duoBounce 3s infinite ease-in-out; flex-shrink: 0; transform: translateY(5px);">
 </div>
 
 <div id="ai-chat-modal" style="display: none; position: fixed; bottom: 90px; right: 20px; width: 350px; height: 550px; background: var(--surface); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--shadow-premium); z-index: 9998; flex-direction: column; overflow: hidden;">
     <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center;">
         <h3 style="margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
             <div style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--primary-red); background: #1a1b1f; display: flex; justify-content: center; align-items: center; overflow: hidden;">
-                <img src="/assets/Oli/Oli_6.png" style="width: 80%; height: 80%; object-fit: contain; animation: duoBounce 3s infinite ease-in-out; transform: translateY(3px);" />
+                <img src="/assets/Oli/Oli_6.png" style="width: 80%; height: 80%; object-fit: contain; animation: duoBounce 3s infinite ease-in-out; transform: translateY(3px);">
             </div>
             OLI (KI-Assist)
         </h3>
-        <button onclick="closeAiChat()" style="background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem;">&times;</button>
+        <button onclick="closeAiChat()" style="background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem;">×</button>
     </div>
     
     <!-- OLI 6 Video Header inside Chat -->
     <div style="height: 140px; background: #1a1b1f; overflow: hidden; display: flex; justify-content: center; align-items: center; border-bottom: 2px solid var(--primary-red);">
-        <video src="/assets/Oli/Oli_6.mp4" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+        <video src="/assets/Oli/Oli_6.mp4" autoplay="" loop="" muted="" playsinline="" style="width: 100%; height: 100%; object-fit: cover;"></video>
     </div>
 
     <div id="ai-chat-messages" style="flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem;">
@@ -10854,7 +10922,7 @@ function resetAndTestOli() {
         </div>
     </div>
     <div style="padding: 1rem; border-top: 1px solid var(--glass-border); display: flex; gap: 0.5rem;">
-        <input type="text" id="ai-chat-input" placeholder="Frage etwas..." style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.5rem; color: white; outline: none;" onkeypress="if(event.key==='Enter') sendChatMessage()" />
+        <input type="text" id="ai-chat-input" placeholder="Frage etwas..." style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.5rem; color: white; outline: none;" onkeypress="if(event.key==='Enter') sendChatMessage()">
         <button onclick="sendChatMessage()" class="btn-primary" style="padding: 0.5rem 1rem; border-radius: 8px;">Senden</button>
     </div>
 </div>
@@ -11792,6 +11860,45 @@ window.applyPopcornPrognosis = applyPopcornPrognosis;
 
 
 <!-- Forced Feedback Modal -->
-</body>
 
-</html>
+
+
+
+<nav class="tab-bar">
+  <button class="tab-btn tab-btn--active" onclick="handleTabClick(this, 'alles')">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+    <span class="tab-label">Übersicht</span>
+  </button>
+  <button class="tab-btn" onclick="handleTabClick(this, 'theke')">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+    <span class="tab-label">Theke</span>
+  </button>
+  <button class="tab-btn" onclick="handleTabClick(this, 'einlass')">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
+    <span class="tab-label">Einlass</span>
+  </button>
+  <button class="tab-btn" onclick="handleTabClick(this, 'profil')">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+    <span class="tab-label">Profil</span>
+  </button>
+</nav>
+
+<script>
+function handleTabClick(btn, type) {
+    // Update active class
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-btn--active'));
+    btn.classList.add('tab-btn--active');
+    
+    // Trigger existing actions
+    if (type === 'profil') {
+        if(typeof AUTH !== 'undefined' && AUTH.showProfile) {
+            AUTH.showProfile();
+        }
+    } else {
+        if(typeof selectDept === 'function') {
+            selectDept(type);
+        }
+    }
+}
+</script>
+</body></html>
