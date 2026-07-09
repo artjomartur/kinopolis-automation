@@ -3595,6 +3595,12 @@ function resetAndTestOli() {
 body {
   padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
 }
+#help-floating-btn {
+  bottom: calc(100px + env(safe-area-inset-bottom, 0px)) !important;
+}
+.oli-toast {
+  bottom: calc(100px + env(safe-area-inset-bottom, 0px)) !important;
+}
 .tab-bar {
   position: fixed;
   bottom: calc(16px + env(safe-area-inset-bottom, 0px));
@@ -6541,7 +6547,7 @@ body {
             return outputArray;
         }
 
-        let TRANSFER_ITEMS = [
+        var TRANSFER_ITEMS = [
             { name: "🍿 Popcorn Süß", target: 40 },
             { name: "🧂 Popcorn Salz", target: 20 },
             { name: "🧀 Nachos", target: 50 },
@@ -6551,7 +6557,7 @@ body {
             { name: "🥤 Strohhalme", target: 200 }
         ];
 
-        let EIS_TRANSFER_ITEMS = [
+        var EIS_TRANSFER_ITEMS = [
             { name: "🍦 Magnum Classic", target: 20 },
             { name: "🍦 Magnum Mandel", target: 20 },
             { name: "🍦 Magnum White", target: 20 },
