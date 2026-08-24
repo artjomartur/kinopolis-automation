@@ -3837,16 +3837,7 @@ body {
 <!-- LIVE ALERT BANNER -->
 <div id="live-alert-banner" style="display:none; flex-direction:column; gap:0.5rem; margin-bottom:1rem; padding:0.75rem 1rem; background:rgba(231,76,60,0.1); border:1px solid rgba(231,76,60,0.4); border-radius:12px;">
 </div>
-<div class="nav-tabs" id="desktop-nav-tabs">
-<button class="tab-btn active tab-live" data-tab="live" id="tab-live" onclick="switchTab('live', this); return false;" type="button">🎬 Live</button>
-<button class="tab-btn stats-tab-btn tab-stats tl-only" data-tab="stats" id="tab-stats" onclick="switchTab('stats', this); return false;" type="button">📊 Statistik</button>
-<button class="tab-btn tab-kontakte" data-tab="kontakte" id="tab-kontakte" onclick="switchTab('kontakte', this); return false;" type="button">📞 Kontakte</button>
-<button class="tab-btn tools-tab-btn tab-funk" data-tab="funk" id="tab-funk" onclick="switchTab('funk', this); return false;" type="button">📡 Funk</button>
-<button class="tab-btn tab-intern" data-tab="intern" id="tab-intern" onclick="switchTab('intern', this); return false;" type="button">🛠️ Tools</button>
-<button class="tab-btn tab-scanner" data-tab="scanner" id="tab-scanner" onclick="switchTab('scanner', this); return false;" type="button">📷 Scanner</button>
-<button class="tab-btn tab-info" data-tab="info" id="tab-info" onclick="switchTab('info', this); return false;" type="button">🍿 Filme</button>
 
-</div>
 
 <!-- LIVE OVERVIEW DASHBOARD -->
 <div class="dashboard-grid live-section" id="dashboard">
@@ -5044,6 +5035,8 @@ body {
 <script>
         // --- ERROR TRACKING ---
         window.onerror = function(msg, url, line, col, error) {
+            if (typeof msg === 'string' && (msg.includes('isUrlTracking') || msg.includes('getSettingsInfo') || msg.includes('safari-extension') || msg.includes('chrome-extension'))) return false;
+            
             console.error('GLOBAL ERROR:', msg, 'at', line, ':', col);
             const errStr = `Fehler: ${msg} (Zeile ${line}:${col})`;
             if (typeof showToast === 'function') {
@@ -5059,8 +5052,10 @@ body {
         };
 
         window.addEventListener('unhandledrejection', function(event) {
-            console.error('Unhandled rejection:', event.reason);
             const msg = event.reason ? (event.reason.message || event.reason) : 'Unbekannter Promise-Fehler';
+            if (typeof msg === 'string' && (msg.includes('isUrlTracking') || msg.includes('getSettingsInfo') || msg.includes('safari-extension') || msg.includes('chrome-extension') || msg.includes('evaluating') || msg.includes('content script'))) return;
+            
+            console.error('Unhandled rejection:', event.reason);
             const errStr = `Promise-Fehler: ${msg}`;
             if (typeof showToast === 'function') {
                 showToast(errStr, true);
