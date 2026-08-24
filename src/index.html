@@ -5035,7 +5035,7 @@ body {
 <script>
         // --- ERROR TRACKING ---
         window.onerror = function(msg, url, line, col, error) {
-            if (typeof msg === 'string' && (msg.includes('isUrlTracking') || msg.includes('getSettingsInfo') || msg.includes('safari-extension') || msg.includes('chrome-extension'))) return false;
+            if (typeof msg === 'string' && (msg.includes('isUrlTracking') || msg.includes('getSettingsInfo') || msg.includes('safari-extension') || msg.includes('chrome-extension') || msg.includes('Push service'))) return false;
             
             console.error('GLOBAL ERROR:', msg, 'at', line, ':', col);
             const errStr = `Fehler: ${msg} (Zeile ${line}:${col})`;
@@ -5053,7 +5053,7 @@ body {
 
         window.addEventListener('unhandledrejection', function(event) {
             const msg = event.reason ? (event.reason.message || event.reason) : 'Unbekannter Promise-Fehler';
-            if (typeof msg === 'string' && (msg.includes('isUrlTracking') || msg.includes('getSettingsInfo') || msg.includes('safari-extension') || msg.includes('chrome-extension') || msg.includes('evaluating') || msg.includes('content script'))) return;
+            if (typeof msg === 'string' && (msg.includes('isUrlTracking') || msg.includes('getSettingsInfo') || msg.includes('safari-extension') || msg.includes('chrome-extension') || msg.includes('evaluating') || msg.includes('content script') || msg.includes('Push service'))) return;
             
             console.error('Unhandled rejection:', event.reason);
             const errStr = `Promise-Fehler: ${msg}`;
@@ -8958,7 +8958,7 @@ body {
                 
                 sessions.forEach((s, idx) => {
                     const isLastSession = (idx === sessions.length - 1);
-                    if (isLastSession) return; // Skip last session from Tagesaufgaben
+                    // if (isLastSession) return; // Skip last session from Tagesaufgaben (Removed because user wants to see all Auslässe)
 
                     const [h, m] = s.time.split(':').map(Number);
                     const startMin = h * 60 + m;
@@ -9148,7 +9148,7 @@ body {
             }).length;
 
             badge.textContent = totalActive;
-            container.style.display = liveTasks.length > 0 ? 'block' : 'none';
+            container.style.display = 'block'; // Always display the container, even if empty, so the user knows it's there
         }
 
         function getKpStationTasks(hallsGrouped) {
