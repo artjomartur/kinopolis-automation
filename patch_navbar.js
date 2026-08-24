@@ -126,6 +126,10 @@ function handleTabClick(btn, type) {
 </script>
 `;
 
+if ($('#mobile-tab-bar').length) {
+    $('#mobile-tab-bar').remove();
+}
+
 if (!$('nav.tab-bar').length) {
     $('body').append(navbarHTML);
 }

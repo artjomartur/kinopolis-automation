@@ -39,7 +39,7 @@ function resetAndTestOli() {
 </script>
 
 <meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
 <title>Kinopolis Dashboard V1.0</title>
 <!-- Favicon: Kinopolis Logo -->
 <link href="/oli-favicon.png" rel="icon" type="image/png">
@@ -362,6 +362,25 @@ function resetAndTestOli() {
             cursor: pointer;
             transition: all 0.3s;
             color: #fff;
+        }
+
+        .tab-btn.active {
+          color: #fff;
+          background: rgba(255, 255, 255, 0.1);
+        }
+        .tab-btn.active svg {
+          stroke-width: 2.5px;
+          transform: translateY(-2px);
+          filter: drop-shadow(0 4px 8px rgba(255,255,255,0.2));
+        }
+        .tab-label {
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 0.2px;
+          transition: all 0.3s ease;
+        }
+        .tab-btn.active .tab-label {
+          transform: scale(1.05);
         }
 
         .user-profile-btn:hover {
@@ -3606,6 +3625,7 @@ body {
   bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   left: 32px;
   right: 32px;
+  width: auto;
   height: 68px;
   background: rgba(40, 40, 44, 0.7);
   backdrop-filter: blur(20px) saturate(150%);
@@ -3630,35 +3650,56 @@ body {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  padding: 8px 16px;
-  border-radius: 20px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 11px;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+  flex: 1;
+  height: 56px;
+  border-radius: 28px;
+  position: relative;
   -webkit-tap-highlight-color: transparent;
 }
-.tab-btn svg {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  stroke-width: 2px;
-  width: 24px;
-  height: 24px;
+.tab-btn:hover {
+  color: #fff;
 }
 .tab-btn--active {
   color: #fff;
-  background: rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+}
+/* Opal Active Indicator */
+.tab-btn--active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+  z-index: -1;
+  pointer-events: none;
 }
 .tab-btn--active svg {
-  stroke-width: 2.5px;
-  transform: translateY(-2px);
-  filter: drop-shadow(0 4px 8px rgba(255,255,255,0.2));
+  color: #fff;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+}
+.tab-btn svg {
+  transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), color 0.2s;
+  width: 24px;
+  height: 24px;
+  stroke-width: 2px;
+}
+.tab-btn:active svg {
+  transform: scale(0.85);
+}
+.tab-btn:active {
+  transform: scale(0.92);
 }
 .tab-label {
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.2px;
-  transition: all 0.3s ease;
-}
-.tab-btn--active .tab-label {
-  transform: scale(1.05);
+  transition: all 0.2s ease;
 }
 @media (max-width: 480px) {
   .tab-bar {
@@ -10740,23 +10781,7 @@ body {
 </div>
 </div>
 <!-- MOBILE NAVIGATION (iOS Style) -->
-<nav class="mobile-nav" id="mobile-tab-bar">
-<a class="mobile-nav-item active nav-live" data-tab="live" href="#" onclick="switchTab('live', this); return false;" role="button">
-<span>🎬</span> Live
-            </a>
-<a class="mobile-nav-item nav-funk" data-tab="funk" href="#" onclick="switchTab('funk', this); return false;" role="button">
-<span>📡</span> Funk
-            </a>
-<a class="mobile-nav-item nav-scanner" data-tab="scanner" href="#" onclick="switchTab('scanner', this); return false;" role="button">
-<span>📷</span> Scanner
-</a>
-<a class="mobile-nav-item nav-action" data-tab="action" href="#" onclick="switchTab('action', this); return false;" role="button">
-<span>🛠️</span> Action
-            </a>
-<a class="mobile-nav-item nav-mehr" data-tab="mehr" href="#" onclick="switchTab('mehr', this); return false;" role="button">
-<span>📂</span> Mehr
-            </a>
-</nav>
+
 <div style="text-align: center; padding: 1.5rem 1rem 5rem; font-size: 0.7rem; color: var(--text-muted); opacity: 0.5;">
             System-Version: V1.0 · © 2026 Kinopolis Automation
         </div>
@@ -10824,7 +10849,7 @@ body {
     </script>
 
 
-    <div id="help-floating-btn" onclick="openHelpModal()" style="position: fixed; right: 1.5rem; bottom: 6.5rem; z-index: 9999; width: 56px; height: 56px; border-radius: 28px; background: var(--primary-red); color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 25px rgba(229, 9, 20, 0.4); border: 2px solid rgba(255,255,255,0.2); cursor: pointer; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+    <div id="help-floating-btn" onclick="openHelpModal()" style="position: fixed; right: 1.5rem; bottom: calc(150px + env(safe-area-inset-bottom, 0px)); z-index: 9999; width: 56px; height: 56px; border-radius: 28px; background: var(--primary-red); color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 25px rgba(229, 9, 20, 0.4); border: 2px solid rgba(255,255,255,0.2); cursor: pointer; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
         <span style="font-size: 1.5rem;">🆘</span>
     </div>
     <script>
@@ -10902,11 +10927,11 @@ body {
 </div>
 
 <!-- AI Chat Assistant -->
-<div id="ai-chat-fab" style="position: fixed; bottom: 20px; right: 20px; width: 64px; height: 64px; border-radius: 50%; background: #1a1b1f; box-shadow: 0 10px 25px rgba(229, 9, 20, 0.4); display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 9999; transition: transform 0.3s; overflow: hidden; border: 2px solid var(--primary-red);" onclick="openAiChat()">
+<div id="ai-chat-fab" style="position: fixed; bottom: calc(100px + env(safe-area-inset-bottom, 0px)); right: 20px; width: 64px; height: 64px; border-radius: 50%; background: #1a1b1f; box-shadow: 0 10px 25px rgba(229, 9, 20, 0.4); display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 9999; transition: transform 0.3s; overflow: hidden; border: 2px solid var(--primary-red);" onclick="openAiChat()">
 <img src="/assets/Oli/Oli_6.png" style="width: 80%; height: 80%; object-fit: contain; animation: duoBounce 3s infinite ease-in-out; flex-shrink: 0; transform: translateY(5px);">
 </div>
 
-<div id="ai-chat-modal" style="display: none; position: fixed; bottom: 90px; right: 20px; width: 350px; height: 550px; background: var(--surface); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--shadow-premium); z-index: 9998; flex-direction: column; overflow: hidden;">
+<div id="ai-chat-modal" style="display: none; position: fixed; bottom: calc(170px + env(safe-area-inset-bottom, 0px)); right: 20px; width: 350px; height: 550px; background: var(--surface); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--shadow-premium); z-index: 9998; flex-direction: column; overflow: hidden;">
     <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center;">
         <h3 style="margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
             <div style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--primary-red); background: #1a1b1f; display: flex; justify-content: center; align-items: center; overflow: hidden;">
@@ -11871,40 +11896,26 @@ window.applyPopcornPrognosis = applyPopcornPrognosis;
 
 
 <nav class="tab-bar">
-  <button class="tab-btn tab-btn--active" onclick="handleTabClick(this, 'alles')">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-    <span class="tab-label">Übersicht</span>
+  <button class="tab-btn active" data-tab="live" onclick="switchTab('live', this)">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+    <span class="tab-label">Live</span>
   </button>
-  <button class="tab-btn" onclick="handleTabClick(this, 'theke')">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-    <span class="tab-label">Theke</span>
+  <button class="tab-btn" data-tab="funk" onclick="switchTab('funk', this)">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-1.6-1.6-1.6-4.1 0-5.7"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c1.6 1.6 1.6 4.1 0 5.7"/><path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"/></svg>
+    <span class="tab-label">Funk</span>
   </button>
-  <button class="tab-btn" onclick="handleTabClick(this, 'einlass')">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
-    <span class="tab-label">Einlass</span>
+  <button class="tab-btn" data-tab="scanner" onclick="switchTab('scanner', this)">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+    <span class="tab-label">Scanner</span>
   </button>
-  <button class="tab-btn" onclick="handleTabClick(this, 'profil')">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-    <span class="tab-label">Profil</span>
+  <button class="tab-btn" data-tab="action" onclick="switchTab('action', this)">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    <span class="tab-label">Action</span>
+  </button>
+  <button class="tab-btn" data-tab="mehr" onclick="switchTab('mehr', this)">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+    <span class="tab-label">Mehr</span>
   </button>
 </nav>
 
-<script>
-function handleTabClick(btn, type) {
-    // Update active class
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-btn--active'));
-    btn.classList.add('tab-btn--active');
-    
-    // Trigger existing actions
-    if (type === 'profil') {
-        if(typeof AUTH !== 'undefined' && AUTH.showProfile) {
-            AUTH.showProfile();
-        }
-    } else {
-        if(typeof selectDept === 'function') {
-            selectDept(type);
-        }
-    }
-}
-</script>
 </body></html>

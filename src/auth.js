@@ -1,3 +1,18 @@
+// --- GLOBAL FETCH OVERRIDE FOR CAPACITOR ---
+const originalFetch = window.fetch;
+window.fetch = function() {
+    let args = Array.prototype.slice.call(arguments);
+    if (typeof args[0] === 'string' && args[0].startsWith('/api/')) {
+        // If running in Capacitor (iOS/Android), prepend the production URL
+        if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+            args[0] = 'https://kinopolis-automation.artjombecker.workers.dev' + args[0];
+        } else if (window.location.protocol === 'capacitor:' || window.location.protocol === 'app:') {
+            args[0] = 'https://kinopolis-automation.artjombecker.workers.dev' + args[0];
+        }
+    }
+    return originalFetch.apply(window, args);
+};
+
 const AUTH = {
     token: localStorage.getItem('kp_auth_token'),
     user: JSON.parse(localStorage.getItem('kp_user') || 'null'),
