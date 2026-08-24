@@ -3063,13 +3063,11 @@ function resetAndTestOli() {
         /* THEKE: Live (excl Auslässe, excl Poster), Kontakte, Funk, Tools, Settings */
         body.dept-theke .tab-stats, body.dept-theke .tab-info { display: none !important; }
         body.dept-theke .nav-stats { display: none !important; }
-        body.dept-theke .auslaesse-container { display: none !important; }
         body.dept-theke #poster-alerts-container { display: none !important; }
 
         /* KASSE: Live (excl Auslässe, excl Poster), Kontakte, Filme, Settings */
         body.dept-kasse .tab-funk, body.dept-kasse .tab-stats, body.dept-kasse .tab-intern { display: none !important; }
         body.dept-kasse .nav-funk { display: none !important; }
-        body.dept-kasse .auslaesse-container { display: none !important; }
         body.dept-kasse #poster-alerts-container { display: none !important; }
 
         /* Shared visibility for all: Tagesaufgaben, Fundbüro, Settings */
@@ -3086,10 +3084,8 @@ function resetAndTestOli() {
         body.dept-theke .hall-sessions-list, body.dept-kasse .hall-sessions-list { display: block; } 
         /* The user said "Live Daten exkl Auslässe exkl Poster" for THEKE/KASSE */
         
-        /* Hide TAGESAUFGABEN from LIVE tab for EINLASS as per request */
-        body.dept-einlass.live-active .auslaesse-container { display: none !important; }
-        /* But keep it visible when in tools/intern? User said "alle bekommen Tagesaufgaben" */
-        body.dept-einlass.action-active .auslaesse-container { display: block !important; }
+        /* Show TAGESAUFGABEN for EINLASS always */
+        body.dept-einlass .auslaesse-container { display: block !important; }
 
         .dept-btn {
             background: rgba(255,255,255,0.05);
