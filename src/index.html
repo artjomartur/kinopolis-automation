@@ -8954,7 +8954,7 @@ body {
                 
                 sessions.forEach((s, idx) => {
                     const isLastSession = (idx === sessions.length - 1);
-                    // if (isLastSession) return; // Skip last session from Tagesaufgaben (Removed because user wants to see all Auslässe)
+                    if (isLastSession) return; // Letzte Vorstellung überspringen, da diese nicht gereinigt werden muss
 
                     const [h, m] = s.time.split(':').map(Number);
                     const startMin = h * 60 + m;
