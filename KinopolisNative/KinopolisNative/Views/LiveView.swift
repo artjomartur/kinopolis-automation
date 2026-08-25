@@ -166,14 +166,26 @@ struct LiveView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
                         
-                        // Header
-                        HStack {
-                            VStack(alignment: .leading) {
+                        // Header with Oli
+                        HStack(spacing: 14) {
+                            Image("Oli")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 50, height: 50)
+                                .clipShape(Circle())
+                                .overlay(
+                                    Circle().stroke(
+                                        LinearGradient(colors: [Color.red, Color.orange], startPoint: .topLeading, endPoint: .bottomTrailing),
+                                        lineWidth: 2
+                                    )
+                                )
+                            
+                            VStack(alignment: .leading, spacing: 2) {
                                 Text("Willkommen zurück,")
                                     .font(.subheadline)
                                     .foregroundColor(.gray)
                                 Text(authManager.currentUser?.name ?? "Gast")
-                                    .font(.title)
+                                    .font(.title2)
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
                             }
@@ -202,14 +214,31 @@ struct LiveView: View {
                         .padding(.horizontal)
                         
                         if viewModel.isLoading && viewModel.halls.isEmpty {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .padding(.top, 50)
+                            VStack(spacing: 16) {
+                                Image("Oli_3_bgless")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 100)
+                                    .opacity(0.6)
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                Text("Oli lädt die Vorstellungen...")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.top, 40)
                         } else if let error = viewModel.errorMessage {
-                            Text(error)
-                                .foregroundColor(.red)
-                                .padding()
+                            VStack(spacing: 12) {
+                                Image("Oli_Error_bgless")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 80)
+                                Text(error)
+                                    .foregroundColor(.red)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .padding()
                         } else {
                             if viewModel.viewMode == 0 {
                                 // Sessions List

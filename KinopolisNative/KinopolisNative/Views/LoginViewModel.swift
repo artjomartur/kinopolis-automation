@@ -7,13 +7,8 @@ class LoginViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
     
-    // Lokale Benutzer-Datenbank (kein Server nötig)
-    // Hier kannst du Accounts hinzufügen/ändern:
-    private let localUsers: [[String: String]] = [
-        ["email": "admin@kinopolis.de", "password": "admin123", "name": "Admin", "role": "admin", "location": "su"],
-        ["email": "artjom@kinopolis.de", "password": "artjom123", "name": "Artjom", "role": "admin", "location": "su"],
-        ["email": "test@kinopolis.de", "password": "test123", "name": "Testnutzer", "role": "user", "location": "su"],
-    ]
+    // Deine Cloudflare Workers API (D1 Datenbank)
+    private let apiURL = "https://kinopolis.artjombecker.com"
     
     func login() {
         guard !email.isEmpty, !password.isEmpty else {
@@ -24,27 +19,50 @@ class LoginViewModel: ObservableObject {
         self.isLoading = true
         self.errorMessage = nil
         
-        // Kurze Verzögerung für realistisches Gefühl
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.isLoading = false
-            
-            // Lokale Prüfung
-            if let user = self.localUsers.first(where: {
-                $0["email"]?.lowercased() == self.email.lowercased() && $0["password"] == self.password
-            }) {
-                let authUser = AuthManager.User(
-                    id: UUID().uuidString,
-                    name: user["name"] ?? "Mitarbeiter",
-                    location: user["location"] ?? "su",
-                    role: user["role"] ?? "user"
-                )
+        guard let url = URL(string: "\(apiURL)/api/auth/login") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = 10
+        
+        let body: [String: Any] = ["email": email, "password": password]
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                self.isLoading = false
                 
-                // Token generieren und speichern
-                let token = "local-\(UUID().uuidString)"
-                AuthManager.shared.login(token: token, user: authUser)
-            } else {
-                self.errorMessage = "E-Mail oder Passwort falsch"
+                if let error = error {
+                    self.errorMessage = "Netzwerkfehler: \(error.localizedDescription)"
+                    return
+                }
+                
+                guard let data = data else {
+                    self.errorMessage = "Keine Daten empfangen"
+                    return
+                }
+                
+                do {
+                    if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                        if let token = json["token"] as? String,
+                           let userDict = json["user"] as? [String: Any] {
+                            
+                            let user = AuthManager.User(
+                                id: userDict["id"] as? String ?? "\(userDict["id"] as? Int ?? 0)",
+                                name: userDict["name"] as? String ?? "\(userDict["first_name"] as? String ?? "") \(userDict["last_name"] as? String ?? "")",
+                                location: userDict["location"] as? String ?? "su",
+                                role: userDict["role"] as? String ?? "user"
+                            )
+                            
+                            AuthManager.shared.login(token: token, user: user)
+                        } else {
+                            self.errorMessage = json["error"] as? String ?? "Anmeldung fehlgeschlagen"
+                        }
+                    }
+                } catch {
+                    self.errorMessage = "Fehler beim Verarbeiten der Antwort"
+                }
             }
-        }
+        }.resume()
     }
 }
