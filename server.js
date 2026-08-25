@@ -634,6 +634,6 @@ app.post('/api/push/broadcast', async (req, res) => {
     res.json({ sent, message: 'Nachrichten gesendet (Lokal)' });
 });
 
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Server running at http://0.0.0.0:${port} (Accessible locally via your IP)`);
 });

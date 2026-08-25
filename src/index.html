@@ -5055,7 +5055,7 @@ body.light-mode .tab-btn {
 
         // --- GLOBAL FETCH INTERCEPTOR FOR NATIVE IOS (CAPACITOR) ---
         // Change this URL to your production backend URL (e.g. 'https://kinopolis-api.com')
-        const APP_BACKEND_URL = 'https://good-women-rule.loca.lt'; 
+        const APP_BACKEND_URL = 'http://10.152.25.199:3001'; 
         
         const originalFetch = window.fetch;
         window.fetch = async function() {
@@ -5065,13 +5065,6 @@ body.light-mode .tab-btn {
             // If running as native app and fetching a relative /api/ path, prepend the backend URL
             if (isNative && typeof args[0] === 'string' && args[0].startsWith('/api/')) {
                 args[0] = APP_BACKEND_URL + args[0];
-            }
-
-            // Always add the Bypass-Tunnel-Reminder header to bypass localtunnel warnings
-            if (args[0].includes('loca.lt')) {
-                if (!args[1]) args[1] = {};
-                if (!args[1].headers) args[1].headers = {};
-                args[1].headers['Bypass-Tunnel-Reminder'] = 'true';
             }
 
             return originalFetch.apply(this, args);
