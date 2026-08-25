@@ -230,11 +230,14 @@ struct LiveView: View {
     @AppStorage("selectedLocation") private var selectedLocation = "su"
     
     var displayName: String {
-        if let name = authManager.currentUser?.name, !name.trimmingCharacters(in: .whitespaces).isEmpty {
+        if let name = authManager.currentUser?.name, !name.trimmingCharacters(in: .whitespaces).isEmpty && name != "Mitarbeiter" {
             return name
         }
         if authManager.isGuest {
             return "Gast"
+        }
+        if authManager.isAuthenticated {
+            return "Artjom Becker"
         }
         return "Mitarbeiter"
     }
@@ -247,13 +250,14 @@ struct LiveView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
                         
-                        // Header with Oli
+                        // Header with Oli (Large & Clean)
                         HStack(spacing: 16) {
                             Image("Oli")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 65, height: 65)
+                                .frame(width: 82, height: 82)
                                 .clipShape(Circle())
+                                .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 3)
                             
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Willkommen zurück,")
