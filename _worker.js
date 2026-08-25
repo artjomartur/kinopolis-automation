@@ -1229,8 +1229,8 @@ app.get('/api/sessions', async (c) => {
         if (c.env.DB) {
             try {
                 const archived = await c.env.DB.prepare(`
-                    SELECT * FROM occupancy_archive WHERE date = ?
-                `).bind(dateStr).all();
+                    SELECT * FROM occupancy_archive WHERE date = ? AND location = ?
+                `).bind(dateStr, location).all();
                 
                 if (archived.results && archived.results.length > 0) {
                     archived.results.forEach(a => {
