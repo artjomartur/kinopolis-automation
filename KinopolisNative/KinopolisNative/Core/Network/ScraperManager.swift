@@ -72,6 +72,12 @@ class ScraperManager {
             
             let durationText = try movieEl.select(".movie__specs-el, .prog2__movie-info-item, .prog2__infos").text().trimmingCharacters(in: .whitespacesAndNewlines)
             
+            var duration: Int? = nil
+            if let range = durationText.range(of: #"(\d+)\s*Min"#, options: .regularExpression) {
+                let minutesStr = durationText[range].replacingOccurrences(of: "Min", with: "").trimmingCharacters(in: .whitespaces)
+                duration = Int(minutesStr)
+            }
+            
             var seenSessions = Set<String>()
             
             let sessionElements = try movieEl.select(".prog2__cont, .prog2__movie-session")
@@ -116,15 +122,9 @@ class ScraperManager {
                     }
                 }
                 
-                if capacity <= 1 {
-                    if let match = occupancyText.range(of: #"(\d+)\s+(\d+)%\s+frei"#, options: .regularExpression) {
-                        // Regex fallback omitted for brevity, stick to defaults if extraction fails
-                    }
-                }
-                
                 let sold = Int(Double(capacity) * (1.0 - Double(freePercent) / 100.0))
                 
-                let session = Session(title: title, time: time, sold: sold, capacity: capacity, hall: hall)
+                let session = Session(title: title, time: time, sold: sold, capacity: capacity, hall: hall, duration: duration)
                 allSessions.append(session)
             }
         }
