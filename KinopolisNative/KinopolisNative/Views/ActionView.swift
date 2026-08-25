@@ -16,8 +16,6 @@ struct ActionView: View {
     @State private var incidentText = ""
     @State private var incidentLogs: [IncidentLog] = []
     
-    // Hall Override State (TL)
-    @State private var hallStatuses: [String: String] = [:]
     
     var currentHallsList: [String] {
         let loc = UserDefaults.standard.string(forKey: "selectedLocation") ?? "su"
@@ -210,47 +208,58 @@ struct ActionView: View {
                         )
                         .padding(.horizontal)
                         
-                        // SAAL STATUS & FREIGABEN (TL OVERRIDE)
+                        // SAAL MONITOR & EINLASS-STATUS (TL / BL LIVE-ÜBERSICHT)
                         VStack(alignment: .leading, spacing: 14) {
                             HStack {
                                 Image(systemName: "tv.fill")
                                     .foregroundColor(.blue)
-                                Text("Saal-Status & Freigaben")
+                                Text("Live Saal- & Einlass-Monitor")
                                     .font(.headline)
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
                                 Spacer()
+                                Text("Echtzeit")
+                                    .font(.caption2)
+                                    .fontWeight(.bold)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.blue.opacity(0.2))
+                                    .foregroundColor(.blue)
+                                    .cornerRadius(4)
                             }
                             
                             VStack(spacing: 8) {
                                 ForEach(currentHallsList, id: \.self) { hall in
-                                    HStack {
-                                        Text(hall)
-                                            .font(.subheadline)
-                                            .fontWeight(.bold)
-                                            .foregroundColor(.white)
+                                    let status = getLiveHallStatus(for: hall)
+                                    HStack(spacing: 12) {
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(hall)
+                                                .font(.subheadline)
+                                                .fontWeight(.bold)
+                                                .foregroundColor(.white)
+                                            
+                                            Text(status.detail)
+                                                .font(.caption2)
+                                                .foregroundColor(.gray)
+                                                .lineLimit(1)
+                                        }
                                         
                                         Spacer()
                                         
-                                        let currentStatus = hallStatuses[hall] ?? "Freigegeben"
-                                        Button(action: {
-                                            toggleHallStatus(hall: hall)
-                                        }) {
-                                            Text(currentStatus)
-                                                .font(.caption)
-                                                .fontWeight(.bold)
-                                                .padding(.horizontal, 10)
-                                                .padding(.vertical, 5)
-                                                .background(statusColor(for: currentStatus).opacity(0.2))
-                                                .foregroundColor(statusColor(for: currentStatus))
-                                                .cornerRadius(8)
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: 8)
-                                                        .stroke(statusColor(for: currentStatus).opacity(0.5), lineWidth: 1)
-                                                )
-                                        }
+                                        Text(status.badge)
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .padding(.horizontal, 10)
+                                            .padding(.vertical, 5)
+                                            .background(status.color.opacity(0.18))
+                                            .foregroundColor(status.color)
+                                            .cornerRadius(8)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 8)
+                                                    .stroke(status.color.opacity(0.4), lineWidth: 1)
+                                            )
                                     }
-                                    .padding(.vertical, 3)
+                                    .padding(.vertical, 4)
                                     if hall != currentHallsList.last {
                                         Divider().background(Color.white.opacity(0.06))
                                     }
@@ -496,6 +505,74 @@ struct ActionView: View {
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
+        .task {
+            await loadLiveSessions()
+        }
+    }
+    
+    @State private var liveHalls: [HallData] = []
+    
+    private func loadLiveSessions() async {
+        let loc = UserDefaults.standard.string(forKey: "selectedLocation") ?? "su"
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let dateStr = formatter.string(from: Date())
+        if let halls = try? await ScraperManager.shared.fetchSessions(location: loc, dateStr: dateStr) {
+            self.liveHalls = halls
+        }
+    }
+    
+    private func getLiveHallStatus(for hallName: String) -> (badge: String, detail: String, color: Color) {
+        let cleanName = hallName.lowercased().replacingOccurrences(of: "kino ", with: "").trimmingCharacters(in: .whitespaces)
+        guard let hallData = liveHalls.first(where: {
+            let h = $0.name.lowercased().replacingOccurrences(of: "kino ", with: "").trimmingCharacters(in: .whitespaces)
+            return h == cleanName || $0.name.lowercased().contains(cleanName)
+        }), let sessions = hallData.sessions, !sessions.isEmpty else {
+            return ("✨ Bereit", "Aktuell keine Vorstellungen", .gray)
+        }
+        
+        let now = Date()
+        let cal = Calendar.current
+        
+        // 1. Check if admission, film running or cleaning
+        for s in sessions {
+            let parts = s.time.split(separator: ":")
+            guard parts.count == 2, let h = Int(parts[0]), let m = Int(parts[1]) else { continue }
+            guard let startTime = cal.date(bySettingHour: h, minute: m, second: 0, of: now) else { continue }
+            let duration = s.duration ?? 120
+            let endTime = startTime.addingTimeInterval(TimeInterval(duration * 60))
+            let admissionStartTime = startTime.addingTimeInterval(-20 * 60) // 20 min before start
+            let admissionEndTime = startTime.addingTimeInterval(5 * 60)   // 5 min after start
+            
+            if now >= admissionStartTime && now < admissionEndTime {
+                return ("🎟️ Einlass", "\(s.title) (Start \(s.time))", .orange)
+            } else if now >= admissionEndTime && now < endTime {
+                let endStr = formatTime(endTime)
+                return ("🎬 Läuft", "\(s.title) (bis ~\(endStr))", .green)
+            } else if now >= endTime && now < endTime.addingTimeInterval(15 * 60) {
+                return ("🧹 Auslass", "\(s.title)", .blue)
+            }
+        }
+        
+        // 2. Next upcoming session today
+        let upcoming = sessions.compactMap { s -> (Session, Date)? in
+            let parts = s.time.split(separator: ":")
+            guard parts.count == 2, let h = Int(parts[0]), let m = Int(parts[1]) else { return nil }
+            guard let startTime = cal.date(bySettingHour: h, minute: m, second: 0, of: now), startTime > now else { return nil }
+            return (s, startTime)
+        }.sorted { $0.1 < $1.1 }.first
+        
+        if let next = upcoming {
+            return ("✨ Bereit", "Nächste: \(next.0.title) (\(next.0.time) Uhr)", .gray)
+        }
+        
+        return ("🏁 Beendet", "Keine weiteren Vorstellungen heute", .gray.opacity(0.8))
+    }
+    
+    private func formatTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: date)
     }
     
     private func toggleShift() {
@@ -516,26 +593,6 @@ struct ActionView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
         return formatter.string(from: date)
-    }
-    
-    private func toggleHallStatus(hall: String) {
-        let statuses = ["Freigegeben", "In Reinigung", "Gesperrt (Technik)"]
-        let current = hallStatuses[hall] ?? "Freigegeben"
-        if let idx = statuses.firstIndex(of: current) {
-            let next = statuses[(idx + 1) % statuses.count]
-            hallStatuses[hall] = next
-        }
-        let generator = UIImpactFeedbackGenerator(style: .medium)
-        generator.impactOccurred()
-    }
-    
-    private func statusColor(for status: String) -> Color {
-        switch status {
-        case "Freigegeben": return .green
-        case "In Reinigung": return .yellow
-        case "Gesperrt (Technik)": return .red
-        default: return .gray
-        }
     }
     
     private func addIncident() {

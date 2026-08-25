@@ -340,19 +340,17 @@ struct LiveView: View {
                                         }
                                     }
                                 }
-                                .padding(.horizontal)
                             }
                         }
                     }
+                    .padding(.bottom, 100)
                 }
-                .padding(.bottom, 100) // Padding for Tab Bar
+            }
+            .task {
+                await viewModel.fetchSessions()
             }
         }
-        .task {
-            await viewModel.fetchSessions()
-        }
     }
-}
 
 struct AuslassCard: View {
     let auslass: Auslass
