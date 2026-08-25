@@ -17,13 +17,19 @@ struct ActionView: View {
     @State private var incidentLogs: [IncidentLog] = []
     
     // Hall Override State (TL)
-    @State private var hallStatuses: [String: String] = [
-        "1": "Freigegeben",
-        "2": "Freigegeben",
-        "3": "In Reinigung",
-        "4": "Freigegeben",
-        "5": "Freigegeben"
-    ]
+    @State private var hallStatuses: [String: String] = [:]
+    
+    var currentHallsList: [String] {
+        let loc = UserDefaults.standard.string(forKey: "selectedLocation") ?? "su"
+        if loc == "kp" {
+            return ["Kino 1", "Kino 2", "Kino 3", "Kino 4", "Kino 5", "Kino 6", "Kino 7", "Kino 8"]
+        } else if loc == "cd" {
+            return ["Helia 1", "Helia 2", "Helia 3", "Helia 5", "Helia 7", "Festival", "Broadway", "Pali"]
+        } else if loc == "rx" {
+            return ["Rex 1", "Rex 2", "Rex 3"]
+        }
+        return ["OnyxLED", "Kino 1", "Kino 2", "Kino 3", "Kino 4", "Kino 5", "Kino 6", "Kino 7", "Kino 8", "Kino 9"]
+    }
     
     // TL Shift Opening Checklist
     @State private var tlOpeningChecklist: [ChecklistItem] = [
@@ -59,27 +65,12 @@ struct ActionView: View {
             
             ScrollView {
                 VStack(spacing: 20) {
-                    // Header
-                    HStack(spacing: 14) {
-                        Image("Oli_2_bgless")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 80)
-                        
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Team & Aktionen")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                            Text(selectedDept == "tl" ? "👔 TL / BL Schichtleitung" : "Tools & Schicht-Management")
-                                .font(.subheadline)
-                                .foregroundColor(selectedDept == "tl" ? .red : .gray)
-                        }
-                        
-                        Spacer()
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 16)
+                    // Unified App Header
+                    AppHeaderView(
+                        imageName: "Oli_2_bgless",
+                        subtitle: selectedDept == "tl" ? "👔 TL / BL Leitstand" : "Schicht-Management",
+                        title: "Team & Aktionen"
+                    )
                     
                     // 1. SCHICHT-CONTROL CARD
                     VStack(spacing: 14) {
@@ -231,10 +222,10 @@ struct ActionView: View {
                                 Spacer()
                             }
                             
-                            VStack(spacing: 10) {
-                                ForEach(["1", "2", "3", "4", "5"], id: \.self) { hall in
+                            VStack(spacing: 8) {
+                                ForEach(currentHallsList, id: \.self) { hall in
                                     HStack {
-                                        Text("Kino \(hall)")
+                                        Text(hall)
                                             .font(.subheadline)
                                             .fontWeight(.bold)
                                             .foregroundColor(.white)
@@ -259,8 +250,8 @@ struct ActionView: View {
                                                 )
                                         }
                                     }
-                                    .padding(.vertical, 4)
-                                    if hall != "5" {
+                                    .padding(.vertical, 3)
+                                    if hall != currentHallsList.last {
                                         Divider().background(Color.white.opacity(0.06))
                                     }
                                 }

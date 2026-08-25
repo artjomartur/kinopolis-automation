@@ -206,7 +206,13 @@ class ScraperManager {
         if location.lowercased() == "kp" {
             return halls.filter { hall in
                 let name = hall.name.lowercased()
-                return !cdHallKeywords.contains { name.contains($0) }
+                if cdHallKeywords.contains(where: { name.contains($0) }) { return false }
+                if name.contains("onyx") { return false }
+                if let match = name.range(of: #"\d+"#, options: .regularExpression),
+                   let num = Int(name[match]), num > 8 {
+                    return false
+                }
+                return true
             }
         } else if location.lowercased() == "cd" {
             return halls.filter { hall in

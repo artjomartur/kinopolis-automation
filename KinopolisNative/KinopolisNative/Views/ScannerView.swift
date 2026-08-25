@@ -16,33 +16,19 @@ struct ScannerView: View {
     @State private var scannedTicket: MockTicket? = nil
     @State private var showResult = false
     @State private var isScanning = true
+    @AppStorage("selectedLocation") private var selectedLocation = "su"
     
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Header
-                HStack(spacing: 12) {
-                    Image("Oli_Security_bgless")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 44, height: 44)
-                    
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Einlass-Scanner")
-                            .font(.title3)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        Text("QR-Code vor die Kamera halten")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    }
-                    
-                    Spacer()
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 12)
+                // Unified App Header
+                AppHeaderView(
+                    imageName: "Oli_Security_bgless",
+                    subtitle: "Kartenkontrolle",
+                    title: "Einlass-Scanner"
+                )
                 .background(Color(red: 24/255, green: 24/255, blue: 26/255))
                 
                 // Camera View
@@ -80,9 +66,20 @@ struct ScannerView: View {
         let movies = ["Deadpool & Wolverine", "Ich - Einfach unverbesserlich 4", "Alles steht Kopf 2", "Alien: Romulus"]
         let times = ["20:15", "17:30", "19:00", "22:45"]
         let fsks = ["FSK 16", "FSK 0", "FSK 6", "FSK 16"]
-        let halls = ["Kino 1", "Kino 4", "Kino 10", "Kino 5"]
+        let location = UserDefaults.standard.string(forKey: "selectedLocation") ?? "su"
+        let halls: [String]
+        if location == "kp" {
+            halls = ["Kino 1", "Kino 2", "Kino 3", "Kino 4", "Kino 5", "Kino 6", "Kino 7", "Kino 8"]
+        } else if location == "cd" {
+            halls = ["Helia 1", "Helia 2", "Helia 3", "Helia 5", "Helia 7", "Festival", "Broadway", "Pali"]
+        } else if location == "rx" {
+            halls = ["Rex 1", "Rex 2", "Rex 3"]
+        } else {
+            halls = ["OnyxLED", "Kino 1", "Kino 2", "Kino 3", "Kino 4", "Kino 5", "Kino 6", "Kino 7", "Kino 8", "Kino 9"]
+        }
         
         let randomIndex = Int.random(in: 0..<movies.count)
+        let randomHall = halls.randomElement() ?? "Kino 1"
         
         let ticket = MockTicket(
             isValid: randomValid,
@@ -91,7 +88,7 @@ struct ScannerView: View {
             movieTitle: movies[randomIndex],
             time: times[randomIndex],
             fsk: fsks[randomIndex],
-            hall: halls[randomIndex]
+            hall: randomHall
         )
         
         // Haptic feedback

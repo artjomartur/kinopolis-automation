@@ -2,6 +2,7 @@ import SwiftUI
 
 struct FunkView: View {
     @StateObject private var viewModel = FunkViewModel()
+    @AppStorage("selectedLocation") private var selectedLocation = "su"
     
     var body: some View {
         ZStack {
@@ -10,27 +11,12 @@ struct FunkView: View {
             
             ScrollView {
                 VStack(spacing: 20) {
-                    // Header with Oli
-                    HStack(spacing: 14) {
-                        Image("Oli_2_bgless")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 60)
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Nachschub-Ruf")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                            Text("Digitaler Funk")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                        }
-                        Spacer()
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 20)
-                    .padding(.bottom, 10)
+                    // Unified App Header
+                    AppHeaderView(
+                        imageName: "Oli_2_bgless",
+                        subtitle: "Digitaler Funk",
+                        title: "Team-Funk"
+                    )
                     
                     // Help Button
                     Button(action: {

@@ -27,40 +27,37 @@ struct MehrView: View {
             Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: 20) {
+                    // Unified App Header
+                    AppHeaderView(
+                        imageName: "Oli_Security_bgless",
+                        subtitle: "Konto & Einstellungen",
+                        title: authManager.currentUser?.name ?? "Artjom Becker"
+                    )
                     
                     // 1. PROFIL & LEVEL CARD
                     VStack(spacing: 16) {
                         HStack(spacing: 16) {
-                            Image("Oli_Security_bgless")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 90, height: 90)
-                                .background(Color.white.opacity(0.06))
-                                .clipShape(Circle())
-                                .overlay(Circle().stroke(Color.red.opacity(0.4), lineWidth: 2.5))
-                            
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(authManager.currentUser?.name ?? "Artjom Becker")
-                                    .font(.title3)
+                                Text("Mitarbeiter-Status")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                                Text(authManager.currentUser?.role.uppercased() ?? "ADMINISTRATOR")
+                                    .font(.headline)
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
-                                
-                                HStack(spacing: 8) {
-                                    Text(authManager.currentUser?.role.uppercased() ?? "ADMIN")
-                                        .font(.system(size: 10, weight: .heavy))
-                                        .foregroundColor(.red)
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 3)
-                                        .background(Color.red.opacity(0.15))
-                                        .cornerRadius(6)
-                                                                        Text("STANDORT: \(selectedLocation.uppercased())")
-                                        .font(.system(size: 10, weight: .bold))
-                                        .foregroundColor(.gray)
-                                }
                             }
                             
                             Spacer()
+                            
+                            Text(LocationData.name(for: selectedLocation))
+                                .font(.caption)
+                                .fontWeight(.bold)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(Color.white.opacity(0.08))
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
                         }
                         
                         // XP Progress Bar

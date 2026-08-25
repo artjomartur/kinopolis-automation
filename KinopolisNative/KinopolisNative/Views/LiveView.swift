@@ -243,72 +243,38 @@ struct LiveView: View {
     }
     
     var body: some View {
-        NavigationView {
-            ZStack {
-                Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
-                
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 20) {
-                        
-                        // Header with Oli (Extra Large & Prominent)
-                        HStack(spacing: 18) {
-                            Image("Oli")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 102, height: 102)
+        ZStack {
+            Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
+            
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    
+                    // Unified App Header
+                    AppHeaderView(
+                        imageName: "Oli",
+                        subtitle: "Willkommen zurück,",
+                        title: displayName
+                    ) {
+                        Button(action: {
+                            Task { await viewModel.fetchSessions() }
+                        }) {
+                            Image(systemName: "arrow.triangle.2.circlepath")
+                                .font(.body)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                                .padding(10)
+                                .background(Color.white.opacity(0.08))
                                 .clipShape(Circle())
-                                .shadow(color: Color.black.opacity(0.45), radius: 8, x: 0, y: 4)
-                            
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text("Willkommen zurück,")
-                                    .font(.subheadline)
-                                    .fontWeight(.medium)
-                                    .foregroundColor(.gray)
-                                
-                                Text(displayName)
-                                    .font(.title)
-                                    .fontWeight(.heavy)
-                                    .foregroundColor(.white)
-                                    .lineLimit(1)
-                                
-                                HStack(spacing: 5) {
-                                    Image(systemName: "mappin.circle.fill")
-                                        .font(.caption)
-                                    Text(LocationData.name(for: selectedLocation))
-                                        .font(.caption)
-                                        .fontWeight(.bold)
-                                        .lineLimit(1)
-                                }
-                                .foregroundColor(.red)
-                                .padding(.horizontal, 9)
-                                .padding(.vertical, 4)
-                                .background(Color.red.opacity(0.15))
-                                .cornerRadius(8)
-                            }
-                            
-                            Spacer()
-                            
-                            Button(action: {
-                                Task { await viewModel.fetchSessions() }
-                            }) {
-                                Image(systemName: "arrow.triangle.2.circlepath")
-                                    .font(.title2)
-                                    .foregroundColor(.white)
-                                    .padding(14)
-                                    .background(Color.white.opacity(0.08))
-                                    .clipShape(Circle())
-                            }
                         }
-                        .padding(.horizontal)
-                        .padding(.top, 12)
-                        
-                        // Mode Picker
-                        Picker("Ansicht", selection: $viewModel.viewMode) {
-                            Text("Vorstellungen").tag(0)
-                            Text("Auslassplan").tag(1)
-                        }
-                        .pickerStyle(SegmentedPickerStyle())
-                        .padding(.horizontal)
+                    }
+                    
+                    // Mode Picker
+                    Picker("Ansicht", selection: $viewModel.viewMode) {
+                        Text("Vorstellungen").tag(0)
+                        Text("Auslassplan").tag(1)
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .padding(.horizontal, 16)
                         
                         if viewModel.isLoading && viewModel.halls.isEmpty {
                             VStack(spacing: 16) {
@@ -378,13 +344,12 @@ struct LiveView: View {
                             }
                         }
                     }
-                    .padding(.bottom, 100) // Padding for Tab Bar
                 }
+                .padding(.bottom, 100) // Padding for Tab Bar
             }
-            .navigationBarHidden(true)
-            .task {
-                await viewModel.fetchSessions()
-            }
+        }
+        .task {
+            await viewModel.fetchSessions()
         }
     }
 }
@@ -508,6 +473,10 @@ struct SessionCard: View {
         return now > end
     }
     
+    var isRunning: Bool {
+        isPast && !hasEnded
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
@@ -516,8 +485,8 @@ struct SessionCard: View {
                     .fontWeight(.bold)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(isPast ? Color.gray.opacity(0.2) : Color.blue.opacity(0.2))
-                    .foregroundColor(isPast ? .gray : .blue)
+                    .background(isRunning ? Color.green.opacity(0.25) : (hasEnded ? Color.gray.opacity(0.2) : Color.blue.opacity(0.2)))
+                    .foregroundColor(isRunning ? .green : (hasEnded ? .gray : .blue))
                     .cornerRadius(8)
                 
                 // FSK Badge with custom colors
@@ -531,21 +500,26 @@ struct SessionCard: View {
                 
                 Spacer()
                 
-                if hasEnded {
+                if isRunning {
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(Color.green)
+                            .frame(width: 6, height: 6)
+                        Text("Läuft")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(.green)
+                    }
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 3)
+                    .background(Color.green.opacity(0.18))
+                    .cornerRadius(6)
+                } else if hasEnded {
                     Text("Beendet")
                         .font(.system(size: 9, weight: .bold))
                         .foregroundColor(.gray)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(Color.white.opacity(0.06))
-                        .cornerRadius(4)
-                } else if isPast {
-                    Text("Läuft")
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(.green)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.green.opacity(0.15))
                         .cornerRadius(4)
                 }
             }
@@ -582,14 +556,18 @@ struct SessionCard: View {
         }
         .padding(14)
         .frame(width: 220)
-        .background(Color.white.opacity(isPast ? 0.02 : 0.05))
+        .background(Color.white.opacity(hasEnded ? 0.02 : 0.05))
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(timeWarning != nil && !isPast ? (fskAge == 18 ? Color.red.opacity(0.4) : Color.orange.opacity(0.3)) : Color.white.opacity(isPast ? 0.04 : 0.1), lineWidth: 1)
+                .stroke(
+                    isRunning ? Color.green.opacity(0.4) :
+                    (timeWarning != nil && !hasEnded ? (fskAge == 18 ? Color.red.opacity(0.4) : Color.orange.opacity(0.3)) : Color.white.opacity(hasEnded ? 0.04 : 0.1)),
+                    lineWidth: isRunning ? 1.5 : 1
+                )
         )
-        .opacity(hasEnded ? 0.4 : (isPast ? 0.65 : 1.0))
-        .grayscale(hasEnded ? 0.5 : (isPast ? 0.2 : 0))
+        .opacity(hasEnded ? 0.35 : 1.0)
+        .grayscale(hasEnded ? 0.6 : 0)
     }
 }
 
