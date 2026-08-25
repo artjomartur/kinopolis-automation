@@ -3,11 +3,12 @@ const originalFetch = window.fetch;
 window.fetch = function() {
     let args = Array.prototype.slice.call(arguments);
     if (typeof args[0] === 'string' && args[0].startsWith('/api/')) {
-        // If running in Capacitor (iOS/Android), prepend the production URL
+        // If running in Capacitor (iOS/Android), prepend the server URL
+        // Use local server IP/localhost for development, change to prod URL when deploying!
         if (window.Capacitor && window.Capacitor.isNativePlatform()) {
-            args[0] = 'https://kinopolis-automation.artjombecker.workers.dev' + args[0];
+            args[0] = 'http://localhost:3001' + args[0];
         } else if (window.location.protocol === 'capacitor:' || window.location.protocol === 'app:') {
-            args[0] = 'https://kinopolis-automation.artjombecker.workers.dev' + args[0];
+            args[0] = 'http://localhost:3001' + args[0];
         }
     }
     return originalFetch.apply(window, args);

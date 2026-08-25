@@ -1,4 +1,4 @@
-require('dotenv').config();
+lrequire('dotenv').config();
 const express = require('express');
 const cheerio = require('cheerio');
 const cors = require('cors');
@@ -23,7 +23,7 @@ app.get('/api/health', (req, res) => {
 app.get('/api/sessions', async (req, res) => {
     const location = req.query.location || 'su';
     const tomorrow = req.query.tomorrow === 'true';
-    
+
     // Use provided date or default to today
     let dateStr = req.query.date;
     if (!dateStr) {
@@ -31,7 +31,7 @@ app.get('/api/sessions', async (req, res) => {
         if (tomorrow) targetDate.setDate(targetDate.getDate() + 1);
         dateStr = targetDate.toISOString().split('T')[0];
     }
-    
+
     const url = `https://www.kinopolis.de/${location}/programm?date=${dateStr}`;
 
     try {
@@ -50,14 +50,14 @@ app.get('/api/sessions', async (req, res) => {
         const dayNum = d.getDate();
         const monthNum = d.getMonth() + 1;
         const shortDateStr = `${dayNum < 10 ? '0' : ''}${dayNum}.${monthNum < 10 ? '0' : ''}${monthNum}`;
-        
+
         const isToday = dateStr === new Date().toISOString().split('T')[0];
         const isTomorrow = dateStr === new Date(Date.now() + 86400000).toISOString().split('T')[0];
 
         let allowedPerformanceIds = new Set();
         $('.prog-nav__item').each((_, navEl) => {
             const navText = $(navEl).text().trim().toLowerCase();
-            
+
             let matchesDate = false;
             if (isToday && navText.includes('heute')) matchesDate = true;
             else if (isTomorrow && navText.includes('morgen')) matchesDate = true;
@@ -221,8 +221,8 @@ app.get('/api/sessions', async (req, res) => {
     } catch (error) {
         console.error('Scraping error:', error);
         // Ensure we always return a JSON object even on crash
-        res.status(500).json({ 
-            error: 'Failed to fetch program', 
+        res.status(500).json({
+            error: 'Failed to fetch program',
             details: error.message,
             timestamp: new Date().toISOString()
         });
@@ -521,7 +521,7 @@ app.post('/api/auth/login', (req, res) => res.json({ token: 'mock-token', user: 
 // Mock endpoint for historical occupancy stats
 app.get('/api/stats/occupancy-history', (req, res) => {
     const location = req.query.location || 'kp';
-    
+
     // Generate trend data (last 7 days)
     const trend = [];
     for (let i = 6; i >= 0; i--) {
