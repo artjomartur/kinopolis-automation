@@ -3616,134 +3616,71 @@ body {
 .oli-toast {
   bottom: calc(100px + env(safe-area-inset-bottom, 0px)) !important;
 }
-/* --- Stacked Navbar (SkinStock Style) --- */
-.stacked-tab-container {
+/* --- Native iOS Tab Bar --- */
+.tab-bar {
   position: fixed;
-  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 32px);
-  max-width: 340px;
-  background: rgba(15, 15, 20, 0.65);
-  backdrop-filter: blur(40px) saturate(200%);
-  -webkit-backdrop-filter: blur(40px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 36px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 10000;
-  padding: 8px 12px;
-  /* Massive glowing green shadow */
-  box-shadow: 
-    0 40px 100px rgba(0, 255, 0, 0.25),
-    inset 0 1px 1px rgba(255, 255, 255, 0.15);
-}
-
-.stacked-top {
+  bottom: 0;
+  left: 0;
+  right: 0;
   width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 4px;
-}
-
-.stacked-action-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 20px;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 16px;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  -webkit-tap-highlight-color: transparent;
-}
-.stacked-action-btn svg {
-  width: 14px;
-  height: 14px;
-  stroke-width: 2.5px;
-}
-.stacked-action-btn.active {
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-}
-
-.stacked-bottom {
+  height: calc(50px + env(safe-area-inset-bottom, 0px));
+  background: rgba(20, 20, 22, 0.75);
+  backdrop-filter: blur(25px) saturate(200%);
+  -webkit-backdrop-filter: blur(25px) saturate(200%);
+  border-top: 0.5px solid rgba(255, 255, 255, 0.15);
   display: flex;
   justify-content: space-around;
-  align-items: center;
-  width: 100%;
+  align-items: flex-start;
+  z-index: 10000;
+  padding: 4px 8px env(safe-area-inset-bottom, 0px) 8px;
+  box-sizing: border-box;
+}
+
+body.light-mode .tab-bar {
+  background: rgba(245, 245, 245, 0.75);
+  border-top: 0.5px solid rgba(0, 0, 0, 0.15);
 }
 
 .tab-btn {
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.4);
+  color: #8E8E93; /* iOS standard inactive gray */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
+  justify-content: flex-start;
+  gap: 3px;
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
   flex: 1;
-  height: 52px;
-  border-radius: 26px;
+  height: 46px;
   position: relative;
   -webkit-tap-highlight-color: transparent;
-  z-index: 1;
-}
-
-.tab-btn:hover {
-  color: rgba(255, 255, 255, 0.8);
+  padding-top: 4px;
 }
 
 .tab-btn.active {
-  color: #fff;
-  font-weight: 700;
-}
-
-/* Capsule Background for Active Tab */
-.tab-btn.active::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 26px;
-  z-index: -1;
-  pointer-events: none;
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  color: #E5232A; /* Kinopolis Red Tint */
 }
 
 .tab-btn svg {
-  transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), color 0.2s;
-  width: 20px;
-  height: 20px;
-  stroke-width: 2.2px;
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.5px; /* iOS standard thin stroke */
+  transition: transform 0.15s ease;
+}
+
+.tab-btn.active svg {
+  stroke-width: 2px; /* Slightly bolder when active */
 }
 
 .tab-btn:active svg {
-  transform: scale(0.85);
-}
-
-.tab-btn:active {
-  transform: scale(0.92);
+  transform: scale(0.9);
 }
 
 .tab-label {
   font-size: 10px;
-  transition: all 0.2s ease;
 }
 \n</style></head>
 <body class="dark-mode">
@@ -11948,31 +11885,27 @@ window.applyPopcornPrognosis = applyPopcornPrognosis;
 
 
 
-<div class="stacked-tab-container">
-  <div class="stacked-top">
-    <button class="stacked-action-btn" data-tab="action" onclick="switchTab('action', this)">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m8 17 4 4 4-4"/></svg>
-      <span class="stacked-action-label">Action</span>
-    </button>
-  </div>
-  <div class="stacked-bottom">
-    <button class="tab-btn active" data-tab="live" onclick="switchTab('live', this)">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-      <span class="tab-label">Live</span>
-    </button>
-    <button class="tab-btn" data-tab="funk" onclick="switchTab('funk', this)">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-1.6-1.6-1.6-4.1 0-5.7"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c1.6 1.6 1.6 4.1 0 5.7"/><path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"/></svg>
-      <span class="tab-label">Funk</span>
-    </button>
-    <button class="tab-btn" data-tab="scanner" onclick="switchTab('scanner', this)">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
-      <span class="tab-label">Scanner</span>
-    </button>
-    <button class="tab-btn" data-tab="mehr" onclick="switchTab('mehr', this)">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
-      <span class="tab-label">Mehr</span>
-    </button>
-  </div>
-</div>
+<nav class="tab-bar">
+  <button class="tab-btn active" data-tab="live" onclick="switchTab('live', this)">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+    <span class="tab-label">Live</span>
+  </button>
+  <button class="tab-btn" data-tab="funk" onclick="switchTab('funk', this)">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-1.6-1.6-1.6-4.1 0-5.7"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c1.6 1.6 1.6 4.1 0 5.7"/><path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"/></svg>
+    <span class="tab-label">Funk</span>
+  </button>
+  <button class="tab-btn" data-tab="scanner" onclick="switchTab('scanner', this)">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+    <span class="tab-label">Scanner</span>
+  </button>
+  <button class="tab-btn" data-tab="action" onclick="switchTab('action', this)">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    <span class="tab-label">Action</span>
+  </button>
+  <button class="tab-btn" data-tab="mehr" onclick="switchTab('mehr', this)">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+    <span class="tab-label">Mehr</span>
+  </button>
+</nav>
 
 </body></html>
