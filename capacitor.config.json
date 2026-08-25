@@ -1,5 +1,8 @@
 {
   "appId": "com.artjombecker.skinstock",
   "appName": "kinopolis-automation",
-  "webDir": "dist"
+  "webDir": "dist",
+  "server": {
+    "cleartext": true
+  }
 }
