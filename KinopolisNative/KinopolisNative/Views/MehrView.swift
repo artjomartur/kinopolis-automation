@@ -10,6 +10,7 @@ struct MehrView: View {
     
     @State private var showResetAlert = false
     @State private var showContactSheet = false
+    @State private var showFundbueroSheet = false
     
     var userLevel: Int {
         (userXP / 150) + 1
@@ -98,7 +99,49 @@ struct MehrView: View {
                     .padding(.horizontal)
                     .padding(.top, 16)
                     
-                    // 2. WICHTIGE KONTAKTE (DIREKTANRUF)
+                    // 2. KINO-TOOLS & SERVICES
+                    VStack(alignment: .leading, spacing: 14) {
+                        Text("🛠️ Kino-Services")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding(.horizontal)
+                        
+                        Button(action: { showFundbueroSheet = true }) {
+                            HStack(spacing: 14) {
+                                Image(systemName: "bag.fill")
+                                    .font(.title3)
+                                    .foregroundColor(.orange)
+                                    .frame(width: 32)
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("🎒 Digitales Fundbüro")
+                                        .font(.subheadline)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                    Text("Fundsachen erfassen, suchen & aushändigen")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                            .padding(16)
+                            .background(Color.white.opacity(0.04))
+                            .cornerRadius(18)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 18)
+                                    .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                            )
+                        }
+                        .padding(.horizontal)
+                    }
+                    
+                    // 3. WICHTIGE KONTAKTE (DIREKTANRUF)
                     VStack(alignment: .leading, spacing: 14) {
                         Text("📞 Team & Notfall-Kontakte")
                             .font(.headline)
@@ -246,8 +289,10 @@ struct MehrView: View {
                             .foregroundColor(.gray.opacity(0.3))
                     }
                     .padding(.top, 8)
-                    .padding(.bottom, 110)
                 }
+            }
+            .sheet(isPresented: $showFundbueroSheet) {
+                FundbueroView()
             }
         }
     }

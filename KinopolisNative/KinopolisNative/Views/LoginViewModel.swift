@@ -47,9 +47,19 @@ class LoginViewModel: ObservableObject {
                         if let token = json["token"] as? String,
                            let userDict = json["user"] as? [String: Any] {
                             
+                            let first = userDict["first_name"] as? String ?? ""
+                            let last = userDict["last_name"] as? String ?? ""
+                            var fullName = "\(first) \(last)".trimmingCharacters(in: .whitespaces)
+                            if fullName.isEmpty {
+                                fullName = userDict["name"] as? String ?? ""
+                            }
+                            if fullName.isEmpty {
+                                fullName = userDict["email"] as? String ?? "Mitarbeiter"
+                            }
+                            
                             let user = AuthManager.User(
                                 id: userDict["id"] as? String ?? "\(userDict["id"] as? Int ?? 0)",
-                                name: userDict["name"] as? String ?? "\(userDict["first_name"] as? String ?? "") \(userDict["last_name"] as? String ?? "")",
+                                name: fullName,
                                 location: userDict["location"] as? String ?? "su",
                                 role: userDict["role"] as? String ?? "user"
                             )

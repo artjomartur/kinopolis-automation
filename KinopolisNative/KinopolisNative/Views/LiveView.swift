@@ -248,28 +248,24 @@ struct LiveView: View {
                     VStack(alignment: .leading, spacing: 20) {
                         
                         // Header with Oli
-                        HStack(spacing: 14) {
+                        HStack(spacing: 16) {
                             Image("Oli")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 50, height: 50)
+                                .frame(width: 65, height: 65)
                                 .clipShape(Circle())
-                                .overlay(
-                                    Circle().stroke(
-                                        LinearGradient(colors: [Color.red, Color.orange], startPoint: .topLeading, endPoint: .bottomTrailing),
-                                        lineWidth: 2
-                                    )
-                                )
                             
-                            VStack(alignment: .leading, spacing: 3) {
+                            VStack(alignment: .leading, spacing: 4) {
                                 Text("Willkommen zurück,")
-                                    .font(.subheadline)
+                                    .font(.caption)
+                                    .fontWeight(.medium)
                                     .foregroundColor(.gray)
                                 
                                 Text(displayName)
                                     .font(.title2)
-                                    .fontWeight(.bold)
+                                    .fontWeight(.heavy)
                                     .foregroundColor(.white)
+                                    .lineLimit(1)
                                 
                                 HStack(spacing: 4) {
                                     Image(systemName: "mappin.circle.fill")
@@ -280,8 +276,8 @@ struct LiveView: View {
                                         .lineLimit(1)
                                 }
                                 .foregroundColor(.red)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
                                 .background(Color.red.opacity(0.15))
                                 .cornerRadius(6)
                             }
@@ -292,10 +288,10 @@ struct LiveView: View {
                                 Task { await viewModel.fetchSessions() }
                             }) {
                                 Image(systemName: "arrow.triangle.2.circlepath")
-                                    .font(.title2)
+                                    .font(.title3)
                                     .foregroundColor(.white)
-                                    .padding(10)
-                                    .background(Color.white.opacity(0.1))
+                                    .padding(12)
+                                    .background(Color.white.opacity(0.08))
                                     .clipShape(Circle())
                             }
                         }

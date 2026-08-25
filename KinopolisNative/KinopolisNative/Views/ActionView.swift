@@ -11,6 +11,7 @@ struct ActionView: View {
     
     // TL State
     @State private var showIncidentSheet = false
+    @State private var showFundbueroSheet = false
     @State private var incidentCategory = "Technik"
     @State private var incidentText = ""
     @State private var incidentLogs: [IncidentLog] = []
@@ -406,7 +407,40 @@ struct ActionView: View {
                         .padding(.horizontal)
                     }
                     
-                    // 5. DURCHSAGE / NOTIZ SCHREIBEN
+                    // 5. DIGITALES FUNDBÜRO (FÜR ALLE)
+                    Button(action: { showFundbueroSheet = true }) {
+                        HStack(spacing: 14) {
+                            Image(systemName: "bag.fill")
+                                .font(.title2)
+                                .foregroundColor(.orange)
+                                .frame(width: 36)
+                            
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text("🎒 Digitales Fundbüro")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                Text("Fundsachen einsehen, eintragen & aushändigen")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.gray)
+                        }
+                        .padding(16)
+                        .background(Color.white.opacity(0.04))
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                        )
+                    }
+                    .padding(.horizontal)
+                    
+                    // 6. DURCHSAGE / NOTIZ SCHREIBEN
                     VStack(alignment: .leading, spacing: 14) {
                         HStack {
                             Image(systemName: "megaphone.fill")
@@ -446,6 +480,9 @@ struct ActionView: View {
                     
                     Spacer().frame(height: 100)
                 }
+            }
+            .sheet(isPresented: $showFundbueroSheet) {
+                FundbueroView()
             }
             
             // Toast

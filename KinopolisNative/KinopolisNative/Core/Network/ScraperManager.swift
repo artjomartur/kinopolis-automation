@@ -11,6 +11,25 @@ class ScraperManager {
     }
     
     func fetchSessions(location: String = "su", dateStr: String) async throws -> [HallData] {
+        // 1. Try Live Cloudflare Backend (Instant, pre-parsed, accurate FSK & capacity)
+        let backendUrlString = "https://kinopolis.artjombecker.com/api/sessions?location=\(location)&date=\(dateStr)"
+        if let backendUrl = URL(string: backendUrlString) {
+            var request = URLRequest(url: backendUrl)
+            request.timeoutInterval = 10
+            if let (data, response) = try? await URLSession.shared.data(for: request),
+               let http = response as? HTTPURLResponse, http.statusCode == 200 {
+                do {
+                    let decoded = try JSONDecoder().decode([HallData].self, from: data)
+                    if !decoded.isEmpty {
+                        return decoded
+                    }
+                } catch {
+                    print("Backend JSON decode fallback: \(error)")
+                }
+            }
+        }
+        
+        // 2. Direct Scraper Fallback
         let urlString = "https://www.kinopolis.de/\(location)/programm?date=\(dateStr)"
         guard let url = URL(string: urlString) else {
             throw ScraperError.invalidURL
