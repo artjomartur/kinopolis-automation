@@ -3,9 +3,7 @@ import Foundation
 class NetworkManager {
     static let shared = NetworkManager()
     
-    // For iOS Simulator testing, localhost points to the Mac.
-    // Replace with actual Cloudflare worker URL or physical device IP when building for production/device.
-    let baseURL = "http://localhost:3001/api"
+    let baseURL = "https://kinopolis.artjombecker.com/api"
     
     enum NetworkError: Error {
         case invalidURL

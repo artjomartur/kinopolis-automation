@@ -24,52 +24,36 @@ struct ContentView: View {
     }
     
     var body: some View {
-        // Original Apple UI TabBarx
         TabView(selection: $selectedTab) {
-            NavigationStack {
-                LiveView()
-                    .navigationTitle("Live")
-            }
-            .tabItem {
-                Label("Live", systemImage: "play.rectangle.fill")
-            }
-            .tag(Tab.live)
+            LiveView()
+                .tabItem {
+                    Label("Live", systemImage: "play.rectangle.fill")
+                }
+                .tag(Tab.live)
             
-            NavigationStack {
-                FunkView()
-                    .navigationTitle("Funk")
-            }
-            .tabItem {
-                Label("Funk", systemImage: "dot.radiowaves.left.and.right")
-            }
-            .tag(Tab.funk)
+            FunkView()
+                .tabItem {
+                    Label("Funk", systemImage: "dot.radiowaves.left.and.right")
+                }
+                .tag(Tab.funk)
             
-            NavigationStack {
-                ScannerView()
-                    .navigationTitle("Scanner")
-            }
-            .tabItem {
-                Label("Scanner", systemImage: "qrcode.viewfinder")
-            }
-            .tag(Tab.scanner)
+            ScannerView()
+                .tabItem {
+                    Label("Scanner", systemImage: "qrcode.viewfinder")
+                }
+                .tag(Tab.scanner)
             
-            NavigationStack {
-                ActionView()
-                    .navigationTitle("Action")
-            }
-            .tabItem {
-                Label("Action", systemImage: "bolt.fill")
-            }
-            .tag(Tab.action)
+            ActionView()
+                .tabItem {
+                    Label("Action", systemImage: "bolt.fill")
+                }
+                .tag(Tab.action)
             
-            NavigationStack {
-                MehrView()
-                    .navigationTitle("Mehr")
-            }
-            .tabItem {
-                Label("Mehr", systemImage: "line.3.horizontal")
-            }
-            .tag(Tab.mehr)
+            MehrView()
+                .tabItem {
+                    Label("Mehr", systemImage: "line.3.horizontal")
+                }
+                .tag(Tab.mehr)
         }
         // Use default Apple appearance
         .onAppear {

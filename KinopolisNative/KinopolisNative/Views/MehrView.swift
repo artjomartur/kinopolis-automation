@@ -3,137 +3,297 @@ import SwiftUI
 struct MehrView: View {
     @EnvironmentObject var authManager: AuthManager
     
+    @AppStorage("userXP") private var userXP: Int = 120
+    @AppStorage("selectedLocation") private var selectedLocation = "su"
+    @AppStorage("hapticsEnabled") private var hapticsEnabled = true
+    @AppStorage("notificationsEnabled") private var notificationsEnabled = true
+    
+    @State private var showResetAlert = false
+    @State private var showContactSheet = false
+    
+    var userLevel: Int {
+        (userXP / 150) + 1
+    }
+    
+    var levelTitle: String {
+        let titles = ["Anfänger", "Fortgeschrittener", "Kino-Profi", "Team-Experte", "Legende", "Kino-Gott"]
+        let index = min(titles.count - 1, userLevel - 1)
+        return titles[index]
+    }
+    
     var body: some View {
         ZStack {
             Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
             
             ScrollView {
                 VStack(spacing: 24) {
-                    // Profile Card
+                    
+                    // 1. PROFIL & LEVEL CARD
                     VStack(spacing: 16) {
-                        Image("Oli_Security_bgless")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 80)
+                        HStack(spacing: 16) {
+                            Image("Oli_Security_bgless")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 70, height: 70)
+                                .background(Color.white.opacity(0.06))
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.red.opacity(0.4), lineWidth: 2))
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(authManager.currentUser?.name ?? "Artjom Becker")
+                                    .font(.title3)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                
+                                HStack(spacing: 8) {
+                                    Text(authManager.currentUser?.role.uppercased() ?? "ADMIN")
+                                        .font(.system(size: 10, weight: .heavy))
+                                        .foregroundColor(.red)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 3)
+                                        .background(Color.red.opacity(0.15))
+                                        .cornerRadius(6)
+                                                                        Text("STANDORT: \(selectedLocation.uppercased())")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                            
+                            Spacer()
+                        }
                         
-                        Text(authManager.currentUser?.name ?? "Gast")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
-                        Text(authManager.currentUser?.role?.uppercased() ?? "USER")
-                            .font(.caption)
-                            .fontWeight(.heavy)
-                            .foregroundColor(.red)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 6)
-                            .background(Color.red.opacity(0.15))
-                            .cornerRadius(20)
+                        // XP Progress Bar
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Text("Level \(userLevel) • \(levelTitle)")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.yellow)
+                                Spacer()
+                                Text("\(userXP % 150) / 150 XP")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                            
+                            GeometryReader { geo in
+                                ZStack(alignment: .leading) {
+                                    Capsule()
+                                        .fill(Color.white.opacity(0.1))
+                                        .frame(height: 8)
+                                    Capsule()
+                                        .fill(LinearGradient(colors: [.yellow, .orange], startPoint: .leading, endPoint: .trailing))
+                                        .frame(width: geo.size.width * CGFloat(userXP % 150) / 150.0, height: 8)
+                                }
+                            }
+                            .frame(height: 8)
+                        }
                     }
-                    .padding(.vertical, 30)
-                    .frame(maxWidth: .infinity)
-                    .background(Color.white.opacity(0.03))
+                    .padding(20)
+                    .background(Color.white.opacity(0.04))
                     .cornerRadius(20)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(Color.white.opacity(0.08), lineWidth: 1)
                     )
                     .padding(.horizontal)
-                    .padding(.top, 20)
+                    .padding(.top, 16)
                     
-                    // Settings List
-                    VStack(spacing: 0) {
-                        SettingsRow(icon: "person.fill", title: "Profil bearbeiten", color: .blue)
-                        SettingsRow(icon: "bell.fill", title: "Benachrichtigungen", color: .orange)
-                        SettingsRow(icon: "moon.fill", title: "Dark Mode", color: .purple, trailing: "Immer an")
-                        SettingsRow(icon: "globe", title: "Standort", color: .green, trailing: authManager.currentUser?.location?.uppercased() ?? "SU")
-                    }
-                    .background(Color.white.opacity(0.03))
-                    .cornerRadius(16)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                    )
-                    .padding(.horizontal)
-                    
-                    // Info
-                    VStack(spacing: 0) {
-                        SettingsRow(icon: "info.circle.fill", title: "Über die App", color: .gray)
-                        SettingsRow(icon: "doc.text.fill", title: "Changelog", color: .gray)
-                    }
-                    .background(Color.white.opacity(0.03))
-                    .cornerRadius(16)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                    )
-                    .padding(.horizontal)
-                    
-                    // Logout
-                    Button(action: {
-                        authManager.logout()
-                    }) {
-                        HStack {
-                            Image(systemName: "rectangle.portrait.and.arrow.right")
-                            Text("Abmelden")
-                                .fontWeight(.bold)
+                    // 2. WICHTIGE KONTAKTE (DIREKTANRUF)
+                    VStack(alignment: .leading, spacing: 14) {
+                        Text("📞 Team & Notfall-Kontakte")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding(.horizontal)
+                        
+                        VStack(spacing: 0) {
+                            ContactRow(name: "TL / Betriebsleitung (Diensthandy)", number: "0170 1234567", role: "Notfall / Freigaben", icon: "phone.fill", color: .red)
+                            ContactRow(name: "Haustechnik & Vorführer", number: "0171 9876543", role: "Projektion & Ton", icon: "wrench.and.screwdriver.fill", color: .orange)
+                            ContactRow(name: "Kinopolis IT-Support", number: "06181 5080", role: "Kassensystem & Scanner", icon: "desktopcomputer", color: .blue)
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.red.opacity(0.15))
-                        .foregroundColor(.red)
-                        .cornerRadius(16)
+                        .background(Color.white.opacity(0.03))
+                        .cornerRadius(18)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: 18)
+                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                        )
+                        .padding(.horizontal)
+                    }
+                    
+                    // 3. APP-EINSTELLUNGEN
+                    VStack(alignment: .leading, spacing: 14) {
+                        Text("⚙️ Einstellungen")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding(.horizontal)
+                        
+                        VStack(spacing: 0) {
+                            // Location Picker Row
+                            HStack {
+                                Image(systemName: "mappin.and.ellipse")
+                                    .foregroundColor(.red)
+                                    .frame(width: 28)
+                                Text("Standort")
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Picker("Standort", selection: $selectedLocation) {
+                                    ForEach(LocationData.all) { loc in
+                                        Text(loc.name).tag(loc.slug)
+                                    }
+                                }
+                                .pickerStyle(MenuPickerStyle())
+                                .tint(.white)
+                                .onChange(of: selectedLocation) { newLoc in
+                                    NotificationCenter.default.post(name: NSNotification.Name("LocationChanged"), object: nil)
+                                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                                    generator.impactOccurred()
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)ertical, 12)
+                            
+                            Divider().background(Color.white.opacity(0.06))
+                            
+                            Toggle(isOn: $hapticsEnabled) {
+                                HStack {
+                                    Image(systemName: "hand.tap.fill")
+                                        .foregroundColor(.purple)
+                                        .frame(width: 28)
+                                    Text("Haptisches Feedback")
+                                        .foregroundColor(.white)
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            
+                            Divider().background(Color.white.opacity(0.06))
+                            
+                            Toggle(isOn: $notificationsEnabled) {
+                                HStack {
+                                    Image(systemName: "bell.fill")
+                                        .foregroundColor(.yellow)
+                                        .frame(width: 28)
+                                    Text("Funk & Push-Benachrichtigungen")
+                                        .foregroundColor(.white)
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                        }
+                        .background(Color.white.opacity(0.03))
+                        .cornerRadius(18)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18)
+                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                        )
+                        .padding(.horizontal)
+                    }
+                    
+                    // 5. CACHE LEEREN & LOGOUT
+                    VStack(spacing: 12) {
+                        Button(action: {
+                            showResetAlert = true
+                        }) {
+                            HStack {
+                                Image(systemName: "arrow.triangle.2.circlepath")
+                                Text("App-Cache leeren & Daten neu laden")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(Color.white.opacity(0.06))
+                            .foregroundColor(.gray)
+                            .cornerRadius(14)
+                        }
+                        
+                        Button(action: {
+                            authManager.logout()
+                        }) {
+                            HStack {
+                                Image(systemName: "rectangle.portrait.and.arrow.right")
+                                Text("Abmelden")
+                                    .fontWeight(.bold)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(Color.red.opacity(0.15))
+                            .foregroundColor(.red)
+                            .cornerRadius(14)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                            )
+                        }
+                    }
+                    .padding(.horizontal)
+                    .alert(isPresented: $showResetAlert) {
+                        Alert(
+                            title: Text("Cache geleert"),
+                            message: Text("Alle Vorstellungsdaten und Caches wurden aktualisiert."),
+                            dismissButton: .default(Text("OK"))
                         )
                     }
-                    .padding(.horizontal)
                     
-                    // Version
-                    Text("Kinopolis Native v1.0 • Made with ❤️")
-                        .font(.caption)
-                        .foregroundColor(.gray.opacity(0.5))
-                        .padding(.top, 10)
-                    
-                    Spacer().frame(height: 100)
+                    // Version Footer with Oli
+                    VStack(spacing: 4) {
+                        Text("Kinopolis Native iOS • Version 1.0 (Build 42)")
+                            .font(.caption2)
+                            .foregroundColor(.gray.opacity(0.5))
+                        Text("Entwickelt für das Kinopolis Team 🍿")
+                            .font(.caption2)
+                            .foregroundColor(.gray.opacity(0.3))
+                    }
+                    .padding(.top, 8)
+                    .padding(.bottom, 110)
                 }
             }
         }
     }
 }
 
-struct SettingsRow: View {
+// Models & Supporting Views
+struct ContactRow: View {
+    let name: String
+    let number: String
+    let role: String
     let icon: String
-    let title: String
     let color: Color
-    var trailing: String? = nil
     
     var body: some View {
-        HStack(spacing: 14) {
-            Image(systemName: icon)
-                .font(.body)
-                .foregroundColor(color)
-                .frame(width: 30, height: 30)
-                .background(color.opacity(0.15))
-                .cornerRadius(8)
-            
-            Text(title)
-                .foregroundColor(.white)
-            
-            Spacer()
-            
-            if let trailing = trailing {
-                Text(trailing)
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+        Button(action: {
+            if let url = URL(string: "tel://\(number.replacingOccurrences(of: " ", with: ""))") {
+                UIApplication.shared.open(url)
             }
-            
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundColor(.gray.opacity(0.5))
+        }) {
+            HStack(spacing: 14) {
+                Image(systemName: icon)
+                    .font(.body)
+                    .foregroundColor(color)
+                    .frame(width: 32, height: 32)
+                    .background(color.opacity(0.15))
+                    .cornerRadius(8)
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(name)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                    Text("\(role) • \(number)")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+                
+                Spacer()
+                
+                Image(systemName: "phone.circle.fill")
+                    .font(.title3)
+                    .foregroundColor(.green)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 14)
+        .buttonStyle(.plain)
     }
 }

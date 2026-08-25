@@ -78,6 +78,19 @@ class ScraperManager {
                 duration = Int(minutesStr)
             }
             
+            // Extract FSK (0, 6, 12, 16, 18)
+            var fskStr = "FSK 12"
+            let fullInfoText = try movieEl.text()
+            if let fskMatch = fullInfoText.range(of: #"(?:FSK|ab)\s*(\d+)"#, options: .regularExpression) {
+                let rawMatch = String(fullInfoText[fskMatch])
+                let digits = rawMatch.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+                if let age = Int(digits), [0, 6, 12, 16, 18].contains(age) {
+                    fskStr = "FSK \(age)"
+                }
+            } else if fullInfoText.contains("ohne Altersbeschränkung") || fullInfoText.contains("FSK 0") {
+                fskStr = "FSK 0"
+            }
+            
             var seenSessions = Set<String>()
             
             let sessionElements = try movieEl.select(".prog2__cont, .prog2__movie-session")
@@ -104,7 +117,6 @@ class ScraperManager {
                 seenSessions.insert(sessionKey)
                 
                 // Parse capacity and sold
-                let occupancyText = try sessionEl.text()
                 var capacity = 0
                 var freePercent = 95
                 
@@ -124,7 +136,7 @@ class ScraperManager {
                 
                 let sold = Int(Double(capacity) * (1.0 - Double(freePercent) / 100.0))
                 
-                let session = Session(title: title, time: time, sold: sold, capacity: capacity, hall: hall, duration: duration)
+                let session = Session(title: title, time: time, sold: sold, capacity: capacity, hall: hall, duration: duration, fsk: fskStr)
                 allSessions.append(session)
             }
         }
