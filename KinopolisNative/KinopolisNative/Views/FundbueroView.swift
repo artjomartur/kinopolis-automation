@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import PhotosUI
 
 struct LostItem: Codable, Identifiable {
     let id: Int
@@ -22,7 +23,7 @@ class FundbueroViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         let location = UserDefaults.standard.string(forKey: "selectedLocation") ?? "su"
-        guard let url = URL(string: "https://kinopolis.artjombecker.com/api/lost-found?location=\(location)") else { return }
+        guard let url = URL(string: "https://kinopolis.artjombecker.com/api/lostfound?location=\(location)") else { return }
         
         do {
             let (data, response) = try await URLSession.shared.data(from: url)
@@ -36,21 +37,33 @@ class FundbueroViewModel: ObservableObject {
         isLoading = false
     }
     
-    func createItem(what: String, category: String, whereFound: String, byUser: String) async -> Bool {
+    func createItem(what: String, category: String, whereFound: String, byUser: String, image: UIImage?) async -> Bool {
         let location = UserDefaults.standard.string(forKey: "selectedLocation") ?? "su"
-        guard let url = URL(string: "https://kinopolis.artjombecker.com/api/lost-found") else { return false }
+        guard let url = URL(string: "https://kinopolis.artjombecker.com/api/lostfound") else { return false }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let body: [String: Any] = [
+        var base64Image: String? = nil
+        if let img = image {
+            let resized = resizeImage(image: img, targetSize: CGSize(width: 800, height: 800))
+            if let jpegData = resized.jpegData(compressionQuality: 0.6) {
+                base64Image = "data:image/jpeg;base64,\(jpegData.base64EncodedString())"
+            }
+        }
+        
+        var body: [String: Any] = [
             "location": location,
             "what": what,
             "category": category,
             "found_where": whereFound,
             "found_by": byUser
         ]
+        if let b64 = base64Image {
+            body["image_url"] = b64
+        }
+        
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
         
         do {
@@ -66,12 +79,30 @@ class FundbueroViewModel: ObservableObject {
     }
     
     func deleteItem(id: Int) async {
-        guard let url = URL(string: "https://kinopolis.artjombecker.com/api/lost-found/\(id)") else { return }
+        guard let url = URL(string: "https://kinopolis.artjombecker.com/api/lostfound/\(id)") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "DELETE"
         
         _ = try? await URLSession.shared.data(for: request)
         await fetchItems()
+    }
+    
+    private func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
+        let size = image.size
+        let widthRatio  = targetSize.width  / size.width
+        let heightRatio = targetSize.height / size.height
+        let factor = min(widthRatio, heightRatio)
+        if factor >= 1.0 { return image }
+        
+        let newSize = CGSize(width: size.width * factor, height: size.height * factor)
+        let rect = CGRect(origin: .zero, size: newSize)
+        
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+        image.draw(in: rect)
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return newImage ?? image
     }
 }
 
@@ -81,9 +112,6 @@ struct FundbueroView: View {
     @Environment(\.presentationMode) var presentationMode
     
     @State private var showAddSheet = false
-    @State private var newWhat = ""
-    @State private var newCategory = "📱 Wertsachen"
-    @State private var newWhere = ""
     @State private var selectedFilter = "Alle"
     
     let categories = ["📱 Wertsachen", "🧥 Kleidung", "🔑 Schlüssel", "🎒 Taschen", "📦 Sonstiges"]
@@ -109,7 +137,7 @@ struct FundbueroView: View {
                                     .font(.title2)
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
-                                Text("Gefundene Gegenstände erfassen & verwalten")
+                                Text("Gefundene Gegenstände mit Foto erfassen")
                                     .font(.caption)
                                     .foregroundColor(.gray)
                             }
@@ -117,9 +145,9 @@ struct FundbueroView: View {
                             
                             Button(action: { showAddSheet = true }) {
                                 HStack(spacing: 6) {
-                                    Image(systemName: "plus")
+                                    Image(systemName: "camera.fill")
                                         .font(.subheadline)
-                                    Text("Fundsache")
+                                    Text("Fundsache + Foto")
                                         .font(.subheadline)
                                         .fontWeight(.bold)
                                 }
@@ -150,14 +178,14 @@ struct FundbueroView: View {
                                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                                 .padding(.top, 40)
                         } else if filteredItems.isEmpty {
-                            VStack(spacing: 12) {
-                                Image(systemName: "tray.fill")
-                                    .font(.system(size: 40))
+                            VStack(spacing: 14) {
+                                Image(systemName: "camera.viewfinder")
+                                    .font(.system(size: 45))
                                     .foregroundColor(.gray)
                                 Text("Aktuell keine Fundsachen erfasst")
                                     .font(.headline)
                                     .foregroundColor(.gray)
-                                Text("Neu gefundene Gegenstände können oben rechts eingetragen werden.")
+                                Text("Neue Fundsachen können inklusive Foto oben rechts eingetragen werden.")
                                     .font(.caption)
                                     .foregroundColor(.gray.opacity(0.8))
                                     .multilineTextAlignment(.center)
@@ -166,7 +194,7 @@ struct FundbueroView: View {
                             .frame(maxWidth: .infinity)
                             .padding(.top, 50)
                         } else {
-                            VStack(spacing: 12) {
+                            VStack(spacing: 14) {
                                 ForEach(filteredItems) { item in
                                     LostItemCard(item: item, onResolve: {
                                         Task {
@@ -196,22 +224,18 @@ struct FundbueroView: View {
             }
             .sheet(isPresented: $showAddSheet) {
                 AddLostItemSheet(
-                    what: $newWhat,
-                    category: $newCategory,
-                    whereFound: $newWhere,
                     categories: categories,
-                    onSave: {
+                    onSave: { what, category, whereFound, image in
                         let finder = authManager.currentUser?.name ?? "Mitarbeiter"
                         Task {
                             let success = await viewModel.createItem(
-                                what: newWhat,
-                                category: newCategory,
-                                whereFound: newWhere,
-                                byUser: finder
+                                what: what,
+                                category: category,
+                                whereFound: whereFound,
+                                byUser: finder,
+                                image: image
                             )
                             if success {
-                                newWhat = ""
-                                newWhere = ""
                                 showAddSheet = false
                             }
                         }
@@ -226,8 +250,34 @@ struct LostItemCard: View {
     let item: LostItem
     let onResolve: () -> Void
     
+    var fullImageUrl: URL? {
+        guard let urlStr = item.image_url, !urlStr.isEmpty else { return nil }
+        if urlStr.startsWithHttp {
+            return URL(string: urlStr)
+        } else if urlStr.hasPrefix("/") {
+            return URL(string: "https://kinopolis.artjombecker.com\(urlStr)")
+        }
+        return nil
+    }
+    
+    var isBase64Image: Bool {
+        guard let urlStr = item.image_url else { return false }
+        return urlStr.hasPrefix("data:image")
+    }
+    
+    var decodedBase64Image: UIImage? {
+        guard let urlStr = item.image_url,
+              let commaIndex = urlStr.firstIndex(of: ",") else { return nil }
+        let base64 = String(urlStr[urlStr.index(after: commaIndex)...])
+        if let data = Data(base64Encoded: base64) {
+            return UIImage(data: data)
+        }
+        return nil
+    }
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
+            // Category & Date
             HStack {
                 Text(item.category)
                     .font(.caption)
@@ -247,11 +297,45 @@ struct LostItemCard: View {
                 }
             }
             
+            // Photo Preview (if present)
+            if isBase64Image, let uiImage = decodedBase64Image {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 180)
+                    .frame(maxWidth: .infinity)
+                    .clipped()
+                    .cornerRadius(12)
+            } else if let imgUrl = fullImageUrl {
+                AsyncImage(url: imgUrl) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(height: 180)
+                            .frame(maxWidth: .infinity)
+                            .clipped()
+                            .cornerRadius(12)
+                    case .failure:
+                        EmptyView()
+                    case .empty:
+                        ProgressView()
+                            .frame(height: 120)
+                            .frame(maxWidth: .infinity)
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+            }
+            
+            // Description
             Text(item.what)
                 .font(.headline)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
             
+            // Where & Who
             HStack(spacing: 14) {
                 HStack(spacing: 4) {
                     Image(systemName: "mappin.and.ellipse")
@@ -274,6 +358,7 @@ struct LostItemCard: View {
             
             Divider().background(Color.white.opacity(0.06))
             
+            // Action Button
             Button(action: onResolve) {
                 HStack {
                     Image(systemName: "checkmark.circle.fill")
@@ -284,16 +369,16 @@ struct LostItemCard: View {
                         .foregroundColor(.green)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .background(Color.green.opacity(0.1))
-                .cornerRadius(8)
+                .padding(.vertical, 10)
+                .background(Color.green.opacity(0.12))
+                .cornerRadius(10)
             }
         }
         .padding(14)
         .background(Color.white.opacity(0.04))
-        .cornerRadius(16)
+        .cornerRadius(18)
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 18)
                 .stroke(Color.white.opacity(0.08), lineWidth: 1)
         )
     }
@@ -319,68 +404,160 @@ struct FilterChip: View {
     }
 }
 
+// MARK: - Add Sheet with Camera / Gallery Support
 struct AddLostItemSheet: View {
-    @Binding var what: String
-    @Binding var category: String
-    @Binding var whereFound: String
     let categories: [String]
-    let onSave: () -> Void
+    let onSave: (String, String, String, UIImage?) -> Void
     @Environment(\.presentationMode) var presentationMode
+    
+    @State private var what = ""
+    @State private var category = "📱 Wertsachen"
+    @State private var whereFound = ""
+    @State private var selectedImage: UIImage? = nil
+    
+    @State private var showPhotoPicker = false
+    @State private var showCamera = false
+    @State private var photoPickerItem: PhotosPickerItem? = nil
     
     var body: some View {
         NavigationView {
             ZStack {
                 Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
                 
-                VStack(spacing: 20) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Was wurde gefunden?")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                        TextField("z.B. Schwarze Lederjacke, iPhone 14, Autoschlüssel...", text: $what)
-                            .padding(12)
-                            .background(Color.white.opacity(0.06))
-                            .cornerRadius(10)
-                            .foregroundColor(.white)
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Kategorie")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                        Picker("Kategorie", selection: $category) {
-                            ForEach(categories, id: \.self) { cat in
-                                Text(cat).tag(cat)
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // 1. Photo Section
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Foto der Fundsache")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            
+                            if let img = selectedImage {
+                                ZStack(alignment: .topTrailing) {
+                                    Image(uiImage: img)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(height: 180)
+                                        .frame(maxWidth: .infinity)
+                                        .clipped()
+                                        .cornerRadius(14)
+                                    
+                                    Button(action: { selectedImage = nil }) {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .font(.title2)
+                                            .foregroundColor(.white)
+                                            .background(Circle().fill(Color.black.opacity(0.6)))
+                                    }
+                                    .padding(8)
+                                }
+                            } else {
+                                HStack(spacing: 12) {
+                                    // Camera Button
+                                    Button(action: { showCamera = true }) {
+                                        HStack {
+                                            Image(systemName: "camera.fill")
+                                            Text("Kamera")
+                                        }
+                                        .font(.subheadline)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 14)
+                                        .background(Color.red.opacity(0.2))
+                                        .cornerRadius(12)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(Color.red.opacity(0.4), lineWidth: 1)
+                                        )
+                                    }
+                                    
+                                    // Gallery Button (PhotosPicker)
+                                    PhotosPicker(selection: $photoPickerItem, matching: .images) {
+                                        HStack {
+                                            Image(systemName: "photo.on.rectangle.angled")
+                                            Text("Galerie")
+                                        }
+                                        .font(.subheadline)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 14)
+                                        .background(Color.white.opacity(0.06))
+                                        .cornerRadius(12)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                        )
+                                    }
+                                    .onChange(of: photoPickerItem) { newItem in
+                                        Task {
+                                            if let data = try? await newItem?.loadTransferable(type: Data.self),
+                                               let image = UIImage(data: data) {
+                                                selectedImage = image
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
-                        .pickerStyle(SegmentedPickerStyle())
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Fundort")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                        TextField("z.B. Saal 3 Reihe 14, Theke 2, Foyer...", text: $whereFound)
-                            .padding(12)
-                            .background(Color.white.opacity(0.06))
-                            .cornerRadius(10)
-                            .foregroundColor(.white)
-                    }
-                    
-                    Spacer()
-                    
-                    Button(action: onSave) {
-                        Text("Fundsache eintragen")
+                        
+                        // 2. What was found
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Was wurde gefunden?")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            TextField("z.B. Schwarze Lederjacke, iPhone 14, Autoschlüssel...", text: $what)
+                                .padding(12)
+                                .background(Color.white.opacity(0.06))
+                                .cornerRadius(10)
+                                .foregroundColor(.white)
+                        }
+                        
+                        // 3. Category
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Kategorie")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            Picker("Kategorie", selection: $category) {
+                                ForEach(categories, id: \.self) { cat in
+                                    Text(cat).tag(cat)
+                                }
+                            }
+                            .pickerStyle(SegmentedPickerStyle())
+                        }
+                        
+                        // 4. Location
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Fundort")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            TextField("z.B. Saal 3 Reihe 14, Theke 2, Foyer...", text: $whereFound)
+                                .padding(12)
+                                .background(Color.white.opacity(0.06))
+                                .cornerRadius(10)
+                                .foregroundColor(.white)
+                        }
+                        
+                        Spacer().frame(height: 20)
+                        
+                        Button(action: {
+                            onSave(what, category, whereFound, selectedImage)
+                        }) {
+                            HStack {
+                                Image(systemName: "checkmark")
+                                Text("Fundsache speichern")
+                            }
                             .fontWeight(.bold)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
                             .background(what.isEmpty || whereFound.isEmpty ? Color.gray.opacity(0.3) : Color.red)
                             .foregroundColor(.white)
                             .cornerRadius(12)
+                        }
+                        .disabled(what.isEmpty || whereFound.isEmpty)
                     }
-                    .disabled(what.isEmpty || whereFound.isEmpty)
+                    .padding()
                 }
-                .padding()
             }
             .navigationTitle("Neue Fundsache")
             .navigationBarTitleDisplayMode(.inline)
@@ -392,6 +569,56 @@ struct AddLostItemSheet: View {
                     .foregroundColor(.gray)
                 }
             }
+            .sheet(isPresented: $showCamera) {
+                CameraPicker(image: $selectedImage)
+            }
         }
+    }
+}
+
+// MARK: - UIKit Camera Picker
+struct CameraPicker: UIViewControllerRepresentable {
+    @Binding var image: UIImage?
+    @Environment(\.presentationMode) var presentationMode
+    
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            picker.sourceType = .camera
+        } else {
+            picker.sourceType = .photoLibrary
+        }
+        picker.delegate = context.coordinator
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let parent: CameraPicker
+        init(_ parent: CameraPicker) {
+            self.parent = parent
+        }
+        
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let uiImage = info[.originalImage] as? UIImage {
+                parent.image = uiImage
+            }
+            parent.presentationMode.wrappedValue.dismiss()
+        }
+        
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            parent.presentationMode.wrappedValue.dismiss()
+        }
+    }
+}
+
+private extension String {
+    var startsWithHttp: Bool {
+        hasPrefix("http://") || hasPrefix("https://")
     }
 }

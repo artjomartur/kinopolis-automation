@@ -64,7 +64,7 @@ struct ActionView: View {
                         Image("Oli_2_bgless")
                             .resizable()
                             .scaledToFit()
-                            .frame(height: 55)
+                            .frame(height: 80)
                         
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Team & Aktionen")

@@ -250,40 +250,40 @@ struct LiveView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
                         
-                        // Header with Oli (Large & Clean)
-                        HStack(spacing: 16) {
+                        // Header with Oli (Extra Large & Prominent)
+                        HStack(spacing: 18) {
                             Image("Oli")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 82, height: 82)
+                                .frame(width: 102, height: 102)
                                 .clipShape(Circle())
-                                .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 3)
+                                .shadow(color: Color.black.opacity(0.45), radius: 8, x: 0, y: 4)
                             
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .leading, spacing: 5) {
                                 Text("Willkommen zurück,")
-                                    .font(.caption)
+                                    .font(.subheadline)
                                     .fontWeight(.medium)
                                     .foregroundColor(.gray)
                                 
                                 Text(displayName)
-                                    .font(.title2)
+                                    .font(.title)
                                     .fontWeight(.heavy)
                                     .foregroundColor(.white)
                                     .lineLimit(1)
                                 
-                                HStack(spacing: 4) {
+                                HStack(spacing: 5) {
                                     Image(systemName: "mappin.circle.fill")
-                                        .font(.caption2)
+                                        .font(.caption)
                                     Text(LocationData.name(for: selectedLocation))
-                                        .font(.caption2)
+                                        .font(.caption)
                                         .fontWeight(.bold)
                                         .lineLimit(1)
                                 }
                                 .foregroundColor(.red)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 3)
+                                .padding(.horizontal, 9)
+                                .padding(.vertical, 4)
                                 .background(Color.red.opacity(0.15))
-                                .cornerRadius(6)
+                                .cornerRadius(8)
                             }
                             
                             Spacer()
@@ -292,15 +292,15 @@ struct LiveView: View {
                                 Task { await viewModel.fetchSessions() }
                             }) {
                                 Image(systemName: "arrow.triangle.2.circlepath")
-                                    .font(.title3)
+                                    .font(.title2)
                                     .foregroundColor(.white)
-                                    .padding(12)
+                                    .padding(14)
                                     .background(Color.white.opacity(0.08))
                                     .clipShape(Circle())
                             }
                         }
                         .padding(.horizontal)
-                        .padding(.top, 10)
+                        .padding(.top, 12)
                         
                         // Mode Picker
                         Picker("Ansicht", selection: $viewModel.viewMode) {
@@ -315,8 +315,8 @@ struct LiveView: View {
                                 Image("Oli_3_bgless")
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(height: 100)
-                                    .opacity(0.6)
+                                    .frame(height: 140)
+                                    .opacity(0.85)
                                 ProgressView()
                                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
                                 Text("Oli lädt die Vorstellungen...")
@@ -488,6 +488,26 @@ struct SessionCard: View {
         FSKHelper.timeWarning(startTime: session.time, durationMinutes: session.duration, fskAge: fskAge)
     }
     
+    var isPast: Bool {
+        let parts = session.time.split(separator: ":")
+        guard parts.count == 2, let h = Int(parts[0]), let m = Int(parts[1]) else { return false }
+        let now = Date()
+        let cal = Calendar.current
+        guard let start = cal.date(bySettingHour: h, minute: m, second: 0, of: now) else { return false }
+        return now > start
+    }
+    
+    var hasEnded: Bool {
+        let parts = session.time.split(separator: ":")
+        guard parts.count == 2, let h = Int(parts[0]), let m = Int(parts[1]) else { return false }
+        let now = Date()
+        let cal = Calendar.current
+        let duration = session.duration ?? 120
+        guard let start = cal.date(bySettingHour: h, minute: m, second: 0, of: now) else { return false }
+        let end = start.addingTimeInterval(TimeInterval(duration * 60))
+        return now > end
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
@@ -496,8 +516,8 @@ struct SessionCard: View {
                     .fontWeight(.bold)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.blue.opacity(0.2))
-                    .foregroundColor(.blue)
+                    .background(isPast ? Color.gray.opacity(0.2) : Color.blue.opacity(0.2))
+                    .foregroundColor(isPast ? .gray : .blue)
                     .cornerRadius(8)
                 
                 // FSK Badge with custom colors
@@ -510,6 +530,24 @@ struct SessionCard: View {
                     .cornerRadius(8)
                 
                 Spacer()
+                
+                if hasEnded {
+                    Text("Beendet")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundColor(.gray)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.white.opacity(0.06))
+                        .cornerRadius(4)
+                } else if isPast {
+                    Text("Läuft")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundColor(.green)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.green.opacity(0.15))
+                        .cornerRadius(4)
+                }
             }
             
             Text(session.title)
@@ -544,12 +582,14 @@ struct SessionCard: View {
         }
         .padding(14)
         .frame(width: 220)
-        .background(Color.white.opacity(0.05))
+        .background(Color.white.opacity(isPast ? 0.02 : 0.05))
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(timeWarning != nil ? (fskAge == 18 ? Color.red.opacity(0.4) : Color.orange.opacity(0.3)) : Color.white.opacity(0.1), lineWidth: 1)
+                .stroke(timeWarning != nil && !isPast ? (fskAge == 18 ? Color.red.opacity(0.4) : Color.orange.opacity(0.3)) : Color.white.opacity(isPast ? 0.04 : 0.1), lineWidth: 1)
         )
+        .opacity(hasEnded ? 0.4 : (isPast ? 0.65 : 1.0))
+        .grayscale(hasEnded ? 0.5 : (isPast ? 0.2 : 0))
     }
 }
 

@@ -21,7 +21,7 @@ class ScraperManager {
                 do {
                     let decoded = try JSONDecoder().decode([HallData].self, from: data)
                     if !decoded.isEmpty {
-                        return decoded
+                        return filterHalls(decoded, location: location)
                     }
                 } catch {
                     print("Backend JSON decode fallback: \(error)")
@@ -160,6 +160,25 @@ class ScraperManager {
             }
         }
         
+        // Filter out Darmstadt extra events (strict separation KP vs CD vs RX)
+        let cdHallKeywords = ["helia", "pali", "rex", "classic", "broadway", "bambi", "festival"]
+        if location.lowercased() == "kp" {
+            allSessions = allSessions.filter { s in
+                guard let h = s.hall?.lowercased() else { return true }
+                return !cdHallKeywords.contains { h.contains($0) }
+            }
+        } else if location.lowercased() == "cd" {
+            allSessions = allSessions.filter { s in
+                guard let h = s.hall?.lowercased() else { return false }
+                return cdHallKeywords.contains { h.contains($0) }
+            }
+        } else if location.lowercased() == "rx" {
+            allSessions = allSessions.filter { s in
+                guard let h = s.hall?.lowercased() else { return false }
+                return h.contains("rex")
+            }
+        }
+        
         // Group by Hall
         var grouped: [String: [Session]] = [:]
         for s in allSessions {
@@ -180,5 +199,25 @@ class ScraperManager {
         }
         
         return hallDataList
+    }
+    
+    private func filterHalls(_ halls: [HallData], location: String) -> [HallData] {
+        let cdHallKeywords = ["helia", "pali", "rex", "classic", "broadway", "bambi", "festival"]
+        if location.lowercased() == "kp" {
+            return halls.filter { hall in
+                let name = hall.name.lowercased()
+                return !cdHallKeywords.contains { name.contains($0) }
+            }
+        } else if location.lowercased() == "cd" {
+            return halls.filter { hall in
+                let name = hall.name.lowercased()
+                return cdHallKeywords.contains { name.contains($0) }
+            }
+        } else if location.lowercased() == "rx" {
+            return halls.filter { hall in
+                hall.name.lowercased().contains("rex")
+            }
+        }
+        return halls
     }
 }

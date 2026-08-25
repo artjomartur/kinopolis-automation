@@ -35,10 +35,10 @@ struct MehrView: View {
                             Image("Oli_Security_bgless")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 70, height: 70)
+                                .frame(width: 90, height: 90)
                                 .background(Color.white.opacity(0.06))
                                 .clipShape(Circle())
-                                .overlay(Circle().stroke(Color.red.opacity(0.4), lineWidth: 2))
+                                .overlay(Circle().stroke(Color.red.opacity(0.4), lineWidth: 2.5))
                             
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(authManager.currentUser?.name ?? "Artjom Becker")
