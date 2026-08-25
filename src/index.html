@@ -8652,9 +8652,11 @@ body.light-mode .tab-bar {
 
                 if (!lastData) {
                     const dashboard = document.getElementById('dashboard');
-                    if (dashboard && !dashboard.innerHTML.includes('loading')) {
-                         dashboard.innerHTML = `<div class="glass" style="padding: 2rem; text-align: center; opacity: 0.6;">
-                            <p>Verbindung wird hergestellt...</p>
+                    if (dashboard) {
+                         dashboard.innerHTML = `<div class="glass" style="padding: 2rem; text-align: center; border-left: 4px solid var(--accent-red);">
+                            <h3 style="color: var(--accent-red); margin-bottom: 0.5rem;">Netzwerkfehler</h3>
+                            <p>Konnte keine Verbindung zum Server (${APP_BACKEND_URL}) aufbauen.</p>
+                            <p style="font-size: 0.8rem; margin-top: 1rem; opacity: 0.7;">Tipp: Prüfe, ob dein iPhone im gleichen WLAN wie dein Mac ist, und ob die App-Berechtigung fürs lokale Netzwerk erteilt wurde.</p>
                          </div>`;
                     }
                 }
