@@ -1,13 +1,14 @@
 import SwiftUI
+import Combine
 
 // MARK: - Models
 struct HallData: Codable, Identifiable {
     let id = UUID()
-    let hall: String
+    let name: String
     let sessions: [Session]?
     
     enum CodingKeys: String, CodingKey {
-        case hall
+        case name
         case sessions
     }
 }
@@ -18,12 +19,14 @@ struct Session: Codable, Identifiable {
     let time: String
     let sold: Int?
     let capacity: Int?
+    let hall: String?
     
     enum CodingKeys: String, CodingKey {
         case title
         case time
         case sold
         case capacity
+        case hall
     }
 }
 
@@ -33,23 +36,23 @@ class LiveViewModel: ObservableObject {
     @Published var halls: [HallData] = []
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
+    @Published var selectedDate: Date = Date()
     
     func fetchSessions() async {
         isLoading = true
         errorMessage = nil
         
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        let dateStr = formatter.string(from: Date())
-        
-        let endpoint = "/sessions?location=su&date=\(dateStr)" // Default location 'su' for now
-        
         do {
-            let fetchedHalls: [HallData] = try await NetworkManager.shared.fetch(endpoint: endpoint)
-            self.halls = fetchedHalls
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            let dateStr = dateFormatter.string(from: selectedDate)
+            
+            // USE THE NATIVE SCRAPER INSTEAD OF LOCALHOST
+            let data = try await ScraperManager.shared.fetchSessions(location: "su", dateStr: dateStr)
+            self.halls = data
         } catch {
+            print("Fetch error: \(error)")
             self.errorMessage = "Fehler beim Laden der Live-Daten."
-            print("Fetch Error: \(error)")
         }
         
         isLoading = false
@@ -110,7 +113,7 @@ struct LiveView: View {
                             ForEach(viewModel.halls) { hall in
                                 if let sessions = hall.sessions, !sessions.isEmpty {
                                     VStack(alignment: .leading, spacing: 12) {
-                                        Text("Saal \(hall.hall)")
+                                        Text("Saal \(hall.name)")
                                             .font(.headline)
                                             .foregroundColor(.white)
                                             .padding(.horizontal)

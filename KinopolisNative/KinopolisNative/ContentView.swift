@@ -3,118 +3,106 @@ import SwiftUI
 struct ContentView: View {
     @State private var selectedTab: Tab = .live
     
-    // Tab Enum matching the web app
-    enum Tab {
-        case live, funk, scanner, action, mehr
+    enum Tab: String, CaseIterable, Identifiable {
+        case live = "Live"
+        case funk = "Funk"
+        case scanner = "Scanner"
+        case action = "Action"
+        case mehr = "Mehr"
+        
+        var id: String { self.rawValue }
+        
+        var systemImage: String {
+            switch self {
+            case .live: return "play.rectangle.fill"
+            case .funk: return "dot.radiowaves.left.and.right"
+            case .scanner: return "qrcode.viewfinder"
+            case .action: return "bolt.fill"
+            case .mehr: return "line.3.horizontal"
+            }
+        }
     }
     
     var body: some View {
-        ZStack(alignment: .bottom) {
-            // Main Content Area
-            Color(red: 24/255, green: 24/255, blue: 26/255)
-                .ignoresSafeArea() // Background matching the dark theme
+        // Original Apple UI TabBar
+        TabView(selection: $selectedTab) {
+            NavigationStack {
+                LiveView()
+                    .navigationTitle("Live")
+            }
+            .tabItem {
+                Label("Live", systemImage: "play.rectangle.fill")
+            }
+            .tag(Tab.live)
             
-            VStack(spacing: 0) {
-                // Switching Views
-                switch selectedTab {
-                case .live:
-                    LiveView()
-                case .funk:
-                    FunkView()
-                case .scanner:
-                    ScannerView()
-                case .action:
-                    ActionView()
-                case .mehr:
-                    MehrView()
-                }
-                
-                Spacer(minLength: 0)
+            NavigationStack {
+                FunkView()
+                    .navigationTitle("Funk")
             }
-            .padding(.bottom, 80) // Make room for custom tab bar
+            .tabItem {
+                Label("Funk", systemImage: "dot.radiowaves.left.and.right")
+            }
+            .tag(Tab.funk)
             
-            // Custom Glassmorphism Tab Bar
-            CustomTabBar(selectedTab: $selectedTab)
+            NavigationStack {
+                ScannerView()
+                    .navigationTitle("Scanner")
+            }
+            .tabItem {
+                Label("Scanner", systemImage: "qrcode.viewfinder")
+            }
+            .tag(Tab.scanner)
+            
+            NavigationStack {
+                ActionView()
+                    .navigationTitle("Action")
+            }
+            .tabItem {
+                Label("Action", systemImage: "bolt.fill")
+            }
+            .tag(Tab.action)
+            
+            NavigationStack {
+                MehrView()
+                    .navigationTitle("Mehr")
+            }
+            .tabItem {
+                Label("Mehr", systemImage: "line.3.horizontal")
+            }
+            .tag(Tab.mehr)
+        }
+        // Use default Apple appearance
+        .onAppear {
+            let appearance = UITabBarAppearance()
+            appearance.configureWithDefaultBackground()
+            UITabBar.appearance().scrollEdgeAppearance = appearance
+            UITabBar.appearance().standardAppearance = appearance
         }
     }
 }
 
-// Custom Glassmorphism Tab Bar Component
-struct CustomTabBar: View {
-    @Binding var selectedTab: ContentView.Tab
-    @Namespace private var glassNamespace
-    
-    var body: some View {
-        HStack(spacing: 0) {
-            TabBarButton(icon: "play.rectangle.fill", title: "Live", tab: .live, selectedTab: $selectedTab, namespace: glassNamespace)
-            TabBarButton(icon: "dot.radiowaves.left.and.right", title: "Funk", tab: .funk, selectedTab: $selectedTab, namespace: glassNamespace)
-            TabBarButton(icon: "qrcode.viewfinder", title: "Scanner", tab: .scanner, selectedTab: $selectedTab, namespace: glassNamespace)
-            TabBarButton(icon: "bolt.fill", title: "Action", tab: .action, selectedTab: $selectedTab, namespace: glassNamespace)
-            TabBarButton(icon: "line.3.horizontal", title: "Mehr", tab: .mehr, selectedTab: $selectedTab, namespace: glassNamespace)
-        }
-        .padding(.horizontal, 8)
-        .frame(height: 60)
-        .glassEffect(cornerRadius: 24)
-        .padding(.horizontal, 20)
-        .padding(.bottom, 16)
-    }
-}
-
-struct TabBarButton: View {
-    let icon: String
-    let title: String
-    let tab: ContentView.Tab
-    @Binding var selectedTab: ContentView.Tab
-    let namespace: Namespace.ID
-    
-    var body: some View {
-        Button(action: {
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.82)) {
-                selectedTab = tab
-            }
-        }) {
-            VStack(spacing: 4) {
-                Image(systemName: icon)
-                    .font(.system(size: 18))
-                Text(title)
-                    .font(.system(size: 10, weight: .bold))
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
-            .foregroundStyle(selectedTab == tab ? Color.cyan : Color.white.opacity(0.4))
-        }
-        .buttonStyle(.plain)
-        .background {
-            if selectedTab == tab {
-                Capsule()
-                    .fill(Color.white.opacity(0.1))
-                    .matchedGeometryEffect(id: "activeTabFallback", in: namespace)
-            }
-        }
-    }
-}
-
+// Minimal placeholders for views not in separate files yet
 struct FunkView: View {
     var body: some View {
-        Text("Funk Ansicht").foregroundColor(.white)
+        Text("Funk Ansicht").foregroundColor(.primary)
     }
 }
 
 struct ScannerView: View {
     var body: some View {
-        Text("Scanner Ansicht").foregroundColor(.white)
+        Text("Scanner Ansicht").foregroundColor(.primary)
     }
 }
 
 struct ActionView: View {
     var body: some View {
-        Text("Action Ansicht").foregroundColor(.white)
+        Text("Action Ansicht").foregroundColor(.primary)
     }
 }
 
 struct MehrView: View {
     var body: some View {
-        Text("Mehr Ansicht").foregroundColor(.white)
+        Text("Mehr Ansicht").foregroundColor(.primary)
     }
 }
 

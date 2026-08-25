@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		9A2824663E7F2CACBB3E1BBB /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 9738C44A40A28AF76316BFA9 /* SwiftSoup */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		A91A6DEB303E1E9900D03CFE /* KinopolisNative.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KinopolisNative.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A2824663E7F2CACBB3E1BBB /* SwiftSoup in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = KinopolisNative;
 			packageProductDependencies = (
+				9738C44A40A28AF76316BFA9 /* SwiftSoup */,
 			);
 			productName = KinopolisNative;
 			productReference = A91A6DEB303E1E9900D03CFE /* KinopolisNative.app */;
@@ -94,6 +100,9 @@
 			);
 			mainGroup = A91A6DE2303E1E9900D03CFE;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				23208699E5F0D7A0D66DA039 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A91A6DEC303E1E9900D03CFE /* Products */;
 			projectDirPath = "";
@@ -332,6 +341,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		23208699E5F0D7A0D66DA039 /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scinfu/SwiftSoup.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.7.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9738C44A40A28AF76316BFA9 /* SwiftSoup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 23208699E5F0D7A0D66DA039 /* XCRemoteSwiftPackageReference "SwiftSoup" */;
+			productName = SwiftSoup;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A91A6DE3303E1E9900D03CFE /* Project object */;
 }
