@@ -131,7 +131,7 @@ struct FunkCategoryCard: View {
             if isActive {
                 VStack(spacing: 12) {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        ForEach(options, id: \\.self) { option in
+                        ForEach(options, id: \.self) { option in
                             Button(action: { onSelect(option) }) {
                                 Text(option)
                                     .font(.subheadline)

@@ -81,15 +81,6 @@ struct ContentView: View {
     }
 }
 
-// Minimal placeholders for views not in separate files yet
-}
-
-}
-
-}
-
-}
-
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()

@@ -5,6 +5,7 @@ class FunkViewModel: ObservableObject {
     @Published var activeCategory: String? = nil
     @Published var toastMessage: String? = nil
     @Published var showToast: Bool = false
+    @Published var isHelpActive: Bool = false
     
     // Subscribe to WebSocketManager's messages
     private var cancellables = Set<AnyCancellable>()
@@ -33,6 +34,13 @@ class FunkViewModel: ObservableObject {
         WebSocketManager.shared.sendRestock(item: item)
         triggerToast(message: "Nachschub angefragt: \(item)")
         activeCategory = nil // Collapse
+    }
+    
+    func toggleHelp() {
+        isHelpActive.toggle()
+        let status = isHelpActive ? "aktiviert" : "aufgehoben"
+        WebSocketManager.shared.sendMessage("{\"type\": \"help\", \"status\": \"\(status)\"}")
+        triggerToast(message: "Hilfe-Ruf \(status)")
     }
     
     private func triggerToast(message: String) {
