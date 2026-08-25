@@ -1274,7 +1274,11 @@ app.get('/api/sessions', async (c) => {
         if (location === 'kp') {
             sessions = sessions.filter(s => {
                 const h = (s.hall || '').toLowerCase();
-                return !cdHalls.some(k => h.includes(k));
+                if (cdHalls.some(k => h.includes(k))) return false;
+                if (h.includes('onyx')) return false;
+                const match = h.match(/kino\s*(\d+)/i);
+                if (match && parseInt(match[1]) > 8) return false;
+                return true;
             });
         } else if (location === 'cd') {
             sessions = sessions.filter(s => {
