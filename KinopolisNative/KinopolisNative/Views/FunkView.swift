@@ -25,6 +25,32 @@ struct FunkView: View {
                         .padding(.horizontal)
                         .padding(.bottom, 10)
                     
+                    // Help Button
+                    Button(action: {
+                        withAnimation {
+                            viewModel.toggleHelp()
+                        }
+                    }) {
+                        HStack {
+                            Text(viewModel.isHelpActive ? "🆘" : "🙋‍♂️")
+                                .font(.title2)
+                            Text(viewModel.isHelpActive ? "HILFE RUF AKTIV" : "Hilfe benötigt?")
+                                .fontWeight(.bold)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(viewModel.isHelpActive ? Color.red : Color.white.opacity(0.1))
+                        .foregroundColor(.white)
+                        .cornerRadius(16)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(viewModel.isHelpActive ? Color.red.opacity(0.8) : Color.white.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(color: viewModel.isHelpActive ? Color.red.opacity(0.5) : Color.clear, radius: 10, x: 0, y: 0)
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, 10)
+                    
                     // Popcorn
                     FunkCategoryCard(
                         title: "Popcorn",

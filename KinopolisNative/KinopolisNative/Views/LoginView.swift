@@ -1,108 +1,133 @@
 import SwiftUI
 
 struct LoginView: View {
+    @StateObject private var viewModel = LoginViewModel()
     @EnvironmentObject var authManager: AuthManager
-    
-    @State private var pin: String = ""
-    @State private var isLoading = false
-    @State private var errorMessage: String? = nil
     
     var body: some View {
         ZStack {
-            // Dark Background
+            // Background
             Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
             
             VStack(spacing: 30) {
                 Spacer()
                 
-                // Kinopolis Native Logo / Header
-                VStack(spacing: 8) {
-                    Image(systemName: "film")
-                        .font(.system(size: 60))
+                // Logo/Header
+                VStack(spacing: 12) {
+                    Image("Oli")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 120)
+                        .background(Color.white.opacity(0.1))
+                        .cornerRadius(24)
+                        .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 5)
+                    
+                    Text("Willkommen zurück")
+                        .font(.title)
+                        .fontWeight(.heavy)
                         .foregroundColor(.white)
                     
-                    Text("Kinopolis Automation")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    
-                    Text("Native iOS Edition")
+                    Text("Bitte melde dich an, um fortzufahren.")
                         .font(.subheadline)
                         .foregroundColor(.gray)
                 }
                 
-                // PIN Input
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("PIN EINGEBEN")
-                        .font(.caption)
+                // Error Message
+                if let error = viewModel.errorMessage {
+                    Text("❌ \(error)")
+                        .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundColor(.gray)
-                    
-                    SecureField("Dein 4- bis 6-stelliger PIN", text: $pin)
+                        .foregroundColor(Color(red: 255/255, green: 77/255, blue: 77/255))
                         .padding()
-                        .background(Color.white.opacity(0.1))
+                        .frame(maxWidth: .infinity)
+                        .background(Color.red.opacity(0.15))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                        )
                         .cornerRadius(12)
-                        .foregroundColor(.white)
-                        .keyboardType(.numberPad)
-                }
-                .padding(.horizontal, 30)
-                
-                if let errorMessage = errorMessage {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                        .font(.footnote)
+                        .padding(.horizontal)
                 }
                 
-                Button(action: performLogin) {
-                    HStack {
-                        if isLoading {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        } else {
-                            Text("Einloggen")
-                                .fontWeight(.bold)
-                        }
+                // Form
+                VStack(spacing: 20) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("E-MAIL ADRESSE")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(.gray)
+                        
+                        TextField("name@kinopolis.de", text: $viewModel.email)
+                            .keyboardType(.emailAddress)
+                            .autocapitalization(.none)
+                            .padding()
+                            .background(Color.white.opacity(0.05))
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                            )
+                            .foregroundColor(.white)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("PASSWORT")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(.gray)
+                        
+                        SecureField("••••••••", text: $viewModel.password)
+                            .padding()
+                            .background(Color.white.opacity(0.05))
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                            )
+                            .foregroundColor(.white)
+                    }
                 }
-                .padding(.horizontal, 30)
-                .disabled(pin.isEmpty || isLoading)
+                .padding(.horizontal)
+                
+                // Login Button
+                Button(action: {
+                    viewModel.login()
+                }) {
+                    if viewModel.isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                    } else {
+                        Text("Anmelden")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                    }
+                }
+                .background(
+                    LinearGradient(gradient: Gradient(colors: [Color(red: 229/255, green: 9/255, blue: 20/255), Color(red: 255/255, green: 61/255, blue: 71/255)]), startPoint: .topLeading, endPoint: .bottomTrailing)
+                )
+                .foregroundColor(.white)
+                .cornerRadius(12)
+                .padding(.horizontal)
+                .disabled(viewModel.isLoading)
+                
+                // Guest Button
+                Button(action: {
+                    authManager.enableGuestMode()
+                }) {
+                    Text("Im Gast-Modus fortfahren (Eingeschränkt)")
+                        .font(.footnote)
+                        .fontWeight(.medium)
+                        .foregroundColor(.gray)
+                        .underline()
+                }
+                .padding(.top, 10)
                 
                 Spacer()
-                
-                Button("Als Gast fortfahren") {
-                    authManager.login(token: "guest", user: AuthManager.User(id: "guest", name: "Gast", location: "su", role: "guest"))
-                }
-                .foregroundColor(.gray)
-                .font(.footnote)
-                .padding(.bottom, 20)
             }
         }
-    }
-    
-    func performLogin() {
-        isLoading = true
-        errorMessage = nil
-        
-        // Mock Login for now (usually hits /api/auth/login)
-        // Here we simulate network delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            isLoading = false
-            if pin == "1234" { // Replace with actual API call
-                authManager.login(token: "mock_token_xyz", user: AuthManager.User(id: "1", name: "Artjom", location: "su", role: "admin"))
-            } else {
-                errorMessage = "Falscher PIN"
-            }
-        }
-    }
-}
-
-struct LoginView_Previews: PreviewProvider {
-    static var previews: some View {
-        LoginView().environmentObject(AuthManager.shared)
     }
 }
