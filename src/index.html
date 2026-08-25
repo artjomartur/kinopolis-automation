@@ -3616,93 +3616,63 @@ body {
 .oli-toast {
   bottom: calc(100px + env(safe-area-inset-bottom, 0px)) !important;
 }
-/* --- Opal Tab Bar (SkinStock 1:1) --- */
+/* --- Native iOS Tab Bar --- */
 .tab-bar {
-  position: absolute;
-  /* Push it up automatically above the iOS Home bar */
-  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-  left: 32px;
-  right: 32px;
-  width: auto;
-  height: 68px;
-  
-  /* Semi-transparent dark background */
-  background: rgba(40, 40, 44, 0.7);
-  
-  /* The Glass Blur effect */
-  backdrop-filter: blur(20px) saturate(150%);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
-  
-  /* Subtle highlight borders to make it pop */
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 
-    0 24px 48px rgba(0, 0, 0, 0.4),
-    inset 0 1px 1px rgba(255, 255, 255, 0.1);
-    
-  border-radius: 34px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: calc(50px + env(safe-area-inset-bottom, 0px));
+  background: rgba(20, 20, 22, 0.8);
+  backdrop-filter: blur(25px) saturate(200%);
+  -webkit-backdrop-filter: blur(25px) saturate(200%);
+  border-top: 0.5px solid rgba(255, 255, 255, 0.15);
   display: flex;
   justify-content: space-around;
-  align-items: center;
-  z-index: 50;
-  padding: 0 12px;
+  align-items: flex-start;
+  z-index: 10000;
+  padding: 4px 8px env(safe-area-inset-bottom, 0px) 8px;
+  box-sizing: border-box;
 }
 
 body.light-mode .tab-bar {
-  background: rgba(245, 245, 245, 0.7);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 
-    0 24px 48px rgba(0, 0, 0, 0.15),
-    inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  background: rgba(245, 245, 245, 0.8);
+  border-top: 0.5px solid rgba(0, 0, 0, 0.15);
 }
 
 .tab-btn {
   background: transparent;
   border: none;
-  /* Inactive icon color */
-  color: rgba(255, 255, 255, 0.4);
+  color: #8E8E93; /* iOS standard inactive gray */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  font-size: 11px;
+  justify-content: flex-start;
+  gap: 3px;
+  font-size: 10px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
   flex: 1;
-  height: 56px;
-  border-radius: 28px;
+  height: 46px;
   position: relative;
-  
-  /* Removes the blue tap box on mobile */
-  -webkit-tap-highlight-color: transparent; 
+  -webkit-tap-highlight-color: transparent;
+  padding-top: 4px;
 }
 
-body.light-mode .tab-btn {
-  color: rgba(0, 0, 0, 0.4);
-}
-
-.tab-btn:hover {
-  color: #ffffff;
-}
-body.light-mode .tab-btn:hover {
-  color: #000000;
-}
-
-/* Active State */
 .tab-btn.active {
-  color: #ffffff;
-  font-weight: 600;
-}
-body.light-mode .tab-btn.active {
-  color: #E5232A;
+  color: #E5232A; /* Kinopolis Red Tint */
 }
 
 .tab-btn svg {
   width: 24px;
   height: 24px;
-  stroke-width: 2px;
+  stroke-width: 1.5px; /* iOS standard thin stroke */
   transition: transform 0.15s ease;
+}
+
+.tab-btn.active svg {
+  stroke-width: 2px; /* Slightly bolder when active */
 }
 
 .tab-btn:active svg {
