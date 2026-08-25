@@ -23,14 +23,26 @@ struct ScannerView: View {
             
             VStack(spacing: 0) {
                 // Header
-                HStack {
-                    Text("Einlass-Scanner")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
+                HStack(spacing: 12) {
+                    Image("Oli_Security_bgless")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 44, height: 44)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Einlass-Scanner")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                        Text("QR-Code vor die Kamera halten")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                    
                     Spacer()
                 }
-                .padding()
+                .padding(.horizontal)
+                .padding(.vertical, 12)
                 .background(Color(red: 24/255, green: 24/255, blue: 26/255))
                 
                 // Camera View
@@ -54,7 +66,7 @@ struct ScannerView: View {
             isScanning = true
         }) { ticket in
             TicketResultView(ticket: ticket)
-                .presentationDetents([.height(400)])
+                .presentationDetents([.fraction(0.82), .large])
                 .presentationDragIndicator(.visible)
         }
     }
@@ -75,7 +87,7 @@ struct ScannerView: View {
         let ticket = MockTicket(
             isValid: randomValid,
             reason: randomValid ? nil : "Ticket bereits gescannt oder ungültig für diese Vorstellung.",
-            peopleCount: Int.random(in: 1...4),
+            peopleCount: Int.random(in: 1...5),
             movieTitle: movies[randomIndex],
             time: times[randomIndex],
             fsk: fsks[randomIndex],
@@ -86,7 +98,7 @@ struct ScannerView: View {
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(randomValid ? .success : .error)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             self.scannedTicket = ticket
             self.showResult = true
         }
@@ -99,90 +111,167 @@ struct TicketResultView: View {
     
     var body: some View {
         ZStack {
-            Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
+            Color(red: 20/255, green: 20/255, blue: 22/255).ignoresSafeArea()
             
-            VStack(spacing: 20) {
-                // Status Icon
-                Image(systemName: ticket.isValid ? "checkmark.circle.fill" : "xmark.circle.fill")
-                    .font(.system(size: 80))
-                    .foregroundColor(ticket.isValid ? .green : .red)
-                    .padding(.top, 20)
-                
-                Text(ticket.isValid ? "Einlass gewährt" : "Einlass verweigert")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                if let reason = ticket.reason {
-                    Text(reason)
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                }
-                
-                VStack(spacing: 12) {
-                    HStack {
-                        Text("Film:")
-                            .foregroundColor(.gray)
-                        Spacer()
-                        Text(ticket.movieTitle)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Header Oli + Status
+                    VStack(spacing: 12) {
+                        Image(ticket.isValid ? "Oli_Success_bgless" : "Oli_Error_bgless")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 120)
+                            .shadow(color: (ticket.isValid ? Color.green : Color.red).opacity(0.3), radius: 15, x: 0, y: 5)
+                            .padding(.top, 10)
+                        
+                        Text(ticket.isValid ? "EINLASS GESTATTET" : "EINLASS VERWEIGERT")
+                            .font(.system(size: 24, weight: .heavy, design: .rounded))
+                            .foregroundColor(ticket.isValid ? .green : .red)
+                            .tracking(1)
+                        
+                        if let reason = ticket.reason {
+                            Text(reason)
+                                .font(.footnote)
+                                .foregroundColor(.red.opacity(0.9))
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 24)
+                        }
                     }
-                    HStack {
-                        Text("Saal:")
-                            .foregroundColor(.gray)
+                    
+                    // PROMINENTE PERSONEN-ANZAHL
+                    HStack(spacing: 14) {
+                        Image(systemName: ticket.peopleCount == 1 ? "person.fill" : "person.2.fill")
+                            .font(.system(size: 32))
+                            .foregroundColor(ticket.isValid ? .green : .red)
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("PERSONEN")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(.gray)
+                                .tracking(1)
+                            
+                            Text("\(ticket.peopleCount) \(ticket.peopleCount == 1 ? "Person" : "Personen")")
+                                .font(.system(size: 32, weight: .black, design: .rounded))
+                                .foregroundColor(.white)
+                        }
+                        
                         Spacer()
-                        Text(ticket.hall)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
+                        
+                        Text("TICKET")
+                            .font(.system(size: 12, weight: .bold))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(Color.white.opacity(0.1))
+                            .cornerRadius(8)
+                            .foregroundColor(.white.opacity(0.8))
                     }
-                    HStack {
-                        Text("Zeit:")
-                            .foregroundColor(.gray)
-                        Spacer()
-                        Text(ticket.time)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 18)
+                            .fill((ticket.isValid ? Color.green : Color.red).opacity(0.12))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 18)
+                            .stroke((ticket.isValid ? Color.green : Color.red).opacity(0.4), lineWidth: 1.5)
+                    )
+                    .padding(.horizontal)
+                    
+                    // Detail-Box
+                    VStack(spacing: 14) {
+                        HStack {
+                            Text("Film")
+                                .foregroundColor(.gray)
+                                .font(.subheadline)
+                            Spacer()
+                            Text(ticket.movieTitle)
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.trailing)
+                        }
+                        
+                        Divider().background(Color.white.opacity(0.1))
+                        
+                        HStack {
+                            Text("Saal")
+                                .foregroundColor(.gray)
+                                .font(.subheadline)
+                            Spacer()
+                            Text(ticket.hall)
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                        }
+                        
+                        Divider().background(Color.white.opacity(0.1))
+                        
+                        HStack {
+                            Text("Uhrzeit")
+                                .foregroundColor(.gray)
+                                .font(.subheadline)
+                            Spacer()
+                            Text(ticket.time)
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                        }
+                        
+                        Divider().background(Color.white.opacity(0.1))
+                        
+                        HStack {
+                            Text("Altersfreigabe")
+                                .foregroundColor(.gray)
+                                .font(.subheadline)
+                            Spacer()
+                            Text(ticket.fsk)
+                                .font(.subheadline)
+                                .fontWeight(.heavy)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 4)
+                                .background(ticket.fsk == "FSK 16" || ticket.fsk == "FSK 18" ? Color.red.opacity(0.2) : Color.blue.opacity(0.2))
+                                .foregroundColor(ticket.fsk == "FSK 16" || ticket.fsk == "FSK 18" ? .red : .blue)
+                                .cornerRadius(8)
+                        }
                     }
-                    HStack {
-                        Text("Personen:")
-                            .foregroundColor(.gray)
-                        Spacer()
-                        Text("\(ticket.peopleCount)")
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                    }
-                    HStack {
-                        Text("FSK:")
-                            .foregroundColor(.gray)
-                        Spacer()
-                        Text(ticket.fsk)
-                            .fontWeight(.bold)
-                            .foregroundColor(ticket.fsk == "FSK 16" || ticket.fsk == "FSK 18" ? .red : .white)
-                    }
-                }
-                .padding()
-                .background(Color.white.opacity(0.05))
-                .cornerRadius(12)
-                .padding(.horizontal)
-                
-                Spacer()
-                
-                Button(action: {
-                    dismiss()
-                }) {
-                    Text("Nächsten scannen")
-                        .fontWeight(.bold)
+                    .padding(18)
+                    .background(Color.white.opacity(0.04))
+                    .cornerRadius(18)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 18)
+                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                    )
+                    .padding(.horizontal)
+                    
+                    // Scan Next Button
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "qrcode.viewfinder")
+                                .font(.title3)
+                            Text("Nächsten scannen")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                        }
                         .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(ticket.isValid ? Color.green : Color.red)
+                        .padding(.vertical, 16)
+                        .background(
+                            LinearGradient(
+                                colors: ticket.isValid ? [Color.green, Color(red: 34/255, green: 160/255, blue: 85/255)] : [Color.red, Color(red: 180/255, green: 20/255, blue: 30/255)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
                         .foregroundColor(.white)
-                        .cornerRadius(12)
+                        .cornerRadius(16)
+                        .shadow(color: (ticket.isValid ? Color.green : Color.red).opacity(0.4), radius: 10, x: 0, y: 4)
                         .padding(.horizontal)
-                        .padding(.bottom, 20)
+                        .padding(.top, 6)
+                        .padding(.bottom, 24)
+                    }
                 }
+                .padding(.top, 10)
             }
         }
     }

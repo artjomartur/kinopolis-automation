@@ -10,20 +10,27 @@ struct FunkView: View {
             
             ScrollView {
                 VStack(spacing: 20) {
-                    Text("Nachschub-Ruf")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal)
-                        .padding(.top, 20)
-                    
-                    Text("Digitaler Funk")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal)
-                        .padding(.bottom, 10)
+                    // Header with Oli
+                    HStack(spacing: 14) {
+                        Image("Oli_2_bgless")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 60)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Nachschub-Ruf")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                            Text("Digitaler Funk")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                        Spacer()
+                    }
+                    .padding(.horizontal)
+                    .padding(.top, 20)
+                    .padding(.bottom, 10)
                     
                     // Help Button
                     Button(action: {
