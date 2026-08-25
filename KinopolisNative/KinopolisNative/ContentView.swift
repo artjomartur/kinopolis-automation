@@ -82,28 +82,12 @@ struct ContentView: View {
 }
 
 // Minimal placeholders for views not in separate files yet
-struct FunkView: View {
-    var body: some View {
-        Text("Funk Ansicht").foregroundColor(.primary)
-    }
 }
 
-struct ScannerView: View {
-    var body: some View {
-        Text("Scanner Ansicht").foregroundColor(.primary)
-    }
 }
 
-struct ActionView: View {
-    var body: some View {
-        Text("Action Ansicht").foregroundColor(.primary)
-    }
 }
 
-struct MehrView: View {
-    var body: some View {
-        Text("Mehr Ansicht").foregroundColor(.primary)
-    }
 }
 
 struct ContentView_Previews: PreviewProvider {
