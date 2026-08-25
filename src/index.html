@@ -9025,9 +9025,8 @@ body {
 
             // 4. Add Station Abbau Alerts
             if (currentCity === 'kp') {
-                // Removed Abbau from checklist - only show as alerts/exits
-                // const abbauTasks = getKpStationTasks(hallsGrouped);
-                // allTasks.push(...abbauTasks);
+                const abbauTasks = getKpStationTasks(hallsGrouped, completedAuslaesse);
+                allTasks.push(...abbauTasks);
             }
 
             // Filter for tasks:
@@ -9047,6 +9046,10 @@ body {
                     return true;
                 }
                 if (t.type === 'cleaning') return true;
+                if (t.type === 'abbau') {
+                    if (completedAuslaesse.has(t.id)) return false;
+                    return true;
+                }
                 return false;
             });
 
@@ -9147,7 +9150,7 @@ body {
             container.style.display = 'block'; // Always display the container, even if empty, so the user knows it's there
         }
 
-        function getKpStationTasks(hallsGrouped) {
+        function getKpStationTasks(hallsGrouped, completedAuslaesse) {
             const tasks = [];
             const groups = [
                 { name: 'Station 1/2', halls: ['Kino 1', 'Kino 2'] },
@@ -9156,46 +9159,42 @@ body {
                 { name: 'Station 7/8', halls: ['Kino 7', 'Kino 8'] }
             ];
 
-            const now = new Date();
-            const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
             groups.forEach(group => {
-                let hasUpcomingAuslass = false;
+                let hasUnfinishedAuslass = false;
                 let lastEndMin = 0;
+                let totalAuslaesse = 0;
                 
                 group.halls.forEach(hallName => {
                     const hall = hallsGrouped.find(h => h.name === hallName);
                     if (!hall) return;
 
                     const sessions = (hall.sessions || []).filter(s => s.time && s.time.includes(':')).sort((a, b) => a.time.localeCompare(b.time));
-                    const auslassSessions = sessions.slice(0, -1); // All except last
+                    const auslassSessions = sessions.slice(0, -1); // Letzte Vorstellung muss nicht gesäubert werden
+                    totalAuslaesse += auslassSessions.length;
 
                     auslassSessions.forEach(s => {
                         const [h, m] = s.time.split(':').map(Number);
-                        const endMinMax = (h * 60 + m) + s.duration + 30;
-                        if (endMinMax > currentMinutes) {
-                            hasUpcomingAuslass = true;
+                        const durationBase = (h * 60 + m) + s.duration;
+                        const taskId = `auslass-${hallName.replace(/\s+/g, '-')}-${s.time}`;
+                        
+                        // Check if this specific auslass is checked off
+                        if (!completedAuslaesse.has(taskId)) {
+                            hasUnfinishedAuslass = true;
                         }
-                        lastEndMin = Math.max(lastEndMin, endMinMax);
+                        lastEndMin = Math.max(lastEndMin, durationBase);
                     });
-                    
-                    // Also check the last session's end time for "ABBAU"
-                    if (sessions.length > 0) {
-                        const lastS = sessions[sessions.length - 1];
-                        const [h, m] = lastS.time.split(':').map(Number);
-                        lastEndMin = Math.max(lastEndMin, (h * 60 + m) + lastS.duration);
-                    }
                 });
 
-                if (!hasUpcomingAuslass) {
+                // Wenn es Auslässe gab und ALLE für diese Station abgehakt sind, ist Abbau fällig
+                if (totalAuslaesse > 0 && !hasUnfinishedAuslass) {
                     tasks.push({
                         type: 'abbau',
                         hall: 'ABBAU',
-                        title: `${group.name} - Fertig`,
+                        title: `${group.name} abbauen`,
                         time: lastEndMin,
-                        timeDisplay: 'Fertig',
+                        timeDisplay: 'Jetzt',
                         triggerMin: lastEndMin,
-                        id: `abbau-${group.name}`
+                        id: `abbau-${group.name.replace('/', '-')}`
                     });
                 }
             });
