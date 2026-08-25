@@ -7,10 +7,34 @@ struct ActionView: View {
     @AppStorage("isShiftActive") private var isShiftActive = false
     @AppStorage("shiftStartTime") private var shiftStartTime: Double = 0
     @AppStorage("userXP") private var userXP: Int = 120
-    @AppStorage("selectedDept") private var selectedDept = "alles"
+    @AppStorage("selectedDept") private var selectedDept = "tl"
     
-    // Checklist State
-    @State private var checklistItems: [ChecklistItem] = [
+    // TL State
+    @State private var showIncidentSheet = false
+    @State private var incidentCategory = "Technik"
+    @State private var incidentText = ""
+    @State private var incidentLogs: [IncidentLog] = []
+    
+    // Hall Override State (TL)
+    @State private var hallStatuses: [String: String] = [
+        "1": "Freigegeben",
+        "2": "Freigegeben",
+        "3": "In Reinigung",
+        "4": "Freigegeben",
+        "5": "Freigegeben"
+    ]
+    
+    // TL Shift Opening Checklist
+    @State private var tlOpeningChecklist: [ChecklistItem] = [
+        ChecklistItem(title: "🔑 Tresor-Schlüssel & Wechselgeldkassetten ausgegeben", isCompleted: false),
+        ChecklistItem(title: "🚪 Notausgänge & Fluchtwege kontrolliert (Brandschutz)", isCompleted: false),
+        ChecklistItem(title: "🎬 TMS / Projektion Vorführer synchronisiert", isCompleted: false),
+        ChecklistItem(title: "🎟️ Einlass-Scanner Akkus & FSK-Hinweise geprüft", isCompleted: true),
+        ChecklistItem(title: "🍿 Theke Postmix-Sirup & CO2-Druck geprüft", isCompleted: true)
+    ]
+    
+    // Department Specific Checklists
+    @State private var standardChecklist: [ChecklistItem] = [
         ChecklistItem(title: "Saal 1-4 Rundgang & Becherkontrolle", isCompleted: false),
         ChecklistItem(title: "Popcorn-Warmhalter auffüllen", isCompleted: true),
         ChecklistItem(title: "Nachos-Käsespender Temperatur prüfen", isCompleted: false),
@@ -20,7 +44,13 @@ struct ActionView: View {
     
     // Announcement state
     @State private var announcementText = ""
+    @State private var isPriorityBroadcast = false
     @State private var showAnnouncementToast = false
+    
+    var isUserTLOrAdmin: Bool {
+        let role = authManager.currentUser?.role.lowercased() ?? ""
+        return role == "admin" || role == "bl" || role == "tl" || selectedDept == "tl"
+    }
     
     var body: some View {
         ZStack {
@@ -40,9 +70,9 @@ struct ActionView: View {
                                 .font(.title2)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
-                            Text("Tools & Schicht-Management")
+                            Text(selectedDept == "tl" ? "👔 TL / BL Schichtleitung" : "Tools & Schicht-Management")
                                 .font(.subheadline)
-                                .foregroundColor(.gray)
+                                .foregroundColor(selectedDept == "tl" ? .red : .gray)
                         }
                         
                         Spacer()
@@ -122,78 +152,266 @@ struct ActionView: View {
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 10) {
+                                DeptChip(title: "👔 TL / BL", id: "tl", selectedId: $selectedDept)
                                 DeptChip(title: "🎟️ Einlass", id: "einlass", selectedId: $selectedDept)
                                 DeptChip(title: "🍿 Theke", id: "theke", selectedId: $selectedDept)
                                 DeptChip(title: "💰 Kasse", id: "kasse", selectedId: $selectedDept)
-                                DeptChip(title: "👔 TL / BL", id: "tl", selectedId: $selectedDept)
                                 DeptChip(title: "🌐 Alles", id: "alles", selectedId: $selectedDept)
                             }
                             .padding(.horizontal)
                         }
                     }
                     
-                    // 3. TEAM-CHECKLISTE
-                    VStack(alignment: .leading, spacing: 14) {
-                        HStack {
-                            Image(systemName: "checklist")
-                                .foregroundColor(.blue)
-                            Text("Schicht-Aufgaben")
-                                .font(.headline)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
+                    // 3. TL / BL SPEZIAL-FUNKTIONEN
+                    if selectedDept == "tl" {
+                        VStack(alignment: .leading, spacing: 16) {
+                            HStack {
+                                Image(systemName: "shield.lefthalf.filled")
+                                    .foregroundColor(.red)
+                                Text("TL / BL Schichtstart-Checkliste")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                Spacer()
+                                let completed = tlOpeningChecklist.filter { $0.isCompleted }.count
+                                Text("\(completed)/\(tlOpeningChecklist.count)")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .background(Color.red.opacity(0.2))
+                                    .foregroundColor(.red)
+                                    .cornerRadius(6)
+                            }
                             
-                            Spacer()
-                            
-                            let completed = checklistItems.filter { $0.isCompleted }.count
-                            Text("\(completed)/\(checklistItems.count)")
-                                .font(.caption)
-                                .fontWeight(.bold)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 3)
-                                .background(Color.blue.opacity(0.2))
-                                .foregroundColor(.blue)
-                                .cornerRadius(6)
-                        }
-                        
-                        VStack(spacing: 8) {
-                            ForEach(checklistItems.indices, id: \.self) { index in
-                                Button(action: {
-                                    checklistItems[index].isCompleted.toggle()
-                                    let generator = UIImpactFeedbackGenerator(style: .light)
-                                    generator.impactOccurred()
-                                }) {
-                                    HStack(spacing: 12) {
-                                        Image(systemName: checklistItems[index].isCompleted ? "checkmark.circle.fill" : "circle")
-                                            .font(.title3)
-                                            .foregroundColor(checklistItems[index].isCompleted ? .green : .gray)
-                                        
-                                        Text(checklistItems[index].title)
-                                            .font(.subheadline)
-                                            .foregroundColor(checklistItems[index].isCompleted ? .gray : .white)
-                                            .strikethrough(checklistItems[index].isCompleted)
-                                        
-                                        Spacer()
+                            VStack(spacing: 10) {
+                                ForEach(tlOpeningChecklist.indices, id: \.self) { index in
+                                    Button(action: {
+                                        tlOpeningChecklist[index].isCompleted.toggle()
+                                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                                        generator.impactOccurred()
+                                    }) {
+                                        HStack(spacing: 12) {
+                                            Image(systemName: tlOpeningChecklist[index].isCompleted ? "checkmark.seal.fill" : "circle")
+                                                .font(.title3)
+                                                .foregroundColor(tlOpeningChecklist[index].isCompleted ? .green : .gray)
+                                            
+                                            Text(tlOpeningChecklist[index].title)
+                                                .font(.subheadline)
+                                                .foregroundColor(tlOpeningChecklist[index].isCompleted ? .gray : .white)
+                                                .strikethrough(tlOpeningChecklist[index].isCompleted)
+                                                .multilineTextAlignment(.leading)
+                                            
+                                            Spacer()
+                                        }
+                                        .padding(.vertical, 6)
                                     }
-                                    .padding(.vertical, 8)
                                 }
                             }
                         }
+                        .padding(18)
+                        .background(Color.red.opacity(0.06))
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.red.opacity(0.3), lineWidth: 1.5)
+                        )
+                        .padding(.horizontal)
+                        
+                        // SAAL STATUS & FREIGABEN (TL OVERRIDE)
+                        VStack(alignment: .leading, spacing: 14) {
+                            HStack {
+                                Image(systemName: "tv.fill")
+                                    .foregroundColor(.blue)
+                                Text("Saal-Status & Freigaben")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                Spacer()
+                            }
+                            
+                            VStack(spacing: 10) {
+                                ForEach(["1", "2", "3", "4", "5"], id: \.self) { hall in
+                                    HStack {
+                                        Text("Kino \(hall)")
+                                            .font(.subheadline)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                        
+                                        Spacer()
+                                        
+                                        let currentStatus = hallStatuses[hall] ?? "Freigegeben"
+                                        Button(action: {
+                                            toggleHallStatus(hall: hall)
+                                        }) {
+                                            Text(currentStatus)
+                                                .font(.caption)
+                                                .fontWeight(.bold)
+                                                .padding(.horizontal, 10)
+                                                .padding(.vertical, 5)
+                                                .background(statusColor(for: currentStatus).opacity(0.2))
+                                                .foregroundColor(statusColor(for: currentStatus))
+                                                .cornerRadius(8)
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 8)
+                                                        .stroke(statusColor(for: currentStatus).opacity(0.5), lineWidth: 1)
+                                                )
+                                        }
+                                    }
+                                    .padding(.vertical, 4)
+                                    if hall != "5" {
+                                        Divider().background(Color.white.opacity(0.06))
+                                    }
+                                }
+                            }
+                        }
+                        .padding(18)
+                        .background(Color.white.opacity(0.04))
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                        )
+                        .padding(.horizontal)
+                        
+                        // VORKOMMNIS / SCHICHTBERICHT ERFASSEN
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Image(systemName: "exclamationmark.bubble.fill")
+                                    .foregroundColor(.yellow)
+                                Text("Vorkommnis / Vorfall erfassen")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                Spacer()
+                            }
+                            
+                            HStack(spacing: 8) {
+                                ForEach(["Technik", "Fundsache", "Gast", "Kasse"], id: \.self) { cat in
+                                    Button(action: { incidentCategory = cat }) {
+                                        Text(cat)
+                                            .font(.caption)
+                                            .fontWeight(incidentCategory == cat ? .bold : .medium)
+                                            .padding(.horizontal, 10)
+                                            .padding(.vertical, 6)
+                                            .background(incidentCategory == cat ? Color.yellow : Color.white.opacity(0.06))
+                                            .foregroundColor(incidentCategory == cat ? .black : .white)
+                                            .cornerRadius(8)
+                                    }
+                                }
+                            }
+                            
+                            HStack {
+                                TextField("Notiz / Vorfall für Schichtbericht...", text: $incidentText)
+                                    .padding(12)
+                                    .background(Color.white.opacity(0.06))
+                                    .cornerRadius(10)
+                                    .foregroundColor(.white)
+                                
+                                Button(action: addIncident) {
+                                    Image(systemName: "plus.circle.fill")
+                                        .font(.title2)
+                                        .foregroundColor(incidentText.isEmpty ? .gray : .yellow)
+                                }
+                                .disabled(incidentText.isEmpty)
+                            }
+                            
+                            if !incidentLogs.isEmpty {
+                                VStack(spacing: 8) {
+                                    ForEach(incidentLogs) { log in
+                                        HStack {
+                                            Text("[\(log.category)]")
+                                                .font(.caption2)
+                                                .fontWeight(.bold)
+                                                .foregroundColor(.yellow)
+                                            Text(log.text)
+                                                .font(.caption)
+                                                .foregroundColor(.white)
+                                            Spacer()
+                                            Text(log.time)
+                                                .font(.caption2)
+                                                .foregroundColor(.gray)
+                                        }
+                                        .padding(8)
+                                        .background(Color.white.opacity(0.03))
+                                        .cornerRadius(8)
+                                    }
+                                }
+                                .padding(.top, 4)
+                            }
+                        }
+                        .padding(18)
+                        .background(Color.white.opacity(0.04))
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                        )
+                        .padding(.horizontal)
+                    } else {
+                        // 4. NORMALE TEAM-CHECKLISTE
+                        VStack(alignment: .leading, spacing: 14) {
+                            HStack {
+                                Image(systemName: "checklist")
+                                    .foregroundColor(.blue)
+                                Text("Schicht-Aufgaben (\(selectedDept.uppercased()))")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                
+                                Spacer()
+                                
+                                let completed = standardChecklist.filter { $0.isCompleted }.count
+                                Text("\(completed)/\(standardChecklist.count)")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .background(Color.blue.opacity(0.2))
+                                    .foregroundColor(.blue)
+                                    .cornerRadius(6)
+                            }
+                            
+                            VStack(spacing: 8) {
+                                ForEach(standardChecklist.indices, id: \.self) { index in
+                                    Button(action: {
+                                        standardChecklist[index].isCompleted.toggle()
+                                        let generator = UIImpactFeedbackGenerator(style: .light)
+                                        generator.impactOccurred()
+                                    }) {
+                                        HStack(spacing: 12) {
+                                            Image(systemName: standardChecklist[index].isCompleted ? "checkmark.circle.fill" : "circle")
+                                                .font(.title3)
+                                                .foregroundColor(standardChecklist[index].isCompleted ? .green : .gray)
+                                            
+                                            Text(standardChecklist[index].title)
+                                                .font(.subheadline)
+                                                .foregroundColor(standardChecklist[index].isCompleted ? .gray : .white)
+                                                .strikethrough(standardChecklist[index].isCompleted)
+                                            
+                                            Spacer()
+                                        }
+                                        .padding(.vertical, 8)
+                                    }
+                                }
+                            }
+                        }
+                        .padding(18)
+                        .background(Color.white.opacity(0.04))
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                        )
+                        .padding(.horizontal)
                     }
-                    .padding(18)
-                    .background(Color.white.opacity(0.04))
-                    .cornerRadius(20)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                    )
-                    .padding(.horizontal)
                     
-                    // 4. DURCHSAGE / NOTIZ SCHREIBEN
+                    // 5. DURCHSAGE / NOTIZ SCHREIBEN
                     VStack(alignment: .leading, spacing: 14) {
                         HStack {
                             Image(systemName: "megaphone.fill")
-                                .foregroundColor(.orange)
-                            Text("Team-Mitteilung senden")
+                                .foregroundColor(selectedDept == "tl" ? .red : .orange)
+                            Text(selectedDept == "tl" ? "🚨 TL-Broadcast (An alle pinnen)" : "Team-Mitteilung senden")
                                 .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
@@ -201,7 +419,7 @@ struct ActionView: View {
                         }
                         
                         HStack {
-                            TextField("Kurze Info für die nächste Schicht...", text: $announcementText)
+                            TextField(selectedDept == "tl" ? "Wichtige TL-Anweisung an alle Bereiche..." : "Kurze Info für die nächste Schicht...", text: $announcementText)
                                 .padding(12)
                                 .background(Color.white.opacity(0.06))
                                 .cornerRadius(10)
@@ -211,7 +429,7 @@ struct ActionView: View {
                                 Image(systemName: "paperplane.fill")
                                     .foregroundColor(.white)
                                     .padding(12)
-                                    .background(announcementText.isEmpty ? Color.gray.opacity(0.3) : Color.orange)
+                                    .background(announcementText.isEmpty ? Color.gray.opacity(0.3) : (selectedDept == "tl" ? Color.red : Color.orange))
                                     .cornerRadius(10)
                             }
                             .disabled(announcementText.isEmpty)
@@ -272,10 +490,41 @@ struct ActionView: View {
         return formatter.string(from: date)
     }
     
+    private func toggleHallStatus(hall: String) {
+        let statuses = ["Freigegeben", "In Reinigung", "Gesperrt (Technik)"]
+        let current = hallStatuses[hall] ?? "Freigegeben"
+        if let idx = statuses.firstIndex(of: current) {
+            let next = statuses[(idx + 1) % statuses.count]
+            hallStatuses[hall] = next
+        }
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
+    }
+    
+    private func statusColor(for status: String) -> Color {
+        switch status {
+        case "Freigegeben": return .green
+        case "In Reinigung": return .yellow
+        case "Gesperrt (Technik)": return .red
+        default: return .gray
+        }
+    }
+    
+    private func addIncident() {
+        guard !incidentText.isEmpty else { return }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        let log = IncidentLog(category: incidentCategory, text: incidentText, time: formatter.string(from: Date()))
+        incidentLogs.insert(log, at: 0)
+        incidentText = ""
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+    }
+    
     private func sendAnnouncement() {
         guard !announcementText.isEmpty else { return }
         let textToSend = announcementText
-        let author = authManager.currentUser?.name ?? "Mitarbeiter"
+        let author = authManager.currentUser?.name ?? "TL Schichtleitung"
         let location = UserDefaults.standard.string(forKey: "selectedLocation") ?? "su"
         announcementText = ""
         
@@ -286,7 +535,7 @@ struct ActionView: View {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         let body: [String: Any] = [
-            "title": "Mitteilung von \(author)",
+            "title": selectedDept == "tl" ? "🚨 TL-Anweisung von \(author)" : "Mitteilung von \(author)",
             "content": textToSend,
             "author": author,
             "location": location
@@ -312,6 +561,13 @@ struct ActionView: View {
 }
 
 // Models & Components
+struct IncidentLog: Identifiable {
+    let id = UUID()
+    let category: String
+    let text: String
+    let time: String
+}
+
 struct ChecklistItem: Identifiable {
     let id = UUID()
     let title: String
@@ -337,11 +593,11 @@ struct DeptChip: View {
                 .foregroundColor(isSelected ? .white : .gray)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
-                .background(isSelected ? Color.red : Color.white.opacity(0.06))
+                .background(isSelected ? (id == "tl" ? Color.red : Color.red.opacity(0.8)) : Color.white.opacity(0.06))
                 .cornerRadius(12)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(isSelected ? Color.red.opacity(0.8) : Color.white.opacity(0.08), lineWidth: 1)
+                        .stroke(isSelected ? Color.red : Color.white.opacity(0.08), lineWidth: 1)
                 )
         }
     }

@@ -151,7 +151,7 @@ struct MehrView: View {
                                 }
                             }
                             .padding(.horizontal, 16)
-                            .padding(.vertical, 12)ertical, 12)
+                            .padding(.vertical, 12)
                             
                             Divider().background(Color.white.opacity(0.06))
                             
