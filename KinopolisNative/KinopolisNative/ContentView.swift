@@ -24,7 +24,7 @@ struct ContentView: View {
     }
     
     var body: some View {
-        // Original Apple UI TabBar
+        // Original Apple UI TabBarx
         TabView(selection: $selectedTab) {
             NavigationStack {
                 LiveView()
