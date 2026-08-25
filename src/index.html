@@ -6462,8 +6462,11 @@ body.light-mode .tab-bar {
                 });
             });
         } else {
-            document.getElementById('push-unsupported').style.display = 'block';
-            document.getElementById('push-subscribe-btn').disabled = true;
+            const unsupportedEl = document.getElementById('push-unsupported');
+            if (unsupportedEl) unsupportedEl.style.display = 'block';
+            
+            const btnEl = document.getElementById('push-subscribe-btn');
+            if (btnEl) btnEl.disabled = true;
         }
 
         async function checkPushSubscription() {
