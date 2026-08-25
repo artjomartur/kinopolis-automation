@@ -3625,23 +3625,19 @@ body {
   right: 32px;
   width: auto;
   height: 68px;
-  
   background: rgba(40, 40, 44, 0.7);
   backdrop-filter: blur(20px) saturate(150%);
   -webkit-backdrop-filter: blur(20px) saturate(150%);
-  
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 
     0 24px 48px rgba(0, 0, 0, 0.4),
     inset 0 1px 1px rgba(255, 255, 255, 0.1);
-    
   border-radius: 34px;
   display: flex;
   justify-content: space-around;
   align-items: center;
   z-index: 10000;
   padding: 0 12px;
-  box-sizing: border-box;
 }
 
 body.light-mode .tab-bar {
@@ -3682,6 +3678,15 @@ body.light-mode .tab-btn {
 }
 
 body.light-mode .tab-btn:hover {
+  color: #000000;
+}
+
+.tab-btn.active {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+body.light-mode .tab-btn.active {
   color: #000000;
 }
 
@@ -11942,23 +11947,23 @@ window.applyPopcornPrognosis = applyPopcornPrognosis;
 
 <nav class="tab-bar">
   <button class="tab-btn active" data-tab="live" onclick="switchTab('live', this)">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
     <span class="tab-label">Live</span>
   </button>
   <button class="tab-btn" data-tab="funk" onclick="switchTab('funk', this)">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-1.6-1.6-1.6-4.1 0-5.7"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c1.6 1.6 1.6 4.1 0 5.7"/><path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2.251-7.13a.473.473 0 0 1 .9 0l4.698 14.26a.473.473 0 0 0 .9 0L17 12h5"/></svg>
     <span class="tab-label">Funk</span>
   </button>
   <button class="tab-btn" data-tab="scanner" onclick="switchTab('scanner', this)">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3"/><path d="m16 16-1.5-1.5"/></svg>
     <span class="tab-label">Scanner</span>
   </button>
   <button class="tab-btn" data-tab="action" onclick="switchTab('action', this)">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
     <span class="tab-label">Action</span>
   </button>
   <button class="tab-btn" data-tab="mehr" onclick="switchTab('mehr', this)">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     <span class="tab-label">Mehr</span>
   </button>
 </nav>

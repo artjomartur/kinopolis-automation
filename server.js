@@ -1,4 +1,4 @@
-lrequire('dotenv').config();
+require('dotenv').config();
 const express = require('express');
 const cheerio = require('cheerio');
 const cors = require('cors');
