@@ -5038,6 +5038,22 @@ body.light-mode .tab-bar {
             }
         });
 
+        // --- GLOBAL FETCH INTERCEPTOR FOR NATIVE IOS (CAPACITOR) ---
+        // Change this URL to your production backend URL (e.g. 'https://kinopolis-api.com')
+        const APP_BACKEND_URL = 'https://kinopolis-api.com'; 
+        
+        const originalFetch = window.fetch;
+        window.fetch = async function() {
+            let args = Array.prototype.slice.call(arguments);
+            const isNative = window.Capacitor && window.Capacitor.isNativePlatform();
+            
+            // If running as native app and fetching a relative /api/ path, prepend the backend URL
+            if (isNative && typeof args[0] === 'string' && args[0].startsWith('/api/')) {
+                args[0] = APP_BACKEND_URL + args[0];
+            }
+            return originalFetch.apply(this, args);
+        };
+
         // --- GLOBALS & STATE ---
         const API_URL = '/api/sessions';
         const LOCATIONS_URL = '/api/locations';
