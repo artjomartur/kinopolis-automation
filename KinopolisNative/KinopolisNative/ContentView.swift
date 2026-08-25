@@ -71,8 +71,8 @@ struct ContentView_Previews: PreviewProvider {
     }
 }
 
-// MARK: - Unified App Header Component
-struct AppHeaderView<TrailingContent: View>: View {
+// MARK: - Master App Header Component (100% Identical in Geometry Across All Tabs)
+struct MasterHeaderView<TrailingContent: View>: View {
     let imageName: String
     let subtitle: String
     let title: String
@@ -94,31 +94,38 @@ struct AppHeaderView<TrailingContent: View>: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            Image(imageName)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 90, height: 90)
-                .clipShape(Circle())
-                .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 3)
+            // Fixed Avatar Frame with circular dark badge
+            ZStack {
+                Circle()
+                    .fill(Color.white.opacity(0.06))
+                    .frame(width: 82, height: 82)
+                
+                Image(imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 80, height: 80)
+                    .clipShape(Circle())
+            }
+            .frame(width: 82, height: 82)
+            .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 3)
             
+            // Standardized Text Column
             VStack(alignment: .leading, spacing: 4) {
                 Text(subtitle)
-                    .font(.caption)
-                    .fontWeight(.medium)
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.gray)
+                    .lineLimit(1)
                 
                 Text(title)
-                    .font(.title2)
-                    .fontWeight(.heavy)
+                    .font(.system(size: 22, weight: .heavy))
                     .foregroundColor(.white)
                     .lineLimit(1)
                 
-                HStack(spacing: 4) {
+                HStack(spacing: 5) {
                     Image(systemName: "mappin.circle.fill")
-                        .font(.caption2)
+                        .font(.system(size: 10))
                     Text(LocationData.name(for: selectedLocation))
-                        .font(.caption2)
-                        .fontWeight(.bold)
+                        .font(.system(size: 11, weight: .bold))
                         .lineLimit(1)
                 }
                 .foregroundColor(.red)
@@ -128,15 +135,19 @@ struct AppHeaderView<TrailingContent: View>: View {
                 .cornerRadius(6)
             }
             
-            Spacer()
+            Spacer(minLength: 8)
             
             trailing
         }
         .padding(.horizontal, 16)
-        .padding(.top, 16)
-        .padding(.bottom, 4)
+        .padding(.top, 12)
+        .padding(.bottom, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(red: 24/255, green: 24/255, blue: 26/255))
     }
 }
+
+typealias AppHeaderView = MasterHeaderView
 
 // MARK: - Location Models & Helpers
 struct KinopolisLocation: Identifiable, Hashable {

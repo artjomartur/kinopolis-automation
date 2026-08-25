@@ -26,16 +26,18 @@ struct MehrView: View {
         ZStack {
             Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
             
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Unified App Header
-                    AppHeaderView(
-                        imageName: "Oli_Security_bgless",
-                        subtitle: "Konto & Einstellungen",
-                        title: authManager.currentUser?.name ?? "Artjom Becker"
-                    )
-                    
-                    // 1. PROFIL & LEVEL CARD
+            VStack(spacing: 0) {
+                // Fixed Master Header
+                MasterHeaderView(
+                    imageName: "Oli_Security_bgless",
+                    subtitle: "Konto & Einstellungen",
+                    title: authManager.currentUser?.name ?? "Artjom Becker"
+                )
+                
+                ScrollView {
+                    VStack(spacing: 20) {
+                        
+                        // 1. PROFIL & LEVEL CARD
                     VStack(spacing: 16) {
                         HStack(spacing: 16) {
                             VStack(alignment: .leading, spacing: 4) {
@@ -288,7 +290,8 @@ struct MehrView: View {
                     .padding(.top, 8)
                 }
             }
-            .sheet(isPresented: $showFundbueroSheet) {
+        }
+        .sheet(isPresented: $showFundbueroSheet) {
                 FundbueroView()
             }
         }

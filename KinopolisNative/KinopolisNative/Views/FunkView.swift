@@ -9,17 +9,19 @@ struct FunkView: View {
             // Background
             Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
             
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Unified App Header
-                    AppHeaderView(
-                        imageName: "Oli_2_bgless",
-                        subtitle: "Digitaler Funk",
-                        title: "Team-Funk"
-                    )
-                    
-                    // Help Button
-                    Button(action: {
+            VStack(spacing: 0) {
+                // Fixed Master Header
+                MasterHeaderView(
+                    imageName: "Oli_2_bgless",
+                    subtitle: "Digitaler Funk",
+                    title: "Team-Funk"
+                )
+                
+                ScrollView {
+                    VStack(spacing: 16) {
+                        
+                        // Help Button
+                        Button(action: {
                         withAnimation {
                             viewModel.toggleHelp()
                         }
@@ -99,6 +101,7 @@ struct FunkView: View {
                     Spacer().frame(height: 100)
                 }
             }
+        }
             
             // Toast Notification
             if viewModel.showToast, let msg = viewModel.toastMessage {

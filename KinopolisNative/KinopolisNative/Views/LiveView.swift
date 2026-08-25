@@ -246,35 +246,37 @@ struct LiveView: View {
         ZStack {
             Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
             
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    
-                    // Unified App Header
-                    AppHeaderView(
-                        imageName: "Oli",
-                        subtitle: "Willkommen zurück,",
-                        title: displayName
-                    ) {
-                        Button(action: {
-                            Task { await viewModel.fetchSessions() }
-                        }) {
-                            Image(systemName: "arrow.triangle.2.circlepath")
-                                .font(.body)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                                .padding(10)
-                                .background(Color.white.opacity(0.08))
-                                .clipShape(Circle())
+            VStack(spacing: 0) {
+                // Fixed Master Header
+                MasterHeaderView(
+                    imageName: "Oli",
+                    subtitle: "Willkommen zurück,",
+                    title: displayName
+                ) {
+                    Button(action: {
+                        Task { await viewModel.fetchSessions() }
+                    }) {
+                        Image(systemName: "arrow.triangle.2.circlepath")
+                            .font(.body)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding(10)
+                            .background(Color.white.opacity(0.08))
+                            .clipShape(Circle())
+                    }
+                }
+                
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        
+                        // Mode Picker
+                        Picker("Ansicht", selection: $viewModel.viewMode) {
+                            Text("Vorstellungen").tag(0)
+                            Text("Auslassplan").tag(1)
                         }
-                    }
-                    
-                    // Mode Picker
-                    Picker("Ansicht", selection: $viewModel.viewMode) {
-                        Text("Vorstellungen").tag(0)
-                        Text("Auslassplan").tag(1)
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .padding(.horizontal, 16)
+                        .pickerStyle(SegmentedPickerStyle())
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
                         
                         if viewModel.isLoading && viewModel.halls.isEmpty {
                             VStack(spacing: 16) {
@@ -326,7 +328,7 @@ struct LiveView: View {
                                     }
                                 }
                             } else {
-                                // Auslassplan
+                                // Auslassplan with clean horizontal buffer
                                 VStack(spacing: 12) {
                                     ForEach(viewModel.auslaesse) { auslass in
                                         if !auslass.isDone {
@@ -340,6 +342,7 @@ struct LiveView: View {
                                         }
                                     }
                                 }
+                                .padding(.horizontal, 16)
                             }
                         }
                     }
@@ -351,6 +354,7 @@ struct LiveView: View {
             }
         }
     }
+}
 
 struct AuslassCard: View {
     let auslass: Auslass

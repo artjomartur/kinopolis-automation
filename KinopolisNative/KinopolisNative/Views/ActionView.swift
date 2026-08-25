@@ -61,16 +61,17 @@ struct ActionView: View {
         ZStack {
             Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
             
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Unified App Header
-                    AppHeaderView(
-                        imageName: "Oli_2_bgless",
-                        subtitle: selectedDept == "tl" ? "👔 TL / BL Leitstand" : "Schicht-Management",
-                        title: "Team & Aktionen"
-                    )
-                    
-                    // 1. SCHICHT-CONTROL CARD
+            VStack(spacing: 0) {
+                // Fixed Master Header
+                MasterHeaderView(
+                    imageName: "Oli_2_bgless",
+                    subtitle: selectedDept == "tl" ? "👔 TL / BL Leitstand" : "Schicht-Management",
+                    title: "Team & Aktionen"
+                )
+                
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // 1. SCHICHT-CONTROL CARD
                     VStack(spacing: 14) {
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
@@ -481,6 +482,7 @@ struct ActionView: View {
                     Spacer().frame(height: 100)
                 }
             }
+        }
             .sheet(isPresented: $showFundbueroSheet) {
                 FundbueroView()
             }
