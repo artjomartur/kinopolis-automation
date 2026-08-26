@@ -68,6 +68,10 @@ struct Auslass: Identifiable {
     let sold: Int
     let capacity: Int
     let fsk: String?
+    
+    var endTime: Date {
+        Date().addingTimeInterval(Double(minutesLeft) * 60)
+    }
 }
 
 // MARK: - FSK & JuSchG Helper
@@ -581,72 +585,21 @@ struct AuslassCard: View {
         FSKHelper.age(from: auslass.fsk)
     }
     
+    private var isPinned: Bool {
+        AuslassActivityManager.shared.pinnedAuslassID == auslass.id.uuidString
+    }
+    
+    private var cardBorderColor: Color {
+        (auslass.isActive && !isCheckedOff) ? Color.red.opacity(0.5) : Color.white.opacity(0.1)
+    }
+    
     var body: some View {
         HStack {
-            // Checkbox
-            Button(action: onToggle) {
-                Image(systemName: isCheckedOff ? "checkmark.circle.fill" : "circle")
-                    .font(.title2)
-                    .foregroundColor(isCheckedOff ? .green : .gray)
-            }
-            .padding(.trailing, 8)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
-                    Text("Saal \(auslass.hall)")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(auslass.isActive ? Color.red : Color.blue.opacity(0.8))
-                        .foregroundColor(.white)
-                        .cornerRadius(6)
-                    
-                    // FSK Badge
-                    Text("FSK \(fskAge)")
-                        .font(.system(size: 10, weight: .black))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 3)
-                        .background(FSKHelper.color(for: fskAge))
-                        .foregroundColor(FSKHelper.textColor(for: fskAge))
-                        .cornerRadius(5)
-                    
-                    Text(auslass.timeDisplay)
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                        .strikethrough(isCheckedOff)
-                }
-                
-                Text(auslass.movieTitle)
-                    .font(.headline)
-                    .foregroundColor(isCheckedOff ? .gray : .white)
-                    .lineLimit(1)
-                    .strikethrough(isCheckedOff)
-                
-                // Capacity Indicator
-                HStack {
-                    Image(systemName: "person.fill")
-                        .foregroundColor(.gray)
-                        .font(.caption)
-                    Text("\(auslass.sold) / \(auslass.capacity) verkauft")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                }
-            }
-            
+            checkboxButton
+            infoColumn
             Spacer()
-            
             if !isCheckedOff {
-                if auslass.minutesLeft > 0 {
-                    Text("in \(auslass.minutesLeft) Min")
-                        .font(.caption)
-                        .foregroundColor(auslass.isActive ? .red : .gray)
-                } else {
-                    Text("FÄLLIG")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundColor(.red)
-                }
+                rightColumn
             }
         }
         .padding()
@@ -654,9 +607,130 @@ struct AuslassCard: View {
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(auslass.isActive && !isCheckedOff ? Color.red.opacity(0.5) : Color.white.opacity(0.1), lineWidth: 1)
+                .stroke(cardBorderColor, lineWidth: 1)
         )
         .opacity(isCheckedOff ? 0.5 : 1.0)
+    }
+    
+    private var checkboxButton: some View {
+        Button(action: onToggle) {
+            Image(systemName: isCheckedOff ? "checkmark.circle.fill" : "circle")
+                .font(.title2)
+                .foregroundColor(isCheckedOff ? .green : .gray)
+        }
+        .padding(.trailing, 8)
+    }
+    
+    private var infoColumn: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            headerRow
+            titleRow
+            capacityRow
+        }
+    }
+    
+    private var headerRow: some View {
+        HStack(spacing: 8) {
+            Text("Saal \(auslass.hall)")
+                .font(.caption)
+                .fontWeight(.bold)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(auslass.isActive ? Color.red : Color.blue.opacity(0.8))
+                .foregroundColor(.white)
+                .cornerRadius(6)
+            
+            Text("FSK \(fskAge)")
+                .font(.system(size: 10, weight: .black))
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+                .background(FSKHelper.color(for: fskAge))
+                .foregroundColor(FSKHelper.textColor(for: fskAge))
+                .cornerRadius(5)
+            
+            Text(auslass.timeDisplay)
+                .font(.subheadline)
+                .foregroundColor(.gray)
+                .strikethrough(isCheckedOff)
+        }
+    }
+    
+    private var titleRow: some View {
+        Text(auslass.movieTitle)
+            .font(.headline)
+            .foregroundColor(isCheckedOff ? .gray : .white)
+            .lineLimit(1)
+            .strikethrough(isCheckedOff)
+    }
+    
+    private var capacityRow: some View {
+        HStack {
+            Image(systemName: "person.fill")
+                .foregroundColor(.gray)
+                .font(.caption)
+            Text("\(auslass.sold) / \(auslass.capacity) verkauft")
+                .font(.caption)
+                .foregroundColor(.gray)
+        }
+    }
+    
+    private var rightColumn: some View {
+        VStack(alignment: .trailing, spacing: 6) {
+            countdownLabel
+            pinButton
+        }
+    }
+    
+    @ViewBuilder
+    private var countdownLabel: some View {
+        if auslass.minutesLeft > 0 {
+            Text("in \(auslass.minutesLeft) Min")
+                .font(.caption)
+                .fontWeight(.semibold)
+                .foregroundColor(auslass.isActive ? .red : .gray)
+        } else {
+            Text("FÄLLIG")
+                .font(.caption)
+                .fontWeight(.black)
+                .foregroundColor(.red)
+        }
+    }
+    
+    private var pinButton: some View {
+        Button(action: handlePinToggle) {
+            HStack(spacing: 4) {
+                Image(systemName: isPinned ? "pin.fill" : "pin")
+                    .font(.system(size: 11))
+                Text(isPinned ? "Aktiv" : "Pin")
+                    .font(.system(size: 10, weight: .bold))
+            }
+            .padding(.horizontal, 6)
+            .padding(.vertical, 3)
+            .background(isPinned ? Color.yellow.opacity(0.25) : Color.white.opacity(0.08))
+            .foregroundColor(isPinned ? .yellow : .gray)
+            .cornerRadius(6)
+        }
+    }
+    
+    private func handlePinToggle() {
+        let idStr = auslass.id.uuidString
+        if isPinned {
+            AuslassActivityManager.shared.stopCurrentActivity()
+        } else {
+            AuslassActivityManager.shared.startAuslassActivity(
+                hallName: auslass.hall,
+                movieTitle: auslass.movieTitle,
+                guests: auslass.sold,
+                endTime: auslass.endTime,
+                auslassID: idStr
+            )
+            WatchConnectivityManager.shared.sendUpcomingAuslassToWatch(
+                hall: auslass.hall,
+                movie: auslass.movieTitle,
+                minutesRemaining: auslass.minutesLeft,
+                guests: auslass.sold
+            )
+        }
     }
 }
 

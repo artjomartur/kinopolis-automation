@@ -16,7 +16,7 @@ struct MehrView: View {
     @State private var showDefektSheet = false
     @State private var showSchichtTauschSheet = false
     @State private var showSpickzettelSheet = false
-    @State private var showSoundboardSheet = false
+    @State private var showDienstplanSheet = false
     
     @State private var isHeaderCollapsed = false
     
@@ -177,6 +177,16 @@ struct MehrView: View {
                             .padding(.horizontal)
                         
                         VStack(spacing: 12) {
+                            // Mein Dienstplan & Kalender
+                            Button(action: { showDienstplanSheet = true }) {
+                                ServiceRowItem(
+                                    icon: "calendar.badge.clock",
+                                    color: .yellow,
+                                    title: "📅 Mein Dienstplan & Kalender",
+                                    subtitle: "Schichten erfassen, Wochenstunden & Apple Kalender Sync"
+                                )
+                            }
+                            
                             // Schicht-Tauschbörse
                             Button(action: { showSchichtTauschSheet = true }) {
                                 ServiceRowItem(
@@ -194,16 +204,6 @@ struct MehrView: View {
                                     color: .blue,
                                     title: "📖 Film-Spickzettel & FAQ",
                                     subtitle: "Kurzinhalte, Zielgruppen & Post-Credit Checker"
-                                )
-                            }
-                            
-                            // Oli Soundboard & Fun
-                            Button(action: { showSoundboardSheet = true }) {
-                                ServiceRowItem(
-                                    icon: "speaker.wave.3.fill",
-                                    color: .green,
-                                    title: "🎮 Oli Soundboard & Erfolge",
-                                    subtitle: "Kino-Gongs, Oli Sprachclips & Schicht-Badges"
                                 )
                             }
                         }
@@ -385,8 +385,8 @@ struct MehrView: View {
         .sheet(isPresented: $showSpickzettelSheet) {
             FilmSpickzettelSheet()
         }
-        .sheet(isPresented: $showSoundboardSheet) {
-            OliSoundboardView()
+        .sheet(isPresented: $showDienstplanSheet) {
+            DienstplanView()
         }
     }
 }

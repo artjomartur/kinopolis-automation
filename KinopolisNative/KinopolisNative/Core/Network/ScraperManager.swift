@@ -15,13 +15,15 @@ class ScraperManager {
         let backendUrlString = "https://kinopolis.artjombecker.com/api/sessions?location=\(location)&date=\(dateStr)"
         if let backendUrl = URL(string: backendUrlString) {
             var request = URLRequest(url: backendUrl)
-            request.timeoutInterval = 10
+            request.timeoutInterval = 6
             if let (data, response) = try? await URLSession.shared.data(for: request),
                let http = response as? HTTPURLResponse, http.statusCode == 200 {
                 do {
                     let decoded = try JSONDecoder().decode([HallData].self, from: data)
                     if !decoded.isEmpty {
-                        return filterHalls(decoded, location: location)
+                        let filtered = filterHalls(decoded, location: location)
+                        saveToDiskCache(halls: filtered, location: location, dateStr: dateStr)
+                        return filtered
                     }
                 } catch {
                     print("Backend JSON decode fallback: \(error)")
@@ -30,20 +32,59 @@ class ScraperManager {
         }
         
         // 2. Direct Scraper Fallback
-        let urlString = "https://www.kinopolis.de/\(location)/programm?date=\(dateStr)"
-        guard let url = URL(string: urlString) else {
-            throw ScraperError.invalidURL
+        do {
+            let urlString = "https://www.kinopolis.de/\(location)/programm?date=\(dateStr)"
+            guard let url = URL(string: urlString) else {
+                throw ScraperError.invalidURL
+            }
+            
+            var request = URLRequest(url: url)
+            request.timeoutInterval = 8
+            request.setValue("Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1", forHTTPHeaderField: "User-Agent")
+            
+            let (data, _) = try await URLSession.shared.data(for: request)
+            guard let html = String(data: data, encoding: .utf8) else {
+                throw ScraperError.parsingError
+            }
+            
+            let parsed = try parseHTML(html: html, location: location, dateStr: dateStr)
+            saveToDiskCache(halls: parsed, location: location, dateStr: dateStr)
+            return parsed
+        } catch {
+            // 3. OFFLINE TURBO CACHE (Saalkeller & Funkloch Resilienz)
+            if let cached = loadFromDiskCache(location: location, dateStr: dateStr), !cached.isEmpty {
+                print("📴 Offline-Turbo aktiviert: Lade gecachte Vorstellungen aus lokalem Speicher für \(dateStr)")
+                return cached
+            }
+            throw error
         }
-        
-        var request = URLRequest(url: url)
-        request.setValue("Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1", forHTTPHeaderField: "User-Agent")
-        
-        let (data, _) = try await URLSession.shared.data(for: request)
-        guard let html = String(data: data, encoding: .utf8) else {
-            throw ScraperError.parsingError
+    }
+    
+    private func cacheFilePath(location: String, dateStr: String) -> URL? {
+        let fileManager = FileManager.default
+        guard let cacheDir = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first else { return nil }
+        return cacheDir.appendingPathComponent("sessions_\(location)_\(dateStr).json")
+    }
+    
+    private func saveToDiskCache(halls: [HallData], location: String, dateStr: String) {
+        guard let path = cacheFilePath(location: location, dateStr: dateStr) else { return }
+        Task.detached(priority: .background) {
+            do {
+                let data = try JSONEncoder().encode(halls)
+                try data.write(to: path, options: .atomic)
+            } catch {
+                print("Cache write error: \(error)")
+            }
         }
-        
-        return try parseHTML(html: html, location: location, dateStr: dateStr)
+    }
+    
+    public func loadFromDiskCache(location: String, dateStr: String) -> [HallData]? {
+        guard let path = cacheFilePath(location: location, dateStr: dateStr),
+              let data = try? Data(contentsOf: path),
+              let halls = try? JSONDecoder().decode([HallData].self, from: data) else {
+            return nil
+        }
+        return halls
     }
     
     private func parseHTML(html: String, location: String, dateStr: String) throws -> [HallData] {
