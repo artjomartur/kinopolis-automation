@@ -54,21 +54,21 @@ struct WalletPassView: View {
                                 )
                                 
                                 HStack {
-                                    // Offizielles Kinopolis Logo (Muss in Assets.xcassets liegen!)
+                                    // Offizielles Kinopolis Logo
                                     Image("KinopolisLogo")
                                         .resizable()
                                         .scaledToFit()
-                                        .frame(height: 35)
+                                        .frame(height: 60)
                                     Spacer()
                                 }
                                 .padding(24)
                                 
-                                // Oli mit der goldenen Eintrittskarte (Bildname hier anpassen falls nötig)
-                                Image("Oli")
+                                // Größerer Oli (anderes Bild: Oli_2_bgless)
+                                Image("Oli_2_bgless")
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(width: 110, height: 110)
-                                    .offset(x: -10, y: -5)
+                                    .frame(width: 140, height: 140)
+                                    .offset(x: -5, y: -25)
                             }
                             .frame(height: 120)
                             
