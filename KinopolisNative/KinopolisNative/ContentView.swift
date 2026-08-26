@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selectedTab: Tab = .live
+    @State private var showShakeReport = false
     
     enum Tab: String, CaseIterable, Identifiable {
         case live = "Live"
@@ -61,6 +62,42 @@ struct ContentView: View {
             appearance.configureWithDefaultBackground()
             UITabBar.appearance().scrollEdgeAppearance = appearance
             UITabBar.appearance().standardAppearance = appearance
+        }
+        .onShake {
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.warning)
+            showShakeReport = true
+        }
+        .sheet(isPresented: $showShakeReport) {
+            ShakeReportView()
+        }
+    }
+}
+
+// Dummy View for the Shake Report
+struct ShakeReportView: View {
+    @Environment(\.presentationMode) var presentationMode
+    @State private var reportText = ""
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Was ist passiert?")) {
+                    TextEditor(text: $reportText)
+                        .frame(height: 150)
+                }
+            }
+            .navigationTitle("Problem melden")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Abbrechen") { presentationMode.wrappedValue.dismiss() }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Senden") { presentationMode.wrappedValue.dismiss() }
+                        .fontWeight(.bold)
+                }
+            }
         }
     }
 }
