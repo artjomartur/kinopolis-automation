@@ -52,6 +52,8 @@ struct ActionView: View {
     @State private var isPriorityBroadcast = false
     @State private var showAnnouncementToast = false
     
+    @State private var isHeaderCollapsed = false
+    
     var isUserTLOrAdmin: Bool {
         let role = authManager.currentUser?.role.lowercased() ?? ""
         return role == "admin" || role == "bl" || role == "tl" || selectedDept == "tl"
@@ -62,15 +64,26 @@ struct ActionView: View {
             Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Fixed Master Header
+                // Fixed Master Header (Collapses on scroll)
                 MasterHeaderView(
-                    imageName: "Oli_2_bgless",
+                    imageName: "Oli_3_bgless",
                     subtitle: selectedDept == "tl" ? "👔 TL / BL Leitstand" : "Schicht-Management",
-                    title: "Team & Aktionen"
+                    title: "Team & Aktionen",
+                    shortTitle: "Action",
+                    isCollapsed: isHeaderCollapsed
                 )
                 
                 ScrollView {
                     VStack(spacing: 20) {
+                        
+                        GeometryReader { proxy in
+                            Color.clear.preference(
+                                key: ScrollOffsetPreferenceKey.self,
+                                value: proxy.frame(in: .named("actionScroll")).minY
+                            )
+                        }
+                        .frame(height: 0)
+                        
                         // 1. SCHICHT-CONTROL CARD
                     VStack(spacing: 14) {
                         HStack {
@@ -481,9 +494,15 @@ struct ActionView: View {
                     
                     Spacer().frame(height: 100)
                 }
+                .coordinateSpace(name: "actionScroll")
+                .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isHeaderCollapsed = value < -20
+                    }
+                }
             }
         }
-            .sheet(isPresented: $showFundbueroSheet) {
+        .sheet(isPresented: $showFundbueroSheet) {
                 FundbueroView()
             }
             

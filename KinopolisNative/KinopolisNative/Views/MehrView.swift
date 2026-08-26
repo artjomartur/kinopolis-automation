@@ -12,6 +12,8 @@ struct MehrView: View {
     @State private var showContactSheet = false
     @State private var showFundbueroSheet = false
     
+    @State private var isHeaderCollapsed = false
+    
     var userLevel: Int {
         (userXP / 150) + 1
     }
@@ -27,15 +29,25 @@ struct MehrView: View {
             Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Fixed Master Header
+                // Fixed Master Header (Collapses on scroll)
                 MasterHeaderView(
-                    imageName: "Oli_Security_bgless",
+                    imageName: "Oli_Success_bgless",
                     subtitle: "Konto & Einstellungen",
-                    title: authManager.currentUser?.name ?? "Artjom Becker"
+                    title: authManager.currentUser?.name ?? "Artjom Becker",
+                    shortTitle: "Mehr",
+                    isCollapsed: isHeaderCollapsed
                 )
                 
                 ScrollView {
                     VStack(spacing: 20) {
+                        
+                        GeometryReader { proxy in
+                            Color.clear.preference(
+                                key: ScrollOffsetPreferenceKey.self,
+                                value: proxy.frame(in: .named("mehrScroll")).minY
+                            )
+                        }
+                        .frame(height: 0)
                         
                         // 1. PROFIL & LEVEL CARD
                     VStack(spacing: 16) {
@@ -288,6 +300,12 @@ struct MehrView: View {
                             .foregroundColor(.gray.opacity(0.3))
                     }
                     .padding(.top, 8)
+                }
+                .coordinateSpace(name: "mehrScroll")
+                .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isHeaderCollapsed = value < -20
+                    }
                 }
             }
         }

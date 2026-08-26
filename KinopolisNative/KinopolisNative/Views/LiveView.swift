@@ -228,6 +228,7 @@ struct LiveView: View {
     @StateObject private var viewModel = LiveViewModel()
     @EnvironmentObject var authManager: AuthManager
     @AppStorage("selectedLocation") private var selectedLocation = "su"
+    @State private var isHeaderCollapsed = false
     
     var displayName: String {
         if let name = authManager.currentUser?.name, !name.trimmingCharacters(in: .whitespaces).isEmpty && name != "Mitarbeiter" {
@@ -247,11 +248,13 @@ struct LiveView: View {
             Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Fixed Master Header
+                // Fixed Master Header (Collapses on scroll)
                 MasterHeaderView(
                     imageName: "Oli",
                     subtitle: "Willkommen zurück,",
-                    title: displayName
+                    title: displayName,
+                    shortTitle: "Live",
+                    isCollapsed: isHeaderCollapsed
                 ) {
                     Button(action: {
                         Task { await viewModel.fetchSessions() }
@@ -268,6 +271,14 @@ struct LiveView: View {
                 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
+                        
+                        GeometryReader { proxy in
+                            Color.clear.preference(
+                                key: ScrollOffsetPreferenceKey.self,
+                                value: proxy.frame(in: .named("liveScroll")).minY
+                            )
+                        }
+                        .frame(height: 0)
                         
                         // Mode Picker
                         Picker("Ansicht", selection: $viewModel.viewMode) {
@@ -347,6 +358,12 @@ struct LiveView: View {
                         }
                     }
                     .padding(.bottom, 100)
+                }
+                .coordinateSpace(name: "liveScroll")
+                .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isHeaderCollapsed = value < -20
+                    }
                 }
             }
             .task {

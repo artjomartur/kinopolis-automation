@@ -71,11 +71,13 @@ struct ContentView_Previews: PreviewProvider {
     }
 }
 
-// MARK: - Master App Header Component (100% Identical in Geometry Across All Tabs)
+// MARK: - Master App Header Component (Scroll-driven Collapsing & Distinct Mascots)
 struct MasterHeaderView<TrailingContent: View>: View {
     let imageName: String
     let subtitle: String
     let title: String
+    let shortTitle: String
+    var isCollapsed: Bool = false
     let trailing: TrailingContent
     
     @AppStorage("selectedLocation") private var selectedLocation = "su"
@@ -84,53 +86,60 @@ struct MasterHeaderView<TrailingContent: View>: View {
         imageName: String = "Oli",
         subtitle: String,
         title: String,
+        shortTitle: String,
+        isCollapsed: Bool = false,
         @ViewBuilder trailing: () -> TrailingContent = { EmptyView() }
     ) {
         self.imageName = imageName
         self.subtitle = subtitle
         self.title = title
+        self.shortTitle = shortTitle
+        self.isCollapsed = isCollapsed
         self.trailing = trailing()
     }
     
     var body: some View {
-        HStack(spacing: 16) {
-            // Fixed Avatar Frame with circular dark badge
+        HStack(spacing: isCollapsed ? 12 : 16) {
+            // Standardized Avatar with fixed geometry & smooth size transition
             ZStack {
                 Circle()
-                    .fill(Color.white.opacity(0.06))
-                    .frame(width: 82, height: 82)
+                    .fill(Color.white.opacity(0.08))
+                    .frame(width: isCollapsed ? 38 : 78, height: isCollapsed ? 38 : 78)
                 
                 Image(imageName)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 80, height: 80)
+                    .frame(width: isCollapsed ? 36 : 74, height: isCollapsed ? 36 : 74)
                     .clipShape(Circle())
             }
-            .frame(width: 82, height: 82)
-            .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 3)
+            .frame(width: isCollapsed ? 38 : 78, height: isCollapsed ? 38 : 78)
+            .shadow(color: Color.black.opacity(0.35), radius: isCollapsed ? 3 : 6, x: 0, y: 2)
             
-            // Standardized Text Column
-            VStack(alignment: .leading, spacing: 4) {
-                Text(subtitle)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(.gray)
-                    .lineLimit(1)
+            // Text Column (Smoothly collapses on scroll)
+            VStack(alignment: .leading, spacing: isCollapsed ? 2 : 4) {
+                if !isCollapsed {
+                    Text(subtitle)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.gray)
+                        .lineLimit(1)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                }
                 
-                Text(title)
-                    .font(.system(size: 22, weight: .heavy))
+                Text(isCollapsed ? shortTitle : title)
+                    .font(.system(size: isCollapsed ? 18 : 22, weight: .heavy))
                     .foregroundColor(.white)
                     .lineLimit(1)
                 
-                HStack(spacing: 5) {
+                HStack(spacing: 4) {
                     Image(systemName: "mappin.circle.fill")
-                        .font(.system(size: 10))
+                        .font(.system(size: 9))
                     Text(LocationData.name(for: selectedLocation))
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.system(size: 10, weight: .bold))
                         .lineLimit(1)
                 }
                 .foregroundColor(.red)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 3)
+                .padding(.horizontal, 7)
+                .padding(.vertical, 2.5)
                 .background(Color.red.opacity(0.15))
                 .cornerRadius(6)
             }
@@ -140,14 +149,25 @@ struct MasterHeaderView<TrailingContent: View>: View {
             trailing
         }
         .padding(.horizontal, 16)
-        .padding(.top, 12)
-        .padding(.bottom, 12)
+        .padding(.top, isCollapsed ? 6 : 12)
+        .padding(.bottom, isCollapsed ? 6 : 10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(red: 24/255, green: 24/255, blue: 26/255))
+        .background(
+            Color(red: 24/255, green: 24/255, blue: 26/255)
+                .shadow(color: Color.black.opacity(isCollapsed ? 0.35 : 0), radius: 6, x: 0, y: 3)
+        )
+        .animation(.easeInOut(duration: 0.22), value: isCollapsed)
     }
 }
 
 typealias AppHeaderView = MasterHeaderView
+
+struct ScrollOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
 
 // MARK: - Location Models & Helpers
 struct KinopolisLocation: Identifiable, Hashable {

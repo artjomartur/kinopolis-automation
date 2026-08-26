@@ -38,11 +38,12 @@ struct ScannerView: View {
             Color.black.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Unified App Header
-                AppHeaderView(
+                // Fixed Master Header
+                MasterHeaderView(
                     imageName: "Oli_Security_bgless",
                     subtitle: "Kartenkontrolle",
-                    title: "Einlass-Scanner"
+                    title: "Einlass-Scanner",
+                    shortTitle: "Scanner"
                 ) {
                     Button(action: {
                         showAgeCalculator = true

@@ -3,6 +3,7 @@ import SwiftUI
 struct FunkView: View {
     @StateObject private var viewModel = FunkViewModel()
     @AppStorage("selectedLocation") private var selectedLocation = "su"
+    @State private var isHeaderCollapsed = false
     
     var body: some View {
         ZStack {
@@ -10,15 +11,25 @@ struct FunkView: View {
             Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Fixed Master Header
+                // Fixed Master Header (Collapses on scroll)
                 MasterHeaderView(
                     imageName: "Oli_2_bgless",
                     subtitle: "Digitaler Funk",
-                    title: "Team-Funk"
+                    title: "Team-Funk",
+                    shortTitle: "Funk",
+                    isCollapsed: isHeaderCollapsed
                 )
                 
                 ScrollView {
                     VStack(spacing: 16) {
+                        
+                        GeometryReader { proxy in
+                            Color.clear.preference(
+                                key: ScrollOffsetPreferenceKey.self,
+                                value: proxy.frame(in: .named("funkScroll")).minY
+                            )
+                        }
+                        .frame(height: 0)
                         
                         // Help Button
                         Button(action: {
@@ -99,6 +110,12 @@ struct FunkView: View {
                     }
                     
                     Spacer().frame(height: 100)
+                }
+                .coordinateSpace(name: "funkScroll")
+                .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isHeaderCollapsed = value < -20
+                    }
                 }
             }
         }
