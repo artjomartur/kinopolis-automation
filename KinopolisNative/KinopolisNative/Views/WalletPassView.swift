@@ -2,6 +2,9 @@ import SwiftUI
 
 struct WalletPassView: View {
     @Environment(\.presentationMode) var presentationMode
+    @EnvironmentObject var authManager: AuthManager
+    @AppStorage("selectedLocation") private var selectedLocation = "su"
+    
     @State private var isAdded = false
     
     // Animation states
@@ -51,24 +54,21 @@ struct WalletPassView: View {
                                 )
                                 
                                 HStack {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Image(systemName: "film.fill")
-                                            .font(.title)
-                                            .foregroundColor(.white)
-                                        Text("KINOPOLIS")
-                                            .font(.system(size: 24, weight: .black, design: .rounded))
-                                            .foregroundColor(.white)
-                                    }
+                                    // Offizielles Kinopolis Logo (Muss in Assets.xcassets liegen!)
+                                    Image("KinopolisLogo")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: 35)
                                     Spacer()
                                 }
                                 .padding(24)
                                 
-                                // Oli peaking over the edge
-                                Image("Oli_Success_bgless")
+                                // Oli mit der goldenen Eintrittskarte (Bildname hier anpassen falls nötig)
+                                Image("Oli")
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(width: 100, height: 100)
-                                    .offset(x: -20, y: 10)
+                                    .frame(width: 110, height: 110)
+                                    .offset(x: -10, y: -5)
                             }
                             .frame(height: 120)
                             
@@ -81,7 +81,7 @@ struct WalletPassView: View {
                                             .fontWeight(.bold)
                                             .foregroundColor(.gray)
                                             .textCase(.uppercase)
-                                        Text("Artjom Becker")
+                                        Text(authManager.currentUser?.name ?? "Mitarbeiter")
                                             .font(.title2)
                                             .fontWeight(.bold)
                                             .foregroundColor(.black)
@@ -93,7 +93,7 @@ struct WalletPassView: View {
                                             .fontWeight(.bold)
                                             .foregroundColor(.gray)
                                             .textCase(.uppercase)
-                                        Text("Main-Taunus")
+                                        Text(LocationData.name(for: selectedLocation))
                                             .font(.title3)
                                             .fontWeight(.bold)
                                             .foregroundColor(.black)
@@ -107,7 +107,7 @@ struct WalletPassView: View {
                                             .fontWeight(.bold)
                                             .foregroundColor(.gray)
                                             .textCase(.uppercase)
-                                        Text("Administrator")
+                                        Text((authManager.currentUser?.role ?? "Mitarbeiter").capitalized)
                                             .font(.headline)
                                             .foregroundColor(.black)
                                     }
@@ -118,7 +118,7 @@ struct WalletPassView: View {
                                             .fontWeight(.bold)
                                             .foregroundColor(.gray)
                                             .textCase(.uppercase)
-                                        Text("K-49281")
+                                        Text("K-\(String(format: "%05d", Int.random(in: 10000...99999)))")
                                             .font(.headline)
                                             .foregroundColor(.black)
                                     }
