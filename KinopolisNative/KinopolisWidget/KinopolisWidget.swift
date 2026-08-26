@@ -44,14 +44,46 @@ struct SimpleEntry: TimelineEntry {
 struct KinopolisWidgetEntryView : View {
     var entry: Provider.Entry
 
-    var body: some View {
-        VStack {
-            Text("Time:")
-            Text(entry.date, style: .time)
+    // NOTE: To show real data from the app, you need to enable "App Groups"
+    // in both targets' Signing & Capabilities, and use UserDefaults(suiteName:).
+    // For this prototype, we show a mock "Next Shift" / "XP Level" UI.
 
-            Text("Favorite Emoji:")
-            Text(entry.configuration.favoriteEmoji)
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: "star.circle.fill")
+                    .foregroundColor(.yellow)
+                    .font(.title2)
+                
+                Text("Level 2")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+            }
+            
+            Text("Nächste Schicht:")
+                .font(.caption)
+                .foregroundColor(.gray)
+                .padding(.top, 4)
+            
+            HStack {
+                Rectangle()
+                    .fill(Color.blue)
+                    .frame(width: 4)
+                    .cornerRadius(2)
+                
+                VStack(alignment: .leading) {
+                    Text("Kasse")
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    Text("16:00 - 23:30")
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                }
+            }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     }
 }
 
@@ -61,8 +93,11 @@ struct KinopolisWidget: Widget {
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
             KinopolisWidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+                .containerBackground(Color(red: 24/255, green: 24/255, blue: 26/255), for: .widget)
         }
+        .configurationDisplayName("Kinopolis Info")
+        .description("Zeigt dein Level und die nächste Schicht.")
+        .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
 

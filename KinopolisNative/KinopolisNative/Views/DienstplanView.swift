@@ -85,21 +85,21 @@ class DienstplanViewModel: ObservableObject {
     }
     
     func syncAllToAppleCalendar() {
-        if #available(iOS 17.0, *) {
-            eventStore.requestFullAccessToEvents { [weak self] granted, error in
-                guard granted, error == nil else {
-                    print("Calendar access denied: \(String(describing: error))")
-                    return
+        Task {
+            if #available(iOS 17.0, *) {
+                let granted = try? await eventStore.requestFullAccessToEvents()
+                if granted == true {
+                    self.performSync()
+                } else {
+                    print("Calendar access denied.")
                 }
-                self?.performSync()
-            }
-        } else {
-            eventStore.requestAccess(to: .event) { [weak self] granted, error in
-                guard granted, error == nil else {
-                    print("Calendar access denied: \(String(describing: error))")
-                    return
+            } else {
+                let granted = try? await eventStore.requestAccess(to: .event)
+                if granted == true {
+                    self.performSync()
+                } else {
+                    print("Calendar access denied.")
                 }
-                self?.performSync()
             }
         }
     }

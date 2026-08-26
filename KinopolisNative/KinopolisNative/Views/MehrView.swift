@@ -22,6 +22,8 @@ struct MehrView: View {
     @State private var showTeamChatSheet = false
     @State private var showFAQSheet = false
     @State private var showMoodTrackerSheet = false
+    @State private var showQuizSheet = false
+    @StateObject private var walletManager = WalletPassManager.shared
     
     @State private var isHeaderCollapsed = false
     
@@ -110,6 +112,36 @@ struct MehrView: View {
                             }
                             .frame(height: 8)
                         }
+                        
+                        Divider().background(Color.white.opacity(0.1))
+                        
+                        // Wallet Button
+                        Button(action: {
+                            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                               let rootVC = windowScene.windows.first?.rootViewController {
+                                walletManager.addEmployeePass(presentationContext: rootVC)
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: "wallet.pass.fill")
+                                    .foregroundColor(.black)
+                                Text("Ausweis zu Apple Wallet hinzufügen")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.black)
+                                Spacer()
+                            }
+                            .padding()
+                            .background(Color.white)
+                            .cornerRadius(12)
+                        }
+                        .alert(isPresented: $walletManager.showError) {
+                            Alert(
+                                title: Text("Hinweis zur Demo"),
+                                message: Text(walletManager.errorMessage),
+                                dismissButton: .default(Text("OK"))
+                            )
+                        }
                     }
                     .padding(20)
                     .background(Color.white.opacity(0.04))
@@ -123,13 +155,22 @@ struct MehrView: View {
                     
                     // NEW: STATISTIKEN & STIMMUNG
                     VStack(alignment: .leading, spacing: 14) {
-                        Text("📊 Statistiken & Feedback")
+                        Text("📊 Gamification & Feedback")
                             .font(.headline)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                             .padding(.horizontal)
                         
                         VStack(spacing: 12) {
+                            Button(action: { showQuizSheet = true }) {
+                                ServiceRowItem(
+                                    icon: "gamecontroller.fill",
+                                    color: .orange,
+                                    title: "Kino-Wissens-Quiz",
+                                    subtitle: "Teste dein Filmwissen und sammle XP!"
+                                )
+                            }
+                            
                             Button(action: { showStatistikenSheet = true }) {
                                 ServiceRowItem(
                                     icon: "chart.bar.xaxis",
@@ -454,6 +495,9 @@ struct MehrView: View {
         }
         .sheet(isPresented: $showMoodTrackerSheet) {
             MoodTrackerView()
+        }
+        .sheet(isPresented: $showQuizSheet) {
+            QuizView()
         }
         .onChange(of: authManager.currentUser) { user in
             if user == nil {

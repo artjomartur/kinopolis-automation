@@ -4,32 +4,7 @@ import Combine
 import ActivityKit
 import UserNotifications
 
-// MARK: - Activity Attributes (Dynamic Island & Lock Screen)
-public struct AuslassActivityAttributes: ActivityAttributes {
-    public struct ContentState: Codable, Hashable {
-        public var remainingMinutes: Int
-        public var isAuslassActive: Bool
-        public var progress: Double // 0.0 to 1.0
-        
-        public init(remainingMinutes: Int, isAuslassActive: Bool, progress: Double) {
-            self.remainingMinutes = remainingMinutes
-            self.isAuslassActive = isAuslassActive
-            self.progress = progress
-        }
-    }
-    
-    public var hallName: String
-    public var movieTitle: String
-    public var guestCount: Int
-    public var endTimeString: String
-    
-    public init(hallName: String, movieTitle: String, guestCount: Int, endTimeString: String) {
-        self.hallName = hallName
-        self.movieTitle = movieTitle
-        self.guestCount = guestCount
-        self.endTimeString = endTimeString
-    }
-}
+
 
 // MARK: - Manager
 @MainActor
@@ -44,11 +19,7 @@ public class AuslassActivityManager: ObservableObject {
     }
     
     public func requestNotificationPermissions() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-            if granted {
-                print("Notification permissions granted for Auslass alerts")
-            }
-        }
+        NotificationManager.shared.requestAuthorization()
     }
     
     public func startAuslassActivity(hallName: String, movieTitle: String, guests: Int, endTime: Date, auslassID: String) {
@@ -62,7 +33,7 @@ public class AuslassActivityManager: ObservableObject {
         pinnedAuslassID = auslassID
         
         // 1. Schedule local push notification 5 minutes before
-        scheduleAuslassReminder(hall: hallName, movie: movieTitle, endTime: endTime)
+        scheduleAuslassNotification(for: hallName, movie: movieTitle, endTime: endTime)
         
         // 2. ActivityKit Live Activity (iOS 16.1+)
         if #available(iOS 16.1, *) {
@@ -101,43 +72,44 @@ public class AuslassActivityManager: ObservableObject {
     }
     
     public func stopCurrentActivity() {
-        pinnedAuslassID = nil
+        self.pinnedAuslassID = nil
         if #available(iOS 16.1, *) {
-            if let act = currentActivity as? Activity<AuslassActivityAttributes> {
+            if let act = self.currentActivity as? Activity<AuslassActivityAttributes> {
                 let finalState = AuslassActivityAttributes.ContentState(
                     remainingMinutes: 0,
-                    isAuslassActive: true,
+                    isAuslassActive: false,
                     progress: 1.0
                 )
+                let content = ActivityContent(state: finalState, staleDate: nil)
+                
                 Task {
-                    await act.end(
-                        ActivityContent(state: finalState, staleDate: nil),
-                        dismissalPolicy: .immediate
-                    )
+                    await act.end(content, dismissalPolicy: .immediate)
                 }
             }
         }
-        currentActivity = nil
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["auslass_reminder"])
+        self.currentActivity = nil
+        NotificationManager.shared.cancelAllNotifications()
     }
     
-    private func scheduleAuslassReminder(hall: String, movie: String, endTime: Date) {
-        let triggerDate = endTime.addingTimeInterval(-300) // 5 minutes before
-        guard triggerDate > Date() else { return }
+    private func scheduleAuslassNotification(for hall: String, movie: String, endTime: Date) {
+        let timeUntilEnd = endTime.timeIntervalSinceNow
         
-        let content = UNMutableNotificationContent()
-        content.title = "⏱️ Auslass in 5 Minuten!"
-        content.body = "Saal \(hall): \(movie) endet gleich. Bitte Türen für Auslass vorbereiten."
-        content.sound = .defaultCritical
+        // Push notification 5 minutes before end
+        let notifyTimeInterval = timeUntilEnd - (5 * 60)
         
-        let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: triggerDate)
-        let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
-        let request = UNNotificationRequest(identifier: "auslass_reminder", content: content, trigger: trigger)
-        
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                print("Notification schedule error: \(error)")
-            }
+        if notifyTimeInterval > 0 {
+            NotificationManager.shared.scheduleNotification(
+                title: "Baldiger Auslass: Saal \(hall)",
+                body: "Der Film '\(movie)' endet in 5 Minuten! Bitte bereithalten.",
+                timeInterval: notifyTimeInterval
+            )
+        } else {
+            // If already less than 5 minutes, notify immediately
+            NotificationManager.shared.scheduleNotification(
+                title: "Auslass läuft: Saal \(hall)",
+                body: "Der Film '\(movie)' endet in Kürze oder ist bereits zu Ende.",
+                timeInterval: 1.0
+            )
         }
     }
 }

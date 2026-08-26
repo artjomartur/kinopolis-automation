@@ -9,49 +9,90 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
-struct KinopolisWidgetAttributes: ActivityAttributes {
-    public struct ContentState: Codable, Hashable {
-        // Dynamic stateful properties about your activity go here!
-        var emoji: String
-    }
-
-    // Fixed non-changing properties about your activity go here!
-    var name: String
-}
+// NOTE: To compile this, AuslassActivityAttributes must be available to the Widget Extension.
+// The user needs to add AuslassActivityManager.swift to the Widget target's membership in Xcode.
 
 struct KinopolisWidgetLiveActivity: Widget {
     var body: some WidgetConfiguration {
-        ActivityConfiguration(for: KinopolisWidgetAttributes.self) { context in
-            // Lock screen/banner UI goes here
-            VStack {
-                Text("Hello \(context.state.emoji)")
+        ActivityConfiguration(for: AuslassActivityAttributes.self) { context in
+            // Lock screen/banner UI
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Image(systemName: "film.fill")
+                        .foregroundColor(.blue)
+                    Text("Auslass: Saal \(context.attributes.hallName)")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                    Spacer()
+                    Text(context.state.remainingMinutes > 0 ? "in \(context.state.remainingMinutes) Min" : "Jetzt!")
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                        .foregroundColor(context.state.remainingMinutes <= 5 ? .red : .primary)
+                }
+                
+                HStack {
+                    Text(context.attributes.movieTitle)
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    Spacer()
+                    Image(systemName: "person.3.fill")
+                        .foregroundColor(.gray)
+                        .font(.caption)
+                    Text("\(context.attributes.guestCount)")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+                
+                ProgressView(value: context.state.progress)
+                    .tint(context.state.remainingMinutes <= 5 ? .red : .blue)
             }
-            .activityBackgroundTint(Color.cyan)
-            .activitySystemActionForegroundColor(Color.black)
+            .padding()
+            .activityBackgroundTint(Color.black.opacity(0.8))
+            .activitySystemActionForegroundColor(Color.white)
 
         } dynamicIsland: { context in
             DynamicIsland {
-                // Expanded UI goes here.  Compose the expanded UI through
-                // various regions, like leading/trailing/center/bottom
+                // Expanded UI goes here.
                 DynamicIslandExpandedRegion(.leading) {
-                    Text("Leading")
+                    VStack(alignment: .leading) {
+                        Text("Saal \(context.attributes.hallName)")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Text(context.attributes.movieTitle)
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                            .lineLimit(1)
+                    }
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    Text("Trailing")
+                    VStack(alignment: .trailing) {
+                        Text(context.state.remainingMinutes > 0 ? "\(context.state.remainingMinutes) Min" : "Jetzt")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(context.state.remainingMinutes <= 5 ? .red : .blue)
+                    }
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    Text("Bottom \(context.state.emoji)")
-                    // more content
+                    ProgressView(value: context.state.progress)
+                        .tint(context.state.remainingMinutes <= 5 ? .red : .blue)
+                        .padding(.top, 8)
                 }
             } compactLeading: {
-                Text("L")
+                HStack(spacing: 4) {
+                    Image(systemName: "film.fill")
+                        .foregroundColor(.blue)
+                    Text(context.attributes.hallName)
+                        .fontWeight(.bold)
+                }
             } compactTrailing: {
-                Text("T \(context.state.emoji)")
+                Text(context.state.remainingMinutes > 0 ? "\(context.state.remainingMinutes)m" : "0m")
+                    .foregroundColor(context.state.remainingMinutes <= 5 ? .red : .white)
             } minimal: {
-                Text(context.state.emoji)
+                Image(systemName: "film.fill")
+                    .foregroundColor(.blue)
             }
             .widgetURL(URL(string: "http://www.apple.com"))
-            .keylineTint(Color.red)
+            .keylineTint(Color.blue)
         }
     }
 }

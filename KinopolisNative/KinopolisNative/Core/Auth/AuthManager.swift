@@ -13,7 +13,7 @@ class AuthManager: ObservableObject {
     private let guestKey = "kp_guest_mode"
     private let userKey = "kp_user_data"
     
-    struct User: Codable {
+    struct User: Codable, Equatable {
         let id: String
         let name: String
         let location: String
