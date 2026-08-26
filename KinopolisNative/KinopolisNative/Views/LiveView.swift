@@ -22,6 +22,27 @@ struct Session: Codable, Identifiable {
     let hall: String?
     let duration: Int?
     let fsk: String?
+    let poster: String?
+    
+    init(
+        title: String,
+        time: String,
+        sold: Int? = nil,
+        capacity: Int? = nil,
+        hall: String? = nil,
+        duration: Int? = nil,
+        fsk: String? = nil,
+        poster: String? = nil
+    ) {
+        self.title = title
+        self.time = time
+        self.sold = sold
+        self.capacity = capacity
+        self.hall = hall
+        self.duration = duration
+        self.fsk = fsk
+        self.poster = poster
+    }
     
     enum CodingKeys: String, CodingKey {
         case title
@@ -31,6 +52,7 @@ struct Session: Codable, Identifiable {
         case hall
         case duration
         case fsk
+        case poster
     }
 }
 
@@ -111,33 +133,55 @@ struct FSKHelper {
 class LiveViewModel: ObservableObject {
     @Published var halls: [HallData] = []
     @Published var auslaesse: [Auslass] = []
+    @Published var posterAlerts: [PosterChangeAlert] = []
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
     @Published var selectedDate: Date = Date()
-    @Published var viewMode: Int = 0 // 0 = Vorstellungen, 1 = Auslässe
+    @Published var viewMode: Int = 0 // 0 = Vorstellungen, 1 = Auslässe, 2 = Plakatwechsel
     @Published var checkedOffIDs: Set<UUID> = []
     
-    private var timer: Timer?
+    private let completedPosterIDsKey = "completedPosterIDs"
+    
+    private var completedPosterIDs: Set<String> {
+        get {
+            if let data = UserDefaults.standard.string(forKey: completedPosterIDsKey)?.data(using: .utf8),
+               let arr = try? JSONDecoder().decode([String].self, from: data) {
+                return Set(arr)
+            }
+            return []
+        }
+        set {
+            if let data = try? JSONEncoder().encode(Array(newValue)),
+               let str = String(data: data, encoding: .utf8) {
+                UserDefaults.standard.set(str, forKey: completedPosterIDsKey)
+            }
+        }
+    }
+    
+    private var timerTask: Task<Void, Never>?
+    private var cancellables = Set<AnyCancellable>()
     
     init() {
         // Update auslässe every minute
-        timer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
-            Task { @MainActor in
-                NotificationCenter.default.post(name: NSNotification.Name("RecalculateAuslaesse"), object: nil)
-            }
-        }
-        
-        NotificationCenter.default.addObserver(forName: NSNotification.Name("RecalculateAuslaesse"), object: nil, queue: .main) { [weak self] _ in
-            Task { @MainActor in
+        timerTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 60_000_000_000)
                 self?.recalculateAuslaesse()
             }
         }
         
-        NotificationCenter.default.addObserver(forName: NSNotification.Name("LocationChanged"), object: nil, queue: .main) { [weak self] _ in
-            Task { @MainActor in
-                await self?.fetchSessions()
+        NotificationCenter.default.publisher(for: NSNotification.Name("LocationChanged"))
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                Task { [weak self] in
+                    await self?.fetchSessions()
+                }
             }
-        }
+            .store(in: &cancellables)
+    }
+    
+    deinit {
+        timerTask?.cancel()
     }
     
     func fetchSessions() async {
@@ -153,12 +197,117 @@ class LiveViewModel: ObservableObject {
             let data = try await ScraperManager.shared.fetchSessions(location: currentLocation, dateStr: dateStr)
             self.halls = data
             self.recalculateAuslaesse()
+            await self.calculatePosterAlerts(todayHalls: data, location: currentLocation, dateStr: dateStr)
         } catch {
             print("Fetch error: \(error)")
             self.errorMessage = "Fehler beim Laden der Live-Daten."
         }
         
         isLoading = false
+    }
+    
+    func calculatePosterAlerts(todayHalls: [HallData], location: String, dateStr: String) async {
+        let calendar = Calendar.current
+        let now = Date()
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: now) ?? now.addingTimeInterval(86400)
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let tomorrowStr = formatter.string(from: tomorrow)
+        let hallsTomorrow = (try? await ScraperManager.shared.fetchSessions(location: location, dateStr: tomorrowStr)) ?? []
+        
+        var generatedAlerts: [PosterChangeAlert] = []
+        let completed = completedPosterIDs
+        
+        for hall in todayHalls {
+            let sessions = hall.sessions ?? []
+            let sortedSessions = sessions.filter { $0.time.contains(":") }.sorted { $0.time < $1.time }
+            guard !sortedSessions.isEmpty else { continue }
+            
+            for i in 0..<sortedSessions.count {
+                let currentSession = sortedSessions[i]
+                let parts = currentSession.time.split(separator: ":")
+                guard parts.count == 2,
+                      let hour = Int(parts[0]),
+                      let minute = Int(parts[1]) else { continue }
+                
+                var comps = calendar.dateComponents([.year, .month, .day], from: now)
+                comps.hour = hour
+                comps.minute = minute
+                guard let sessionDate = calendar.date(from: comps) else { continue }
+                let changeDueDate = sessionDate.addingTimeInterval(20 * 60)
+                
+                if i < sortedSessions.count - 1 {
+                    let nextSession = sortedSessions[i + 1]
+                    if currentSession.title != nextSession.title {
+                        let alertId = "poster-\(hall.name)-\(nextSession.title)-\(nextSession.time)"
+                        generatedAlerts.append(
+                            PosterChangeAlert(
+                                id: alertId,
+                                hallName: hall.name,
+                                currentMovie: currentSession.title,
+                                nextMovie: nextSession.title,
+                                nextMovieTime: nextSession.time,
+                                nextMoviePoster: nextSession.poster,
+                                changeTime: changeDueDate,
+                                isLastSession: false,
+                                isCompleted: completed.contains(alertId)
+                            )
+                        )
+                    }
+                } else {
+                    // Last session of today -> First movie of tomorrow!
+                    let tomorrowHall = hallsTomorrow.first(where: { $0.name.lowercased() == hall.name.lowercased() })
+                    let tomorrowSessions = (tomorrowHall?.sessions ?? []).filter { $0.time.contains(":") }.sorted { $0.time < $1.time }
+                    
+                    let nextMovieTitle: String
+                    let nextMovieTime: String
+                    let nextMoviePoster: String?
+                    
+                    if let firstTomorrow = tomorrowSessions.first {
+                        nextMovieTitle = "Morgen: \(firstTomorrow.title)"
+                        nextMovieTime = "\(firstTomorrow.time) Uhr"
+                        nextMoviePoster = firstTomorrow.poster
+                    } else {
+                        nextMovieTitle = "Morgen: Erste Vorstellung"
+                        nextMovieTime = "Morgen Früh"
+                        nextMoviePoster = nil
+                    }
+                    
+                    let alertId = "poster-last-\(hall.name)-\(currentSession.title)-\(nextMovieTitle)"
+                    generatedAlerts.append(
+                        PosterChangeAlert(
+                            id: alertId,
+                            hallName: hall.name,
+                            currentMovie: currentSession.title,
+                            nextMovie: nextMovieTitle,
+                            nextMovieTime: nextMovieTime,
+                            nextMoviePoster: nextMoviePoster,
+                            changeTime: changeDueDate,
+                            isLastSession: true,
+                            isCompleted: completed.contains(alertId)
+                        )
+                    )
+                }
+            }
+        }
+        
+        self.posterAlerts = generatedAlerts.sorted { $0.changeTime < $1.changeTime }
+    }
+    
+    func togglePosterAlertCompleted(_ alertId: String) {
+        var ids = completedPosterIDs
+        if ids.contains(alertId) {
+            ids.remove(alertId)
+        } else {
+            ids.insert(alertId)
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.success)
+        }
+        self.completedPosterIDs = ids
+        
+        if let idx = posterAlerts.firstIndex(where: { $0.id == alertId }) {
+            posterAlerts[idx].isCompleted.toggle()
+        }
     }
     
     func toggleAuslass(_ id: UUID) {
@@ -231,6 +380,7 @@ struct LiveView: View {
     @EnvironmentObject var authManager: AuthManager
     @AppStorage("selectedLocation") private var selectedLocation = "su"
     @State private var isHeaderCollapsed = false
+    @State private var showSpickzettelSheet = false
     
     var displayName: String {
         if let name = authManager.currentUser?.name, !name.trimmingCharacters(in: .whitespaces).isEmpty && name != "Mitarbeiter" {
@@ -258,16 +408,28 @@ struct LiveView: View {
                     shortTitle: "Live",
                     isCollapsed: isHeaderCollapsed
                 ) {
-                    Button(action: {
-                        Task { await viewModel.fetchSessions() }
-                    }) {
-                        Image(systemName: "arrow.triangle.2.circlepath")
-                            .font(.body)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .padding(10)
-                            .background(Color.white.opacity(0.08))
-                            .clipShape(Circle())
+                    HStack(spacing: 8) {
+                        Button(action: { showSpickzettelSheet = true }) {
+                            Image(systemName: "book.pages.fill")
+                                .font(.body)
+                                .fontWeight(.bold)
+                                .foregroundColor(.cyan)
+                                .padding(10)
+                                .background(Color.cyan.opacity(0.15))
+                                .clipShape(Circle())
+                        }
+                        
+                        Button(action: {
+                            Task { await viewModel.fetchSessions() }
+                        }) {
+                            Image(systemName: "arrow.triangle.2.circlepath")
+                                .font(.body)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                                .padding(10)
+                                .background(Color.white.opacity(0.08))
+                                .clipShape(Circle())
+                        }
                     }
                 }
                 
@@ -282,10 +444,11 @@ struct LiveView: View {
                         }
                         .frame(height: 0)
                         
-                        // Mode Picker
+                        // Mode Picker (3 Tabs: Vorstellungen, Auslassplan, Plakate)
                         Picker("Ansicht", selection: $viewModel.viewMode) {
                             Text("Vorstellungen").tag(0)
                             Text("Auslassplan").tag(1)
+                            Text("🖼️ Plakate (\(viewModel.posterAlerts.filter { !$0.isCompleted }.count))").tag(2)
                         }
                         .pickerStyle(SegmentedPickerStyle())
                         .padding(.horizontal, 16)
@@ -340,7 +503,7 @@ struct LiveView: View {
                                         .padding(.bottom, 10)
                                     }
                                 }
-                            } else {
+                            } else if viewModel.viewMode == 1 {
                                 // Auslassplan with clean horizontal buffer
                                 VStack(spacing: 12) {
                                     ForEach(viewModel.auslaesse) { auslass in
@@ -350,6 +513,37 @@ struct LiveView: View {
                                                 isCheckedOff: viewModel.checkedOffIDs.contains(auslass.id),
                                                 onToggle: {
                                                     viewModel.toggleAuslass(auslass.id)
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                                .padding(.horizontal, 16)
+                            } else {
+                                // 3. Live Plakatwechsel Tab
+                                VStack(spacing: 12) {
+                                    if viewModel.posterAlerts.isEmpty {
+                                        VStack(spacing: 12) {
+                                            Image("Oli_Success_bgless")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 80, height: 80)
+                                            Text("Keine Plakatwechsel fällig")
+                                                .font(.headline)
+                                                .foregroundColor(.white)
+                                            Text("In allen Sälen laufen heute identische Filme oder der Wechsel für morgen ist schon vorbereitet.")
+                                                .font(.caption)
+                                                .foregroundColor(.gray)
+                                                .multilineTextAlignment(.center)
+                                                .padding(.horizontal, 30)
+                                        }
+                                        .padding(.top, 40)
+                                    } else {
+                                        ForEach(viewModel.posterAlerts) { alert in
+                                            PosterAlertCard(
+                                                alert: alert,
+                                                onToggle: {
+                                                    viewModel.togglePosterAlertCompleted(alert.id)
                                                 }
                                             )
                                         }
@@ -370,6 +564,9 @@ struct LiveView: View {
             }
             .task {
                 await viewModel.fetchSessions()
+            }
+            .sheet(isPresented: $showSpickzettelSheet) {
+                FilmSpickzettelSheet()
             }
         }
     }

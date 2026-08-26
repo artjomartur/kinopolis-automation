@@ -110,6 +110,16 @@ class ScraperManager {
                 fskStr = "FSK 0"
             }
             
+            // Extract poster image URL
+            var posterUrl: String? = nil
+            if let imgEl = try? movieEl.select("img.movie__img, .prog2__movie-poster img, img").first() {
+                if let src = try? imgEl.attr("src"), !src.isEmpty {
+                    posterUrl = src.hasPrefix("http") ? src : "https://www.kinopolis.de\(src)"
+                } else if let dataSrc = try? imgEl.attr("data-src"), !dataSrc.isEmpty {
+                    posterUrl = dataSrc.hasPrefix("http") ? dataSrc : "https://www.kinopolis.de\(dataSrc)"
+                }
+            }
+            
             var seenSessions = Set<String>()
             
             let sessionElements = try movieEl.select(".prog2__cont, .prog2__movie-session")
@@ -155,7 +165,7 @@ class ScraperManager {
                 
                 let sold = Int(Double(capacity) * (1.0 - Double(freePercent) / 100.0))
                 
-                let session = Session(title: title, time: time, sold: sold, capacity: capacity, hall: hall, duration: duration, fsk: fskStr)
+                let session = Session(title: title, time: time, sold: sold, capacity: capacity, hall: hall, duration: duration, fsk: fskStr, poster: posterUrl)
                 allSessions.append(session)
             }
         }

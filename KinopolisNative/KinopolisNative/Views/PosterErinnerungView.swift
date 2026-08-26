@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 // MARK: - Models
 struct PosterChangeAlert: Identifiable {
@@ -31,13 +32,16 @@ class PosterErinnerungViewModel: ObservableObject {
     @Published var availableMovies: [String] = []
     @Published var isLoading = false
     
-    @AppStorage("completedPosterIDs") private var completedIDsData: String = "[]"
-    @AppStorage("posterReservationsData") private var reservationsData: String = "[]"
-    @AppStorage("selectedLocation") private var selectedLocation = "su"
+    private let completedIDsKey = "completedPosterIDs"
+    private let reservationsKey = "posterReservationsData"
+    
+    private var selectedLocation: String {
+        UserDefaults.standard.string(forKey: "selectedLocation") ?? "su"
+    }
     
     private var completedIDs: Set<String> {
         get {
-            if let data = completedIDsData.data(using: .utf8),
+            if let data = UserDefaults.standard.string(forKey: completedIDsKey)?.data(using: .utf8),
                let arr = try? JSONDecoder().decode([String].self, from: data) {
                 return Set(arr)
             }
@@ -46,7 +50,7 @@ class PosterErinnerungViewModel: ObservableObject {
         set {
             if let data = try? JSONEncoder().encode(Array(newValue)),
                let str = String(data: data, encoding: .utf8) {
-                completedIDsData = str
+                UserDefaults.standard.set(str, forKey: completedIDsKey)
             }
         }
     }
@@ -56,7 +60,8 @@ class PosterErinnerungViewModel: ObservableObject {
     }
     
     func loadReservations() {
-        if let data = reservationsData.data(using: .utf8),
+        if let str = UserDefaults.standard.string(forKey: reservationsKey),
+           let data = str.data(using: .utf8),
            let arr = try? JSONDecoder().decode([PosterReservation].self, from: data) {
             self.reservations = arr
         } else {
@@ -72,7 +77,7 @@ class PosterErinnerungViewModel: ObservableObject {
     func saveReservations() {
         if let data = try? JSONEncoder().encode(reservations),
            let str = String(data: data, encoding: .utf8) {
-            reservationsData = str
+            UserDefaults.standard.set(str, forKey: reservationsKey)
         }
     }
     
@@ -116,13 +121,19 @@ class PosterErinnerungViewModel: ObservableObject {
         do {
             let halls = try await ScraperManager.shared.fetchSessions(location: selectedLocation, dateStr: dateStr)
             
-            var generatedAlerts: [PosterChangeAlert] = []
-            var foundMovieTitles: Set<String> = []
+            // Also fetch tomorrow's sessions to know the first film of tomorrow
             let calendar = Calendar.current
             let now = Date()
+            let tomorrow = calendar.date(byAdding: .day, value: 1, to: now) ?? now.addingTimeInterval(86400)
+            let tomorrowStr = formatter.string(from: tomorrow)
+            let hallsTomorrow = (try? await ScraperManager.shared.fetchSessions(location: selectedLocation, dateStr: tomorrowStr)) ?? []
+            
+            var generatedAlerts: [PosterChangeAlert] = []
+            var foundMovieTitles: Set<String> = []
             
             for hall in halls {
-                let sortedSessions = hall.sessions.filter { $0.time.contains(":") }.sorted { $0.time < $1.time }
+                let sessions = hall.sessions ?? []
+                let sortedSessions = sessions.filter { $0.time.contains(":") }.sorted { $0.time < $1.time }
                 
                 for s in sortedSessions {
                     foundMovieTitles.insert(s.title)
@@ -170,8 +181,26 @@ class PosterErinnerungViewModel: ObservableObject {
                             )
                         }
                     } else {
-                        // Last session of the day in this hall
-                        let alertId = "poster-last-\(hall.name)-\(currentSession.title)"
+                        // Last session of today -> determine first film of tomorrow!
+                        let tomorrowHall = hallsTomorrow.first(where: { $0.name.lowercased() == hall.name.lowercased() })
+                        let tomorrowSessions = (tomorrowHall?.sessions ?? []).filter { $0.time.contains(":") }.sorted { $0.time < $1.time }
+                        
+                        let nextMovieTitle: String
+                        let nextMovieTime: String
+                        let nextMoviePoster: String?
+                        
+                        if let firstTomorrow = tomorrowSessions.first {
+                            nextMovieTitle = "Morgen: \(firstTomorrow.title)"
+                            nextMovieTime = "\(firstTomorrow.time) Uhr"
+                            nextMoviePoster = firstTomorrow.poster
+                            foundMovieTitles.insert(firstTomorrow.title)
+                        } else {
+                            nextMovieTitle = "Morgen: Erste Vorstellung"
+                            nextMovieTime = "Morgen Früh"
+                            nextMoviePoster = nil
+                        }
+                        
+                        let alertId = "poster-last-\(hall.name)-\(currentSession.title)-\(nextMovieTitle)"
                         let isDone = completedIDs.contains(alertId)
                         
                         generatedAlerts.append(
@@ -179,9 +208,9 @@ class PosterErinnerungViewModel: ObservableObject {
                                 id: alertId,
                                 hallName: hall.name,
                                 currentMovie: currentSession.title,
-                                nextMovie: "Programmende (Vorbereitung morgen)",
-                                nextMovieTime: "Morgen",
-                                nextMoviePoster: nil,
+                                nextMovie: nextMovieTitle,
+                                nextMovieTime: nextMovieTime,
+                                nextMoviePoster: nextMoviePoster,
                                 changeTime: changeDueDate,
                                 isLastSession: true,
                                 isCompleted: isDone

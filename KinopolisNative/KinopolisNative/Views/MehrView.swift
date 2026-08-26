@@ -12,6 +12,11 @@ struct MehrView: View {
     @State private var showContactSheet = false
     @State private var showFundbueroSheet = false
     @State private var showPosterSheet = false
+    @State private var showGastroSheet = false
+    @State private var showDefektSheet = false
+    @State private var showSchichtTauschSheet = false
+    @State private var showSpickzettelSheet = false
+    @State private var showSoundboardSheet = false
     
     @State private var isHeaderCollapsed = false
     
@@ -120,69 +125,85 @@ struct MehrView: View {
                             .padding(.horizontal)
                         
                         VStack(spacing: 12) {
+                            // Gastro & Popcorn Rechner
+                            Button(action: { showGastroSheet = true }) {
+                                ServiceRowItem(
+                                    icon: "popcorn.fill",
+                                    color: .yellow,
+                                    title: "🍿 Popcorn & Gastro-Bedarfsrechner",
+                                    subtitle: "Live-Kesselberechnung, Nachos & FIFO-MHD Lager"
+                                )
+                            }
+                            
+                            // Saal-Mängel & Defektmelder
+                            Button(action: { showDefektSheet = true }) {
+                                ServiceRowItem(
+                                    icon: "wrench.and.screwdriver.fill",
+                                    color: .red,
+                                    title: "🔧 Saal- & Mängelmelder",
+                                    subtitle: "Sitze, Ton, Bild & Klima-Defekte mit Foto melden"
+                                )
+                            }
+                            
                             // Digitales Fundbüro
                             Button(action: { showFundbueroSheet = true }) {
-                                HStack(spacing: 14) {
-                                    Image(systemName: "bag.fill")
-                                        .font(.title3)
-                                        .foregroundColor(.orange)
-                                        .frame(width: 32)
-                                    
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text("🎒 Digitales Fundbüro")
-                                            .font(.subheadline)
-                                            .fontWeight(.bold)
-                                            .foregroundColor(.white)
-                                        Text("Fundsachen erfassen, suchen & aushändigen")
-                                            .font(.caption)
-                                            .foregroundColor(.gray)
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                }
-                                .padding(16)
-                                .background(Color.white.opacity(0.04))
-                                .cornerRadius(18)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 18)
-                                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                ServiceRowItem(
+                                    icon: "bag.fill",
+                                    color: .orange,
+                                    title: "🎒 Digitales Fundbüro",
+                                    subtitle: "Fundsachen erfassen, suchen & aushändigen"
                                 )
                             }
                             
                             // Poster-Erinnerung & Plakatwechsel
                             Button(action: { showPosterSheet = true }) {
-                                HStack(spacing: 14) {
-                                    Image(systemName: "photo.stack.fill")
-                                        .font(.title3)
-                                        .foregroundColor(.cyan)
-                                        .frame(width: 32)
-                                    
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text("🖼️ Plakatwechsel & Poster-Erinnerung")
-                                            .font(.subheadline)
-                                            .fontWeight(.bold)
-                                            .foregroundColor(.white)
-                                        Text("Live-Plakattausch an Sälen & Poster für Mitarbeiter")
-                                            .font(.caption)
-                                            .foregroundColor(.gray)
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                }
-                                .padding(16)
-                                .background(Color.white.opacity(0.04))
-                                .cornerRadius(18)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 18)
-                                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                ServiceRowItem(
+                                    icon: "photo.stack.fill",
+                                    color: .cyan,
+                                    title: "🖼️ Plakatwechsel & Poster-Erinnerung",
+                                    subtitle: "Live-Plakattausch an Sälen & Poster für Mitarbeiter"
+                                )
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    
+                    // 3. TEAM & GÄSTE-SUPPORT
+                    VStack(alignment: .leading, spacing: 14) {
+                        Text("👥 Team & Gäste-Support")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding(.horizontal)
+                        
+                        VStack(spacing: 12) {
+                            // Schicht-Tauschbörse
+                            Button(action: { showSchichtTauschSheet = true }) {
+                                ServiceRowItem(
+                                    icon: "arrow.triangle.2.circlepath.circle.fill",
+                                    color: .purple,
+                                    title: "🔄 Schicht-Tauschbörse",
+                                    subtitle: "Schichten anbieten, übernehmen & TL-Freigaben"
+                                )
+                            }
+                            
+                            // Film-Spickzettel & Post-Credit Info
+                            Button(action: { showSpickzettelSheet = true }) {
+                                ServiceRowItem(
+                                    icon: "book.pages.fill",
+                                    color: .blue,
+                                    title: "📖 Film-Spickzettel & FAQ",
+                                    subtitle: "Kurzinhalte, Zielgruppen & Post-Credit Checker"
+                                )
+                            }
+                            
+                            // Oli Soundboard & Fun
+                            Button(action: { showSoundboardSheet = true }) {
+                                ServiceRowItem(
+                                    icon: "speaker.wave.3.fill",
+                                    color: .green,
+                                    title: "🎮 Oli Soundboard & Erfolge",
+                                    subtitle: "Kino-Gongs, Oli Sprachclips & Schicht-Badges"
                                 )
                             }
                         }
@@ -352,8 +373,64 @@ struct MehrView: View {
         .sheet(isPresented: $showPosterSheet) {
             PosterErinnerungView()
         }
+        .sheet(isPresented: $showGastroSheet) {
+            GastroRechnerView()
+        }
+        .sheet(isPresented: $showDefektSheet) {
+            SaalDefektView()
+        }
+        .sheet(isPresented: $showSchichtTauschSheet) {
+            SchichtTauschView()
+        }
+        .sheet(isPresented: $showSpickzettelSheet) {
+            FilmSpickzettelSheet()
+        }
+        .sheet(isPresented: $showSoundboardSheet) {
+            OliSoundboardView()
+        }
     }
 }
+}
+
+// MARK: - Reusable Service Row Item
+struct ServiceRowItem: View {
+    let icon: String
+    let color: Color
+    let title: String
+    let subtitle: String
+    
+    var body: some View {
+        HStack(spacing: 14) {
+            Image(systemName: icon)
+                .font(.title3)
+                .foregroundColor(color)
+                .frame(width: 32)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.subheadline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                    .lineLimit(1)
+            }
+            
+            Spacer()
+            
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundColor(.gray)
+        }
+        .padding(16)
+        .background(Color.white.opacity(0.04))
+        .cornerRadius(18)
+        .overlay(
+            RoundedRectangle(cornerRadius: 18)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
+    }
 }
 
 // Models & Supporting Views
