@@ -18,6 +18,11 @@ struct MehrView: View {
     @State private var showSpickzettelSheet = false
     @State private var showDienstplanSheet = false
     
+    @State private var showStatistikenSheet = false
+    @State private var showTeamChatSheet = false
+    @State private var showFAQSheet = false
+    @State private var showMoodTrackerSheet = false
+    
     @State private var isHeaderCollapsed = false
     
     var userLevel: Int {
@@ -116,6 +121,36 @@ struct MehrView: View {
                     .padding(.horizontal)
                     .padding(.top, 16)
                     
+                    // NEW: STATISTIKEN & STIMMUNG
+                    VStack(alignment: .leading, spacing: 14) {
+                        Text("📊 Statistiken & Feedback")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding(.horizontal)
+                        
+                        VStack(spacing: 12) {
+                            Button(action: { showStatistikenSheet = true }) {
+                                ServiceRowItem(
+                                    icon: "chart.bar.xaxis",
+                                    color: .indigo,
+                                    title: "Saal-Heatmap & Statistiken",
+                                    subtitle: "Auslastungstrends und Stimmungs-Verlauf"
+                                )
+                            }
+                            
+                            Button(action: { showMoodTrackerSheet = true }) {
+                                ServiceRowItem(
+                                    icon: "face.smiling.inverse",
+                                    color: .pink,
+                                    title: "Schicht-Feedback (Stimmungs-Tracker)",
+                                    subtitle: "Wie war deine Schicht heute?"
+                                )
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    
                     // 2. KINO-TOOLS & SERVICES
                     VStack(alignment: .leading, spacing: 14) {
                         Text("🛠️ Kino-Services")
@@ -202,8 +237,28 @@ struct MehrView: View {
                                 ServiceRowItem(
                                     icon: "book.pages.fill",
                                     color: .blue,
-                                    title: "📖 Film-Spickzettel & FAQ",
-                                    subtitle: "Kurzinhalte, Zielgruppen & Post-Credit Checker"
+                                    title: "📖 Film-Spickzettel & Post-Credit",
+                                    subtitle: "Kurzinhalte, Zielgruppen & Trailer-Preview"
+                                )
+                            }
+                            
+                            // Gäste FAQ
+                            Button(action: { showFAQSheet = true }) {
+                                ServiceRowItem(
+                                    icon: "questionmark.bubble.fill",
+                                    color: .cyan,
+                                    title: "❓ Gäste-FAQ Bot",
+                                    subtitle: "Häufige Gästefragen schnell beantwortet (Preise, FSK)"
+                                )
+                            }
+                            
+                            // Team Quick-Chat
+                            Button(action: { showTeamChatSheet = true }) {
+                                ServiceRowItem(
+                                    icon: "paperplane.fill",
+                                    color: .mint,
+                                    title: "💬 Team Quick-Chat",
+                                    subtitle: "Schnelle Push-Nachrichten ans Dienstteam senden"
                                 )
                             }
                         }
@@ -387,6 +442,23 @@ struct MehrView: View {
         }
         .sheet(isPresented: $showDienstplanSheet) {
             DienstplanView()
+        }
+        .sheet(isPresented: $showStatistikenSheet) {
+            StatistikenView()
+        }
+        .sheet(isPresented: $showTeamChatSheet) {
+            TeamChatView()
+        }
+        .sheet(isPresented: $showFAQSheet) {
+            FAQView()
+        }
+        .sheet(isPresented: $showMoodTrackerSheet) {
+            MoodTrackerView()
+        }
+        .onChange(of: authManager.currentUser) { user in
+            if user == nil {
+                isHeaderCollapsed = false
+            }
         }
     }
 }

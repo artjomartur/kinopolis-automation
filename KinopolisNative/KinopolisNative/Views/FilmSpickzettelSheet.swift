@@ -325,7 +325,7 @@ struct FilmSpickzettelCard: View {
                     .stroke(film.postCreditBorderColor, lineWidth: 1)
             )
             
-            // Target Audience
+            // Target Audience & Trailer
             HStack(spacing: 4) {
                 Text("🎯 Empfohlen für:")
                     .font(.caption2)
@@ -334,12 +334,37 @@ struct FilmSpickzettelCard: View {
                     .font(.caption2)
                     .fontWeight(.medium)
                     .foregroundColor(.orange)
+                
+                Spacer()
+                
+                Button(action: {
+                    openTrailer()
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "play.rectangle.fill")
+                        Text("Trailer")
+                            .fontWeight(.bold)
+                    }
+                    .font(.caption2)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.red.opacity(0.8))
+                    .foregroundColor(.white)
+                    .cornerRadius(6)
+                }
             }
         }
         .padding(14)
         .background(Color.white.opacity(0.04))
         .cornerRadius(16)
         .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.08), lineWidth: 1))
+    }
+    
+    private func openTrailer() {
+        let query = "\(film.title) Trailer Deutsch".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        if let url = URL(string: "https://www.youtube.com/results?search_query=\(query)") {
+            UIApplication.shared.open(url)
+        }
     }
     
     @ViewBuilder
