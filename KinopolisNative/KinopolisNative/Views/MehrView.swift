@@ -11,6 +11,7 @@ struct MehrView: View {
     @State private var showResetAlert = false
     @State private var showContactSheet = false
     @State private var showFundbueroSheet = false
+    @State private var showPosterSheet = false
     
     @State private var isHeaderCollapsed = false
     
@@ -118,36 +119,72 @@ struct MehrView: View {
                             .foregroundColor(.white)
                             .padding(.horizontal)
                         
-                        Button(action: { showFundbueroSheet = true }) {
-                            HStack(spacing: 14) {
-                                Image(systemName: "bag.fill")
-                                    .font(.title3)
-                                    .foregroundColor(.orange)
-                                    .frame(width: 32)
-                                
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("🎒 Digitales Fundbüro")
-                                        .font(.subheadline)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.white)
-                                    Text("Fundsachen erfassen, suchen & aushändigen")
+                        VStack(spacing: 12) {
+                            // Digitales Fundbüro
+                            Button(action: { showFundbueroSheet = true }) {
+                                HStack(spacing: 14) {
+                                    Image(systemName: "bag.fill")
+                                        .font(.title3)
+                                        .foregroundColor(.orange)
+                                        .frame(width: 32)
+                                    
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("🎒 Digitales Fundbüro")
+                                            .font(.subheadline)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                        Text("Fundsachen erfassen, suchen & aushändigen")
+                                            .font(.caption)
+                                            .foregroundColor(.gray)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.right")
                                         .font(.caption)
                                         .foregroundColor(.gray)
                                 }
-                                
-                                Spacer()
-                                
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
+                                .padding(16)
+                                .background(Color.white.opacity(0.04))
+                                .cornerRadius(18)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 18)
+                                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                )
                             }
-                            .padding(16)
-                            .background(Color.white.opacity(0.04))
-                            .cornerRadius(18)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 18)
-                                    .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                            )
+                            
+                            // Poster-Erinnerung & Plakatwechsel
+                            Button(action: { showPosterSheet = true }) {
+                                HStack(spacing: 14) {
+                                    Image(systemName: "photo.stack.fill")
+                                        .font(.title3)
+                                        .foregroundColor(.cyan)
+                                        .frame(width: 32)
+                                    
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("🖼️ Plakatwechsel & Poster-Erinnerung")
+                                            .font(.subheadline)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                        Text("Live-Plakattausch an Sälen & Poster für Mitarbeiter")
+                                            .font(.caption)
+                                            .foregroundColor(.gray)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                                .padding(16)
+                                .background(Color.white.opacity(0.04))
+                                .cornerRadius(18)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 18)
+                                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                )
+                            }
                         }
                         .padding(.horizontal)
                     }
@@ -198,7 +235,7 @@ struct MehrView: View {
                                 }
                                 .pickerStyle(MenuPickerStyle())
                                 .tint(.white)
-                                .onChange(of: selectedLocation) { newLoc in
+                                .onChange(of: selectedLocation) { _, newLoc in
                                     NotificationCenter.default.post(name: NSNotification.Name("LocationChanged"), object: nil)
                                     let generator = UIImpactFeedbackGenerator(style: .medium)
                                     generator.impactOccurred()
@@ -310,10 +347,13 @@ struct MehrView: View {
             }
         }
         .sheet(isPresented: $showFundbueroSheet) {
-                FundbueroView()
-            }
+            FundbueroView()
+        }
+        .sheet(isPresented: $showPosterSheet) {
+            PosterErinnerungView()
         }
     }
+}
 }
 
 // Models & Supporting Views

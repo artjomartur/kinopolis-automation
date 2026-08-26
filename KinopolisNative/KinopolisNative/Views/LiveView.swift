@@ -128,7 +128,9 @@ class LiveViewModel: ObservableObject {
         }
         
         NotificationCenter.default.addObserver(forName: NSNotification.Name("RecalculateAuslaesse"), object: nil, queue: .main) { [weak self] _ in
-            self?.recalculateAuslaesse()
+            Task { @MainActor in
+                self?.recalculateAuslaesse()
+            }
         }
         
         NotificationCenter.default.addObserver(forName: NSNotification.Name("LocationChanged"), object: nil, queue: .main) { [weak self] _ in

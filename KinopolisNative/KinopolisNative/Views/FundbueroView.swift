@@ -489,14 +489,14 @@ struct AddLostItemSheet: View {
                                                 .stroke(Color.white.opacity(0.1), lineWidth: 1)
                                         )
                                     }
-                                    .onChange(of: photoPickerItem) { newItem in
-                                        Task {
-                                            if let data = try? await newItem?.loadTransferable(type: Data.self),
-                                               let image = UIImage(data: data) {
-                                                selectedImage = image
-                                            }
-                                        }
-                                    }
+                                     .onChange(of: photoPickerItem) { _, newItem in
+                                         Task {
+                                             if let data = try? await newItem?.loadTransferable(type: Data.self),
+                                                let image = UIImage(data: data) {
+                                                 selectedImage = image
+                                             }
+                                         }
+                                     }
                                 }
                             }
                         }
