@@ -11,7 +11,8 @@ import SwiftUI
 @main
 struct KinopolisWidgetBundle: WidgetBundle {
     var body: some Widget {
-        KinopolisWidget()
+        KinopolisSchichtWidget()
+        KinopolisMotivationWidget()
         KinopolisWidgetControl()
         KinopolisWidgetLiveActivity()
     }

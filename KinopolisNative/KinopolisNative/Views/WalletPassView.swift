@@ -1,0 +1,197 @@
+import SwiftUI
+
+struct WalletPassView: View {
+    @Environment(\.presentationMode) var presentationMode
+    @State private var isAdded = false
+    
+    // Animation states
+    @State private var passOffset: CGFloat = 200
+    @State private var passOpacity: Double = 0
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                // Cool blurred background
+                Color(red: 28/255, green: 28/255, blue: 30/255)
+                    .ignoresSafeArea()
+                
+                LinearGradient(
+                    colors: [.red.opacity(0.3), .clear, .blue.opacity(0.2)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                VStack {
+                    if isAdded {
+                        VStack(spacing: 20) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 100))
+                                .foregroundColor(.green)
+                            Text("Ausweis hinzugefügt!")
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                            Text("Dein digitaler Mitarbeiterausweis ist jetzt in deinem In-App-Wallet gespeichert.")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 40)
+                        }
+                        .transition(.scale.combined(with: .opacity))
+                    } else {
+                        // The Cool "Pass" Card
+                        VStack(spacing: 0) {
+                            // Header with Oli
+                            ZStack(alignment: .topTrailing) {
+                                LinearGradient(
+                                    colors: [Color.red, Color(red: 0.8, green: 0, blue: 0)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                                
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Image(systemName: "film.fill")
+                                            .font(.title)
+                                            .foregroundColor(.white)
+                                        Text("KINOPOLIS")
+                                            .font(.system(size: 24, weight: .black, design: .rounded))
+                                            .foregroundColor(.white)
+                                    }
+                                    Spacer()
+                                }
+                                .padding(24)
+                                
+                                // Oli peaking over the edge
+                                Image("Oli_Success_bgless")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 100, height: 100)
+                                    .offset(x: -20, y: 10)
+                            }
+                            .frame(height: 120)
+                            
+                            // Body
+                            VStack(spacing: 30) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        Text("Mitarbeiter")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.gray)
+                                            .textCase(.uppercase)
+                                        Text("Artjom Becker")
+                                            .font(.title2)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.black)
+                                    }
+                                    Spacer()
+                                    VStack(alignment: .trailing, spacing: 6) {
+                                        Text("Standort")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.gray)
+                                            .textCase(.uppercase)
+                                        Text("Main-Taunus")
+                                            .font(.title3)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.black)
+                                    }
+                                }
+                                
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        Text("Rolle")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.gray)
+                                            .textCase(.uppercase)
+                                        Text("Administrator")
+                                            .font(.headline)
+                                            .foregroundColor(.black)
+                                    }
+                                    Spacer()
+                                    VStack(alignment: .trailing, spacing: 6) {
+                                        Text("Personal-ID")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.gray)
+                                            .textCase(.uppercase)
+                                        Text("K-49281")
+                                            .font(.headline)
+                                            .foregroundColor(.black)
+                                    }
+                                }
+                                
+                                // Fake Barcode
+                                VStack(spacing: 8) {
+                                    Image(systemName: "barcode")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: 70)
+                                        .foregroundColor(.black)
+                                    Text("9 4827 103 481")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                                .padding(.top, 10)
+                            }
+                            .padding(24)
+                            .background(Color.white)
+                        }
+                        .cornerRadius(24)
+                        .shadow(color: .red.opacity(0.2), radius: 30, x: 0, y: 20)
+                        .padding(.horizontal, 24)
+                        
+                        // Pass Animation states
+                        .offset(y: passOffset)
+                        .opacity(passOpacity)
+                        .onAppear {
+                            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                passOffset = 0
+                                passOpacity = 1
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle(isAdded ? "" : "Mitarbeiterausweis")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Schließen") {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                    .foregroundColor(.white)
+                    .opacity(isAdded ? 0 : 1)
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if !isAdded {
+                        Button("Hinzufügen") {
+                            withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+                                isAdded = true
+                            }
+                            
+                            let generator = UINotificationFeedbackGenerator()
+                            generator.notificationOccurred(.success)
+                            
+                            // Dismiss automatically after success
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                                presentationMode.wrappedValue.dismiss()
+                            }
+                        }
+                        .fontWeight(.bold)
+                        .foregroundColor(.blue)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.blue.opacity(0.15))
+                        .cornerRadius(16)
+                    }
+                }
+            }
+        }
+        .preferredColorScheme(.dark)
+    }
+}

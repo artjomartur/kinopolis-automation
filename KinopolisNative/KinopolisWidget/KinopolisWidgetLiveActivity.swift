@@ -97,25 +97,25 @@ struct KinopolisWidgetLiveActivity: Widget {
     }
 }
 
-extension KinopolisWidgetAttributes {
-    fileprivate static var preview: KinopolisWidgetAttributes {
-        KinopolisWidgetAttributes(name: "World")
+extension AuslassActivityAttributes {
+    fileprivate static var preview: AuslassActivityAttributes {
+        AuslassActivityAttributes(hallName: "7", movieTitle: "Deadpool & Wolverine", guestCount: 154, endTimeString: "22:15")
     }
 }
 
-extension KinopolisWidgetAttributes.ContentState {
-    fileprivate static var smiley: KinopolisWidgetAttributes.ContentState {
-        KinopolisWidgetAttributes.ContentState(emoji: "😀")
+extension AuslassActivityAttributes.ContentState {
+    fileprivate static var active: AuslassActivityAttributes.ContentState {
+        AuslassActivityAttributes.ContentState(remainingMinutes: 12, isAuslassActive: true, progress: 0.8)
      }
      
-     fileprivate static var starEyes: KinopolisWidgetAttributes.ContentState {
-         KinopolisWidgetAttributes.ContentState(emoji: "🤩")
+     fileprivate static var ending: AuslassActivityAttributes.ContentState {
+         AuslassActivityAttributes.ContentState(remainingMinutes: 3, isAuslassActive: true, progress: 0.95)
      }
 }
 
-#Preview("Notification", as: .content, using: KinopolisWidgetAttributes.preview) {
+#Preview("Notification", as: .content, using: AuslassActivityAttributes.preview) {
    KinopolisWidgetLiveActivity()
 } contentStates: {
-    KinopolisWidgetAttributes.ContentState.smiley
-    KinopolisWidgetAttributes.ContentState.starEyes
+    AuslassActivityAttributes.ContentState.active
+    AuslassActivityAttributes.ContentState.ending
 }

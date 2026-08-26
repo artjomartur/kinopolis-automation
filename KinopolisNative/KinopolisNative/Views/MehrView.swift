@@ -23,6 +23,8 @@ struct MehrView: View {
     @State private var showFAQSheet = false
     @State private var showMoodTrackerSheet = false
     @State private var showQuizSheet = false
+    @State private var showWalletPassSheet = false
+    
     @StateObject private var walletManager = WalletPassManager.shared
     
     @State private var isHeaderCollapsed = false
@@ -117,10 +119,7 @@ struct MehrView: View {
                         
                         // Wallet Button
                         Button(action: {
-                            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                               let rootVC = windowScene.windows.first?.rootViewController {
-                                walletManager.addEmployeePass(presentationContext: rootVC)
-                            }
+                            showWalletPassSheet = true
                         }) {
                             HStack {
                                 Image(systemName: "wallet.pass.fill")
@@ -135,12 +134,8 @@ struct MehrView: View {
                             .background(Color.white)
                             .cornerRadius(12)
                         }
-                        .alert(isPresented: $walletManager.showError) {
-                            Alert(
-                                title: Text("Hinweis zur Demo"),
-                                message: Text(walletManager.errorMessage),
-                                dismissButton: .default(Text("OK"))
-                            )
+                        .sheet(isPresented: $showWalletPassSheet) {
+                            WalletPassView()
                         }
                     }
                     .padding(20)
