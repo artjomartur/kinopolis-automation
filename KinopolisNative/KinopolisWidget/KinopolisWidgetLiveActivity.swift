@@ -28,6 +28,7 @@ struct KinopolisWidgetLiveActivity: Widget {
                         .font(.subheadline)
                         .fontWeight(.bold)
                         .foregroundColor(context.state.remainingMinutes <= 5 ? .red : .primary)
+                        .contentTransition(.numericText())
                 }
                 
                 HStack {
@@ -70,6 +71,7 @@ struct KinopolisWidgetLiveActivity: Widget {
                             .font(.title2)
                             .fontWeight(.bold)
                             .foregroundColor(context.state.remainingMinutes <= 5 ? .red : .blue)
+                            .contentTransition(.numericText())
                     }
                 }
                 DynamicIslandExpandedRegion(.bottom) {
@@ -87,6 +89,7 @@ struct KinopolisWidgetLiveActivity: Widget {
             } compactTrailing: {
                 Text(context.state.remainingMinutes > 0 ? "\(context.state.remainingMinutes)m" : "0m")
                     .foregroundColor(context.state.remainingMinutes <= 5 ? .red : .white)
+                    .contentTransition(.numericText())
             } minimal: {
                 Image(systemName: "film.fill")
                     .foregroundColor(.blue)

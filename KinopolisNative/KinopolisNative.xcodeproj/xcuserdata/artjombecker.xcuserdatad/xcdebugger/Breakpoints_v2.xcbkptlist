@@ -18,6 +18,36 @@
             endingLineNumber = "12"
             landmarkName = "init()"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "7DF412D2-B91F-49FA-AFE4-6230DCE94B84 - 3e71e433fa3c3d4b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "KinopolisNative.NotificationManager.__allocating_init() -&gt; KinopolisNative.NotificationManager"
+                  moduleName = "KinopolisNative.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/artjombecker/GitHub/kinopolis-automation/KinopolisNative/KinopolisNative/Core/NotificationManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0">
+               </Location>
+               <Location
+                  uuid = "7DF412D2-B91F-49FA-AFE4-6230DCE94B84 - d64bd653ed250a2b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "KinopolisNative.NotificationManager.() -&gt; KinopolisNative.NotificationManager.init() -&gt; KinopolisNative.NotificationManager"
+                  moduleName = "KinopolisNative.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/artjombecker/GitHub/kinopolis-automation/KinopolisNative/KinopolisNative/Core/NotificationManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "13"
+                  endingLineNumber = "13">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

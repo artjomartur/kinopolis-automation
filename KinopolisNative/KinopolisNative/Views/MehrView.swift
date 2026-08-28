@@ -23,11 +23,14 @@ struct MehrView: View {
     @State private var showFAQSheet = false
     @State private var showMoodTrackerSheet = false
     @State private var showQuizSheet = false
+    @State private var showARScanner = false
     @State private var showWalletPassSheet = false
     
     @StateObject private var walletManager = WalletPassManager.shared
+    @StateObject private var pedometerManager = PedometerManager()
     
     @State private var isHeaderCollapsed = false
+    @State private var animatedXP: Int = 0
     
     var userLevel: Int {
         (userXP / 150) + 1
@@ -68,9 +71,11 @@ struct MehrView: View {
                     VStack(spacing: 16) {
                         HStack(spacing: 16) {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Mitarbeiter-Status")
+                                Text("\(pedometerManager.steps) Schritte gelaufen")
                                     .font(.caption)
                                     .foregroundColor(.gray)
+                                    .contentTransition(.numericText())
+                                    .animation(.snappy, value: pedometerManager.steps)
                                 Text(authManager.currentUser?.role.uppercased() ?? "ADMINISTRATOR")
                                     .font(.headline)
                                     .fontWeight(.bold)
@@ -109,11 +114,65 @@ struct MehrView: View {
                                         .frame(height: 8)
                                     Capsule()
                                         .fill(LinearGradient(colors: [.yellow, .orange], startPoint: .leading, endPoint: .trailing))
-                                        .frame(width: geo.size.width * CGFloat(userXP % 150) / 150.0, height: 8)
+                                        .frame(width: geo.size.width * CGFloat(animatedXP % 150) / 150.0, height: 8)
+                                        .animation(.spring(response: 0.8, dampingFraction: 0.6), value: animatedXP)
                                 }
                             }
                             .frame(height: 8)
                         }
+                        
+                        // AR Mängel-Scanner
+                        Button(action: { showARScanner = true }) {
+                            HStack {
+                                Image(systemName: "viewfinder")
+                                    .foregroundColor(.black)
+                                Text("AR Saal-Scanner")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.black)
+                                Spacer()
+                            }
+                            .padding()
+                            .background(Color.white)
+                            .cornerRadius(12)
+                        }
+                        .fullScreenCover(isPresented: $showARScanner) {
+                            MangelARView()
+                        }
+                        
+                        Divider().background(Color.white.opacity(0.1))
+                        
+                        // Popcorn-Schritte Zähler
+                        HStack {
+                            Image(systemName: "figure.walk")
+                                .font(.title2)
+                                .foregroundColor(.orange)
+                            VStack(alignment: .leading) {
+                                Text("Popcorn-Schritte (Diese Schicht)")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                Text("\(pedometerManager.steps) Schritte gelaufen")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                                    .contentTransition(.numericText())
+                                    .animation(.snappy, value: pedometerManager.steps)
+                            }
+                            Spacer()
+                            Button(pedometerManager.isTracking ? "Stopp" : "Start") {
+                                if pedometerManager.isTracking {
+                                    pedometerManager.stopTracking()
+                                } else {
+                                    pedometerManager.startTracking()
+                                }
+                            }
+                            .font(.caption)
+                            .buttonStyle(.bordered)
+                            .tint(pedometerManager.isTracking ? .red : .green)
+                        }
+                        .padding()
+                        .background(Color.white.opacity(0.1))
+                        .cornerRadius(12)
                         
                         Divider().background(Color.white.opacity(0.1))
                         
@@ -450,6 +509,7 @@ struct MehrView: View {
                     }
                     .padding(.top, 8)
                 }
+                .buttonStyle(BouncyButtonStyle())
                 .coordinateSpace(name: "mehrScroll")
                 .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
                     withAnimation(.easeInOut(duration: 0.2)) {
@@ -497,6 +557,11 @@ struct MehrView: View {
         .onChange(of: authManager.currentUser) { user in
             if user == nil {
                 isHeaderCollapsed = false
+            }
+        }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                animatedXP = userXP
             }
         }
     }
@@ -586,5 +651,14 @@ struct ContactRow: View {
             .padding(.vertical, 12)
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Bouncy Button Style
+struct BouncyButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0), value: configuration.isPressed)
     }
 }
