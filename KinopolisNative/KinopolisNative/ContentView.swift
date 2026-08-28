@@ -148,8 +148,10 @@ struct MasterHeaderView<TrailingContent: View>: View {
                 Image(imageName)
                     .resizable()
                     .scaledToFit()
+                    .scaleEffect(1.3)
+                    .offset(y: isCollapsed ? 2 : 5)
                     .frame(width: isCollapsed ? 36 : 74, height: isCollapsed ? 36 : 74)
-                    .clipShape(Circle())
+                    // Removed clipShape(Circle()) so Oli can pop out in 3D style
             }
             .frame(width: isCollapsed ? 38 : 78, height: isCollapsed ? 38 : 78)
             .shadow(color: Color.black.opacity(0.35), radius: isCollapsed ? 3 : 6, x: 0, y: 2)
