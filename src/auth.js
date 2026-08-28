@@ -77,6 +77,13 @@ const AUTH = {
                         <h2 style="font-size: 1.5rem; font-weight: 800;">Willkommen zurück <span style="font-size: 0.7rem; vertical-align: middle; opacity: 0.5;">V1.0</span></h2>
                         <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Bitte melde dich an, um fortzufahren.</p>
                     </div>
+                    <div style="background: linear-gradient(135deg, rgba(229, 9, 20, 0.15), rgba(229, 9, 20, 0.05)); border: 1px solid rgba(229, 9, 20, 0.3); border-radius: 14px; padding: 1rem; margin-bottom: 2rem; text-align: left; display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="font-size: 1.8rem;">📱</div>
+                        <div>
+                            <div style="font-weight: 800; color: #fff; font-size: 0.95rem; margin-bottom: 0.25rem;">Native iOS App in Entwicklung!</div>
+                            <div style="font-size: 0.8rem; color: rgba(255,255,255,0.7); line-height: 1.4;">Freu dich bald auf den Offline-Modus, Apple Wallet Integration & Live-Push-Benachrichtigungen direkt auf dein iPhone.</div>
+                        </div>
+                    </div>
                     
                     <div id="login-form">
                         <div style="margin-bottom: 1.25rem;">
@@ -94,7 +101,7 @@ const AUTH = {
                         </button>
                         
                         <div style="text-align: center; display: flex; flex-direction: column; gap: 0.75rem;">
-                            <button id="show-reg-btn" style="background: none; border: none; color: var(--primary-blue); font-weight: 600; cursor: pointer; font-size: 0.9rem;">Noch kein Konto? Jetzt registrieren</button>
+                            <button id="show-reg-btn" class="btn-secondary" style="width: 100%; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: #fff; padding: 1rem; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 0.95rem;">Noch kein Konto? Jetzt registrieren</button>
                             <button id="guest-btn" style="background: none; border: none; color: var(--text-muted); font-weight: 500; cursor: pointer; font-size: 0.8rem;">Im Gast-Modus fortfahren (Eingeschränkt)</button>
                         </div>
                     </div>

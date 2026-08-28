@@ -133,7 +133,7 @@ struct MehrView: View {
                                 Spacer()
                             }
                             .padding()
-                            .background(Color.white)
+                            .background(Color.primary.opacity(0.1))
                             .cornerRadius(12)
                         }
                         .fullScreenCover(isPresented: $showARScanner) {
@@ -239,7 +239,7 @@ struct MehrView: View {
                                 Spacer()
                             }
                             .padding()
-                            .background(Color.white)
+                            .background(Color.primary.opacity(0.1))
                             .cornerRadius(12)
                         }
                         .sheet(isPresented: $showWalletPassSheet) {
