@@ -13,7 +13,7 @@ struct FunkView: View {
             VStack(spacing: 0) {
                 // Fixed Master Header (Collapses on scroll)
                 MasterHeaderView(
-                    imageName: "Oli_Funk",
+                    imageName: "Oli_2_bgless",
                     subtitle: "Digitaler Funk",
                     title: "Team-Funk",
                     shortTitle: "Funk",

@@ -406,7 +406,7 @@ struct LiveView: View {
             VStack(spacing: 0) {
                 // Fixed Master Header (Collapses on scroll)
                 MasterHeaderView(
-                    imageName: "Oli",
+                    imageName: "Oli_3_bgless",
                     subtitle: "Willkommen zurück,",
                     title: displayName,
                     shortTitle: "Live",
