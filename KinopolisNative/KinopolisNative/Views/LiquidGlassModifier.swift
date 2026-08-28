@@ -41,14 +41,15 @@ public extension View {
 // MARK: - Dynamic Colorful Backdrop
 // A view that renders the glowing orbs that make Liquid Glass look so good
 public struct LiquidGlassBackdrop: View {
+    @Environment(\.colorScheme) var colorScheme
     @State private var isAnimating = false
     
     public init() {}
     
     public var body: some View {
         ZStack {
-            // Dark Base
-            Color(red: 0.05, green: 0.05, blue: 0.08)
+            // Adaptive Base
+            Color(UIColor.systemBackground)
                 .ignoresSafeArea()
             
             // Doppler Pink Orb
@@ -56,6 +57,7 @@ public struct LiquidGlassBackdrop: View {
                 .fill(Color(red: 1.0, green: 0.18, blue: 0.58))
                 .frame(width: 300, height: 300)
                 .blur(radius: 120)
+                .opacity(colorScheme == .dark ? 1.0 : 0.6)
                 .offset(x: isAnimating ? 100 : -50, y: isAnimating ? -100 : -150)
             
             // Emerald/Cyan Orb
@@ -63,6 +65,7 @@ public struct LiquidGlassBackdrop: View {
                 .fill(Color(red: 0.0, green: 1.0, blue: 0.66))
                 .frame(width: 350, height: 350)
                 .blur(radius: 140)
+                .opacity(colorScheme == .dark ? 1.0 : 0.6)
                 .offset(x: isAnimating ? -100 : 100, y: isAnimating ? 200 : 100)
         }
         .ignoresSafeArea()

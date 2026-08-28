@@ -41,7 +41,7 @@ struct QuizView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
+                Color(UIColor.systemBackground).ignoresSafeArea()
                 
                 VStack(spacing: 24) {
                     if showResult {
@@ -72,7 +72,7 @@ struct QuizView: View {
             Text(questions[currentQuestionIndex].text)
                 .font(.title3)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
             
@@ -88,7 +88,7 @@ struct QuizView: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(buttonColor(for: index))
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                             .cornerRadius(12)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
@@ -117,7 +117,7 @@ struct QuizView: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.blue)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                             .cornerRadius(12)
                     }
                     .padding(.top, 12)
@@ -141,7 +141,7 @@ struct QuizView: View {
             Text("Quiz Beendet!")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
             
             Text("Du hast \(score) von \(questions.count) Fragen richtig beantwortet.")
                 .font(.headline)
@@ -161,7 +161,7 @@ struct QuizView: View {
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color.blue)
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                     .cornerRadius(12)
             }
             .padding(.top, 20)

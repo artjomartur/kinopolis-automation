@@ -146,7 +146,7 @@ struct SchichtTauschView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 20/255, green: 20/255, blue: 22/255).ignoresSafeArea()
+                Color(UIColor.systemBackground).ignoresSafeArea()
                 
                 VStack(spacing: 0) {
                     
@@ -176,7 +176,7 @@ struct SchichtTauschView: View {
                                 .frame(maxWidth: .infinity)
                                 .padding()
                                 .background(LinearGradient(colors: [.purple, .blue], startPoint: .leading, endPoint: .trailing))
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                                 .cornerRadius(16)
                                 .shadow(color: Color.purple.opacity(0.3), radius: 8, x: 0, y: 3)
                             }
@@ -189,7 +189,7 @@ struct SchichtTauschView: View {
                                         .foregroundColor(.gray.opacity(0.4))
                                     Text("Keine Schichtangebote vorhanden")
                                         .font(.headline)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.primary)
                                     Text("Alle Schichten sind aktuell besetzt. Biete deine Schicht an, wenn du Ersatz suchst.")
                                         .font(.caption)
                                         .foregroundColor(.gray)
@@ -278,7 +278,7 @@ struct SchichtTauschCard: View {
                     Text(offer.status)
                         .font(.caption2)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
@@ -294,7 +294,7 @@ struct SchichtTauschCard: View {
                     Text(offer.date.formatted(date: .abbreviated, time: .omitted))
                         .font(.subheadline)
                         .fontWeight(.heavy)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                 }
                 
                 VStack(alignment: .leading, spacing: 2) {
@@ -304,7 +304,7 @@ struct SchichtTauschCard: View {
                     Text(offer.timeRange)
                         .font(.subheadline)
                         .fontWeight(.heavy)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                 }
             }
             
@@ -353,7 +353,7 @@ struct SchichtTauschCard: View {
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
                         .background(Color.green)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                         .cornerRadius(10)
                     }
                 }
@@ -371,7 +371,7 @@ struct SchichtTauschCard: View {
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
                         .background(Color.red.opacity(0.8))
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                         .cornerRadius(8)
                     }
                 }

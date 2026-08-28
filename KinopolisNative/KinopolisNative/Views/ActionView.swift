@@ -66,7 +66,7 @@ struct ActionView: View {
     
     var body: some View {
         ZStack {
-            Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
+            Color(UIColor.systemBackground).ignoresSafeArea()
             
             VStack(spacing: 0) {
                 MasterHeaderView(
@@ -82,7 +82,7 @@ struct ActionView: View {
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
                             .background(Color.red)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                             .cornerRadius(20)
                             .shadow(color: Color.red.opacity(0.5), radius: 5, y: 2)
                     }
@@ -116,7 +116,7 @@ struct ActionView: View {
                                 
                                 Text(isShiftActive ? "Seit \(formattedStartTime()) eingestempelt" : "Tippe zum Einstempeln")
                                     .font(.subheadline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                             }
                             
                             Spacer()
@@ -148,7 +148,7 @@ struct ActionView: View {
                                 LinearGradient(colors: [Color.red, Color(red: 180/255, green: 20/255, blue: 30/255)], startPoint: .leading, endPoint: .trailing) :
                                 LinearGradient(colors: [Color.green, Color(red: 34/255, green: 160/255, blue: 85/255)], startPoint: .leading, endPoint: .trailing)
                             )
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                             .cornerRadius(14)
                             .shadow(color: (isShiftActive ? Color.red : Color.green).opacity(0.3), radius: 8, y: 3)
                         }
@@ -190,7 +190,7 @@ struct ActionView: View {
                                 Text("TL / BL Schichtstart-Checkliste")
                                     .font(.headline)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                 Spacer()
                                 let completed = tlOpeningChecklist.filter { $0.isCompleted }.count
                                 Text("\(completed)/\(tlOpeningChecklist.count)")
@@ -245,7 +245,7 @@ struct ActionView: View {
                                 Text("Live Saal- & Einlass-Monitor")
                                     .font(.headline)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                 Spacer()
                                 Text("Echtzeit")
                                     .font(.caption2)
@@ -265,7 +265,7 @@ struct ActionView: View {
                                             Text(hall)
                                                 .font(.subheadline)
                                                 .fontWeight(.bold)
-                                                .foregroundColor(.white)
+                                                .foregroundColor(.primary)
                                             
                                             Text(status.detail)
                                                 .font(.caption2)
@@ -312,7 +312,7 @@ struct ActionView: View {
                                 Text("Vorkommnis / Vorfall erfassen")
                                     .font(.headline)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                 Spacer()
                             }
                             
@@ -336,7 +336,7 @@ struct ActionView: View {
                                     .padding(12)
                                     .background(Color.white.opacity(0.06))
                                     .cornerRadius(10)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                 
                                 Button(action: addIncident) {
                                     Image(systemName: "plus.circle.fill")
@@ -356,7 +356,7 @@ struct ActionView: View {
                                                 .foregroundColor(.yellow)
                                             Text(log.text)
                                                 .font(.caption)
-                                                .foregroundColor(.white)
+                                                .foregroundColor(.primary)
                                             Spacer()
                                             Text(log.time)
                                                 .font(.caption2)
@@ -387,7 +387,7 @@ struct ActionView: View {
                                 Text("Waren-Transfer Theke")
                                     .font(.headline)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                             }
                             
                             Button(action: { showTransferlisteSheet = true }) {
@@ -421,7 +421,7 @@ struct ActionView: View {
                                 Text("Schicht-Aufgaben (\(selectedDept.uppercased()))")
                                     .font(.headline)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                 
                                 Spacer()
                                 
@@ -480,7 +480,7 @@ struct ActionView: View {
                                 Text("Pausen-Timer")
                                     .font(.subheadline)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -497,7 +497,7 @@ struct ActionView: View {
                                 Text("Saalplan")
                                     .font(.subheadline)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -520,7 +520,7 @@ struct ActionView: View {
                                 Text("🎒 Digitales Fundbüro")
                                     .font(.headline)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                 Text("Fundsachen einsehen, eintragen & aushändigen")
                                     .font(.caption)
                                     .foregroundColor(.gray)
@@ -549,7 +549,7 @@ struct ActionView: View {
                             Text(selectedDept == "tl" ? "🚨 TL-Broadcast (An alle pinnen)" : "Team-Mitteilung senden")
                                 .font(.headline)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                             Spacer()
                         }
                         
@@ -558,11 +558,11 @@ struct ActionView: View {
                                 .padding(12)
                                 .background(Color.white.opacity(0.06))
                                 .cornerRadius(10)
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                             
                             Button(action: sendAnnouncement) {
                                 Image(systemName: "paperplane.fill")
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                     .padding(12)
                                     .background(announcementText.isEmpty ? Color.gray.opacity(0.3) : (selectedDept == "tl" ? Color.red : Color.orange))
                                     .cornerRadius(10)
@@ -619,10 +619,10 @@ struct ActionView: View {
                             .foregroundColor(.green)
                         Text("Mitteilung ans Team übertragen!")
                             .font(.subheadline)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                     }
                     .padding()
-                    .background(Color(red: 30/255, green: 30/255, blue: 34/255))
+                    .background(Color(UIColor.tertiarySystemBackground))
                     .cornerRadius(14)
                     .shadow(radius: 10)
                     .padding(.bottom, 110)

@@ -20,7 +20,7 @@ struct MoodTrackerView: View {
                         Text("Danke für dein Feedback!")
                             .font(.title2)
                             .fontWeight(.bold)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                         Text("Deine Stimmung wurde gespeichert.")
                             .foregroundColor(.gray)
                     }
@@ -29,7 +29,7 @@ struct MoodTrackerView: View {
                     Text("Wie war deine Schicht heute?")
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                         .multilineTextAlignment(.center)
                         .padding(.top)
                     
@@ -68,7 +68,7 @@ struct MoodTrackerView: View {
                             .padding(8)
                             .background(Color.white.opacity(0.1))
                             .cornerRadius(8)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                     }
                     
                     Spacer()
@@ -79,14 +79,14 @@ struct MoodTrackerView: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(selectedRating > 0 ? Color.blue : Color.gray)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                             .cornerRadius(12)
                     }
                     .disabled(selectedRating == 0)
                 }
             }
             .padding()
-            .background(Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea())
+            .background(Color(UIColor.systemBackground).ignoresSafeArea())
             .navigationTitle("Stimmungs-Tracker")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

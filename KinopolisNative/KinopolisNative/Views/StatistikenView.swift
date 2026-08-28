@@ -21,7 +21,7 @@ struct StatistikenView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
+                Color(UIColor.systemBackground).ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 24) {
@@ -48,7 +48,7 @@ struct StatistikenView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Saal-Auslastung (Heute)")
                 .font(.headline)
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
             
             Text("Heatmap der geschätzten Auslastung pro Saal.")
                 .font(.caption)
@@ -80,7 +80,7 @@ struct StatistikenView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Deine Stimmung (Letzte 7 Tage)")
                 .font(.headline)
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
             
             if moodHistory.isEmpty {
                 Text("Noch keine Stimmungsdaten vorhanden. Tracke deine erste Schicht!")

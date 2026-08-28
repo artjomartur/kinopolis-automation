@@ -401,7 +401,7 @@ struct LiveView: View {
     
     var body: some View {
         ZStack {
-            Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
+            Color(UIColor.systemBackground).ignoresSafeArea()
             
             VStack(spacing: 0) {
                 // Fixed Master Header (Collapses on scroll)
@@ -429,7 +429,7 @@ struct LiveView: View {
                             Image(systemName: "arrow.triangle.2.circlepath")
                                 .font(.body)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                                 .padding(10)
                                 .background(Color.white.opacity(0.08))
                                 .clipShape(Circle())
@@ -492,7 +492,7 @@ struct LiveView: View {
                                         VStack(alignment: .leading, spacing: 12) {
                                             Text("Saal \(hall.name)")
                                                 .font(.headline)
-                                                .foregroundColor(.white)
+                                                .foregroundColor(.primary)
                                                 .padding(.horizontal)
                                             
                                             ScrollView(.horizontal, showsIndicators: false) {
@@ -534,7 +534,7 @@ struct LiveView: View {
                                                 .frame(width: 80, height: 80)
                                             Text("Keine Plakatwechsel fällig")
                                                 .font(.headline)
-                                                .foregroundColor(.white)
+                                                .foregroundColor(.primary)
                                             Text("In allen Sälen laufen heute identische Filme oder der Wechsel für morgen ist schon vorbereitet.")
                                                 .font(.caption)
                                                 .foregroundColor(.gray)
@@ -637,7 +637,7 @@ struct AuslassCard: View {
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
                 .background(auslass.isActive ? Color.red : Color.blue.opacity(0.8))
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
                 .cornerRadius(6)
             
             Text("FSK \(fskAge)")
@@ -818,7 +818,7 @@ struct SessionCard: View {
             
             Text(session.title)
                 .font(.headline)
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
                 .lineLimit(2)
                 .frame(height: 42, alignment: .topLeading)
             

@@ -148,7 +148,7 @@ struct FilmSpickzettelSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 20/255, green: 20/255, blue: 22/255).ignoresSafeArea()
+                Color(UIColor.systemBackground).ignoresSafeArea()
                 
                 VStack(spacing: 0) {
                     searchBar
@@ -194,7 +194,7 @@ struct FilmSpickzettelSheet: View {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.gray)
             TextField("Film oder Genre suchen...", text: $viewModel.searchQuery)
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
             if !viewModel.searchQuery.isEmpty {
                 Button(action: { viewModel.searchQuery = "" }) {
                     Image(systemName: "xmark.circle.fill")
@@ -219,7 +219,7 @@ struct FilmSpickzettelSheet: View {
                 Text("Gästefragen-Spickzettel")
                     .font(.subheadline)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                 Text("Kurzinhalte, Zielgruppen & Post-Credit-Check für Kasse, Einlass & Bar.")
                     .font(.caption)
                     .foregroundColor(.gray)
@@ -264,7 +264,7 @@ struct FilmSpickzettelCard: View {
                     Text(film.title)
                         .font(.headline)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                         .lineLimit(2)
                     
                     HStack(spacing: 6) {
@@ -274,7 +274,7 @@ struct FilmSpickzettelCard: View {
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(Color.red)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                             .cornerRadius(4)
                         
                         if let dur = film.duration {
@@ -349,7 +349,7 @@ struct FilmSpickzettelCard: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(Color.red.opacity(0.8))
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                     .cornerRadius(6)
                 }
             }

@@ -58,7 +58,7 @@ struct ScannerView: View {
                                 .font(.caption)
                                 .fontWeight(.bold)
                         }
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
                         .background(Color.red.opacity(0.8))
@@ -66,7 +66,7 @@ struct ScannerView: View {
                         .shadow(color: Color.red.opacity(0.4), radius: 6, x: 0, y: 2)
                     }
                 }
-                .background(Color(red: 24/255, green: 24/255, blue: 26/255))
+                .background(Color(UIColor.systemBackground))
                 
                 // Camera View
                 if isScanning {
@@ -97,10 +97,10 @@ struct ScannerView: View {
                                             .font(.caption)
                                             .fontWeight(.bold)
                                     }
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 8)
-                                    .background(Color(red: 28/255, green: 28/255, blue: 30/255).opacity(0.95))
+                                    .background(Color(UIColor.secondarySystemBackground).opacity(0.95))
                                     .cornerRadius(12)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 12)
@@ -118,10 +118,10 @@ struct ScannerView: View {
                                             .font(.caption)
                                             .fontWeight(.bold)
                                     }
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 8)
-                                    .background(Color(red: 28/255, green: 28/255, blue: 30/255).opacity(0.95))
+                                    .background(Color(UIColor.secondarySystemBackground).opacity(0.95))
                                     .cornerRadius(12)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 12)
@@ -145,7 +145,7 @@ struct ScannerView: View {
                                         Text("JuSchG & FSK-Stichtage")
                                             .font(.subheadline)
                                             .fontWeight(.bold)
-                                            .foregroundColor(.white)
+                                            .foregroundColor(.primary)
                                         Text("Geburtstags- & Ausweis-Prüfung")
                                             .font(.caption2)
                                             .foregroundColor(.gray)
@@ -160,7 +160,7 @@ struct ScannerView: View {
                                 }
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 12)
-                                .background(Color(red: 30/255, green: 30/255, blue: 34/255).opacity(0.95))
+                                .background(Color(UIColor.tertiarySystemBackground).opacity(0.95))
                                 .cornerRadius(16)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 16)
@@ -276,7 +276,7 @@ struct TicketResultView: View {
     
     var body: some View {
         ZStack {
-            Color(red: 20/255, green: 20/255, blue: 22/255).ignoresSafeArea()
+            Color(UIColor.systemBackground).ignoresSafeArea()
             
             ScrollView {
                 VStack(spacing: 20) {
@@ -317,7 +317,7 @@ struct TicketResultView: View {
                             
                             Text("\(ticket.peopleCount) \(ticket.peopleCount == 1 ? "Person" : "Personen")")
                                 .font(.system(size: 32, weight: .black, design: .rounded))
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                         }
                         
                         Spacer()
@@ -352,7 +352,7 @@ struct TicketResultView: View {
                             Text(ticket.movieTitle)
                                 .font(.headline)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                                 .multilineTextAlignment(.trailing)
                         }
                         
@@ -366,7 +366,7 @@ struct TicketResultView: View {
                             Text(ticket.hall)
                                 .font(.headline)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                         }
                         
                         Divider().background(Color.white.opacity(0.1))
@@ -379,7 +379,7 @@ struct TicketResultView: View {
                             Text(ticket.time)
                                 .font(.headline)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                         }
                         
                         Divider().background(Color.white.opacity(0.1))
@@ -428,7 +428,7 @@ struct TicketResultView: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                         .cornerRadius(16)
                         .shadow(color: (ticket.isValid ? Color.green : Color.red).opacity(0.4), radius: 10, x: 0, y: 4)
                         .padding(.horizontal)
@@ -475,7 +475,7 @@ struct GeburtstagsRechnerSheet: View {
     
     var body: some View {
         ZStack {
-            Color(red: 20/255, green: 20/255, blue: 22/255).ignoresSafeArea()
+            Color(UIColor.systemBackground).ignoresSafeArea()
             
             ScrollView {
                 VStack(spacing: 20) {
@@ -498,7 +498,7 @@ struct GeburtstagsRechnerSheet: View {
                             Text("FSK & Altersrechner")
                                 .font(.title3)
                                 .fontWeight(.heavy)
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                         }
                         
                         Spacer()
@@ -520,7 +520,7 @@ struct GeburtstagsRechnerSheet: View {
                             Text("Heutige Stichtage (Geboren am/vor)")
                                 .font(.subheadline)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                             Spacer()
                             Text("Heute")
                                 .font(.caption2)
@@ -557,7 +557,7 @@ struct GeburtstagsRechnerSheet: View {
                             Text("Geburtsdatum vom Ausweis prüfen")
                                 .font(.subheadline)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                         }
                         
                         DatePicker(
@@ -600,7 +600,7 @@ struct GeburtstagsRechnerSheet: View {
                                 Text("\(calculatedAge) Jahre alt")
                                     .font(.title)
                                     .fontWeight(.heavy)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                 Text(exactAgeDescription)
                                     .font(.caption2)
                                     .foregroundColor(.gray)
@@ -612,7 +612,7 @@ struct GeburtstagsRechnerSheet: View {
                                 Text(calculatedAge >= 18 ? "FSK 18" : (calculatedAge >= 16 ? "FSK 16" : (calculatedAge >= 12 ? "FSK 12" : (calculatedAge >= 6 ? "FSK 6" : "FSK 0"))))
                                     .font(.title2)
                                     .fontWeight(.heavy)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                 Text("Erlaubt")
                                     .font(.caption2)
                                     .fontWeight(.bold)
@@ -643,7 +643,7 @@ struct GeburtstagsRechnerSheet: View {
                             Text("JuSchG Auslass-Zeitbeschränkung:")
                                 .font(.caption)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                             
                             if calculatedAge < 14 {
                                 Text("⚠️ Unter 14 Jahre: Filmende vor 20:00 Uhr erforderlich (ohne Begleitung).")
@@ -692,7 +692,7 @@ struct StichtagRow: View {
             Text(fskLabel)
                 .font(.caption)
                 .fontWeight(.heavy)
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
                 .background(color.opacity(0.8))
@@ -702,7 +702,7 @@ struct StichtagRow: View {
                 Text(requiredAge)
                     .font(.caption)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                 Text(note)
                     .font(.system(size: 10))
                     .foregroundColor(.gray)
@@ -739,7 +739,7 @@ struct PresetAgeButton: View {
             Text(title)
                 .font(.caption2)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
                 .background(Color.white.opacity(0.08))

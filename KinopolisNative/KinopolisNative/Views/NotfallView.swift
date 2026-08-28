@@ -8,7 +8,7 @@ struct NotfallView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
+                Color(UIColor.systemBackground).ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 20) {
@@ -21,7 +21,7 @@ struct NotfallView: View {
                                 .foregroundColor(.red)
                             Text("Befolge die untenstehenden Leitfäden für den jeweiligen Notfall. Die eigene Sicherheit und die der Gäste hat höchste Priorität.")
                                 .font(.subheadline)
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                         }
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -85,7 +85,7 @@ struct NotfallView: View {
                                 Text("Individuelle Hilfe anfordern")
                                     .font(.headline)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                             }
                             
                             if isHelpSent {
@@ -111,7 +111,7 @@ struct NotfallView: View {
                                     .padding(8)
                                     .background(Color.white.opacity(0.1))
                                     .cornerRadius(8)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                     .scrollContentBackground(.hidden)
                                 
                                 Button(action: {
@@ -126,7 +126,7 @@ struct NotfallView: View {
                                         .frame(maxWidth: .infinity)
                                         .padding()
                                         .background(Color.yellow)
-                                        .foregroundColor(.black)
+                                        .foregroundColor(.primary)
                                         .cornerRadius(12)
                                 }
                                 .disabled(helpMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
@@ -173,7 +173,7 @@ struct EmergencyCard: View {
                 Text(title)
                     .font(.headline)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                 Spacer()
             }
             
@@ -203,7 +203,7 @@ struct EmergencyCard: View {
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(color)
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                     .cornerRadius(12)
                 }
                 .padding(.top, 4)

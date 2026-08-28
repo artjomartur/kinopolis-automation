@@ -126,7 +126,7 @@ struct FundbueroView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
+                Color(UIColor.systemBackground).ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 20) {
@@ -136,7 +136,7 @@ struct FundbueroView: View {
                                 Text("🎒 Digitales Fundbüro")
                                     .font(.title2)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                 Text("Gefundene Gegenstände mit Foto erfassen")
                                     .font(.caption)
                                     .foregroundColor(.gray)
@@ -154,7 +154,7 @@ struct FundbueroView: View {
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 8)
                                 .background(Color.red)
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                                 .cornerRadius(12)
                             }
                         }
@@ -216,7 +216,7 @@ struct FundbueroView: View {
                     Button("Schließen") {
                         presentationMode.wrappedValue.dismiss()
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                 }
             }
             .task {
@@ -285,7 +285,7 @@ struct LostItemCard: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(Color.white.opacity(0.1))
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                     .cornerRadius(6)
                 
                 Spacer()
@@ -333,7 +333,7 @@ struct LostItemCard: View {
             Text(item.what)
                 .font(.headline)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
             
             // Where & Who
             HStack(spacing: 14) {
@@ -422,7 +422,7 @@ struct AddLostItemSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
+                Color(UIColor.systemBackground).ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 20) {
@@ -445,7 +445,7 @@ struct AddLostItemSheet: View {
                                     Button(action: { selectedImage = nil }) {
                                         Image(systemName: "xmark.circle.fill")
                                             .font(.title2)
-                                            .foregroundColor(.white)
+                                            .foregroundColor(.primary)
                                             .background(Circle().fill(Color.black.opacity(0.6)))
                                     }
                                     .padding(8)
@@ -460,7 +460,7 @@ struct AddLostItemSheet: View {
                                         }
                                         .font(.subheadline)
                                         .fontWeight(.bold)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.primary)
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 14)
                                         .background(Color.red.opacity(0.2))
@@ -479,7 +479,7 @@ struct AddLostItemSheet: View {
                                         }
                                         .font(.subheadline)
                                         .fontWeight(.bold)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.primary)
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 14)
                                         .background(Color.white.opacity(0.06))
@@ -510,7 +510,7 @@ struct AddLostItemSheet: View {
                                 .padding(12)
                                 .background(Color.white.opacity(0.06))
                                 .cornerRadius(10)
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                         }
                         
                         // 3. Category
@@ -535,7 +535,7 @@ struct AddLostItemSheet: View {
                                 .padding(12)
                                 .background(Color.white.opacity(0.06))
                                 .cornerRadius(10)
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                         }
                         
                         Spacer().frame(height: 20)
@@ -551,7 +551,7 @@ struct AddLostItemSheet: View {
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
                             .background(what.isEmpty || whereFound.isEmpty ? Color.gray.opacity(0.3) : Color.red)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                             .cornerRadius(12)
                         }
                         .disabled(what.isEmpty || whereFound.isEmpty)

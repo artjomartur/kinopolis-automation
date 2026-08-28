@@ -13,7 +13,7 @@ struct PausenTimerView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
+                Color(UIColor.systemBackground).ignoresSafeArea()
                 
                 VStack(spacing: 40) {
                     // Timer Circle
@@ -31,7 +31,7 @@ struct PausenTimerView: View {
                         
                         Text(timeString(from: timeRemaining))
                             .font(.system(size: 60, weight: .bold, design: .monospaced))
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                     }
                     .padding(.top, 40)
                     
@@ -46,7 +46,7 @@ struct PausenTimerView: View {
                                         .padding()
                                         .frame(width: 100)
                                         .background(Color.blue)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.primary)
                                         .cornerRadius(12)
                                 }
                             }
@@ -61,7 +61,7 @@ struct PausenTimerView: View {
                                 .padding()
                                 .frame(maxWidth: .infinity)
                                 .background(Color.red)
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                                 .cornerRadius(16)
                                 .padding(.horizontal, 40)
                         }

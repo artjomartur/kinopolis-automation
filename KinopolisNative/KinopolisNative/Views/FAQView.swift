@@ -14,7 +14,7 @@ struct FAQView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
+                Color(UIColor.systemBackground).ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 20) {
@@ -22,7 +22,7 @@ struct FAQView: View {
                         Text("Gäste-FAQ Bot")
                             .font(.title2)
                             .fontWeight(.bold)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                             .padding(.top)
                         
                         Text("Häufige Gästefragen schnell beantwortet.")
@@ -40,7 +40,7 @@ struct FAQView: View {
                             } label: {
                                 Text(faq.0)
                                     .font(.headline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                             }
                             .padding()
                             .background(Color.white.opacity(0.05))

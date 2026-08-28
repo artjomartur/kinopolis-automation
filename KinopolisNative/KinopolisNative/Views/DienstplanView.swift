@@ -205,7 +205,7 @@ struct DienstplanView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 20/255, green: 20/255, blue: 22/255).ignoresSafeArea()
+                Color(UIColor.systemBackground).ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 18) {
@@ -222,7 +222,7 @@ struct DienstplanView: View {
                                 Text("📅 Anstehende Schichten")
                                     .font(.headline)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                 Spacer()
                                 Text("\(viewModel.upcomingShifts.count) Schichten")
                                     .font(.caption)
@@ -350,7 +350,7 @@ struct ShiftCard: View {
                     Text(shift.title)
                         .font(.headline)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                 }
                 Spacer()
                 Text(shift.role)
@@ -373,7 +373,7 @@ struct ShiftCard: View {
                     Text("\(shift.startTime) - \(shift.endTime) Uhr")
                         .font(.caption)
                         .fontWeight(.semibold)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                 }
                 
                 if let area = shift.hallArea {

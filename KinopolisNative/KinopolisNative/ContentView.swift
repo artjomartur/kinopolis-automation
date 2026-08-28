@@ -166,7 +166,7 @@ struct MasterHeaderView<TrailingContent: View>: View {
                 
                 Text(isCollapsed ? shortTitle : title)
                     .font(.system(size: isCollapsed ? 18 : 22, weight: .heavy))
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                     .lineLimit(1)
                 
                 HStack(spacing: 4) {
@@ -192,7 +192,7 @@ struct MasterHeaderView<TrailingContent: View>: View {
         .padding(.bottom, isCollapsed ? 6 : 10)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            Color(red: 24/255, green: 24/255, blue: 26/255)
+            Color(UIColor.systemBackground)
                 .shadow(color: Color.black.opacity(isCollapsed ? 0.35 : 0), radius: 6, x: 0, y: 3)
         )
         .animation(.easeInOut(duration: 0.22), value: isCollapsed)

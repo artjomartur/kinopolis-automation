@@ -44,7 +44,7 @@ struct MehrView: View {
     
     var body: some View {
         ZStack {
-            Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
+            Color(UIColor.systemBackground).ignoresSafeArea()
             
             VStack(spacing: 0) {
                 // Fixed Master Header (Collapses on scroll)
@@ -79,7 +79,7 @@ struct MehrView: View {
                                 Text(authManager.currentUser?.role.uppercased() ?? "ADMINISTRATOR")
                                     .font(.headline)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                             }
                             
                             Spacer()
@@ -90,7 +90,7 @@ struct MehrView: View {
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 5)
                                 .background(Color.white.opacity(0.08))
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                                 .cornerRadius(8)
                         }
                         
@@ -125,11 +125,11 @@ struct MehrView: View {
                         Button(action: { showARScanner = true }) {
                             HStack {
                                 Image(systemName: "viewfinder")
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.primary)
                                 Text("AR Saal-Scanner")
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.primary)
                                 Spacer()
                             }
                             .padding()
@@ -151,7 +151,7 @@ struct MehrView: View {
                                 Text("Popcorn-Schritte (Diese Schicht)")
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                 Text("\(pedometerManager.steps) Schritte gelaufen")
                                     .font(.caption)
                                     .foregroundColor(.gray)
@@ -184,7 +184,7 @@ struct MehrView: View {
                                 Text("Daily Quests")
                                     .font(.headline)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                             }
                             
                             VStack(spacing: 8) {
@@ -207,7 +207,7 @@ struct MehrView: View {
                                 Text("Erfolge")
                                     .font(.headline)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                             }
                             
                             ScrollView(.horizontal, showsIndicators: false) {
@@ -231,11 +231,11 @@ struct MehrView: View {
                         }) {
                             HStack {
                                 Image(systemName: "wallet.pass.fill")
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.primary)
                                 Text("Ausweis zu Apple Wallet hinzufügen")
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.primary)
                                 Spacer()
                             }
                             .padding()
@@ -261,7 +261,7 @@ struct MehrView: View {
                         Text("📊 Gamification & Feedback")
                             .font(.headline)
                             .fontWeight(.bold)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                             .padding(.horizontal)
                         
                         VStack(spacing: 12) {
@@ -300,7 +300,7 @@ struct MehrView: View {
                         Text("🛠️ Kino-Services")
                             .font(.headline)
                             .fontWeight(.bold)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                             .padding(.horizontal)
                         
                         VStack(spacing: 12) {
@@ -352,7 +352,7 @@ struct MehrView: View {
                         Text("👥 Team & Gäste-Support")
                             .font(.headline)
                             .fontWeight(.bold)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                             .padding(.horizontal)
                         
                         VStack(spacing: 12) {
@@ -414,7 +414,7 @@ struct MehrView: View {
                         Text("📞 Team & Notfall-Kontakte")
                             .font(.headline)
                             .fontWeight(.bold)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                             .padding(.horizontal)
                         
                         VStack(spacing: 0) {
@@ -436,7 +436,7 @@ struct MehrView: View {
                         Text("⚙️ Einstellungen")
                             .font(.headline)
                             .fontWeight(.bold)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                             .padding(.horizontal)
                         
                         VStack(spacing: 0) {
@@ -446,7 +446,7 @@ struct MehrView: View {
                                     .foregroundColor(.red)
                                     .frame(width: 28)
                                 Text("Standort")
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                 Spacer()
                                 Picker("Standort", selection: $selectedLocation) {
                                     ForEach(LocationData.all) { loc in
@@ -472,7 +472,7 @@ struct MehrView: View {
                                         .foregroundColor(.purple)
                                         .frame(width: 28)
                                     Text("Haptisches Feedback")
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.primary)
                                 }
                             }
                             .padding(.horizontal, 16)
@@ -486,7 +486,7 @@ struct MehrView: View {
                                         .foregroundColor(.yellow)
                                         .frame(width: 28)
                                     Text("Funk & Push-Benachrichtigungen")
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.primary)
                                 }
                             }
                             .padding(.horizontal, 16)
@@ -635,7 +635,7 @@ struct ServiceRowItem: View {
                 Text(title)
                     .font(.subheadline)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                 Text(subtitle)
                     .font(.caption)
                     .foregroundColor(.gray)
@@ -684,7 +684,7 @@ struct ContactRow: View {
                     Text(name)
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                     Text("\(role) • \(number)")
                         .font(.caption)
                         .foregroundColor(.gray)

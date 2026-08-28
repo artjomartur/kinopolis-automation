@@ -163,7 +163,7 @@ struct GastroRechnerView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 20/255, green: 20/255, blue: 22/255).ignoresSafeArea()
+                Color(UIColor.systemBackground).ignoresSafeArea()
                 
                 VStack(spacing: 0) {
                     
@@ -187,7 +187,7 @@ struct GastroRechnerView: View {
                                             Text(viewModel.isManualMode ? "Manuelle Gästezahl" : "Live Vorverkaufs-Prognose")
                                                 .font(.headline)
                                                 .fontWeight(.bold)
-                                                .foregroundColor(.white)
+                                                .foregroundColor(.primary)
                                             Text(viewModel.isManualMode ? "Regler für Event/Stoßzeit-Berechnung" : "\(viewModel.totalSoldTickets) verkaufte Tickets heute")
                                                 .font(.caption)
                                                 .foregroundColor(.gray)
@@ -224,7 +224,7 @@ struct GastroRechnerView: View {
                                                 Text("\(viewModel.totalSoldTickets) Tickets")
                                                     .font(.subheadline)
                                                     .fontWeight(.bold)
-                                                    .foregroundColor(.white)
+                                                    .foregroundColor(.primary)
                                             }
                                             
                                             Spacer()
@@ -235,7 +235,7 @@ struct GastroRechnerView: View {
                                                 Text("\(viewModel.familyTicketCount) Familien")
                                                     .font(.subheadline)
                                                     .fontWeight(.bold)
-                                                    .foregroundColor(.white)
+                                                    .foregroundColor(.primary)
                                             }
                                         }
                                         .padding(10)
@@ -257,7 +257,7 @@ struct GastroRechnerView: View {
                                         Text("🍿 Popcorn-Vorbereitung")
                                             .font(.headline)
                                             .fontWeight(.bold)
-                                            .foregroundColor(.white)
+                                            .foregroundColor(.primary)
                                     }
                                     
                                     HStack(spacing: 12) {
@@ -291,7 +291,7 @@ struct GastroRechnerView: View {
                                         Text("🌶️ Nachos & Saucen")
                                             .font(.headline)
                                             .fontWeight(.bold)
-                                            .foregroundColor(.white)
+                                            .foregroundColor(.primary)
                                     }
                                     
                                     HStack(spacing: 10) {
@@ -329,7 +329,7 @@ struct GastroRechnerView: View {
                                         Text("🥤 Becher-Vorratsbedarf")
                                             .font(.headline)
                                             .fontWeight(.bold)
-                                            .foregroundColor(.white)
+                                            .foregroundColor(.primary)
                                     }
                                     
                                     HStack(spacing: 12) {
@@ -370,7 +370,7 @@ struct GastroRechnerView: View {
                                     .frame(maxWidth: .infinity)
                                     .padding()
                                     .background(Color.orange)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                     .cornerRadius(16)
                                 }
                                 .padding(.horizontal, 16)
@@ -397,7 +397,7 @@ struct GastroRechnerView: View {
                         Task { await viewModel.calculateLiveTickets() }
                     }) {
                         Image(systemName: "arrow.triangle.2.circlepath")
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -465,7 +465,7 @@ struct MHDItemRow: View {
                 Text(item.name)
                     .font(.subheadline)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                 
                 HStack(spacing: 8) {
                     Text(item.category)

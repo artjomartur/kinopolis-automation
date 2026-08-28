@@ -7,7 +7,7 @@ struct LoginView: View {
     var body: some View {
         ZStack {
             // Background
-            Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
+            Color(UIColor.systemBackground).ignoresSafeArea()
             
             VStack(spacing: 30) {
                 Spacer()
@@ -25,7 +25,7 @@ struct LoginView: View {
                     Text("Willkommen zurück")
                         .font(.title)
                         .fontWeight(.heavy)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                     
                     Text("Bitte melde dich an, um fortzufahren.")
                         .font(.subheadline)
@@ -67,7 +67,7 @@ struct LoginView: View {
                                 RoundedRectangle(cornerRadius: 12)
                                     .stroke(Color.white.opacity(0.1), lineWidth: 1)
                             )
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                     }
                     
                     VStack(alignment: .leading, spacing: 8) {
@@ -84,7 +84,7 @@ struct LoginView: View {
                                 RoundedRectangle(cornerRadius: 12)
                                     .stroke(Color.white.opacity(0.1), lineWidth: 1)
                             )
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                     }
                 }
                 .padding(.horizontal)
@@ -109,7 +109,7 @@ struct LoginView: View {
                 .background(
                     LinearGradient(gradient: Gradient(colors: [Color(red: 229/255, green: 9/255, blue: 20/255), Color(red: 255/255, green: 61/255, blue: 71/255)]), startPoint: .topLeading, endPoint: .bottomTrailing)
                 )
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
                 .cornerRadius(12)
                 .padding(.horizontal)
                 .disabled(viewModel.isLoading)

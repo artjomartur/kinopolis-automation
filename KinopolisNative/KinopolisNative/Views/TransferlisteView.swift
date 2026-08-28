@@ -67,7 +67,7 @@ struct TransferlisteView: View {
     
     var body: some View {
         ZStack {
-            Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
+            Color(UIColor.systemBackground).ignoresSafeArea()
             
             VStack(spacing: 0) {
                 // Header
@@ -84,7 +84,7 @@ struct TransferlisteView: View {
                     
                     Text("Theke Transferliste")
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                     
                     Spacer()
                     
@@ -94,7 +94,7 @@ struct TransferlisteView: View {
                         .foregroundColor(.clear)
                 }
                 .padding()
-                .background(Color(red: 34/255, green: 34/255, blue: 36/255))
+                .background(Color(UIColor.tertiarySystemBackground))
                 
                 // Form List
                 ScrollView {
@@ -108,7 +108,7 @@ struct TransferlisteView: View {
                                 Text("Waren-Transfer dokumentieren")
                                     .font(.headline)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                             }
                             Text("Bitte wähle aus, welche und wie viele Artikel du aus dem Hauptlager an die Theke transferierst.")
                                 .font(.subheadline)
@@ -201,7 +201,7 @@ struct TransferlisteView: View {
                             .font(.title2)
                         Text("Transfer erfolgreich verbucht!")
                             .fontWeight(.semibold)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                     }
                     .padding()
                     .background(Color.black.opacity(0.85))
@@ -234,7 +234,7 @@ struct TransferItemRow: View {
                 Text(item.name)
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                 Text(item.unit)
                     .font(.caption2)
                     .foregroundColor(.gray)
@@ -257,7 +257,7 @@ struct TransferItemRow: View {
                 
                 Text("\(item.amount)")
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                     .frame(width: 26, alignment: .center)
                     .contentTransition(.numericText())
                     .animation(.snappy, value: item.amount)

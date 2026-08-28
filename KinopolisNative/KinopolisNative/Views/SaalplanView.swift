@@ -9,7 +9,7 @@ struct SaalplanView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
+                Color(UIColor.systemBackground).ignoresSafeArea()
                 
                 VStack(spacing: 20) {
                     // Screen
@@ -93,7 +93,7 @@ struct LegendItem: View {
                 .frame(width: 16, height: 16)
             Text(text)
                 .font(.caption)
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
         }
     }
 }

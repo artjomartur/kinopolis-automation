@@ -101,7 +101,7 @@ struct OliSoundboardView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 20/255, green: 20/255, blue: 22/255).ignoresSafeArea()
+                Color(UIColor.systemBackground).ignoresSafeArea()
                 
                 VStack(spacing: 0) {
                     
@@ -131,7 +131,7 @@ struct OliSoundboardView: View {
                                         Text("Olis Kino-Soundboard")
                                             .font(.headline)
                                             .fontWeight(.bold)
-                                            .foregroundColor(.white)
+                                            .foregroundColor(.primary)
                                         Text("Kino-Gongs, Funk-Cues & lustige Team-Durchsagen.")
                                             .font(.caption)
                                             .foregroundColor(.gray)
@@ -231,7 +231,7 @@ struct OliSoundboardView: View {
                                     Text("\(userXP) XP")
                                         .font(.headline)
                                         .fontWeight(.bold)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.primary)
                                         .padding(.horizontal, 12)
                                         .padding(.vertical, 6)
                                         .background(Color.yellow.opacity(0.2))
@@ -284,7 +284,7 @@ struct SoundButton: View {
                 Text(title)
                     .font(.subheadline)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                     .lineLimit(1)
             }
             .frame(maxWidth: .infinity)
@@ -315,7 +315,7 @@ struct OliVoiceButton: View {
                     Text(title)
                         .font(.subheadline)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                     Text(subtitle)
                         .font(.caption)
                         .foregroundColor(.gray)

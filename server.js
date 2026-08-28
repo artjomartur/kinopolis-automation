@@ -634,6 +634,71 @@ app.post('/api/push/broadcast', async (req, res) => {
     res.json({ sent, message: 'Nachrichten gesendet (Lokal)' });
 });
 
+// --- BACKGROUND AUTOMATION (AUTO-PUSH & CHECKLIST) ---
+// Poll every 5 minutes to check for ending sessions
+const AUTOMATION_INTERVAL = 5 * 60 * 1000;
+let notifiedSessions = new Set(); // Prevent duplicate pushes
+
+setInterval(async () => {
+    try {
+        console.log('[Auto-Push Worker] Checking sessions...');
+        const res = await fetch(`http://127.0.0.1:${port}/api/sessions?location=kp`);
+        if (!res.ok) return;
+        const halls = await res.json();
+        
+        const now = new Date();
+        const currentTimeInt = now.getHours() * 60 + now.getMinutes();
+
+        for (const hallData of halls) {
+            if (!hallData.sessions || hallData.sessions.length === 0) continue;
+            
+            // Find the last session of the day in this hall
+            const lastSession = hallData.sessions[hallData.sessions.length - 1];
+            
+            // Parse start time "HH:MM"
+            const [hours, minutes] = lastSession.time.split(':').map(Number);
+            const startTimeInt = hours * 60 + minutes;
+            const duration = lastSession.duration || 120; // fallback to 120min
+            const endTimeInt = startTimeInt + duration;
+            
+            const sessionKey = `${hallData.name}-${lastSession.time}`;
+            
+            // If the movie ends in the next 15 minutes or just ended, trigger a push!
+            if (endTimeInt - currentTimeInt <= 15 && endTimeInt - currentTimeInt >= -30) {
+                if (!notifiedSessions.has(sessionKey)) {
+                    notifiedSessions.add(sessionKey);
+                    
+                    // 1. Send Push Notification
+                    const payload = JSON.stringify({
+                        title: '🎬 Plakatwechsel steht an!',
+                        body: `Die letzte Vorstellung in ${hallData.name} (${lastSession.title}) endet in Kürze!`,
+                        icon: '/logo-kinopolis-official.png',
+                        data: { url: '/' }
+                    });
+                    
+                    for (const item of pushSubscriptions) {
+                        try {
+                            await webpush.sendNotification(item.sub, payload);
+                        } catch (e) {
+                            console.error('[Auto-Push] Error sending push', e);
+                        }
+                    }
+                    console.log(`[Auto-Push] Sent push for ${sessionKey}`);
+                    
+                    // 2. Add to Checklist automatically
+                    if (!localChecklist['kp']) localChecklist['kp'] = {};
+                    const taskId = `posterwechsel_${hallData.name.replace(/\s+/g, '_')}`;
+                    if (!localChecklist['kp'][taskId]) {
+                        localChecklist['kp'][taskId] = { is_completed: false, completed_by: '' };
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        console.error('[Auto-Push Worker] Error', e);
+    }
+}, AUTOMATION_INTERVAL);
+
 app.listen(port, '0.0.0.0', () => {
     console.log(`Server running at http://0.0.0.0:${port} (Accessible locally via your IP)`);
 });

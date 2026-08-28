@@ -259,7 +259,7 @@ struct PosterErinnerungView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 20/255, green: 20/255, blue: 22/255).ignoresSafeArea()
+                Color(UIColor.systemBackground).ignoresSafeArea()
                 
                 VStack(spacing: 0) {
                     
@@ -288,7 +288,7 @@ struct PosterErinnerungView: View {
                                         Text("Plakattausch an den Kinosälen")
                                             .font(.subheadline)
                                             .fontWeight(.bold)
-                                            .foregroundColor(.white)
+                                            .foregroundColor(.primary)
                                         Text("Sobald ein Film 20 Min. läuft, kann der Schaukasten für den nächsten Film getauscht werden.")
                                             .font(.caption)
                                             .foregroundColor(.gray)
@@ -319,7 +319,7 @@ struct PosterErinnerungView: View {
                                             .foregroundColor(.green)
                                         Text("Keine Plakatwechsel anstehend")
                                             .font(.headline)
-                                            .foregroundColor(.white)
+                                            .foregroundColor(.primary)
                                         Text("In allen Sälen laufen heute identische Filme oder das Programm ist abgeschlossen.")
                                             .font(.caption)
                                             .foregroundColor(.gray)
@@ -359,7 +359,7 @@ struct PosterErinnerungView: View {
                                     .frame(maxWidth: .infinity)
                                     .padding()
                                     .background(LinearGradient(colors: [.red, .orange], startPoint: .leading, endPoint: .trailing))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                     .cornerRadius(16)
                                     .shadow(color: Color.red.opacity(0.3), radius: 8, x: 0, y: 3)
                                 }
@@ -372,7 +372,7 @@ struct PosterErinnerungView: View {
                                             .foregroundColor(.gray.opacity(0.4))
                                         Text("Keine Poster reserviert")
                                             .font(.headline)
-                                            .foregroundColor(.white)
+                                            .foregroundColor(.primary)
                                         Text("Merke dir Kinoplakate für dein Zimmer vor, bevor die Filme aus dem Programm genommen werden.")
                                             .font(.caption)
                                             .foregroundColor(.gray)
@@ -406,7 +406,7 @@ struct PosterErinnerungView: View {
                         Task { await viewModel.fetchPosterAlerts() }
                     }) {
                         Image(systemName: "arrow.triangle.2.circlepath")
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                     }
                 }
                 
@@ -466,7 +466,7 @@ struct PosterAlertCard: View {
                         .padding(.horizontal, 7)
                         .padding(.vertical, 3)
                         .background(Color.red)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                         .cornerRadius(5)
                     
                     if alert.isCompleted {
@@ -542,7 +542,7 @@ struct PosterReservationCard: View {
                     Text(reservation.movieTitle)
                         .font(.headline)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                     
                     HStack(spacing: 6) {
                         Text(reservation.size)

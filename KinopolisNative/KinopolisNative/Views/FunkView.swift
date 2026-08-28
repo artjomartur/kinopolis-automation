@@ -8,7 +8,7 @@ struct FunkView: View {
     var body: some View {
         ZStack {
             // Background
-            Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
+            Color(UIColor.systemBackground).ignoresSafeArea()
             
             VStack(spacing: 0) {
                 // Fixed Master Header (Collapses on scroll)
@@ -46,7 +46,7 @@ struct FunkView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(viewModel.isHelpActive ? Color.red : Color.white.opacity(0.1))
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                         .cornerRadius(16)
                         .overlay(
                             RoundedRectangle(cornerRadius: 16)
@@ -126,7 +126,7 @@ struct FunkView: View {
                     Spacer()
                     Text(msg)
                         .font(.subheadline)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                         .padding()
                         .background(Color.black.opacity(0.8))
                         .cornerRadius(12)
@@ -155,7 +155,7 @@ struct FunkCategoryCard: View {
                     Text(icon).font(.system(size: 40))
                     Text(title)
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 24)

@@ -15,7 +15,7 @@ struct WalletPassView: View {
         NavigationView {
             ZStack {
                 // Cool blurred background
-                Color(red: 28/255, green: 28/255, blue: 30/255)
+                Color(UIColor.secondarySystemBackground)
                     .ignoresSafeArea()
                 
                 LinearGradient(
@@ -34,7 +34,7 @@ struct WalletPassView: View {
                             Text("Ausweis hinzugefügt!")
                                 .font(.title)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                             Text("Dein digitaler Mitarbeiterausweis ist jetzt in deinem In-App-Wallet gespeichert.")
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
@@ -84,7 +84,7 @@ struct WalletPassView: View {
                                         Text(authManager.currentUser?.name ?? "Mitarbeiter")
                                             .font(.title2)
                                             .fontWeight(.bold)
-                                            .foregroundColor(.black)
+                                            .foregroundColor(.primary)
                                     }
                                     Spacer()
                                     VStack(alignment: .trailing, spacing: 6) {
@@ -96,7 +96,7 @@ struct WalletPassView: View {
                                         Text(LocationData.name(for: selectedLocation))
                                             .font(.title3)
                                             .fontWeight(.bold)
-                                            .foregroundColor(.black)
+                                            .foregroundColor(.primary)
                                     }
                                 }
                                 
@@ -109,7 +109,7 @@ struct WalletPassView: View {
                                             .textCase(.uppercase)
                                         Text((authManager.currentUser?.role ?? "Mitarbeiter").capitalized)
                                             .font(.headline)
-                                            .foregroundColor(.black)
+                                            .foregroundColor(.primary)
                                     }
                                     Spacer()
                                     VStack(alignment: .trailing, spacing: 6) {
@@ -120,7 +120,7 @@ struct WalletPassView: View {
                                             .textCase(.uppercase)
                                         Text("K-\(String(format: "%05d", Int.random(in: 10000...99999)))")
                                             .font(.headline)
-                                            .foregroundColor(.black)
+                                            .foregroundColor(.primary)
                                     }
                                 }
                                 
@@ -130,7 +130,7 @@ struct WalletPassView: View {
                                         .resizable()
                                         .scaledToFit()
                                         .frame(height: 70)
-                                        .foregroundColor(.black)
+                                        .foregroundColor(.primary)
                                     Text("9 4827 103 481")
                                         .font(.caption)
                                         .foregroundColor(.gray)
@@ -163,7 +163,7 @@ struct WalletPassView: View {
                     Button("Schließen") {
                         presentationMode.wrappedValue.dismiss()
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                     .opacity(isAdded ? 0 : 1)
                 }
                 

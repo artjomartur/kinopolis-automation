@@ -17,13 +17,13 @@ struct TeamChatView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
+                Color(UIColor.systemBackground).ignoresSafeArea()
                 
                 VStack(alignment: .leading, spacing: 20) {
                     Text("Quick-Chat")
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                         .padding(.top)
                     
                     Text("Tippe auf eine Nachricht, um sie sofort als Push-Benachrichtigung an das diensthabende Team zu senden.")
@@ -38,7 +38,7 @@ struct TeamChatView: View {
                                 }) {
                                     HStack {
                                         Text(msg)
-                                            .foregroundColor(.white)
+                                            .foregroundColor(.primary)
                                             .multilineTextAlignment(.leading)
                                         Spacer()
                                         Image(systemName: "paperplane.fill")
@@ -63,7 +63,7 @@ struct TeamChatView: View {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(.green)
                             Text("Nachricht gesendet!")
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                                 .fontWeight(.medium)
                         }
                         .padding()

@@ -146,7 +146,7 @@ struct SaalDefektView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 20/255, green: 20/255, blue: 22/255).ignoresSafeArea()
+                Color(UIColor.systemBackground).ignoresSafeArea()
                 
                 VStack(spacing: 0) {
                     
@@ -176,7 +176,7 @@ struct SaalDefektView: View {
                                 .frame(maxWidth: .infinity)
                                 .padding()
                                 .background(LinearGradient(colors: [.red, .orange], startPoint: .leading, endPoint: .trailing))
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                                 .cornerRadius(16)
                                 .shadow(color: Color.red.opacity(0.3), radius: 8, x: 0, y: 3)
                             }
@@ -189,7 +189,7 @@ struct SaalDefektView: View {
                                         .foregroundColor(.green.opacity(0.5))
                                     Text("Keine Mängel in dieser Kategorie")
                                         .font(.headline)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.primary)
                                     Text("Alle Säle sind einsatzbereit und geprüft.")
                                         .font(.caption)
                                         .foregroundColor(.gray)
@@ -252,13 +252,13 @@ struct SaalDefektCard: View {
                         .padding(.horizontal, 7)
                         .padding(.vertical, 3)
                         .background(Color.red)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                         .cornerRadius(5)
                     
                     Text(report.category)
                         .font(.caption)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                 }
                 
                 Spacer()
@@ -277,7 +277,7 @@ struct SaalDefektCard: View {
             Text("📍 Ort: \(report.locationDetail)")
                 .font(.subheadline)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
             
             Text(report.description)
                 .font(.caption)
@@ -398,7 +398,7 @@ struct AddSaalDefektSheet: View {
                             Image(systemName: "camera.fill")
                                 .foregroundColor(.orange)
                             Text(selectedImage == nil ? "Foto vom Mangel hinzufügen" : "Foto ausgewählt ✓")
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                         }
                     }
                     .onChange(of: photoItem) { _, newItem in

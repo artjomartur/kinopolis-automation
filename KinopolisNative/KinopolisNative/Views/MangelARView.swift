@@ -18,7 +18,7 @@ struct MangelARView: View {
                     }) {
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 30))
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                             .padding()
                     }
                     Spacer()
@@ -29,7 +29,7 @@ struct MangelARView: View {
                     VStack(spacing: 8) {
                         Text("AR Mängel-Scanner")
                             .font(.headline)
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                         Text("Bewege die Kamera langsam und tippe auf einen defekten Sitz, um ihn virtuell zu markieren.")
                             .font(.subheadline)
                             .foregroundColor(.gray)
