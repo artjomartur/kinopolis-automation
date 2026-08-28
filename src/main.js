@@ -3154,6 +3154,7 @@ function resetAndTestOli() {
             document.getElementById('welcome-modal').classList.remove('active');
             localStorage.setItem('welcome_seen_beta', 'true');
         }
+        window.closeWelcomeModal = closeWelcomeModal;
 
         let currentLfImageBase64 = null;
 
