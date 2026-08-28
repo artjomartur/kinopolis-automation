@@ -51,7 +51,7 @@ struct MehrView: View {
                 MasterHeaderView(
                     imageName: "Oli_Success_bgless",
                     subtitle: "Konto & Einstellungen",
-                    title: authManager.currentUser?.name ?? "Artjom Becker",
+                    title: authManager.isGuest ? "Gast" : (authManager.currentUser?.name ?? "Mitarbeiter"),
                     shortTitle: "Mehr",
                     isCollapsed: isHeaderCollapsed
                 )
@@ -76,7 +76,7 @@ struct MehrView: View {
                                     .foregroundColor(.gray)
                                     .contentTransition(.numericText())
                                     .animation(.snappy, value: pedometerManager.steps)
-                                Text(authManager.currentUser?.role.uppercased() ?? "ADMINISTRATOR")
+                                Text(authManager.isGuest ? "GAST" : (authManager.currentUser?.role.uppercased() ?? "USER"))
                                     .font(.headline)
                                     .fontWeight(.bold)
                                     .foregroundColor(.primary)
