@@ -5837,11 +5837,11 @@ function resetAndTestOli() {
 
 
 
-        const updateStatus = (text) => {
+        function updateStatus(text) {
             const el = document.getElementById('current-time-display');
             if (el) el.innerText = text;
             console.log('STATUS:', text);
-        };
+        }
         window.updateStatus = updateStatus;
 
         // NOTE: init() is called by the readyState guard above (lines 7465-7489).

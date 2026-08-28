@@ -112,7 +112,21 @@ struct LoginView: View {
                 .foregroundColor(.primary)
                 .cornerRadius(12)
                 .padding(.horizontal)
+                .padding(.horizontal)
                 .disabled(viewModel.isLoading)
+                
+                // Register Button
+                Button(action: {
+                    if let url = URL(string: "https://kinopolis.artjombecker.com/") {
+                        UIApplication.shared.open(url)
+                    }
+                }) {
+                    Text("Noch kein Account? Registrieren")
+                        .font(.footnote)
+                        .fontWeight(.medium)
+                        .foregroundColor(.white)
+                }
+                .padding(.top, 15)
                 
                 // Guest Button
                 Button(action: {
