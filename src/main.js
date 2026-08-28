@@ -235,6 +235,7 @@ function resetAndTestOli() {
         const SYSTEM_VERSION = "V3.1.5-STABLE";
 
         let lastData = null;
+        let lastTomData = null;
         let lastUpdateTime = null;
         let currentCity = localStorage.getItem('current_city') || 'kp';
         let displayDate = new Date();
