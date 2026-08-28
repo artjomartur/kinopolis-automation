@@ -4,6 +4,18 @@ struct ContentView: View {
     @State private var selectedTab: Tab = .live
     @State private var showShakeReport = false
     
+    // Easter Eggs
+    @State private var activeEasterEgg = Int.random(in: 1...2) // 1 = Spiderman, 2 = Odyssey
+    
+    // Spiderman
+    @State private var spidermanOffsetX: CGFloat = -400
+    @State private var spidermanOffsetY: CGFloat = -200
+    @State private var spidermanRotation: Double = -60
+    
+    // Odyssey
+    @State private var odysseyOffsetX: CGFloat = -300
+    @State private var odysseyOffsetY: CGFloat = 300
+    
     enum Tab: String, CaseIterable, Identifiable {
         case live = "Live"
         case funk = "Funk"
@@ -25,7 +37,8 @@ struct ContentView: View {
     }
     
     var body: some View {
-        TabView(selection: $selectedTab) {
+        ZStack {
+            TabView(selection: $selectedTab) {
             LiveView()
                 .tabItem {
                     Label("Live", systemImage: "play.rectangle.fill")
@@ -70,6 +83,65 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showShakeReport) {
             ShakeReportView()
+        }
+        
+            // Spiderman Easter Egg Layer
+            if activeEasterEgg == 1 {
+                Text("🕷️🕸️")
+                    .font(.system(size: 100))
+                    .offset(x: spidermanOffsetX, y: spidermanOffsetY)
+                    .rotationEffect(.degrees(spidermanRotation), anchor: .top)
+                    .shadow(color: .black.opacity(0.5), radius: 15, x: 5, y: 10)
+                    .onAppear {
+                        // Reset
+                        spidermanOffsetX = -200
+                        spidermanOffsetY = -100
+                        spidermanRotation = -70
+                        
+                        // Swing animation (slower, better physics)
+                        withAnimation(.timingCurve(0.4, 0.0, 0.2, 1.0, duration: 4.5)) {
+                            spidermanOffsetX = UIScreen.main.bounds.width + 200
+                            spidermanOffsetY = 400
+                            spidermanRotation = 80
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+                            activeEasterEgg = 0
+                        }
+                    }
+            }
+            
+            // Odyssey Easter Egg Layer
+            if activeEasterEgg == 2 {
+                VStack(spacing: -10) {
+                    Text("🧜‍♀️🧜‍♀️")
+                        .font(.system(size: 50))
+                        .offset(x: -80, y: 20)
+                        .rotationEffect(.degrees(-10))
+                    Text("⛵️🌊")
+                        .font(.system(size: 110))
+                }
+                .offset(x: odysseyOffsetX, y: odysseyOffsetY)
+                .shadow(color: .blue.opacity(0.4), radius: 20, x: 0, y: 10)
+                .onAppear {
+                    // Reset
+                    odysseyOffsetX = -300
+                    odysseyOffsetY = 300
+                    
+                    // Slower sailing
+                    withAnimation(.timingCurve(0.3, 0.2, 0.3, 1, duration: 6.0)) {
+                        odysseyOffsetX = UIScreen.main.bounds.width + 300
+                    }
+                    
+                    // Gentle floating animation (bobbing)
+                    withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
+                        odysseyOffsetY = 260
+                    }
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 6.5) {
+                        activeEasterEgg = 0
+                    }
+                }
+            }
         }
     }
 }

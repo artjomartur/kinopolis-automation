@@ -12,6 +12,11 @@ struct ActionView: View {
     // TL State
     @State private var showIncidentSheet = false
     @State private var showFundbueroSheet = false
+    @State private var showTransferlisteSheet = false
+    @State private var showNotfallSheet = false
+    @State private var showPausenTimerSheet = false
+    @State private var showSaalplanSheet = false
+    @State private var showConfetti = false
     @State private var incidentCategory = "Technik"
     @State private var incidentText = ""
     @State private var incidentLogs: [IncidentLog] = []
@@ -64,14 +69,24 @@ struct ActionView: View {
             Color(red: 24/255, green: 24/255, blue: 26/255).ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Fixed Master Header (Collapses on scroll)
                 MasterHeaderView(
                     imageName: "Oli_3_bgless",
                     subtitle: selectedDept == "tl" ? "👔 TL / BL Leitstand" : "Schicht-Management",
                     title: "Team & Aktionen",
                     shortTitle: "Action",
                     isCollapsed: isHeaderCollapsed
-                )
+                ) {
+                    Button(action: { showNotfallSheet = true }) {
+                        Text("SOS")
+                            .font(.system(size: 14, weight: .bold))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(Color.red)
+                            .foregroundColor(.white)
+                            .cornerRadius(20)
+                            .shadow(color: Color.red.opacity(0.5), radius: 5, y: 2)
+                    }
+                }
                 
                 ScrollView {
                     VStack(spacing: 20) {
@@ -363,8 +378,42 @@ struct ActionView: View {
                                 .stroke(Color.white.opacity(0.08), lineWidth: 1)
                         )
                         .padding(.horizontal)
-                    } else {
-                        // 4. NORMALE TEAM-CHECKLISTE
+                    } else if selectedDept == "theke" {
+                        // 4. THEKE TRANSFERLISTE
+                        VStack(alignment: .leading, spacing: 14) {
+                            HStack {
+                                Image(systemName: "box.truck.fill")
+                                    .foregroundColor(.orange)
+                                Text("Waren-Transfer Theke")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                            }
+                            
+                            Button(action: { showTransferlisteSheet = true }) {
+                                HStack {
+                                    Text("Transferliste öffnen")
+                                        .fontWeight(.bold)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                }
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.orange.opacity(0.15))
+                                .foregroundColor(.orange)
+                                .cornerRadius(12)
+                            }
+                        }
+                        .padding(18)
+                        .background(Color.white.opacity(0.04))
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                        )
+                        .padding(.horizontal)
+                        
+                        // UND NORMALE TEAM-CHECKLISTE
                         VStack(alignment: .leading, spacing: 14) {
                             HStack {
                                 Image(systemName: "checklist")
@@ -420,6 +469,44 @@ struct ActionView: View {
                         )
                         .padding(.horizontal)
                     }
+                    
+                    // 4.5 HELFER TOOLS (ALLTAG)
+                    HStack(spacing: 12) {
+                        Button(action: { showPausenTimerSheet = true }) {
+                            VStack(spacing: 8) {
+                                Image(systemName: "timer")
+                                    .font(.title2)
+                                    .foregroundColor(.blue)
+                                Text("Pausen-Timer")
+                                    .font(.subheadline)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.white.opacity(0.04))
+                            .cornerRadius(16)
+                            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.08), lineWidth: 1))
+                        }
+                        
+                        Button(action: { showSaalplanSheet = true }) {
+                            VStack(spacing: 8) {
+                                Image(systemName: "rectangle.split.3x3.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.purple)
+                                Text("Saalplan")
+                                    .font(.subheadline)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.white.opacity(0.04))
+                            .cornerRadius(16)
+                            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.08), lineWidth: 1))
+                        }
+                    }
+                    .padding(.horizontal)
                     
                     // 5. DIGITALES FUNDBÜRO (FÜR ALLE)
                     Button(action: { showFundbueroSheet = true }) {
@@ -503,10 +590,27 @@ struct ActionView: View {
             }
         }
         .sheet(isPresented: $showFundbueroSheet) {
-                FundbueroView()
+            FundbueroView()
+        }
+        .sheet(isPresented: $showTransferlisteSheet) {
+            TransferlisteView()
+        }
+        .sheet(isPresented: $showNotfallSheet) {
+            NotfallView()
+        }
+        .sheet(isPresented: $showPausenTimerSheet) {
+            PausenTimerView()
+        }
+        .sheet(isPresented: $showSaalplanSheet) {
+            SaalplanView()
+        }
+        .onAppear {
+            if isShiftActive && shiftStartTime == 0 {
+                shiftStartTime = Date().timeIntervalSince1970
             }
+        }
             
-            // Toast
+        // Toast
             if showAnnouncementToast {
                 VStack {
                     Spacer()
@@ -524,12 +628,44 @@ struct ActionView: View {
                     .padding(.bottom, 110)
                 }
                 .transition(.move(edge: .bottom).combined(with: .opacity))
+                .zIndex(1)
             }
+            
+            if showConfetti {
+                ConfettiView()
+                    .ignoresSafeArea()
+                    .zIndex(2)
+            }
+        }
+        .onChange(of: tlOpeningChecklist.map { $0.isCompleted }) { _ in
+            checkChecklistCompletion()
+        }
+        .onChange(of: standardChecklist.map { $0.isCompleted }) { _ in
+            checkChecklistCompletion()
         }
         .task {
             await loadLiveSessions()
         }
     }
+    
+    private func checkChecklistCompletion() {
+        let isTLComplete = tlOpeningChecklist.allSatisfy { $0.isCompleted }
+        let isStandardComplete = standardChecklist.allSatisfy { $0.isCompleted }
+        
+        if (selectedDept == "tl" && isTLComplete) || (selectedDept != "tl" && isStandardComplete) {
+            // Trigger confetti
+            showConfetti = true
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.success)
+            
+            // Hide confetti after 3 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                showConfetti = false
+            }
+        }
+    }
+    
+    // MARK: - Actions
     
     @State private var liveHalls: [HallData] = []
     

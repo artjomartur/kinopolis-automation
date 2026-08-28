@@ -176,6 +176,55 @@ struct MehrView: View {
                         
                         Divider().background(Color.white.opacity(0.1))
                         
+                        // Daily Quests
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Image(systemName: "target")
+                                    .foregroundColor(.red)
+                                Text("Daily Quests")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                            }
+                            
+                            VStack(spacing: 8) {
+                                QuestRow(title: "Checkliste 100% abschließen", xp: 50, progress: 0, total: 1)
+                                QuestRow(title: "5000 Schritte gehen", xp: 30, progress: pedometerManager.steps, total: 5000)
+                                QuestRow(title: "3 Vorfälle melden", xp: 20, progress: 1, total: 3)
+                            }
+                        }
+                        .padding()
+                        .background(Color.white.opacity(0.04))
+                        .cornerRadius(12)
+                        
+                        Divider().background(Color.white.opacity(0.1))
+                        
+                        // Achievements
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Image(systemName: "medal.fill")
+                                    .foregroundColor(.yellow)
+                                Text("Erfolge")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                            }
+                            
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 12) {
+                                    GamificationBadge(title: "Kino-Gott", icon: "crown.fill", color: .yellow, isUnlocked: userXP >= 750)
+                                    GamificationBadge(title: "Marathon", icon: "figure.walk", color: .orange, isUnlocked: pedometerManager.steps >= 10000)
+                                    GamificationBadge(title: "Nachteule", icon: "moon.fill", color: .purple, isUnlocked: true)
+                                    GamificationBadge(title: "Theken-Meister", icon: "box.truck.fill", color: .green, isUnlocked: false)
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(Color.white.opacity(0.04))
+                        .cornerRadius(12)
+                        
+                        Divider().background(Color.white.opacity(0.1))
+                        
                         // Wallet Button
                         Button(action: {
                             showWalletPassSheet = true
@@ -554,7 +603,7 @@ struct MehrView: View {
         .sheet(isPresented: $showQuizSheet) {
             QuizView()
         }
-        .onChange(of: authManager.currentUser) { user in
+        .onChange(of: authManager.currentUser) { _, user in
             if user == nil {
                 isHeaderCollapsed = false
             }
@@ -660,5 +709,79 @@ struct BouncyButtonStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
             .animation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0), value: configuration.isPressed)
+    }
+}
+
+// MARK: - Gamification Components
+struct QuestRow: View {
+    let title: String
+    let xp: Int
+    let progress: Int
+    let total: Int
+    
+    var isCompleted: Bool { progress >= total }
+    
+    var body: some View {
+        HStack {
+            Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
+                .foregroundColor(isCompleted ? .green : .gray)
+                .font(.title3)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.subheadline)
+                    .foregroundColor(isCompleted ? .gray : .white)
+                    .strikethrough(isCompleted)
+                
+                // Progress Bar
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(Color.white.opacity(0.1))
+                        Capsule().fill(isCompleted ? Color.green : Color.blue)
+                            .frame(width: max(0, min(geo.size.width, geo.size.width * CGFloat(progress) / CGFloat(max(total, 1)))))
+                    }
+                }
+                .frame(height: 4)
+            }
+            
+            Spacer()
+            
+            Text("+\(xp) XP")
+                .font(.caption2)
+                .fontWeight(.bold)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+                .background(isCompleted ? Color.green.opacity(0.2) : Color.yellow.opacity(0.2))
+                .foregroundColor(isCompleted ? .green : .yellow)
+                .cornerRadius(6)
+        }
+    }
+}
+
+struct GamificationBadge: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let isUnlocked: Bool
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            ZStack {
+                Circle()
+                    .fill(isUnlocked ? color.opacity(0.2) : Color.gray.opacity(0.1))
+                    .frame(width: 50, height: 50)
+                
+                Image(systemName: isUnlocked ? icon : "lock.fill")
+                    .font(.title2)
+                    .foregroundColor(isUnlocked ? color : .gray)
+            }
+            
+            Text(title)
+                .font(.caption2)
+                .fontWeight(.semibold)
+                .foregroundColor(isUnlocked ? .white : .gray)
+        }
+        .frame(width: 70)
+        .opacity(isUnlocked ? 1.0 : 0.6)
     }
 }
