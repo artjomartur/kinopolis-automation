@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LoginView: View {
     @StateObject private var viewModel = LoginViewModel()
+    @State private var showRegister = false
     @EnvironmentObject var authManager: AuthManager
     
     var body: some View {
@@ -117,9 +118,7 @@ struct LoginView: View {
                 
                 // Register Button
                 Button(action: {
-                    if let url = URL(string: "https://kinopolis.artjombecker.com/") {
-                        UIApplication.shared.open(url)
-                    }
+                    showRegister = true
                 }) {
                     Text("Noch kein Account? Registrieren")
                         .font(.footnote)
@@ -127,6 +126,9 @@ struct LoginView: View {
                         .foregroundColor(.white)
                 }
                 .padding(.top, 15)
+                .sheet(isPresented: $showRegister) {
+                    RegisterView()
+                }
                 
                 // Guest Button
                 Button(action: {
