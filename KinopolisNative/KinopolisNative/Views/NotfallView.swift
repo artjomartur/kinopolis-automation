@@ -109,7 +109,7 @@ struct NotfallView: View {
                                 TextEditor(text: $helpMessage)
                                     .frame(height: 80)
                                     .padding(8)
-                                    .background(Color.white.opacity(0.1))
+                                    .background(Color.primary.opacity(0.1))
                                     .cornerRadius(8)
                                     .foregroundColor(.primary)
                                     .scrollContentBackground(.hidden)
@@ -134,7 +134,7 @@ struct NotfallView: View {
                             }
                         }
                         .padding(18)
-                        .background(Color.white.opacity(0.04))
+                        .background(Color.primary.opacity(0.04))
                         .cornerRadius(16)
                         .padding(.horizontal)
                         
@@ -210,7 +210,7 @@ struct EmergencyCard: View {
             }
         }
         .padding(18)
-        .background(Color.white.opacity(0.04))
+        .background(Color.primary.opacity(0.04))
         .cornerRadius(16)
         .padding(.horizontal)
     }

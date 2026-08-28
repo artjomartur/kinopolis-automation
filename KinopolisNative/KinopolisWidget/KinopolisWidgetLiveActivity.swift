@@ -58,7 +58,7 @@ struct KinopolisWidgetLiveActivity: Widget {
                     VStack(alignment: .leading) {
                         Text("Saal \(context.attributes.hallName)")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                         Text(context.attributes.movieTitle)
                             .font(.caption)
                             .foregroundColor(.gray)

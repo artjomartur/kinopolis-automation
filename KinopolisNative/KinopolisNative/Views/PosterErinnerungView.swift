@@ -505,7 +505,7 @@ struct PosterAlertCard: View {
                 AsyncImage(url: url) { image in
                     image.resizable().scaledToFill()
                 } placeholder: {
-                    Color.white.opacity(0.1)
+                    Color.primary.opacity(0.1)
                 }
                 .frame(width: 40, height: 58)
                 .cornerRadius(6)
@@ -514,16 +514,16 @@ struct PosterAlertCard: View {
                 Image(systemName: "photo")
                     .foregroundColor(.gray.opacity(0.4))
                     .frame(width: 40, height: 58)
-                    .background(Color.white.opacity(0.05))
+                    .background(Color.primary.opacity(0.05))
                     .cornerRadius(6)
             }
         }
         .padding(14)
-        .background(Color.white.opacity(alert.isCompleted ? 0.02 : 0.05))
+        .background(Color.primary.opacity(alert.isCompleted ? 0.02 : 0.05))
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(isDueNow && !alert.isCompleted ? Color.red.opacity(0.6) : Color.white.opacity(0.08), lineWidth: 1)
+                .stroke(isDueNow && !alert.isCompleted ? Color.red.opacity(0.6) : Color.primary.opacity(0.08), lineWidth: 1)
         )
         .opacity(alert.isCompleted ? 0.5 : 1.0)
     }
@@ -600,11 +600,11 @@ struct PosterReservationCard: View {
             }
         }
         .padding(14)
-        .background(Color.white.opacity(0.04))
+        .background(Color.primary.opacity(0.04))
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(reservation.isReady ? Color.green.opacity(0.4) : Color.white.opacity(0.08), lineWidth: 1)
+                .stroke(reservation.isReady ? Color.green.opacity(0.4) : Color.primary.opacity(0.08), lineWidth: 1)
         )
     }
 }

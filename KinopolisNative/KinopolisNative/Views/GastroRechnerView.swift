@@ -239,12 +239,12 @@ struct GastroRechnerView: View {
                                             }
                                         }
                                         .padding(10)
-                                        .background(Color.white.opacity(0.04))
+                                        .background(Color.primary.opacity(0.04))
                                         .cornerRadius(10)
                                     }
                                 }
                                 .padding(16)
-                                .background(Color.white.opacity(0.05))
+                                .background(Color.primary.opacity(0.05))
                                 .cornerRadius(18)
                                 .padding(.horizontal, 16)
                                 
@@ -316,7 +316,7 @@ struct GastroRechnerView: View {
                                     }
                                 }
                                 .padding(16)
-                                .background(Color.white.opacity(0.04))
+                                .background(Color.primary.opacity(0.04))
                                 .cornerRadius(18)
                                 .padding(.horizontal, 16)
                                 
@@ -349,7 +349,7 @@ struct GastroRechnerView: View {
                                     }
                                 }
                                 .padding(16)
-                                .background(Color.white.opacity(0.04))
+                                .background(Color.primary.opacity(0.04))
                                 .cornerRadius(18)
                                 .padding(.horizontal, 16)
                                 
@@ -446,7 +446,7 @@ struct GastroStatBox: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(12)
-        .background(Color.white.opacity(0.04))
+        .background(Color.primary.opacity(0.04))
         .cornerRadius(14)
     }
 }
@@ -497,7 +497,7 @@ struct MHDItemRow: View {
             }
         }
         .padding(14)
-        .background(Color.white.opacity(0.04))
+        .background(Color.primary.opacity(0.04))
         .cornerRadius(16)
     }
 }

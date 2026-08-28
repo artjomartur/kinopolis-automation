@@ -431,7 +431,7 @@ struct LiveView: View {
                                 .fontWeight(.bold)
                                 .foregroundColor(.primary)
                                 .padding(10)
-                                .background(Color.white.opacity(0.08))
+                                .background(Color.primary.opacity(0.08))
                                 .clipShape(Circle())
                         }
                     }
@@ -590,7 +590,7 @@ struct AuslassCard: View {
     }
     
     private var cardBorderColor: Color {
-        (auslass.isActive && !isCheckedOff) ? Color.red.opacity(0.5) : Color.white.opacity(0.1)
+        (auslass.isActive && !isCheckedOff) ? Color.red.opacity(0.5) : Color.primary.opacity(0.1)
     }
     
     var body: some View {
@@ -603,7 +603,7 @@ struct AuslassCard: View {
             }
         }
         .padding()
-        .background(Color.white.opacity(isCheckedOff ? 0.02 : 0.05))
+        .background(Color.primary.opacity(isCheckedOff ? 0.02 : 0.05))
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
@@ -658,7 +658,7 @@ struct AuslassCard: View {
     private var titleRow: some View {
         Text(auslass.movieTitle)
             .font(.headline)
-            .foregroundColor(isCheckedOff ? .gray : .white)
+            .foregroundColor(isCheckedOff ? .gray : .primary)
             .lineLimit(1)
             .strikethrough(isCheckedOff)
     }
@@ -706,7 +706,7 @@ struct AuslassCard: View {
             }
             .padding(.horizontal, 6)
             .padding(.vertical, 3)
-            .background(isPinned ? Color.yellow.opacity(0.25) : Color.white.opacity(0.08))
+            .background(isPinned ? Color.yellow.opacity(0.25) : Color.primary.opacity(0.08))
             .foregroundColor(isPinned ? .yellow : .gray)
             .cornerRadius(6)
         }
@@ -811,7 +811,7 @@ struct SessionCard: View {
                         .foregroundColor(.gray)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.white.opacity(0.06))
+                        .background(Color.primary.opacity(0.06))
                         .cornerRadius(4)
                 }
             }
@@ -848,13 +848,13 @@ struct SessionCard: View {
         }
         .padding(14)
         .frame(width: 220)
-        .background(Color.white.opacity(hasEnded ? 0.02 : 0.05))
+        .background(Color.primary.opacity(hasEnded ? 0.02 : 0.05))
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
                 .stroke(
                     isRunning ? Color.green.opacity(0.4) :
-                    (timeWarning != nil && !hasEnded ? (fskAge == 18 ? Color.red.opacity(0.4) : Color.orange.opacity(0.3)) : Color.white.opacity(hasEnded ? 0.04 : 0.1)),
+                    (timeWarning != nil && !hasEnded ? (fskAge == 18 ? Color.red.opacity(0.4) : Color.orange.opacity(0.3)) : Color.primary.opacity(hasEnded ? 0.04 : 0.1)),
                     lineWidth: isRunning ? 1.5 : 1
                 )
         )

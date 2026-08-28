@@ -92,7 +92,7 @@ struct QuizView: View {
                             .cornerRadius(12)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                    .stroke(Color.primary.opacity(0.1), lineWidth: 1)
                             )
                     }
                     .disabled(selectedAnswer != nil)
@@ -123,7 +123,7 @@ struct QuizView: View {
                     .padding(.top, 12)
                 }
                 .padding()
-                .background(Color.white.opacity(0.05))
+                .background(Color.primary.opacity(0.05))
                 .cornerRadius(12)
                 .padding(.top, 20)
             }
@@ -190,7 +190,7 @@ struct QuizView: View {
     
     private func buttonColor(for index: Int) -> Color {
         guard let selected = selectedAnswer else {
-            return Color.white.opacity(0.08)
+            return Color.primary.opacity(0.08)
         }
         
         if index == questions[currentQuestionIndex].correctIndex {
@@ -199,6 +199,6 @@ struct QuizView: View {
             return Color.red.opacity(0.8)
         }
         
-        return Color.white.opacity(0.04)
+        return Color.primary.opacity(0.04)
     }
 }

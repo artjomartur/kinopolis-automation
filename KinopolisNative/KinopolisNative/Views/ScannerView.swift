@@ -164,7 +164,7 @@ struct ScannerView: View {
                                 .cornerRadius(16)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 16)
-                                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                                        .stroke(Color.primary.opacity(0.12), lineWidth: 1)
                                 )
                                 .shadow(color: Color.black.opacity(0.5), radius: 10, x: 0, y: 5)
                             }
@@ -326,7 +326,7 @@ struct TicketResultView: View {
                             .font(.system(size: 12, weight: .bold))
                             .padding(.horizontal, 10)
                             .padding(.vertical, 5)
-                            .background(Color.white.opacity(0.1))
+                            .background(Color.primary.opacity(0.1))
                             .cornerRadius(8)
                             .foregroundColor(.white.opacity(0.8))
                     }
@@ -356,7 +356,7 @@ struct TicketResultView: View {
                                 .multilineTextAlignment(.trailing)
                         }
                         
-                        Divider().background(Color.white.opacity(0.1))
+                        Divider().background(Color.primary.opacity(0.1))
                         
                         HStack {
                             Text("Saal")
@@ -369,7 +369,7 @@ struct TicketResultView: View {
                                 .foregroundColor(.primary)
                         }
                         
-                        Divider().background(Color.white.opacity(0.1))
+                        Divider().background(Color.primary.opacity(0.1))
                         
                         HStack {
                             Text("Uhrzeit")
@@ -382,7 +382,7 @@ struct TicketResultView: View {
                                 .foregroundColor(.primary)
                         }
                         
-                        Divider().background(Color.white.opacity(0.1))
+                        Divider().background(Color.primary.opacity(0.1))
                         
                         HStack {
                             Text("Altersfreigabe")
@@ -400,11 +400,11 @@ struct TicketResultView: View {
                         }
                     }
                     .padding(18)
-                    .background(Color.white.opacity(0.04))
+                    .background(Color.primary.opacity(0.04))
                     .cornerRadius(18)
                     .overlay(
                         RoundedRectangle(cornerRadius: 18)
-                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                            .stroke(Color.primary.opacity(0.08), lineWidth: 1)
                     )
                     .padding(.horizontal)
                     
@@ -541,11 +541,11 @@ struct GeburtstagsRechnerSheet: View {
                         }
                     }
                     .padding(16)
-                    .background(Color.white.opacity(0.04))
+                    .background(Color.primary.opacity(0.04))
                     .cornerRadius(20)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                            .stroke(Color.primary.opacity(0.08), lineWidth: 1)
                     )
                     .padding(.horizontal)
                     
@@ -582,11 +582,11 @@ struct GeburtstagsRechnerSheet: View {
                         }
                     }
                     .padding(16)
-                    .background(Color.white.opacity(0.04))
+                    .background(Color.primary.opacity(0.04))
                     .cornerRadius(20)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                            .stroke(Color.primary.opacity(0.08), lineWidth: 1)
                     )
                     .padding(.horizontal)
                     
@@ -625,7 +625,7 @@ struct GeburtstagsRechnerSheet: View {
                             .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.green.opacity(0.4), lineWidth: 1.5))
                         }
                         
-                        Divider().background(Color.white.opacity(0.1))
+                        Divider().background(Color.primary.opacity(0.1))
                         
                         // Allowed FSK Grid
                         HStack(spacing: 8) {
@@ -636,7 +636,7 @@ struct GeburtstagsRechnerSheet: View {
                             FSKEligibilityBadge(label: "FSK 18", isAllowed: calculatedAge >= 18)
                         }
                         
-                        Divider().background(Color.white.opacity(0.1))
+                        Divider().background(Color.primary.opacity(0.1))
                         
                         // JuSchG Time Rules
                         VStack(alignment: .leading, spacing: 6) {
@@ -666,7 +666,7 @@ struct GeburtstagsRechnerSheet: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .padding(16)
-                    .background(Color.white.opacity(0.06))
+                    .background(Color.primary.opacity(0.06))
                     .cornerRadius(20)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
@@ -742,7 +742,7 @@ struct PresetAgeButton: View {
                 .foregroundColor(.primary)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
-                .background(Color.white.opacity(0.08))
+                .background(Color.primary.opacity(0.08))
                 .cornerRadius(8)
         }
     }

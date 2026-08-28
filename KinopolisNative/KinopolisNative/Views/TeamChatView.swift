@@ -45,7 +45,7 @@ struct TeamChatView: View {
                                             .foregroundColor(.blue)
                                     }
                                     .padding()
-                                    .background(Color.white.opacity(0.05))
+                                    .background(Color.primary.opacity(0.05))
                                     .cornerRadius(12)
                                 }
                             }

@@ -19,11 +19,11 @@ struct FilmInfoSpickzettel: Identifiable {
     }
     
     var postCreditBgColor: Color {
-        hasPostCreditScene ? Color.yellow.opacity(0.12) : Color.white.opacity(0.03)
+        hasPostCreditScene ? Color.yellow.opacity(0.12) : Color.primary.opacity(0.03)
     }
     
     var postCreditBorderColor: Color {
-        hasPostCreditScene ? Color.yellow.opacity(0.3) : Color.white.opacity(0.06)
+        hasPostCreditScene ? Color.yellow.opacity(0.3) : Color.primary.opacity(0.06)
     }
     
     var postCreditTitle: String {
@@ -203,7 +203,7 @@ struct FilmSpickzettelSheet: View {
             }
         }
         .padding(12)
-        .background(Color.white.opacity(0.06))
+        .background(Color.primary.opacity(0.06))
         .cornerRadius(12)
         .padding(.horizontal, 16)
         .padding(.top, 12)
@@ -297,7 +297,7 @@ struct FilmSpickzettelCard: View {
                 }
             }
             
-            Divider().background(Color.white.opacity(0.06))
+            Divider().background(Color.primary.opacity(0.06))
             
             // Post-Credit Scene Indicator Box
             HStack(spacing: 8) {
@@ -355,9 +355,9 @@ struct FilmSpickzettelCard: View {
             }
         }
         .padding(14)
-        .background(Color.white.opacity(0.04))
+        .background(Color.primary.opacity(0.04))
         .cornerRadius(16)
-        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.08), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.primary.opacity(0.08), lineWidth: 1))
     }
     
     private func openTrailer() {
@@ -373,14 +373,14 @@ struct FilmSpickzettelCard: View {
             AsyncImage(url: url) { image in
                 image.resizable().scaledToFill()
             } placeholder: {
-                Color.white.opacity(0.08)
+                Color.primary.opacity(0.08)
             }
             .frame(width: 55, height: 80)
             .cornerRadius(8)
             .clipped()
         } else {
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color.white.opacity(0.08))
+                .fill(Color.primary.opacity(0.08))
                 .frame(width: 55, height: 80)
                 .overlay(Image(systemName: "film").foregroundColor(.gray))
         }

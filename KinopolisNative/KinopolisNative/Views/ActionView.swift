@@ -154,11 +154,11 @@ struct ActionView: View {
                         }
                     }
                     .padding(18)
-                    .background(Color.white.opacity(0.04))
+                    .background(Color.primary.opacity(0.04))
                     .cornerRadius(20)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
-                            .stroke(isShiftActive ? Color.green.opacity(0.3) : Color.white.opacity(0.08), lineWidth: 1)
+                            .stroke(isShiftActive ? Color.green.opacity(0.3) : Color.primary.opacity(0.08), lineWidth: 1)
                     )
                     .padding(.horizontal)
                     
@@ -290,17 +290,17 @@ struct ActionView: View {
                                     }
                                     .padding(.vertical, 4)
                                     if hall != currentHallsList.last {
-                                        Divider().background(Color.white.opacity(0.06))
+                                        Divider().background(Color.primary.opacity(0.06))
                                     }
                                 }
                             }
                         }
                         .padding(18)
-                        .background(Color.white.opacity(0.04))
+                        .background(Color.primary.opacity(0.04))
                         .cornerRadius(20)
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                .stroke(Color.primary.opacity(0.08), lineWidth: 1)
                         )
                         .padding(.horizontal)
                         
@@ -324,7 +324,7 @@ struct ActionView: View {
                                             .fontWeight(incidentCategory == cat ? .bold : .medium)
                                             .padding(.horizontal, 10)
                                             .padding(.vertical, 6)
-                                            .background(incidentCategory == cat ? Color.yellow : Color.white.opacity(0.06))
+                                            .background(incidentCategory == cat ? Color.yellow : Color.primary.opacity(0.06))
                                             .foregroundColor(incidentCategory == cat ? .black : .white)
                                             .cornerRadius(8)
                                     }
@@ -334,7 +334,7 @@ struct ActionView: View {
                             HStack {
                                 TextField("Notiz / Vorfall für Schichtbericht...", text: $incidentText)
                                     .padding(12)
-                                    .background(Color.white.opacity(0.06))
+                                    .background(Color.primary.opacity(0.06))
                                     .cornerRadius(10)
                                     .foregroundColor(.primary)
                                 
@@ -363,7 +363,7 @@ struct ActionView: View {
                                                 .foregroundColor(.gray)
                                         }
                                         .padding(8)
-                                        .background(Color.white.opacity(0.03))
+                                        .background(Color.primary.opacity(0.03))
                                         .cornerRadius(8)
                                     }
                                 }
@@ -371,11 +371,11 @@ struct ActionView: View {
                             }
                         }
                         .padding(18)
-                        .background(Color.white.opacity(0.04))
+                        .background(Color.primary.opacity(0.04))
                         .cornerRadius(20)
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                .stroke(Color.primary.opacity(0.08), lineWidth: 1)
                         )
                         .padding(.horizontal)
                     } else if selectedDept == "theke" {
@@ -405,11 +405,11 @@ struct ActionView: View {
                             }
                         }
                         .padding(18)
-                        .background(Color.white.opacity(0.04))
+                        .background(Color.primary.opacity(0.04))
                         .cornerRadius(20)
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                .stroke(Color.primary.opacity(0.08), lineWidth: 1)
                         )
                         .padding(.horizontal)
                         
@@ -461,11 +461,11 @@ struct ActionView: View {
                             }
                         }
                         .padding(18)
-                        .background(Color.white.opacity(0.04))
+                        .background(Color.primary.opacity(0.04))
                         .cornerRadius(20)
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                .stroke(Color.primary.opacity(0.08), lineWidth: 1)
                         )
                         .padding(.horizontal)
                     }
@@ -484,9 +484,9 @@ struct ActionView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.white.opacity(0.04))
+                            .background(Color.primary.opacity(0.04))
                             .cornerRadius(16)
-                            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.08), lineWidth: 1))
+                            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.primary.opacity(0.08), lineWidth: 1))
                         }
                         
                         Button(action: { showSaalplanSheet = true }) {
@@ -501,9 +501,9 @@ struct ActionView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.white.opacity(0.04))
+                            .background(Color.primary.opacity(0.04))
                             .cornerRadius(16)
-                            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.08), lineWidth: 1))
+                            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.primary.opacity(0.08), lineWidth: 1))
                         }
                     }
                     .padding(.horizontal)
@@ -532,11 +532,11 @@ struct ActionView: View {
                                 .foregroundColor(.gray)
                         }
                         .padding(16)
-                        .background(Color.white.opacity(0.04))
+                        .background(Color.primary.opacity(0.04))
                         .cornerRadius(20)
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                .stroke(Color.primary.opacity(0.08), lineWidth: 1)
                         )
                     }
                     .padding(.horizontal)
@@ -556,7 +556,7 @@ struct ActionView: View {
                         HStack {
                             TextField(selectedDept == "tl" ? "Wichtige TL-Anweisung an alle Bereiche..." : "Kurze Info für die nächste Schicht...", text: $announcementText)
                                 .padding(12)
-                                .background(Color.white.opacity(0.06))
+                                .background(Color.primary.opacity(0.06))
                                 .cornerRadius(10)
                                 .foregroundColor(.primary)
                             
@@ -571,11 +571,11 @@ struct ActionView: View {
                         }
                     }
                     .padding(18)
-                    .background(Color.white.opacity(0.04))
+                    .background(Color.primary.opacity(0.04))
                     .cornerRadius(20)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                            .stroke(Color.primary.opacity(0.08), lineWidth: 1)
                     )
                     .padding(.horizontal)
                     
@@ -835,11 +835,11 @@ struct DeptChip: View {
                 .foregroundColor(isSelected ? .white : .gray)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
-                .background(isSelected ? (id == "tl" ? Color.red : Color.red.opacity(0.8)) : Color.white.opacity(0.06))
+                .background(isSelected ? (id == "tl" ? Color.red : Color.red.opacity(0.8)) : Color.primary.opacity(0.06))
                 .cornerRadius(12)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(isSelected ? Color.red : Color.white.opacity(0.08), lineWidth: 1)
+                        .stroke(isSelected ? Color.red : Color.primary.opacity(0.08), lineWidth: 1)
                 )
         }
     }

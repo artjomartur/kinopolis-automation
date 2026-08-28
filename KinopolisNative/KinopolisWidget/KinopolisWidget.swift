@@ -75,7 +75,7 @@ struct KinopolisSchichtWidgetEntryView : View {
             Text("Level 2")
                 .font(.headline)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
             
             VStack(alignment: .leading) {
                 Text("Nächste Schicht:")
@@ -84,10 +84,10 @@ struct KinopolisSchichtWidgetEntryView : View {
                 Text("Kasse • 16:00")
                     .font(.caption)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
             }
             .padding(8)
-            .background(Color.white.opacity(0.1))
+            .background(Color.primary.opacity(0.1))
             .cornerRadius(8)
         }
         .padding()
@@ -104,7 +104,7 @@ struct KinopolisSchichtWidgetEntryView : View {
                 Text("Level 2 (120 XP)")
                     .font(.headline)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                 
                 Text("Nächste Schicht:")
                     .font(.caption)
@@ -120,7 +120,7 @@ struct KinopolisSchichtWidgetEntryView : View {
                         Text("Kasse")
                             .font(.subheadline)
                             .fontWeight(.bold)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                         Text("Heute, 16:00 - 23:30")
                             .font(.caption2)
                             .foregroundColor(.gray)

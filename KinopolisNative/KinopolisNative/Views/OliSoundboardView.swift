@@ -139,7 +139,7 @@ struct OliSoundboardView: View {
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(14)
-                                .background(Color.white.opacity(0.04))
+                                .background(Color.primary.opacity(0.04))
                                 .cornerRadius(16)
                                 .padding(.horizontal, 16)
                                 
@@ -238,7 +238,7 @@ struct OliSoundboardView: View {
                                         .cornerRadius(10)
                                 }
                                 .padding(16)
-                                .background(Color.white.opacity(0.04))
+                                .background(Color.primary.opacity(0.04))
                                 .cornerRadius(18)
                                 .padding(.horizontal, 16)
                                 
@@ -289,7 +289,7 @@ struct SoundButton: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 18)
-            .background(Color.white.opacity(0.05))
+            .background(Color.primary.opacity(0.05))
             .cornerRadius(16)
             .overlay(RoundedRectangle(cornerRadius: 16).stroke(color.opacity(0.3), lineWidth: 1))
         }
@@ -328,7 +328,7 @@ struct OliVoiceButton: View {
                     .foregroundColor(.orange)
             }
             .padding(14)
-            .background(Color.white.opacity(0.04))
+            .background(Color.primary.opacity(0.04))
             .cornerRadius(14)
         }
     }
@@ -368,7 +368,7 @@ struct AchievementRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
-                        Capsule().fill(Color.white.opacity(0.08)).frame(height: 6)
+                        Capsule().fill(Color.primary.opacity(0.08)).frame(height: 6)
                         Capsule()
                             .fill(badge.isUnlocked ? Color.green : Color.orange)
                             .frame(width: geo.size.width * CGFloat(badge.progress), height: 6)
@@ -382,11 +382,11 @@ struct AchievementRow: View {
             }
         }
         .padding(14)
-        .background(Color.white.opacity(0.04))
+        .background(Color.primary.opacity(0.04))
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(badge.isUnlocked ? Color.yellow.opacity(0.3) : Color.white.opacity(0.06), lineWidth: 1)
+                .stroke(badge.isUnlocked ? Color.yellow.opacity(0.3) : Color.primary.opacity(0.06), lineWidth: 1)
         )
     }
 }

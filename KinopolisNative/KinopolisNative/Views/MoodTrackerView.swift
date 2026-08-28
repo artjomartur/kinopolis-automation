@@ -55,7 +55,7 @@ struct MoodTrackerView: View {
                         }
                     }
                     .padding()
-                    .background(Color.white.opacity(0.05))
+                    .background(Color.primary.opacity(0.05))
                     .cornerRadius(16)
                     
                     VStack(alignment: .leading, spacing: 8) {
@@ -66,7 +66,7 @@ struct MoodTrackerView: View {
                         TextEditor(text: $comment)
                             .frame(height: 100)
                             .padding(8)
-                            .background(Color.white.opacity(0.1))
+                            .background(Color.primary.opacity(0.1))
                             .cornerRadius(8)
                             .foregroundColor(.primary)
                     }

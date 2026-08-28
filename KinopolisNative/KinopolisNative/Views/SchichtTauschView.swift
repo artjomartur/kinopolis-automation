@@ -282,7 +282,7 @@ struct SchichtTauschCard: View {
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
-                .background(Color.white.opacity(0.06))
+                .background(Color.primary.opacity(0.06))
                 .cornerRadius(6)
             }
             
@@ -314,7 +314,7 @@ struct SchichtTauschCard: View {
                     .foregroundColor(.gray.opacity(0.9))
                     .padding(8)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.white.opacity(0.03))
+                    .background(Color.primary.opacity(0.03))
                     .cornerRadius(8)
             }
             
@@ -329,7 +329,7 @@ struct SchichtTauschCard: View {
                 }
             }
             
-            Divider().background(Color.white.opacity(0.06))
+            Divider().background(Color.primary.opacity(0.06))
             
             // Actions
             HStack {
@@ -378,11 +378,11 @@ struct SchichtTauschCard: View {
             }
         }
         .padding(14)
-        .background(Color.white.opacity(0.04))
+        .background(Color.primary.opacity(0.04))
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                .stroke(Color.primary.opacity(0.08), lineWidth: 1)
         )
     }
 }

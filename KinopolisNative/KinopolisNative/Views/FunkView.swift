@@ -13,7 +13,7 @@ struct FunkView: View {
             VStack(spacing: 0) {
                 // Fixed Master Header (Collapses on scroll)
                 MasterHeaderView(
-                    imageName: "Oli_2_bgless",
+                    imageName: "Oli_Funk",
                     subtitle: "Digitaler Funk",
                     title: "Team-Funk",
                     shortTitle: "Funk",
@@ -45,12 +45,12 @@ struct FunkView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(viewModel.isHelpActive ? Color.red : Color.white.opacity(0.1))
+                        .background(viewModel.isHelpActive ? Color.red : Color.primary.opacity(0.1))
                         .foregroundColor(.primary)
                         .cornerRadius(16)
                         .overlay(
                             RoundedRectangle(cornerRadius: 16)
-                                .stroke(viewModel.isHelpActive ? Color.red.opacity(0.8) : Color.white.opacity(0.2), lineWidth: 1)
+                                .stroke(viewModel.isHelpActive ? Color.red.opacity(0.8) : Color.primary.opacity(0.2), lineWidth: 1)
                         )
                         .shadow(color: viewModel.isHelpActive ? Color.red.opacity(0.5) : Color.clear, radius: 10, x: 0, y: 0)
                     }

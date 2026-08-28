@@ -284,7 +284,7 @@ struct LostItemCard: View {
                     .fontWeight(.bold)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.white.opacity(0.1))
+                    .background(Color.primary.opacity(0.1))
                     .foregroundColor(.primary)
                     .cornerRadius(6)
                 
@@ -356,7 +356,7 @@ struct LostItemCard: View {
                 }
             }
             
-            Divider().background(Color.white.opacity(0.06))
+            Divider().background(Color.primary.opacity(0.06))
             
             // Action Button
             Button(action: onResolve) {
@@ -375,11 +375,11 @@ struct LostItemCard: View {
             }
         }
         .padding(14)
-        .background(Color.white.opacity(0.04))
+        .background(Color.primary.opacity(0.04))
         .cornerRadius(18)
         .overlay(
             RoundedRectangle(cornerRadius: 18)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                .stroke(Color.primary.opacity(0.08), lineWidth: 1)
         )
     }
 }
@@ -398,7 +398,7 @@ struct FilterChip: View {
                 .foregroundColor(isSelected ? .white : .gray)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
-                .background(isSelected ? Color.red : Color.white.opacity(0.06))
+                .background(isSelected ? Color.red : Color.primary.opacity(0.06))
                 .cornerRadius(10)
         }
     }
@@ -482,11 +482,11 @@ struct AddLostItemSheet: View {
                                         .foregroundColor(.primary)
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 14)
-                                        .background(Color.white.opacity(0.06))
+                                        .background(Color.primary.opacity(0.06))
                                         .cornerRadius(12)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 12)
-                                                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                                .stroke(Color.primary.opacity(0.1), lineWidth: 1)
                                         )
                                     }
                                      .onChange(of: photoPickerItem) { _, newItem in
@@ -508,7 +508,7 @@ struct AddLostItemSheet: View {
                                 .foregroundColor(.gray)
                             TextField("z.B. Schwarze Lederjacke, iPhone 14, Autoschlüssel...", text: $what)
                                 .padding(12)
-                                .background(Color.white.opacity(0.06))
+                                .background(Color.primary.opacity(0.06))
                                 .cornerRadius(10)
                                 .foregroundColor(.primary)
                         }
@@ -533,7 +533,7 @@ struct AddLostItemSheet: View {
                                 .foregroundColor(.gray)
                             TextField("z.B. Saal 3 Reihe 14, Theke 2, Foyer...", text: $whereFound)
                                 .padding(12)
-                                .background(Color.white.opacity(0.06))
+                                .background(Color.primary.opacity(0.06))
                                 .cornerRadius(10)
                                 .foregroundColor(.primary)
                         }

@@ -89,7 +89,7 @@ struct MehrView: View {
                                 .fontWeight(.bold)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 5)
-                                .background(Color.white.opacity(0.08))
+                                .background(Color.primary.opacity(0.08))
                                 .foregroundColor(.primary)
                                 .cornerRadius(8)
                         }
@@ -110,7 +110,7 @@ struct MehrView: View {
                             GeometryReader { geo in
                                 ZStack(alignment: .leading) {
                                     Capsule()
-                                        .fill(Color.white.opacity(0.1))
+                                        .fill(Color.primary.opacity(0.1))
                                         .frame(height: 8)
                                     Capsule()
                                         .fill(LinearGradient(colors: [.yellow, .orange], startPoint: .leading, endPoint: .trailing))
@@ -140,7 +140,7 @@ struct MehrView: View {
                             MangelARView()
                         }
                         
-                        Divider().background(Color.white.opacity(0.1))
+                        Divider().background(Color.primary.opacity(0.1))
                         
                         // Popcorn-Schritte Zähler
                         HStack {
@@ -171,10 +171,10 @@ struct MehrView: View {
                             .tint(pedometerManager.isTracking ? .red : .green)
                         }
                         .padding()
-                        .background(Color.white.opacity(0.1))
+                        .background(Color.primary.opacity(0.1))
                         .cornerRadius(12)
                         
-                        Divider().background(Color.white.opacity(0.1))
+                        Divider().background(Color.primary.opacity(0.1))
                         
                         // Daily Quests
                         VStack(alignment: .leading, spacing: 12) {
@@ -194,10 +194,10 @@ struct MehrView: View {
                             }
                         }
                         .padding()
-                        .background(Color.white.opacity(0.04))
+                        .background(Color.primary.opacity(0.04))
                         .cornerRadius(12)
                         
-                        Divider().background(Color.white.opacity(0.1))
+                        Divider().background(Color.primary.opacity(0.1))
                         
                         // Achievements
                         VStack(alignment: .leading, spacing: 12) {
@@ -220,10 +220,10 @@ struct MehrView: View {
                             }
                         }
                         .padding()
-                        .background(Color.white.opacity(0.04))
+                        .background(Color.primary.opacity(0.04))
                         .cornerRadius(12)
                         
-                        Divider().background(Color.white.opacity(0.1))
+                        Divider().background(Color.primary.opacity(0.1))
                         
                         // Wallet Button
                         Button(action: {
@@ -247,11 +247,11 @@ struct MehrView: View {
                         }
                     }
                     .padding(20)
-                    .background(Color.white.opacity(0.04))
+                    .background(Color.primary.opacity(0.04))
                     .cornerRadius(20)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                            .stroke(Color.primary.opacity(0.08), lineWidth: 1)
                     )
                     .padding(.horizontal)
                     .padding(.top, 16)
@@ -422,11 +422,11 @@ struct MehrView: View {
                             ContactRow(name: "Haustechnik & Vorführer", number: "0171 9876543", role: "Projektion & Ton", icon: "wrench.and.screwdriver.fill", color: .orange)
                             ContactRow(name: "Kinopolis IT-Support", number: "06181 5080", role: "Kassensystem & Scanner", icon: "desktopcomputer", color: .blue)
                         }
-                        .background(Color.white.opacity(0.03))
+                        .background(Color.primary.opacity(0.03))
                         .cornerRadius(18)
                         .overlay(
                             RoundedRectangle(cornerRadius: 18)
-                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                .stroke(Color.primary.opacity(0.08), lineWidth: 1)
                         )
                         .padding(.horizontal)
                     }
@@ -464,7 +464,7 @@ struct MehrView: View {
                             .padding(.horizontal, 16)
                             .padding(.vertical, 12)
                             
-                            Divider().background(Color.white.opacity(0.06))
+                            Divider().background(Color.primary.opacity(0.06))
                             
                             Toggle(isOn: $hapticsEnabled) {
                                 HStack {
@@ -478,7 +478,7 @@ struct MehrView: View {
                             .padding(.horizontal, 16)
                             .padding(.vertical, 12)
                             
-                            Divider().background(Color.white.opacity(0.06))
+                            Divider().background(Color.primary.opacity(0.06))
                             
                             Toggle(isOn: $notificationsEnabled) {
                                 HStack {
@@ -492,11 +492,11 @@ struct MehrView: View {
                             .padding(.horizontal, 16)
                             .padding(.vertical, 12)
                         }
-                        .background(Color.white.opacity(0.03))
+                        .background(Color.primary.opacity(0.03))
                         .cornerRadius(18)
                         .overlay(
                             RoundedRectangle(cornerRadius: 18)
-                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                .stroke(Color.primary.opacity(0.08), lineWidth: 1)
                         )
                         .padding(.horizontal)
                     }
@@ -514,7 +514,7 @@ struct MehrView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
-                            .background(Color.white.opacity(0.06))
+                            .background(Color.primary.opacity(0.06))
                             .foregroundColor(.gray)
                             .cornerRadius(14)
                         }
@@ -649,11 +649,11 @@ struct ServiceRowItem: View {
                 .foregroundColor(.gray)
         }
         .padding(16)
-        .background(Color.white.opacity(0.04))
+        .background(Color.primary.opacity(0.04))
         .cornerRadius(18)
         .overlay(
             RoundedRectangle(cornerRadius: 18)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                .stroke(Color.primary.opacity(0.08), lineWidth: 1)
         )
     }
 }
@@ -736,7 +736,7 @@ struct QuestRow: View {
                 // Progress Bar
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
-                        Capsule().fill(Color.white.opacity(0.1))
+                        Capsule().fill(Color.primary.opacity(0.1))
                         Capsule().fill(isCompleted ? Color.green : Color.blue)
                             .frame(width: max(0, min(geo.size.width, geo.size.width * CGFloat(progress) / CGFloat(max(total, 1)))))
                     }

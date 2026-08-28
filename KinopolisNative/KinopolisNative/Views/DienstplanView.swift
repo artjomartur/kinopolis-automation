@@ -299,9 +299,9 @@ struct DienstplanView: View {
                 .foregroundColor(.yellow.opacity(0.8))
         }
         .padding(18)
-        .background(Color.white.opacity(0.04))
+        .background(Color.primary.opacity(0.04))
         .cornerRadius(18)
-        .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.white.opacity(0.08), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.primary.opacity(0.08), lineWidth: 1))
         .padding(.horizontal, 16)
     }
     
@@ -363,7 +363,7 @@ struct ShiftCard: View {
                     .cornerRadius(6)
             }
             
-            Divider().background(Color.white.opacity(0.06))
+            Divider().background(Color.primary.opacity(0.06))
             
             HStack(spacing: 16) {
                 HStack(spacing: 6) {
@@ -403,9 +403,9 @@ struct ShiftCard: View {
             }
         }
         .padding(14)
-        .background(Color.white.opacity(0.04))
+        .background(Color.primary.opacity(0.04))
         .cornerRadius(16)
-        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.08), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.primary.opacity(0.08), lineWidth: 1))
     }
 }
 

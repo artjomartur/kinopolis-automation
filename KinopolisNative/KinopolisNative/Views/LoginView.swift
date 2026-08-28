@@ -18,7 +18,7 @@ struct LoginView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(height: 120)
-                        .background(Color.white.opacity(0.1))
+                        .background(Color.primary.opacity(0.1))
                         .cornerRadius(24)
                         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 5)
                     
@@ -61,11 +61,11 @@ struct LoginView: View {
                             .keyboardType(.emailAddress)
                             .autocapitalization(.none)
                             .padding()
-                            .background(Color.white.opacity(0.05))
+                            .background(Color.primary.opacity(0.05))
                             .cornerRadius(12)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                    .stroke(Color.primary.opacity(0.1), lineWidth: 1)
                             )
                             .foregroundColor(.primary)
                     }
@@ -78,11 +78,11 @@ struct LoginView: View {
                         
                         SecureField("••••••••", text: $viewModel.password)
                             .padding()
-                            .background(Color.white.opacity(0.05))
+                            .background(Color.primary.opacity(0.05))
                             .cornerRadius(12)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                    .stroke(Color.primary.opacity(0.1), lineWidth: 1)
                             )
                             .foregroundColor(.primary)
                     }

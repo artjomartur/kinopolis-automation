@@ -43,7 +43,7 @@ struct FAQView: View {
                                     .foregroundColor(.primary)
                             }
                             .padding()
-                            .background(Color.white.opacity(0.05))
+                            .background(Color.primary.opacity(0.05))
                             .cornerRadius(12)
                             .tint(.blue)
                         }

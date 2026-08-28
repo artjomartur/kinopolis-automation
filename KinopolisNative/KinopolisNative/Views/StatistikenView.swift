@@ -70,7 +70,7 @@ struct StatistikenView: View {
             ])
             .frame(height: 250)
             .padding()
-            .background(Color.white.opacity(0.05))
+            .background(Color.primary.opacity(0.05))
             .cornerRadius(12)
         }
     }
@@ -88,7 +88,7 @@ struct StatistikenView: View {
                     .foregroundColor(.gray)
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.white.opacity(0.05))
+                    .background(Color.primary.opacity(0.05))
                     .cornerRadius(12)
             } else {
                 Chart {
@@ -109,7 +109,7 @@ struct StatistikenView: View {
                 }
                 .frame(height: 200)
                 .padding()
-                .background(Color.white.opacity(0.05))
+                .background(Color.primary.opacity(0.05))
                 .cornerRadius(12)
             }
         }

@@ -116,7 +116,7 @@ struct TransferlisteView: View {
                         }
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.white.opacity(0.04))
+                        .background(Color.primary.opacity(0.04))
                         .cornerRadius(16)
                         .padding(.horizontal)
                         .padding(.top, 16)
@@ -140,13 +140,13 @@ struct TransferlisteView: View {
                                             TransferItemRow(item: $viewModel.items[index])
                                             
                                             if item.id != categoryItems.last?.id {
-                                                Divider().background(Color.white.opacity(0.1))
+                                                Divider().background(Color.primary.opacity(0.1))
                                                     .padding(.leading, 16)
                                             }
                                         }
                                     }
                                 }
-                                .background(Color.white.opacity(0.04))
+                                .background(Color.primary.opacity(0.04))
                                 .cornerRadius(16)
                                 .padding(.horizontal)
                             }

@@ -3734,7 +3734,8 @@ body.light-mode .tab-btn.active {
         }
         
         body {
-            background: #ffffff !important;
+            background: #f7f7f9 !important; /* Slightly grey background for light mode so cards pop */
+            color: var(--duo-text) !important;
         }
         
         body:not(.light-mode) {
@@ -3758,19 +3759,12 @@ body.light-mode .tab-btn.active {
         }
         
         /* Typography & Color Overrides for Light Mode readability */
-        h1, h2, h3, h4, h5 {
-            font-weight: 800 !important;
-            letter-spacing: -0.5px !important;
+        h1, h2, h3, h4, h5, p, span, .stat-value, .stat-label, .time-label, .title-text {
             color: var(--duo-text) !important;
         }
         
-        /* Ensure all text inside the solid blocks takes the dark color in light mode */
-        body.light-mode .card-container *, body.light-mode .hall-card *, body.light-mode .news-section *, body.light-mode .stats-section *, body.light-mode .intern-section *, body.light-mode #gamification-summary * {
-            color: var(--duo-text);
-        }
-        
         /* Keep button text white */
-        body.light-mode button, body.light-mode button *, body.light-mode .tab-btn, body.light-mode .tab-btn *, body.light-mode .alert-done-btn *, body.light-mode .badge {
+        button, button *, .tab-btn, .tab-btn *, .alert-done-btn, .alert-done-btn *, .badge, .location-badge, .occupancy-badge {
             color: white !important;
         }
         

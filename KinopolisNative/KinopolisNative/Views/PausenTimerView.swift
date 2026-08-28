@@ -19,7 +19,7 @@ struct PausenTimerView: View {
                     // Timer Circle
                     ZStack {
                         Circle()
-                            .stroke(Color.white.opacity(0.1), lineWidth: 15)
+                            .stroke(Color.primary.opacity(0.1), lineWidth: 15)
                             .frame(width: 250, height: 250)
                         
                         Circle()

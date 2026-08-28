@@ -18,7 +18,7 @@ struct SaalplanView: View {
                             path.move(to: CGPoint(x: 20, y: 40))
                             path.addQuadCurve(to: CGPoint(x: UIScreen.main.bounds.width - 60, y: 40), control: CGPoint(x: UIScreen.main.bounds.width / 2 - 20, y: 0))
                         }
-                        .stroke(Color.white.opacity(0.8), lineWidth: 4)
+                        .stroke(Color.primary.opacity(0.8), lineWidth: 4)
                         
                         Text("LEINWAND")
                             .font(.caption)

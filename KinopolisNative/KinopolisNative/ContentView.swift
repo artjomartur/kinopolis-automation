@@ -142,7 +142,7 @@ struct MasterHeaderView<TrailingContent: View>: View {
             // Standardized Avatar with fixed geometry & smooth size transition
             ZStack {
                 Circle()
-                    .fill(Color.white.opacity(0.08))
+                    .fill(Color.primary.opacity(0.08))
                     .frame(width: isCollapsed ? 38 : 78, height: isCollapsed ? 38 : 78)
                 
                 Image(imageName)

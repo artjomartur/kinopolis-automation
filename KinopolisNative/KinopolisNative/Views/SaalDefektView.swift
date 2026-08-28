@@ -295,7 +295,7 @@ struct SaalDefektCard: View {
                     .clipped()
             }
             
-            Divider().background(Color.white.opacity(0.06))
+            Divider().background(Color.primary.opacity(0.06))
             
             // Action & Status Row
             HStack {
@@ -329,17 +329,17 @@ struct SaalDefektCard: View {
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.white.opacity(0.06))
+                    .background(Color.primary.opacity(0.06))
                     .cornerRadius(8)
                 }
             }
         }
         .padding(14)
-        .background(Color.white.opacity(0.04))
+        .background(Color.primary.opacity(0.04))
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(report.priority == "Dringend" && report.status != "Behoben" ? Color.red.opacity(0.5) : Color.white.opacity(0.08), lineWidth: 1)
+                .stroke(report.priority == "Dringend" && report.status != "Behoben" ? Color.red.opacity(0.5) : Color.primary.opacity(0.08), lineWidth: 1)
         )
     }
 }
