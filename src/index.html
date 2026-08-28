@@ -3757,10 +3757,21 @@ body.light-mode .tab-btn.active {
             position: relative;
         }
         
-        /* Typography */
+        /* Typography & Color Overrides for Light Mode readability */
         h1, h2, h3, h4, h5 {
             font-weight: 800 !important;
             letter-spacing: -0.5px !important;
+            color: var(--duo-text) !important;
+        }
+        
+        /* Ensure all text inside the solid blocks takes the dark color in light mode */
+        body.light-mode .card-container *, body.light-mode .hall-card *, body.light-mode .news-section *, body.light-mode .stats-section *, body.light-mode .intern-section *, body.light-mode #gamification-summary * {
+            color: var(--duo-text);
+        }
+        
+        /* Keep button text white */
+        body.light-mode button, body.light-mode button *, body.light-mode .tab-btn, body.light-mode .tab-btn *, body.light-mode .alert-done-btn *, body.light-mode .badge {
+            color: white !important;
         }
         
         /* Duolingo Buttons */
