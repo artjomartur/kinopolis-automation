@@ -3720,7 +3720,92 @@ body.light-mode .tab-btn.active {
 .tab-label {
   font-size: 10px;
 }
-</style></head>
+</style>
+    <!-- DUOLINGO THEME OVERRIDE -->
+    <style id="duolingo-theme">
+        :root {
+            --duo-green: #58cc02;
+            --duo-green-shadow: #58a700;
+            --duo-blue: #1cb0f6;
+            --duo-blue-shadow: #1899d6;
+            --duo-border: #e5e5e5;
+            --duo-bg: #ffffff;
+            --duo-text: #3c3c3c;
+        }
+        
+        body {
+            background: #ffffff !important;
+        }
+        
+        body:not(.light-mode) {
+            --duo-border: #333333;
+            --duo-bg: #131f24;
+            --duo-text: #ffffff;
+            background: #131f24 !important;
+        }
+
+        /* Override glassmorphism with solid Duolingo blocks */
+        .card-container, .hall-card, .news-section, .stats-section, .auslaesse-container, .intern-section, #gamification-summary {
+            background: var(--duo-bg) !important;
+            backdrop-filter: none !important;
+            border: 2px solid var(--duo-border) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 6px 0 var(--duo-border) !important;
+            color: var(--duo-text) !important;
+            transform: translateY(0) !important;
+            margin-bottom: 24px !important;
+            position: relative;
+        }
+        
+        /* Typography */
+        h1, h2, h3, h4, h5 {
+            font-weight: 800 !important;
+            letter-spacing: -0.5px !important;
+        }
+        
+        /* Duolingo Buttons */
+        button, .tab-btn, .alert-done-btn, .dept-btn, .nav-btn, .settings-nav-btn {
+            background: var(--duo-blue) !important;
+            color: white !important;
+            border: 2px solid transparent !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 0 var(--duo-blue-shadow) !important;
+            font-weight: bold !important;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.1s ease !important;
+            backdrop-filter: none !important;
+        }
+        
+        button:active, .tab-btn:active, .alert-done-btn:active, .dept-btn:active {
+            transform: translateY(4px) !important;
+            box-shadow: 0 0 0 transparent !important;
+        }
+        
+        /* Special Green Buttons */
+        .btn-primary, button[onclick*="Checklist"], button.alert-done-btn {
+            background: var(--duo-green) !important;
+            box-shadow: 0 4px 0 var(--duo-green-shadow) !important;
+        }
+        
+        .btn-primary:active, button[onclick*="Checklist"]:active, button.alert-done-btn:active {
+            transform: translateY(4px) !important;
+            box-shadow: 0 0 0 transparent !important;
+        }
+        
+        /* Remove ambient glows */
+        .ambient-glow, .liquid-bg {
+            display: none !important;
+        }
+        
+        /* Hide existing glass effects */
+        .glass {
+            background: var(--duo-bg) !important;
+            border-color: var(--duo-border) !important;
+        }
+    </style>
+
+</head>
 <body class="dark-mode">
 <!-- ULTIMATE SPLASH FAILSAFE -->
 <script>
@@ -4203,7 +4288,7 @@ body.light-mode .tab-btn.active {
 </select>
 </div>
 <!-- Container for Checklists -->
-<div id="ws-checklist-container">
+<div id="ws-checklist-container" style="position: relative; margin-top: 30px;"><img src="/oli-favicon.png" alt="Oli" style="position: absolute; top: -45px; right: -15px; width: 75px; z-index: 10; transform: rotate(15deg); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); pointer-events: none;">>
 <div style="margin-bottom: 1rem;">
 <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">👤 Dein Name (Pflicht zum Abhaken)</label>
 <input class="input-field" id="ws-name-input" oninput="localStorage.setItem('kinopolis_shift_name', this.value)" placeholder="Name eingeben..." style="padding: 0.6rem 0.9rem; font-size: 0.95rem;" type="text">
