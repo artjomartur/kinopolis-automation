@@ -57,6 +57,29 @@ struct ContentView: View {
                 }
                 .tag(Tab.mehr)
         }
+        .simultaneousGesture(
+            DragGesture()
+                .onEnded { value in
+                    let translationX = value.translation.width
+                    let translationY = value.translation.height
+                    
+                    // Trigger if horizontal swipe > 80px and mostly horizontal
+                    if abs(translationX) > 80 && abs(translationX) > abs(translationY) * 1.5 {
+                        let allTabs = Tab.allCases
+                        guard let currentIndex = allTabs.firstIndex(of: selectedTab) else { return }
+                        
+                        withAnimation {
+                            if translationX < 0 && currentIndex < allTabs.count - 1 {
+                                // Swiped left -> Next tab
+                                selectedTab = allTabs[currentIndex + 1]
+                            } else if translationX > 0 && currentIndex > 0 {
+                                // Swiped right -> Previous tab
+                                selectedTab = allTabs[currentIndex - 1]
+                            }
+                        }
+                    }
+                }
+        )
         // Use default Apple appearance
         .onAppear {
             let appearance = UITabBarAppearance()

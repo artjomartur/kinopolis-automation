@@ -203,6 +203,10 @@ struct ActionView: View {
                                     .cornerRadius(6)
                             }
                             
+                            ProgressView(value: Double(tlOpeningChecklist.filter { $0.isCompleted }.count), total: Double(tlOpeningChecklist.count))
+                                .progressViewStyle(LinearProgressViewStyle(tint: tlOpeningChecklist.allSatisfy { $0.isCompleted } ? .green : .red))
+                                .padding(.bottom, 6)
+                            
                             VStack(spacing: 10) {
                                 ForEach(tlOpeningChecklist.indices, id: \.self) { index in
                                     Button(action: {
@@ -435,6 +439,10 @@ struct ActionView: View {
                                     .foregroundColor(.blue)
                                     .cornerRadius(6)
                             }
+                            
+                            ProgressView(value: Double(standardChecklist.filter { $0.isCompleted }.count), total: Double(standardChecklist.count))
+                                .progressViewStyle(LinearProgressViewStyle(tint: standardChecklist.allSatisfy { $0.isCompleted } ? .green : .blue))
+                                .padding(.bottom, 6)
                             
                             VStack(spacing: 8) {
                                 ForEach(standardChecklist.indices, id: \.self) { index in

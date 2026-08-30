@@ -1,9 +1,23 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   root: 'src',
   publicDir: '../public',
+  plugins: [
+    VitePWA({
+      strategies: 'injectManifest',
+      srcDir: '../public',
+      filename: 'sw.js',
+      injectManifest: {
+        injectionPoint: 'self.__WB_MANIFEST',
+      },
+      devOptions: {
+        enabled: true
+      }
+    })
+  ],
   build: {
     outDir: '../dist',
     emptyOutDir: true,

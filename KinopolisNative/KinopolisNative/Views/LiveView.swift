@@ -459,20 +459,29 @@ struct LiveView: View {
                         .padding(.top, 8)
                         
                         if viewModel.isLoading && viewModel.halls.isEmpty {
-                            VStack(spacing: 16) {
-                                Image("Oli_3_bgless")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(height: 140)
-                                    .opacity(0.85)
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                Text("Oli lädt die Vorstellungen...")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
+                            VStack(spacing: 12) {
+                                ForEach(0..<3, id: \.self) { _ in
+                                    VStack(alignment: .leading, spacing: 12) {
+                                        Text("Saal X")
+                                            .font(.headline)
+                                            .padding(.horizontal)
+                                            
+                                        ScrollView(.horizontal, showsIndicators: false) {
+                                            HStack(spacing: 16) {
+                                                ForEach(0..<4, id: \.self) { _ in
+                                                    RoundedRectangle(cornerRadius: 12)
+                                                        .fill(Color.primary.opacity(0.1))
+                                                        .frame(width: 140, height: 180)
+                                                }
+                                            }
+                                            .padding(.horizontal)
+                                        }
+                                    }
+                                    .padding(.bottom, 10)
+                                }
                             }
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .padding(.top, 40)
+                            .redacted(reason: .placeholder)
+                            .padding(.top, 10)
                         } else if let error = viewModel.errorMessage {
                             VStack(spacing: 12) {
                                 Image("Oli_Error_bgless")

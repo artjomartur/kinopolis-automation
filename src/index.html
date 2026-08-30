@@ -162,9 +162,14 @@
 
 <!-- LIVE OVERVIEW DASHBOARD -->
 <div class="dashboard-grid live-section" id="dashboard">
-    <div class="loading-state" id="loading">
-        <div class="spinner"></div>
-        <div class="loading-text">Abrufen der Live-Daten...</div>
+    <div class="loading-state" id="loading" style="display: flex; flex-direction: column; width: 100%; padding: 0 1rem;">
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1rem;">
+            <div class="skeleton" style="width: 40px; height: 40px; border-radius: 50%;"></div>
+            <div class="skeleton" style="width: 150px; height: 40px;"></div>
+        </div>
     </div>
 </div>
 

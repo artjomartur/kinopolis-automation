@@ -29,16 +29,35 @@ class NetworkManager {
         
         request.httpBody = body
         
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let cacheKey = "offline_cache_\(endpoint)"
+        var fetchedData: Data
         
-        if let httpResponse = response as? HTTPURLResponse {
-            if httpResponse.statusCode == 401 || httpResponse.statusCode == 403 {
-                throw NetworkError.unauthorized
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            if let httpResponse = response as? HTTPURLResponse {
+                if httpResponse.statusCode == 401 || httpResponse.statusCode == 403 {
+                    throw NetworkError.unauthorized
+                }
+            }
+            
+            fetchedData = data
+            // Cache successful GET requests for offline use
+            if method == "GET" {
+                UserDefaults.standard.set(data, forKey: cacheKey)
+            }
+        } catch {
+            // Fallback to cache if network fails
+            if method == "GET", let cachedData = UserDefaults.standard.data(forKey: cacheKey) {
+                fetchedData = cachedData
+                print("Network offline. Loaded \(endpoint) from cache.")
+            } else {
+                throw error
             }
         }
         
         do {
-            let decodedResponse = try JSONDecoder().decode(T.self, from: data)
+            let decodedResponse = try JSONDecoder().decode(T.self, from: fetchedData)
             return decodedResponse
         } catch {
             throw NetworkError.decodingFailed

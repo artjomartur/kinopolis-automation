@@ -114,6 +114,11 @@
             overflow-x: hidden;
             width: 100%;
             position: relative;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+        
+        .glass, .card-container, .modal-content, .bottom-nav {
+            transition: background-color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
         }
 
         /* Auth Modal Premium Styles */
@@ -454,6 +459,28 @@
             justify-content: center;
             align-items: center;
             animation: cinematic-entry 1.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        }
+
+        /* Skeleton Loaders */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.05) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        .skeleton-text {
+            height: 1.2rem;
+            margin-bottom: 0.5rem;
+            width: 100%;
+        }
+        
+        .skeleton-text.short { width: 60%; }
+        .skeleton-card { height: 120px; width: 100%; margin-bottom: 1rem; border-radius: var(--card-radius); }
+
+        @keyframes skeleton-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
 
         .splash-logo-img {

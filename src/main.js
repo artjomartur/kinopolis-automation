@@ -717,6 +717,43 @@ function resetAndTestOli() {
                 setTimeout(() => indicator.style.display = 'none', 300);
             }
         }, { passive: true });
+        
+        // --- HORIZONTAL SWIPE GESTURES FOR TABS ---
+        let swipeStartX = 0;
+        let swipeStartY = 0;
+        const TABS = ['live', 'funk', 'scanner', 'action', 'mehr'];
+        
+        document.addEventListener('touchstart', e => {
+            swipeStartX = e.touches[0].clientX;
+            swipeStartY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        document.addEventListener('touchend', e => {
+            const swipeEndX = e.changedTouches[0].clientX;
+            const swipeEndY = e.changedTouches[0].clientY;
+            const diffX = swipeStartX - swipeEndX;
+            const diffY = swipeStartY - swipeEndY;
+            
+            // Trigger if horizontal swipe > 80px and mostly horizontal
+            if (Math.abs(diffX) > 80 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
+                const activeBtn = document.querySelector('.tab-btn.active');
+                if (!activeBtn) return;
+                const currentTab = activeBtn.getAttribute('data-tab');
+                let currentIndex = TABS.indexOf(currentTab);
+                
+                if (diffX > 0 && currentIndex < TABS.length - 1) {
+                    // Swipe Left -> Next Tab
+                    const nextTab = TABS[currentIndex + 1];
+                    const nextBtn = document.querySelector(`.tab-btn[data-tab="${nextTab}"]`);
+                    if (window.switchTab && nextBtn) window.switchTab(nextTab, nextBtn);
+                } else if (diffX < 0 && currentIndex > 0) {
+                    // Swipe Right -> Prev Tab
+                    const prevTab = TABS[currentIndex - 1];
+                    const prevBtn = document.querySelector(`.tab-btn[data-tab="${prevTab}"]`);
+                    if (window.switchTab && prevBtn) window.switchTab(prevTab, prevBtn);
+                }
+            }
+        }, { passive: true });
 
         // --- RESET LOGIC ---
         function checkAndResetDailyTasks() {
@@ -2406,24 +2443,31 @@ function resetAndTestOli() {
         // --- Workstation Checklists ---
         const shiftChecklist = {
             'einlass': [
-                { id: 'e1', text: 'Aufgabe 1' },
-                { id: 'e2', text: 'Aufgabe 2' }
+                { id: 'e1', text: 'Einlass-Scanner Akkus voll & Funktionsprüfung' },
+                { id: 'e2', text: 'FSK-Bändchen & Stempel vorbereitet' },
+                { id: 'e3', text: 'Müllzangen und Besen bereitgestellt' },
+                { id: 'e4', text: 'Saal Rundgang & Becherkontrolle' }
             ],
             'theke': [
-                { id: 't1', text: 'Aufgabe 1' },
-                { id: 't2', text: 'Aufgabe 2' }
+                { id: 't1', text: 'Popcorn-Warmhalter auffüllen' },
+                { id: 't2', text: 'Nachos-Käsespender Temperatur prüfen' },
+                { id: 't3', text: 'Getränke-Sirup (Postmix) geprüft' },
+                { id: 't4', text: 'Kassenbereich & Theke gewischt' }
             ],
             'counter': [
-                { id: 'c1', text: 'Aufgabe 1' },
-                { id: 'c2', text: 'Aufgabe 2' }
+                { id: 'c1', text: 'Wechselgeld in Kassen gezählt' },
+                { id: 'c2', text: 'Ticket-Drucker Papierrolle geprüft' },
+                { id: 'c3', text: 'Tagesaktuelle Flyer platziert' }
             ],
             'popcornkueche': [
-                { id: 'p1', text: 'Aufgabe 1' },
-                { id: 'p2', text: 'Aufgabe 2' }
+                { id: 'p1', text: 'Mais und Öl aufgefüllt' },
+                { id: 'p2', text: 'Popcorn-Kessel gereinigt' },
+                { id: 'p3', text: 'MHD-Prüfung Lager erledigt' }
             ],
             'becherspuelen': [
-                { id: 'b1', text: 'Aufgabe 1' },
-                { id: 'b2', text: 'Aufgabe 2' }
+                { id: 'b1', text: 'Spülmaschine Temperatur & Reiniger geprüft' },
+                { id: 'b2', text: 'Abgetrocknete Becher sortiert' },
+                { id: 'b3', text: 'Müllbeutel gewechselt' }
             ],
             'tl': [
                 { id: 'tl1', text: 'Mitarbeitergespräche geführt' },
@@ -2519,6 +2563,8 @@ function resetAndTestOli() {
                 // Pre-fill name from localStorage
                 const nameInput = document.getElementById('ws-name-input');
                 if (nameInput) nameInput.value = localStorage.getItem('kinopolis_shift_name') || '';
+                
+                if (window.updateGamification) updateGamification();
             }
         }
 
@@ -6801,7 +6847,51 @@ function printLostFoundLabel(id) {
 }
 window.printLostFoundLabel = printLostFoundLabel;
 window.updateGamification = function() {
-    console.log("updateGamification stub called");
+            let group = '';
+            const selector = document.getElementById('workstation-selector');
+            if (selector) {
+                group = selector.value;
+                localStorage.setItem('kinopolis_shift_group', group);
+            } else {
+                group = localStorage.getItem('kinopolis_shift_group') || '';
+            }
+            if (!group) return;
+            const items = shiftChecklist[group] || [];
+            if (items.length === 0) return;
+            
+            let completed = 0;
+            items.forEach(item => {
+                if (cloudChecklistState[item.id]) completed++;
+            });
+            
+            let progressEl = document.getElementById('checklist-progress-bar');
+            if (!progressEl) {
+                const header = document.querySelector('#workstation-section h3');
+                if (header) {
+                    header.insertAdjacentHTML('afterend', `
+                        <div style="width:100%; background:rgba(255,255,255,0.1); border-radius:4px; height:8px; margin: 10px 0;">
+                            <div id="checklist-progress-bar" style="width:0%; height:100%; background:var(--primary-blue); border-radius:4px; transition:width 0.5s ease;"></div>
+                        </div>
+                    `);
+                    progressEl = document.getElementById('checklist-progress-bar');
+                }
+            }
+            
+            const percentage = (completed / items.length) * 100;
+            if (progressEl) {
+                progressEl.style.width = percentage + '%';
+                if (percentage === 100) progressEl.style.background = '#4CAF50';
+                else progressEl.style.background = 'var(--primary-blue)';
+            }
+            
+            if (percentage === 100 && !cloudChecklistState[`${group}_confetti_fired`]) {
+                cloudChecklistState[`${group}_confetti_fired`] = true;
+                if (typeof confetti === 'function') {
+                    confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+                }
+            } else if (percentage < 100) {
+                cloudChecklistState[`${group}_confetti_fired`] = false;
+            }
 };
 
 function updatePopcornPrognosis() {
