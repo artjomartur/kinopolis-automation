@@ -2356,10 +2356,12 @@ function resetAndTestOli() {
             if(content) content.classList.toggle('collapsed');
             if(btn) btn.classList.toggle('collapsed');
         }
+        window.toggleSection = toggleSection;
 
         function toggleAlerts() {
             toggleSection('poster-alerts', 'alerts-toggle-btn');
         }
+        window.toggleAlerts = toggleAlerts;
 
         function changeDate(days) {
             if (!displayDate) displayDate = new Date();
@@ -2367,6 +2369,7 @@ function resetAndTestOli() {
             updateDateUI();
             fetchSessions();
         }
+        window.changeDate = changeDate;
 
 
 
