@@ -4228,7 +4228,7 @@ function resetAndTestOli() {
 
             // 4. Add Station Abbau Alerts
             if (currentCity === 'kp') {
-                const abbauTasks = getKpStationTasks(hallsGrouped, completedAuslaesse);
+                const abbauTasks = getKpStationTasks(halls, completedAuslaesse);
                 allTasks.push(...abbauTasks);
             }
 
@@ -5844,6 +5844,23 @@ function resetAndTestOli() {
             console.log('STATUS:', text);
         }
         window.updateStatus = updateStatus;
+
+        // Expose functions for inline HTML event handlers (onclick, etc.)
+        window.toggleHall = toggleHall;
+        window.cycleHallStatus = cycleHallStatus;
+        window.updateTransferCount = updateTransferCount;
+        window.updateEisTransferCount = updateEisTransferCount;
+        window.deleteTechTicket = deleteTechTicket;
+        window.setTechTicketStatus = setTechTicketStatus;
+        window.printLostFoundLabel = printLostFoundLabel;
+        window.deleteLfItem = deleteLfItem;
+        window.fetchSessions = fetchSessions;
+        window.openMovieDetail = openMovieDetail;
+        window.markPosterDone = markPosterDone;
+        window.switchTab = switchTab;
+        window.deleteAdminContact = deleteAdminContact;
+        window.endBreak = endBreak;
+        window.startScanner = startScanner;
 
         // NOTE: init() is called by the readyState guard above (lines 7465-7489).
         // Do NOT call init() here again — it would run twice concurrently.
