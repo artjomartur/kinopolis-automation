@@ -3545,3 +3545,154 @@ body.light-mode .tab-btn.active {
 .hall-status-card:active {
     transform: translateY(0) scale(0.98);
 }
+
+/* --- iOS Style Live Tab Layout --- */
+.hall-header-ios {
+    padding: 1rem 1.25rem 0.5rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.hall-name-ios {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--text-main);
+}
+.session-count-ios {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.2rem 0.5rem;
+    border-radius: 8px;
+}
+.hall-sessions-scroll {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding: 0.5rem 1.25rem 1.5rem 1.25rem;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+}
+.hall-sessions-scroll::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+}
+.session-card-ios {
+    min-width: 240px;
+    max-width: 240px;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    flex-shrink: 0;
+}
+.session-card-ios:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+.session-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+.time-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 8px;
+}
+.time-badge-future {
+    background: rgba(0, 122, 255, 0.2);
+    color: #4da3ff;
+}
+.time-badge-running {
+    background: rgba(52, 199, 89, 0.2);
+    color: #4cd964;
+}
+.time-badge-ended {
+    background: rgba(142, 142, 147, 0.2);
+    color: #8e8e93;
+}
+.fsk-badge {
+    display: flex;
+    align-items: center;
+}
+.session-card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+.movie-title-ios {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.session-card-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: auto;
+}
+.meta-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.duration-text {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+}
+.occupancy-wrapper-ios {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.occupancy-track-ios {
+    flex: 1;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+.occupancy-bar-ios {
+    height: 100%;
+    background: var(--primary-blue);
+    border-radius: 3px;
+}
+.occupancy-bar-ios.high { background: var(--primary-orange); }
+.occupancy-bar-ios.full { background: var(--primary-red); }
+.occupancy-val-ios {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    min-width: 40px;
+    text-align: right;
+}
+
+body.light-mode .session-card-ios {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+body.light-mode .movie-title-ios { color: #1c1c1e; }
+body.light-mode .session-count-ios { background: rgba(0, 0, 0, 0.05); color: #8e8e93; }
+body.light-mode .duration-text { color: #8e8e93; background: rgba(0, 0, 0, 0.05); }
+body.light-mode .occupancy-track-ios { background: rgba(0, 0, 0, 0.06); }
+body.light-mode .occupancy-val-ios { color: #3a3a3c; }
+body.light-mode .hall-name-ios { color: #1c1c1e; }

@@ -3950,66 +3950,57 @@ function resetAndTestOli() {
 
                     // Check if active (current time is between start and end)
                     let isActive = false;
+                    let isPast = false;
+                    let hasEnded = false;
                     let startMin, endMin;
                     if (s.time && s.time.includes(':')) {
                         const [h, m] = s.time.split(':').map(Number);
                         startMin = h * 60 + m;
                         endMin = startMin + s.duration;
-                        isActive = currentMinutes >= startMin && currentMinutes <= endMin;
+                        isPast = currentMinutes >= startMin;
+                        hasEnded = currentMinutes > endMin;
+                        isActive = isPast && !hasEnded;
                     }
 
                     const escapedHall = hallName.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     const escapedTitle = s.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    
+                    let timeBadgeClass = 'time-badge-future';
+                    if (isActive) timeBadgeClass = 'time-badge-running';
+                    else if (hasEnded) timeBadgeClass = 'time-badge-ended';
 
                     return `
-                        <div class="session-item ${isActive ? 'active' : ''}">
-                            <div class="session-time-col">
-                                <div class="time-start">${s.time}</div>
-                                <div class="time-end">${endTime}</div>
+                        <div class="session-card-ios ${isActive ? 'active' : ''}">
+                            <div class="session-card-header">
+                                <div class="time-badge ${timeBadgeClass}">${s.time}</div>
+                                <div class="fsk-badge">${getFskTagsHtml(s)}</div>
                             </div>
-                            <div class="session-info">
-                                <div class="movie-title" title="${s.title}" onclick="openMovieDetail('${s.movieLink || ''}')" style="cursor: pointer;">${s.title}</div>
-                                <div class="meta-tags">
-                                    <span class="tag">${s.duration} Min</span>
-                                    ${getFskTagsHtml(s)}
+                            <div class="session-card-body">
+                                <div class="movie-title-ios" title="${s.title}" onclick="openMovieDetail('${s.movieLink || ''}')" style="cursor: pointer;">${s.title}</div>
+                                <div class="countdown-timer" data-start="${startMin}" data-end="${endMin}" data-hall="${escapedHall}"></div>
+                            </div>
+                            <div class="session-card-footer">
+                                <div class="meta-row">
+                                    <span class="duration-text">${s.duration} Min</span>
                                     ${s.date ? `<span class="session-date-badge">${s.date}</span>` : ''}
                                 </div>
-                                <div class="countdown-timer" data-start="${startMin}" data-end="${endMin}" data-hall="${escapedHall}"></div>
-                                <div class="occupancy-wrapper">
-                                    <div class="occupancy-header">
-                                        <span>Auslastung 🪑</span>
-                                        <span class="occupancy-val">${s.sold} / ${s.capacity}</span>
+                                <div class="occupancy-wrapper-ios">
+                                    <div class="occupancy-track-ios">
+                                        <div class="occupancy-bar-ios ${barClass}" style="width: ${occupancyPct}%"></div>
                                     </div>
-                                    <div class="occupancy-track">
-                                        <div class="occupancy-bar ${barClass}" style="width: ${occupancyPct}%"></div>
-                                    </div>
+                                    <span class="occupancy-val-ios">${s.sold}/${s.capacity}</span>
                                 </div>
                             </div>
                         </div>
                     `;
                 }).join('');
 
-                // Default to collapsed unless explicitly expanded
-                let isCollapsed = sessionStorage.getItem(`hall_collapsed_${hallName}`);
-                if (isCollapsed === null) isCollapsed = true;
-                else isCollapsed = (isCollapsed === 'true');
-
-                // Force finished halls to be collapsed by default
-                if (isHallFinished(hall)) {
-                    isCollapsed = true;
-                }
-
                 card.innerHTML = `
-                    <div class="hall-header ${isCollapsed ? 'collapsed' : ''}" onclick="toggleHall(this, '${hallName}')">
-                        <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;">
-                            <span class="hall-name">${hallName}</span>
-                            <span class="session-count">${sessions.length} Vorstellungen</span>
-                        </div>
-                        <svg class="toggle-icon" viewBox="0 0 24 24" width="20" height="20">
-                            <path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
-                        </svg>
+                    <div class="hall-header-ios">
+                        <span class="hall-name-ios">Saal ${hallName}</span>
+                        <span class="session-count-ios">${sessions.length} Vorstellungen</span>
                     </div>
-                    <div class="hall-sessions-list ${isCollapsed ? 'collapsed' : ''}">
+                    <div class="hall-sessions-scroll">
                         ${sessionsHtml}
                     </div>
                 `;
