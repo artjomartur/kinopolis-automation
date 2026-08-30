@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kinopolis-v6';
+const CACHE_NAME = 'kinopolis-v7';
 const ASSETS = [
     '/',
     '/index.html',
