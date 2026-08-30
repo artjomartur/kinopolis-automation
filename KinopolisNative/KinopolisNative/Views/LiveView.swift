@@ -143,6 +143,7 @@ class LiveViewModel: ObservableObject {
     @Published var selectedDate: Date = Date()
     @Published var viewMode: Int = 0 // 0 = Vorstellungen, 1 = Auslässe, 2 = Plakatwechsel
     @Published var checkedOffIDs: Set<UUID> = []
+    private var notifiedAuslaesse: Set<String> = []
     
     private let completedPosterIDsKey = "completedPosterIDs"
     
@@ -365,6 +366,19 @@ class LiveViewModel: ObservableObject {
                     fsk: session.fsk
                 )
                 newAuslaesse.append(auslass)
+                
+                // Realtime Push Alarm for Auslass (10 minutes before)
+                if minutesToEnd == 10 {
+                    let notifId = "auslass_\(session.hall ?? hall.name)_\(session.time)"
+                    if !notifiedAuslaesse.contains(notifId) {
+                        notifiedAuslaesse.insert(notifId)
+                        NotificationManager.shared.scheduleNotification(
+                            title: "Kino \(session.hall ?? hall.name): Auslass!",
+                            body: "Der Film '\(session.title)' endet in \(minutesToEnd) Minuten.",
+                            timeInterval: 1.0
+                        )
+                    }
+                }
             }
         }
         

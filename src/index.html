@@ -12,6 +12,7 @@
 <meta content="yes" name="apple-mobile-web-app-capable">
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&amp;family=Outfit:wght@500;700&amp;display=swap" rel="stylesheet">
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
 <script type="module" src="auth.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
@@ -233,6 +234,23 @@
 <!-- Filled via JS -->
 </div>
 </div>
+<!-- QR SCANNER (Kartenkontrolle) -->
+<div class="card-container glass scanner-section" id="scanner-section-container" style="display: none; margin-bottom: 2rem;">
+<div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
+<div style="display: flex; align-items: center; gap: 0.75rem;">
+<span class="alert-icon-small" style="font-size: 1.5rem;">📱</span>
+<h2 style="font-size: 1.25rem;">Ticket Scanner</h2>
+</div>
+</div>
+<div style="padding: 1rem 1.5rem 1.5rem; text-align: center;">
+<p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Ticket-QR-Codes scannen, um die Gültigkeit zu prüfen.</p>
+<div id="qr-reader" style="width:100%; max-width:500px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.2);"></div>
+<div id="qr-reader-results" style="margin-top: 1rem; font-weight: bold; font-size: 1.1rem; color: #fff;"></div>
+<button id="qr-start-btn" class="btn-primary" style="margin-top: 1rem; width: 100%; background: linear-gradient(135deg, #1cb0f6, #0078ff); color: white; border: none; font-weight: bold; padding: 1rem; border-radius: 12px;">🎥 Scanner Starten</button>
+<button id="qr-stop-btn" class="btn-secondary" style="margin-top: 0.5rem; width: 100%; padding: 1rem; border-radius: 12px; font-weight: bold; display: none;">⏹ Scanner Stoppen</button>
+</div>
+</div>
+
 <!-- DIGITALER FUNK (Nachschub-Ruf) -->
 <div class="card-container glass funk-section" id="restock-section" style="display: none; margin-bottom: 2rem;">
 <div class="card-header" style="padding: 1.5rem 1.5rem 0.5rem;">
@@ -1262,6 +1280,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <h3 style="color: white; margin: 0;">Historie &amp; Prognose</h3>
                 <div>
+                    <button class="btn-primary" onclick="showTagesabschlussModal()" style="margin-right: 0.5rem; background: linear-gradient(135deg, #1cb0f6, #0078ff);">📊 Tagesabschluss</button>
                     <button class="btn-secondary" onclick="exportPDF()" style="margin-right: 0.5rem;">📄 PDF</button>
                     <button class="btn-secondary" onclick="exportExcel()">📊 Excel</button>
                 </div>
@@ -1665,6 +1684,34 @@
     <span class="tab-label">Mehr</span>
   </button>
 </nav>
+
+<!-- Tagesabschluss Modal -->
+<div class="modal" id="tagesabschluss-modal">
+    <div class="modal-content glass" style="max-width: 400px;">
+        <h2 style="margin-bottom: 1rem;">📊 Tagesabschluss</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Zusammenfassung der heutigen Schicht. Diese Daten werden an die Betriebsleitung übermittelt.</p>
+        
+        <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+                <span>✅ Erledigte Aufgaben:</span>
+                <strong id="ta-aufgaben">0 / 0</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+                <span>📱 Ticket Scans:</span>
+                <strong id="ta-scans">0</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span>🏆 Erfahrungspunkte:</span>
+                <strong id="ta-xp" style="color: #f1c40f;">0 XP</strong>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem;">
+            <button class="btn-secondary" onclick="document.getElementById('tagesabschluss-modal').classList.remove('show')" style="flex: 1;">Abbrechen</button>
+            <button class="btn-primary" onclick="submitTagesabschluss()" style="flex: 1; background: linear-gradient(135deg, #1cb0f6, #0078ff);">Absenden</button>
+        </div>
+    </div>
+</div>
 
 <script type="module" src="/main.js"></script>
 </body></html>

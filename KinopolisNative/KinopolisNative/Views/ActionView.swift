@@ -1,4 +1,5 @@
 import SwiftUI
+import AudioToolbox
 
 struct ActionView: View {
     @EnvironmentObject var authManager: AuthManager
@@ -665,6 +666,7 @@ struct ActionView: View {
             showConfetti = true
             let generator = UINotificationFeedbackGenerator()
             generator.notificationOccurred(.success)
+            AudioServicesPlaySystemSound(1025) // New Mail sound, pleasant success chime
             
             // Hide confetti after 3 seconds
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {

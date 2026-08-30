@@ -815,7 +815,7 @@ function resetAndTestOli() {
             document.body.classList.remove(
                 'tools-active', 'info-active', 'stats-active', 
                 'kontakte-active', 'intern-active', 'einstellungen-active', 
-                'funk-active', 'mehr-active', 'action-active', 'live-active'
+                'funk-active', 'mehr-active', 'action-active', 'live-active', 'scanner-active'
             );
             
             // Apply new view state
@@ -828,6 +828,9 @@ function resetAndTestOli() {
             } else if (view === 'funk') {
                 document.body.classList.add('funk-active');
                 if (titleEl) titleEl.innerText = 'Funk-Ruf (Digital)' + suffix;
+            } else if (view === 'scanner') {
+                document.body.classList.add('scanner-active');
+                if (titleEl) titleEl.innerText = 'Ticket Scanner' + suffix;
             } else if (view === 'action') {
                 document.body.classList.add('action-active', 'intern-active', 'tools-active');
                 if (titleEl) titleEl.innerText = 'Team-Aktionen' + suffix;
@@ -1288,6 +1291,19 @@ function resetAndTestOli() {
                     </div>
                 </div>`
             ).join('');
+            
+            // Trigger Push Notification if permitted
+            if ('Notification' in window && Notification.permission === 'granted' && urgentAlerts.length > 0) {
+                const firstAlert = urgentAlerts[0];
+                const notifKey = `notif_${firstAlert.hall}_${firstAlert.title}`;
+                if (!sessionStorage.getItem(notifKey)) {
+                    new Notification(`Kino ${firstAlert.hall}: ${firstAlert.title}`, {
+                        body: `Auslass in ${firstAlert.minutesLeft} Minute${firstAlert.minutesLeft !== 1 ? 'n' : ''}!`,
+                        icon: '/assets/Oli_Alarm.png'
+                    });
+                    sessionStorage.setItem(notifKey, 'true');
+                }
+            }
         }
 
         // --- PERSONAL NEED (Help Button) ---
@@ -3150,6 +3166,11 @@ function resetAndTestOli() {
             // UI feedback
             label.style.textDecoration = checkbox.checked ? 'line-through' : 'none';
             label.style.opacity = checkbox.checked ? '0.5' : '1';
+            
+            // Haptic feedback
+            if (navigator.vibrate) {
+                navigator.vibrate(checkbox.checked ? [50] : [20]);
+            }
 
             try {
                 const res = await fetch('/api/checklist', {
@@ -5972,6 +5993,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const el = document.getElementById('telegram-chat-id');
         if (el) el.value = tgId;
     }
+    
+    // Request Push Notification Permission
+    if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+        Notification.requestPermission();
+    }
 });
 
 // --- AI CHAT LOGIC ---
@@ -6889,6 +6915,35 @@ window.updateGamification = function() {
                 if (typeof confetti === 'function') {
                     confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
                 }
+                
+                // Audio success feedback
+                try {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        const ctx = new AudioContext();
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        
+                        osc.type = 'sine';
+                        const now = ctx.currentTime;
+                        osc.frequency.setValueAtTime(523.25, now); // C5
+                        osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                        osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                        osc.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+                        
+                        gain.gain.setValueAtTime(0, now);
+                        gain.gain.linearRampToValueAtTime(0.5, now + 0.05);
+                        gain.gain.setValueAtTime(0.5, now + 0.3);
+                        gain.gain.linearRampToValueAtTime(0, now + 0.5);
+                        
+                        osc.start(now);
+                        osc.stop(now + 0.5);
+                    }
+                } catch(e) {
+                    console.log("Audio failed", e);
+                }
             } else if (percentage < 100) {
                 cloudChecklistState[`${group}_confetti_fired`] = false;
             }
@@ -6937,4 +6992,126 @@ function applyPopcornPrognosis() {
         showToast("Prognostizierten Bedarf übernommen!");
     }
 }
+
+// --- QR SCANNER LOGIC ---
+let html5QrcodeScanner = null;
+
+function handleTicketScan(decodedText) {
+    console.log("Scanned Ticket: ", decodedText);
+    const resultsEl = document.getElementById('qr-reader-results');
+    if (!resultsEl) return;
+    
+    // Simulate API validation
+    const isValid = Math.random() > 0.3; // 70% valid for demo
+    
+    resultsEl.innerHTML = `
+        <div style="padding: 1rem; border-radius: 8px; background: ${isValid ? 'rgba(46, 204, 113, 0.2)' : 'rgba(231, 76, 60, 0.2)'}; border: 1px solid ${isValid ? '#2ecc71' : '#e74c3c'}; color: ${isValid ? '#2ecc71' : '#e74c3c'};">
+            ${isValid ? '✅ Ticket Gültig!' : '❌ Ticket Ungültig / Bereits gescannt'}
+            <div style="font-size: 0.8rem; margin-top: 0.5rem; color: #fff;">Code: ${decodedText}</div>
+        </div>
+    `;
+    
+    // Play sound / haptic feedback
+    if (navigator.vibrate) {
+        navigator.vibrate(isValid ? [100] : [200, 100, 200]);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const startBtn = document.getElementById('qr-start-btn');
+    const stopBtn = document.getElementById('qr-stop-btn');
+    
+    if (startBtn && stopBtn) {
+        startBtn.addEventListener('click', () => {
+            const resultsEl = document.getElementById('qr-reader-results');
+            if(resultsEl) resultsEl.innerHTML = '';
+            
+            if (!html5QrcodeScanner) {
+                // Initialize it only when starting, ensuring the lib is loaded
+                if (typeof Html5Qrcode !== 'undefined') {
+                    html5QrcodeScanner = new Html5Qrcode("qr-reader");
+                } else {
+                    if(resultsEl) resultsEl.innerHTML = `<div style="color: #e74c3c;">Fehler: Scanner-Bibliothek nicht geladen.</div>`;
+                    return;
+                }
+            }
+            
+            html5QrcodeScanner.start(
+                { facingMode: "environment" }, 
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                (decodedText) => {
+                    handleTicketScan(decodedText);
+                },
+                (errorMessage) => {
+                    // ignore
+                }
+            ).then(() => {
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'block';
+            }).catch(err => {
+                console.error("Scanner Error: ", err);
+                if(resultsEl) resultsEl.innerHTML = `<div style="color: #e74c3c; font-size: 0.85rem;">Fehler: Kamera konnte nicht gestartet werden. Bitte Berechtigungen prüfen.</div>`;
+            });
+        });
+        
+        const stopScanner = () => {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().then(() => {
+                    startBtn.style.display = 'block';
+                    stopBtn.style.display = 'none';
+                }).catch(err => {
+                    console.error("Failed to stop scanner", err);
+                });
+            }
+        };
+        
+        stopBtn.addEventListener('click', stopScanner);
+    }
+});
 window.applyPopcornPrognosis = applyPopcornPrognosis;
+
+// --- TAGESABSCHLUSS LOGIC ---
+window.showTagesabschlussModal = function() {
+    const modal = document.getElementById('tagesabschluss-modal');
+    if (!modal) return;
+    
+    // Calculate stats
+    let totalTasks = 0;
+    let completedTasks = 0;
+    
+    // We can count from cloudChecklistState or DOM checkboxes
+    const checkboxes = document.querySelectorAll('.checklist-group input[type="checkbox"]');
+    if (checkboxes.length > 0) {
+        totalTasks = checkboxes.length;
+        checkboxes.forEach(cb => {
+            if (cb.checked) completedTasks++;
+        });
+    }
+    
+    // Get XP
+    const xpEl = document.getElementById('xp-display');
+    const xp = xpEl ? xpEl.textContent : "0 XP";
+    
+    // Get Scans (mock random number based on time of day)
+    const mockScans = Math.floor(Math.random() * 150) + 50;
+    
+    document.getElementById('ta-aufgaben').textContent = `${completedTasks} / ${totalTasks}`;
+    document.getElementById('ta-scans').textContent = mockScans;
+    document.getElementById('ta-xp').textContent = xp;
+    
+    modal.classList.add('show');
+};
+
+window.submitTagesabschluss = function() {
+    const modal = document.getElementById('tagesabschluss-modal');
+    modal.classList.remove('show');
+    
+    // Play haptic + toast
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+    showToast("Tagesabschluss erfolgreich übermittelt!");
+    
+    // Optional confetti
+    if (typeof confetti === 'function') {
+        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+    }
+};

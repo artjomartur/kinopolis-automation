@@ -2666,11 +2666,12 @@
         }
         .contact-dial.bg-green { background: rgba(229, 9, 20,0.2); border: 1px solid rgba(229, 9, 20,0.4); }
         
-                .tools-section, .info-section, .stats-section, .kontakte-section, .intern-section, .einstellungen-section, .admin-section, .live-section, .auslaesse-section, .funk-section { display: none !important; }
+        .tools-section, .info-section, .stats-section, .kontakte-section, .intern-section, .einstellungen-section, .admin-section, .live-section, .auslaesse-section, .funk-section, .scanner-section { display: none !important; }
         
-                body.live-active .live-section, body.live-active .auslaesse-section { display: block !important; }
-                body.tools-active .tools-section { display: block !important; }
-                body.funk-active .funk-section { display: block !important; }
+        body.live-active .live-section, body.live-active .auslaesse-section { display: block !important; }
+        body.scanner-active .scanner-section { display: block !important; }
+        body.tools-active .tools-section { display: block !important; }
+        body.funk-active .funk-section { display: block !important; }
         body.intern-active .intern-section { display: block !important; }
         body.info-active .info-section { display: block !important; }
         body.stats-active .stats-section { display: block !important; }

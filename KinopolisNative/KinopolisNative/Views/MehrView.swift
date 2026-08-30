@@ -18,6 +18,7 @@ struct MehrView: View {
     @State private var showSpickzettelSheet = false
     @State private var showDienstplanSheet = false
     
+    @State private var showTagesabschlussSheet = false
     @State private var showStatistikenSheet = false
     @State private var showTeamChatSheet = false
     @State private var showFAQSheet = false
@@ -265,6 +266,15 @@ struct MehrView: View {
                             .padding(.horizontal)
                         
                         VStack(spacing: 12) {
+                            Button(action: { showTagesabschlussSheet = true }) {
+                                ServiceRowItem(
+                                    icon: "checkmark.seal.fill",
+                                    color: .blue,
+                                    title: "Tagesabschluss",
+                                    subtitle: "Statistiken, XP und Schicht beenden"
+                                )
+                            }
+                            
                             Button(action: { showQuizSheet = true }) {
                                 ServiceRowItem(
                                     icon: "gamecontroller.fill",
@@ -590,6 +600,9 @@ struct MehrView: View {
         }
         .sheet(isPresented: $showStatistikenSheet) {
             StatistikenView()
+        }
+        .sheet(isPresented: $showTagesabschlussSheet) {
+            TagesabschlussView()
         }
         .sheet(isPresented: $showTeamChatSheet) {
             TeamChatView()
