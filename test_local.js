@@ -1,21 +1,13 @@
 const { chromium } = require('playwright');
-
 (async () => {
   const browser = await chromium.launch();
-  const page = await browser.newPage({
-    viewport: { width: 390, height: 844 }, // iPhone viewport
-    deviceScaleFactor: 2,
-    userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1'
-  });
+  const page = await browser.newPage();
+  page.on('console', msg => console.log('PAGE LOG:', msg.text()));
+  page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
   
-  await page.goto('http://localhost:5002');
-  
-  // Wait for the dashboard to render
-  await page.waitForSelector('.hall-card', { timeout: 10000 });
-  await page.waitForTimeout(2000); // give it a moment to render animations
-  
-  await page.screenshot({ path: '/Users/artjombecker/.gemini/antigravity-ide/brain/613edf2b-81a7-43cd-bb9d-52b8db12fd7b/ios_layout_screenshot.png' });
-  
-  console.log("Screenshot saved!");
+  await page.goto('http://127.0.0.1:8080/src/index.html', { waitUntil: 'networkidle' });
+  await page.waitForTimeout(3000);
+  const splash = await page.evaluate(() => document.getElementById('splash-screen') ? document.getElementById('splash-screen').style.display : 'NULL');
+  console.log('SPLASH DISPLAY:', splash);
   await browser.close();
 })();
