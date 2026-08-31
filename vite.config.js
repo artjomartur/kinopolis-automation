@@ -12,9 +12,11 @@ export default defineConfig({
       filename: 'sw.js',
       injectManifest: {
         injectionPoint: 'self.__WB_MANIFEST',
+        rollupFormat: 'iife'
       },
       devOptions: {
-        enabled: true
+        enabled: true,
+        type: 'module'
       }
     })
   ],

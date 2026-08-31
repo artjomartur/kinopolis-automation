@@ -200,7 +200,21 @@ function resetAndTestOli() {
 
         window.addEventListener('unhandledrejection', function(event) {
             const msg = event.reason ? (event.reason.message || event.reason) : 'Unbekannter Promise-Fehler';
-            if (typeof msg === 'string' && (msg.includes('isUrlTracking') || msg.includes('getSettingsInfo') || msg.includes('safari-extension') || msg.includes('chrome-extension') || msg.includes('evaluating') || msg.includes('content script') || msg.includes('Push service'))) return;
+            if (typeof msg === 'string' && (
+                msg.includes('isUrlTracking') || 
+                msg.includes('getSettingsInfo') || 
+                msg.includes('safari-extension') || 
+                msg.includes('chrome-extension') || 
+                msg.includes('evaluating') || 
+                msg.includes('content script') || 
+                msg.includes('Push service') ||
+                msg.includes('ServiceWorker') ||
+                msg.includes('service worker') ||
+                msg.includes('Unexpected keyword')
+            )) {
+                console.warn('Suppressed unhandled rejection:', msg);
+                return;
+            }
             
             console.error('Unhandled rejection:', event.reason);
             const errStr = `Promise-Fehler: ${msg}`;
@@ -1666,14 +1680,16 @@ function resetAndTestOli() {
 
         if ('serviceWorker' in navigator && 'PushManager' in window) {
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                const swType = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV) ? 'module' : 'classic';
+                navigator.serviceWorker.register('/sw.js', { type: swType }).then(function(registration) {
                     console.log('ServiceWorker registration successful with scope: ', registration.scope);
                     
                     // Force update check on load
-                    registration.update();
+                    try { registration.update(); } catch (e) {}
 
                     registration.onupdatefound = () => {
                         const installingWorker = registration.installing;
+                        if (!installingWorker) return;
                         installingWorker.onstatechange = () => {
                             if (installingWorker.state === 'installed') {
                                 if (navigator.serviceWorker.controller) {
@@ -1685,8 +1701,8 @@ function resetAndTestOli() {
 
                     checkPushSubscription();
                     checkNotificationPermission();
-                }, function(err) {
-                    console.log('ServiceWorker registration failed: ', err);
+                }).catch(function(err) {
+                    console.warn('ServiceWorker registration failed: ', err);
                 });
             });
         } else {
@@ -1698,9 +1714,15 @@ function resetAndTestOli() {
         }
 
         async function checkPushSubscription() {
-            const registration = await navigator.serviceWorker.ready;
-            const subscription = await registration.pushManager.getSubscription();
-            updatePushUI(!!subscription);
+            try {
+                if (!('serviceWorker' in navigator)) return;
+                const registration = await navigator.serviceWorker.ready;
+                if (!registration || !registration.pushManager) return;
+                const subscription = await registration.pushManager.getSubscription();
+                updatePushUI(!!subscription);
+            } catch (e) {
+                console.warn('Check push subscription notice:', e);
+            }
         }
 
         function updatePushUI(subscribed) {
