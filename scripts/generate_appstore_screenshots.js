@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 (async () => {
-    console.log("🎨 Generating App Store slides using authentic user screenshots...");
+    console.log("🎨 Generating App Store slides with 3D-Peeking & Floating Glass Card design...");
     const browser = await chromium.launch({ headless: true });
     
     const artifactsDir = '/Users/artjombecker/.gemini/antigravity-ide/brain/63c7c8ad-e20f-482b-b148-10bd7b45d48d';
@@ -19,7 +19,10 @@ const path = require('path');
             subtitle: 'Auslastung, Einlasszeiten und Restlaufzeiten für alle Kinosäle sekundengenau synchronisiert.',
             oli: 'Oli_4_bgless.png',
             screen: path.join(userUploadedDir, 'media_1788193365917.png'),
-            accent: '#3b82f6'
+            accent: '#3b82f6',
+            tipTitle: 'Live Saal-Radar',
+            tipText: 'Saal 1 startet in 15 Min • 280 Plätze belegt',
+            peekSide: 'right'
         },
         {
             id: 'appstore_2_funk',
@@ -28,7 +31,10 @@ const path = require('path');
             subtitle: 'Popcorn, Nachos, Getränke und Becher blitzschnell anfordern – diskret und ohne Funkrauschen.',
             oli: 'Oli_2_bgless.png',
             screen: path.join(userUploadedDir, 'media_1788193365950.png'),
-            accent: '#f59e0b'
+            accent: '#f59e0b',
+            tipTitle: 'Funk-Meldung',
+            tipText: 'Nachschub Popcorn & Becher an Kasse 2 gesendet',
+            peekSide: 'left'
         },
         {
             id: 'appstore_3_scanner',
@@ -37,7 +43,10 @@ const path = require('path');
             subtitle: 'QR-Codes scannen, Tickets entwerten und Saalzutritte im Handumdrehen prüfen.',
             oli: 'Oli_Security_bgless.png',
             screen: path.join(userUploadedDir, 'media_1788193365947.png'),
-            accent: '#10b981'
+            accent: '#10b981',
+            tipTitle: 'Einlasskontrolle',
+            tipText: 'Ticket gültig • Saal 4 • Reihe 8 Platz 14',
+            peekSide: 'right'
         },
         {
             id: 'appstore_4_action',
@@ -46,7 +55,10 @@ const path = require('path');
             subtitle: 'Rechtssichere Alters- und Stichtagsprüfung mit integriertem Kalender ohne Kopfrechnen.',
             oli: 'Oli_6_bgless.png',
             screen: path.join(userUploadedDir, 'media_1788193365941.png'),
-            accent: '#ef4444'
+            accent: '#ef4444',
+            tipTitle: 'FSK & Jugendschutz',
+            tipText: 'Stichtag 2008 geprüft • Ab 16 Jahren freigegeben',
+            peekSide: 'left'
         },
         {
             id: 'appstore_5_mehr',
@@ -55,7 +67,10 @@ const path = require('path');
             subtitle: 'Schicht-Zeiterfassung, Waren-Transfers, Reinigungschecks und Aufgaben übersichtlich vereint.',
             oli: 'Oli_5_bgless.png',
             screen: path.join(userUploadedDir, 'media_1788193365919.png'),
-            accent: '#8b5cf6'
+            accent: '#8b5cf6',
+            tipTitle: 'Schichtleiter-Status',
+            tipText: 'Plakatwechsel & Foyer-Checkliste abgeschlossen',
+            peekSide: 'right'
         }
     ];
 
@@ -79,13 +94,15 @@ const path = require('path');
         const screenB64 = getBase64Image(cfg.screen);
         const oliB64 = getBase64Image(path.join(process.cwd(), 'public', 'assets', 'Oli', cfg.oli));
 
+        const isRightPeek = cfg.peekSide === 'right';
+
         const html = `
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="utf-8">
             <style>
-                @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
+                @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap');
                 * { box-sizing: border-box; margin: 0; padding: 0; }
                 body {
                     width: 1290px;
@@ -125,7 +142,7 @@ const path = require('path');
                 /* Header Branding */
                 .header-brand {
                     position: absolute;
-                    top: 100px;
+                    top: 90px;
                     left: 50%;
                     transform: translateX(-50%);
                     display: flex;
@@ -152,7 +169,7 @@ const path = require('path');
                 /* Text Header */
                 .text-section {
                     position: absolute;
-                    top: 200px;
+                    top: 185px;
                     left: 80px;
                     right: 80px;
                     text-align: center;
@@ -170,21 +187,21 @@ const path = require('path');
                     border: 1px solid ${cfg.accent}40;
                     padding: 10px 24px;
                     border-radius: 50px;
-                    margin-bottom: 24px;
+                    margin-bottom: 22px;
                 }
 
                 .title {
-                    font-size: 78px;
+                    font-size: 76px;
                     font-weight: 900;
                     line-height: 1.08;
                     letter-spacing: -0.03em;
-                    margin-bottom: 24px;
+                    margin-bottom: 20px;
                     color: #ffffff;
                 }
 
                 .subtitle {
                     font-family: 'Inter', sans-serif;
-                    font-size: 32px;
+                    font-size: 30px;
                     color: #a1a1aa;
                     line-height: 1.45;
                     max-width: 960px;
@@ -192,10 +209,23 @@ const path = require('path');
                     font-weight: 400;
                 }
 
+                /* 3D Peeking Oli Mascot Behind Phone */
+                .oli-peeking {
+                    position: absolute;
+                    top: 860px;
+                    ${isRightPeek ? 'right: 120px;' : 'left: 120px;'}
+                    width: 320px;
+                    height: auto;
+                    z-index: 4;
+                    filter: drop-shadow(0 25px 40px rgba(0,0,0,0.85));
+                    transform: ${isRightPeek ? 'rotate(12deg)' : 'rotate(-12deg)'};
+                    pointer-events: none;
+                }
+
                 /* iPhone Frame Mockup */
                 .device-wrapper {
                     position: absolute;
-                    bottom: -80px;
+                    bottom: -60px;
                     left: 50%;
                     transform: translateX(-50%);
                     width: 900px;
@@ -207,8 +237,8 @@ const path = require('path');
                         0 40px 100px rgba(0,0,0,0.95),
                         0 0 0 2px #3f3f46,
                         0 0 0 6px #18181b,
-                        0 0 70px ${cfg.accent}25;
-                    z-index: 5;
+                        0 0 80px ${cfg.accent}30;
+                    z-index: 8;
                 }
 
                 .device-screen {
@@ -242,16 +272,96 @@ const path = require('path');
                     border: 1px solid rgba(255,255,255,0.08);
                 }
 
-                /* Oli Character */
-                .oli-character {
+                /* Floating Glassmorphism Action Card */
+                .floating-card {
                     position: absolute;
-                    bottom: 40px;
-                    right: 40px;
-                    width: 440px;
-                    height: auto;
-                    z-index: 15;
-                    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.8));
-                    pointer-events: none;
+                    bottom: 120px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 860px;
+                    background: rgba(18, 18, 24, 0.88);
+                    backdrop-filter: blur(40px);
+                    -webkit-backdrop-filter: blur(40px);
+                    border: 1.5px solid rgba(255, 255, 255, 0.15);
+                    border-radius: 36px;
+                    padding: 24px 32px;
+                    display: flex;
+                    align-items: center;
+                    gap: 24px;
+                    box-shadow: 
+                        0 30px 80px rgba(0,0,0,0.9),
+                        0 0 40px ${cfg.accent}35,
+                        inset 0 1px 0 rgba(255,255,255,0.2);
+                    z-index: 25;
+                }
+
+                .avatar-wrap {
+                    position: relative;
+                    width: 90px;
+                    height: 90px;
+                    background: radial-gradient(circle, ${cfg.accent}40, rgba(255,255,255,0.05));
+                    border: 1.5px solid ${cfg.accent}80;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                    box-shadow: 0 0 25px ${cfg.accent}50;
+                }
+
+                .avatar-wrap img {
+                    width: 80px;
+                    height: 80px;
+                    object-fit: contain;
+                }
+
+                .card-body {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                }
+
+                .card-header-row {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                }
+
+                .card-title {
+                    font-size: 26px;
+                    font-weight: 800;
+                    color: #ffffff;
+                    letter-spacing: -0.01em;
+                }
+
+                .pulse-badge {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-size: 18px;
+                    font-weight: 700;
+                    color: ${cfg.accent};
+                    background: ${cfg.accent}20;
+                    padding: 6px 14px;
+                    border-radius: 20px;
+                    border: 1px solid ${cfg.accent}50;
+                }
+
+                .pulse-dot {
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 50%;
+                    background: ${cfg.accent};
+                    box-shadow: 0 0 10px ${cfg.accent};
+                }
+
+                .card-message {
+                    font-family: 'Inter', sans-serif;
+                    font-size: 23px;
+                    font-weight: 500;
+                    color: #e4e4e7;
+                    line-height: 1.35;
                 }
             </style>
         </head>
@@ -270,6 +380,9 @@ const path = require('path');
                 <p class="subtitle">${cfg.subtitle}</p>
             </div>
 
+            <!-- Peeking 3D Character -->
+            <img class="oli-peeking" src="${oliB64}" alt="Oli Mascot">
+
             <div class="device-wrapper">
                 <div class="dynamic-island"></div>
                 <div class="device-screen">
@@ -277,7 +390,22 @@ const path = require('path');
                 </div>
             </div>
 
-            <img class="oli-character" src="${oliB64}" alt="Oli Mascot">
+            <!-- Floating Glassmorphism Benefit Card -->
+            <div class="floating-card">
+                <div class="avatar-wrap">
+                    <img src="${oliB64}" alt="Oli">
+                </div>
+                <div class="card-body">
+                    <div class="card-header-row">
+                        <div class="card-title">${cfg.tipTitle}</div>
+                        <div class="pulse-badge">
+                            <span class="pulse-dot"></span>
+                            <span>AKTIV</span>
+                        </div>
+                    </div>
+                    <div class="card-message">${cfg.tipText}</div>
+                </div>
+            </div>
         </body>
         </html>
         `;
@@ -293,7 +421,7 @@ const path = require('path');
         console.log(`✅ Saved & Copied: ${cfg.id}.png`);
     }
 
-    console.log("🏁 All 5 App Store screenshots generated perfectly with genuine user screenshots!");
+    console.log("🏁 All 5 App Store screenshots generated perfectly with 3D-Peeking & Floating Glass Card design!");
     await browser.close();
     process.exit(0);
 })();

@@ -42,6 +42,18 @@ parse_test*.js
 .env
 .dev.vars
 
+# Xcode / iOS
+xcuserdata/
+*.xcuserstate
+*.xcbkptlist
+*.xcscheme
+DerivedData/
+build/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
 # Local development logs
 *.log
 local_dev*.log

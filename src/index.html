@@ -1291,20 +1291,48 @@
                     </div>
                 </div>
 
-                <!-- App Store Screenshots Gallery -->
+                <!-- App & Web Showcase Gallery -->
                 <div class="card-container glass" style="margin-bottom: 1rem; padding: 1.1rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                         <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.1rem;">📱</span>
-                            <h3 style="font-size: 0.95rem; margin: 0; color: #fff;">App Store Vorschau &amp; Screens</h3>
+                            <span style="font-size: 1.1rem;">🖥️</span>
+                            <h3 style="font-size: 0.95rem; margin: 0; color: #fff;">Desktop &amp; Web Showcase</h3>
                         </div>
-                        <span style="font-size: 0.75rem; color: var(--primary-blue); font-weight: 600;">5 Screenshots</span>
+                        <span style="font-size: 0.75rem; color: var(--primary-blue); font-weight: 600;">4 Desktop Screens</span>
                     </div>
                     <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.85rem; line-height: 1.3;">
-                        Tippe auf ein Vorschaubild, um den Screenshot in voller Auflösung zu öffnen:
+                        Tippe auf ein Vorschaubild, um den Desktop-Showcase in 1080p zu öffnen:
                     </p>
 
-                    <!-- Horizontal scroll gallery -->
+                    <!-- Desktop Horizontal scroll gallery -->
+                    <div style="display: flex; gap: 0.75rem; overflow-x: auto; padding-bottom: 0.5rem; scrollbar-width: thin; -webkit-overflow-scrolling: touch; margin-bottom: 1.25rem;">
+                        <div onclick="window.open('/assets/web_showcase/web_1_dashboard.png', '_blank')" style="flex-shrink: 0; width: 165px; border-radius: 8px; overflow: hidden; border: 1px solid var(--surface-border); cursor: pointer; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.03)'; this.style.borderColor='var(--primary-blue)'" onmouseout="this.style.transform='none'; this.style.borderColor='var(--surface-border)'">
+                            <img src="/assets/web_showcase/web_1_dashboard.png" alt="Live Dashboard" style="width: 100%; height: auto; display: block;">
+                            <div style="padding: 0.3rem 0.2rem; font-size: 0.68rem; text-align: center; font-weight: 700; color: #cbd5e1; background: #0a0a0d;">Live-Dashboard</div>
+                        </div>
+                        <div onclick="window.open('/assets/web_showcase/web_2_analytics.png', '_blank')" style="flex-shrink: 0; width: 165px; border-radius: 8px; overflow: hidden; border: 1px solid var(--surface-border); cursor: pointer; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.03)'; this.style.borderColor='var(--primary-blue)'" onmouseout="this.style.transform='none'; this.style.borderColor='var(--surface-border)'">
+                            <img src="/assets/web_showcase/web_2_analytics.png" alt="Besucherstrom Analytics" style="width: 100%; height: auto; display: block;">
+                            <div style="padding: 0.3rem 0.2rem; font-size: 0.68rem; text-align: center; font-weight: 700; color: #cbd5e1; background: #0a0a0d;">Foyer-Analytics</div>
+                        </div>
+                        <div onclick="window.open('/assets/web_showcase/web_3_reports.png', '_blank')" style="flex-shrink: 0; width: 165px; border-radius: 8px; overflow: hidden; border: 1px solid var(--surface-border); cursor: pointer; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.03)'; this.style.borderColor='var(--primary-blue)'" onmouseout="this.style.transform='none'; this.style.borderColor='var(--surface-border)'">
+                            <img src="/assets/web_showcase/web_3_reports.png" alt="Schichtbericht" style="width: 100%; height: auto; display: block;">
+                            <div style="padding: 0.3rem 0.2rem; font-size: 0.68rem; text-align: center; font-weight: 700; color: #cbd5e1; background: #0a0a0d;">Schichtbericht</div>
+                        </div>
+                        <div onclick="window.open('/assets/web_showcase/web_4_admin.png', '_blank')" style="flex-shrink: 0; width: 165px; border-radius: 8px; overflow: hidden; border: 1px solid var(--surface-border); cursor: pointer; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.03)'; this.style.borderColor='var(--primary-blue)'" onmouseout="this.style.transform='none'; this.style.borderColor='var(--surface-border)'">
+                            <img src="/assets/web_showcase/web_4_admin.png" alt="Gastro Inventur" style="width: 100%; height: auto; display: block;">
+                            <div style="padding: 0.3rem 0.2rem; font-size: 0.68rem; text-align: center; font-weight: 700; color: #cbd5e1; background: #0a0a0d;">Gastro &amp; Admin</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; border-top: 1px solid var(--surface-border); padding-top: 0.85rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.1rem;">📱</span>
+                            <h3 style="font-size: 0.95rem; margin: 0; color: #fff;">Mobile App Store Screens (iOS)</h3>
+                        </div>
+                        <span style="font-size: 0.75rem; color: var(--primary-blue); font-weight: 600;">5 Screens</span>
+                    </div>
+
+                    <!-- Mobile Horizontal scroll gallery -->
                     <div style="display: flex; gap: 0.65rem; overflow-x: auto; padding-bottom: 0.5rem; scrollbar-width: thin; -webkit-overflow-scrolling: touch;">
                         <div onclick="window.open('/assets/appstore/appstore_1_live.png', '_blank')" style="flex-shrink: 0; width: 95px; border-radius: 8px; overflow: hidden; border: 1px solid var(--surface-border); cursor: pointer; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.04)'; this.style.borderColor='var(--primary-blue)'" onmouseout="this.style.transform='none'; this.style.borderColor='var(--surface-border)'">
                             <img src="/assets/appstore/appstore_1_live.png" alt="Saal Monitor" style="width: 100%; height: auto; display: block;">
