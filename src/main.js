@@ -3467,7 +3467,10 @@ function resetAndTestOli() {
                 });
 
                 if (items.length === 0) {
-                    list.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-muted); font-style: italic;">Keine passenden Fundsachen gefunden.</div>';
+                    list.innerHTML = `<div style="padding: 2.5rem 1.5rem; text-align: center; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <img src="/assets/Oli/Oli_2_bgless.png" alt="Oli Fundbüro" style="width: 72px; height: 72px; object-fit: contain; margin-bottom: 0.75rem; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5)); opacity: 0.85;">
+                        <span style="font-size: 0.95rem;">Keine passenden Fundsachen gefunden.</span>
+                    </div>`;
                     return;
                 }
                 
@@ -3938,9 +3941,10 @@ function resetAndTestOli() {
 
                 if(sessions.length === 0) {
                       const dateStrDisplay = displayDate.toLocaleDateString('de-DE');
-                      document.getElementById('dashboard').innerHTML = `<div class="glass" style="padding: 3rem; text-align: center; grid-column: 1/-1;">
-                          <h3>Keine Vorstellungen gefunden</h3>
-                          <p style="color: var(--text-muted); margin-top: 1rem;">Möglicherweise ist das Kino am ${dateStrDisplay} geschlossen oder die Daten sind nicht verfügbar.</p>
+                      document.getElementById('dashboard').innerHTML = `<div class="glass" style="padding: 3rem 1.5rem; text-align: center; grid-column: 1/-1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                          <img src="/assets/Oli/Oli_4_bgless.png" alt="Oli Kino" style="width: 84px; height: 84px; object-fit: contain; margin-bottom: 1rem; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5));">
+                          <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">Keine Vorstellungen gefunden</h3>
+                          <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 420px; line-height: 1.4;">Möglicherweise ist das Kino am ${dateStrDisplay} geschlossen oder das Programm wurde noch nicht veröffentlicht.</p>
                       </div>`;
                       document.getElementById('poster-alerts').innerHTML = '';
                       document.getElementById('auslaesse-list').innerHTML = '';
@@ -6003,14 +6007,18 @@ function resetAndTestOli() {
 
 // --- AI CHAT TOGGLES TO PREVENT OVERLAPS ---
 function openAiChat() {
-    document.getElementById('ai-chat-modal').style.display = 'flex';
-    document.getElementById('ai-chat-fab').style.display = 'none';
+    const modal = document.getElementById('ai-chat-modal');
+    if (modal) modal.style.display = 'flex';
+    const fab = document.getElementById('ai-chat-fab');
+    if (fab) fab.style.display = 'none';
     const sos = document.getElementById('help-floating-btn');
     if (sos) sos.style.display = 'none';
 }
 function closeAiChat() {
-    document.getElementById('ai-chat-modal').style.display = 'none';
-    document.getElementById('ai-chat-fab').style.display = 'flex';
+    const modal = document.getElementById('ai-chat-modal');
+    if (modal) modal.style.display = 'none';
+    const fab = document.getElementById('ai-chat-fab');
+    if (fab) fab.style.display = 'flex';
     const sos = document.getElementById('help-floating-btn');
     if (sos) sos.style.display = 'flex';
 }
