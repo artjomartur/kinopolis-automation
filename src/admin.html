@@ -243,7 +243,10 @@
             
             <!-- Admin Tabs Navigation -->
             <div class="admin-tabs" style="display: flex; gap: 0.5rem; background: rgba(255,255,255,0.03); padding: 0.5rem; border-radius: 18px; margin-bottom: 2rem; border: 1px solid var(--surface-border);">
-                <button class="admin-tab active" onclick="switchAdminTab('team', this)" style="flex: 1; padding: 0.85rem; border-radius: 14px; border: none; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                <button class="admin-tab active" onclick="switchAdminTab('briefing', this)" style="flex: 1; padding: 0.85rem; border-radius: 14px; border: none; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                    <span>☕</span> BL-Briefing
+                </button>
+                <button class="admin-tab" onclick="switchAdminTab('team', this)" style="flex: 1; padding: 0.85rem; border-radius: 14px; border: none; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
                     <span>👥</span> Team & Support
                 </button>
                 <button class="admin-tab" onclick="switchAdminTab('content', this)" style="flex: 1; padding: 0.85rem; border-radius: 14px; border: none; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
@@ -261,8 +264,15 @@
                 .admin-tab-page.active { display: flex; flex-direction: column; gap: 3rem; }
             </style>
 
+            <!-- TAB 0: BL-BRIEFING -->
+            <div id="tab-briefing" class="admin-tab-page active">
+                <div id="executive-briefing-container">
+                    <div class="empty-state">Lade Morgen-Briefing für Betriebsleitung...</div>
+                </div>
+            </div>
+
             <!-- TAB 1: TEAM & SUPPORT -->
-            <div id="tab-team" class="admin-tab-page active">
+            <div id="tab-team" class="admin-tab-page">
                 <!-- Staff Management Section -->
                 <div class="admin-section">
                     <h2><span>👥</span> Mitarbeiter Verwaltung</h2>
@@ -510,7 +520,17 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { ExecutiveBriefing } from './components/executive-briefing.js';
+        import { api } from './core/api.js';
+        import { showToast, copyToClipboard, triggerHaptic } from './utils/ui.js';
+
+        window.ExecutiveBriefing = ExecutiveBriefing;
+        window.api = api;
+        window.showToast = showToast;
+        window.copyToClipboard = copyToClipboard;
+        window.triggerHaptic = triggerHaptic;
+
         const MODULES = [
             { id: 'live-dashboard', name: 'Live Display (Haupt)', icon: '📺' },
             { id: 'stats', name: 'Statistiken', icon: '📊' },
@@ -631,9 +651,54 @@
             }
         }
 
+        async function loadExecutiveBriefing() {
+            const container = document.getElementById('executive-briefing-container');
+            if (!container) return;
+
+            container.innerHTML = '<div class="empty-state">Berechne Morgen-Briefing für Betriebsleitung...</div>';
+
+            try {
+                const [sessionsRes, logsRes, ticketsRes, mhdRes, invRes, staffRes] = await Promise.allSettled([
+                    api.getSessions(currentCity),
+                    api.getLogs(currentCity),
+                    api.getTechTickets(currentCity),
+                    fetch(`/api/mhd?location=${currentCity}`).then(r => r.ok ? r.json() : []),
+                    fetch(`/api/inventory/counts?location=${currentCity}`).then(r => r.ok ? r.json() : []),
+                    fetch(`/api/users?location=${currentCity}`).then(r => r.ok ? r.json() : [])
+                ]);
+
+                const sessions = sessionsRes.status === 'fulfilled' ? (sessionsRes.value || []) : [];
+                const logs = logsRes.status === 'fulfilled' ? (logsRes.value || []) : [];
+                const tickets = ticketsRes.status === 'fulfilled' ? (ticketsRes.value || []) : [];
+                const mhdItems = mhdRes.status === 'fulfilled' ? (mhdRes.value || []) : [];
+                const inventoryCounts = invRes.status === 'fulfilled' ? (invRes.value || []) : [];
+                const staffList = staffRes.status === 'fulfilled' ? (staffRes.value || []) : [];
+
+                const locSelect = document.getElementById('admin-city');
+                const locName = locSelect?.options[locSelect.selectedIndex]?.text || currentCity.toUpperCase();
+
+                const model = ExecutiveBriefing.buildBriefingModel({
+                    locationName: locName,
+                    locationCode: currentCity,
+                    sessionsToday: Array.isArray(sessions) ? sessions.flatMap(h => (h.sessions || []).map(s => ({ ...s, hallId: h.name }))) : [],
+                    logs,
+                    tickets,
+                    mhdItems,
+                    inventoryCounts,
+                    staffList
+                });
+
+                ExecutiveBriefing.renderCockpit('executive-briefing-container', model);
+            } catch (e) {
+                console.error('Error loading executive briefing:', e);
+                container.innerHTML = '<div class="empty-state">Fehler beim Laden des Morgen-Briefings.</div>';
+            }
+        }
+
         function showAdminPanel() {
             document.getElementById('admin-login-gate').style.display = 'none';
             document.getElementById('admin-main-content').style.display = 'block';
+            loadExecutiveBriefing();
             loadAdminMessages();
             loadAdminContacts();
             initModuleManagement();
@@ -646,9 +711,16 @@
             btn.classList.add("active"); 
             document.querySelectorAll(".admin-tab-page").forEach(p => p.classList.remove("active")); 
             document.getElementById(`tab-${tabId}`).classList.add("active"); 
+            if (tabId === "briefing") loadExecutiveBriefing();
             if (tabId === "team") loadStaff(); 
             if (tabId === "content") { loadAdminMessages(); loadInventory(); } 
         } 
+
+        // Expose functions on window for inline onclick handlers
+        window.switchAdminTab = switchAdminTab;
+        window.loadExecutiveBriefing = loadExecutiveBriefing;
+        window.showAdminPanel = showAdminPanel;
+        window.onCityChange = onCityChange; 
 
         function initModuleManagement() {
             const container = document.getElementById('module-management-list');

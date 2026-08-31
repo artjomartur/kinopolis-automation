@@ -571,7 +571,10 @@
     </div>
 
     <div class="tl-tabs">
-        <button class="tl-tab active" onclick="switchTlTab('live', this)">
+        <button class="tl-tab active" onclick="switchTlTab('briefing', this)">
+            <span>☕</span> Briefing
+        </button>
+        <button class="tl-tab" onclick="switchTlTab('live', this)">
             <span>🚨</span> Live
         </button>
         <button class="tl-tab" onclick="switchTlTab('analytics', this)">
@@ -592,8 +595,15 @@
     </div>
 
     <div id="tl-pages">
+        <!-- TAB 0: BL MORGEN-BRIEFING -->
+        <div id="page-briefing" class="tl-tab-page active">
+            <div id="tl-executive-briefing-container">
+                <div class="empty-state">Lade Morgen-Briefing für Betriebsleitung...</div>
+            </div>
+        </div>
+
         <!-- TAB 1: LIVE -->
-        <div id="page-live" class="tl-tab-page active">
+        <div id="page-live" class="tl-tab-page">
             <!-- SAAL-STATUS MONITOR -->
             <div class="card">
                 <div class="card-header">
@@ -847,12 +857,14 @@
     </div>
 
     <script type="module">
+        import { ExecutiveBriefing } from './components/executive-briefing.js';
         import { CinemaAnalytics } from './components/analytics.js';
         import { ShiftReportGenerator } from './components/reports.js';
         import { api } from './core/api.js';
         import { showToast, copyToClipboard, triggerHaptic } from './utils/ui.js';
 
         // Expose modules and utils to window for template compatibility
+        window.ExecutiveBriefing = ExecutiveBriefing;
         window.CinemaAnalytics = CinemaAnalytics;
         window.ShiftReportGenerator = ShiftReportGenerator;
         window.api = api;
@@ -1667,10 +1679,47 @@
             document.getElementById(`page-${tabId}`).classList.add('active');
             
             // Trigger specific loads if needed
+            if (tabId === 'briefing') await loadTlBriefing();
             if (tabId === 'analytics') await loadAnalyticsTab();
             if (tabId === 'reports') await loadReportsTab();
             if (tabId === 'log') loadLogs();
             if (tabId === 'breaks') loadBreaks();
+        }
+
+        async function loadTlBriefing() {
+            const container = document.getElementById('tl-executive-briefing-container');
+            if (!container) return;
+            container.innerHTML = '<div class="empty-state">Berechne Morgen-Briefing für Betriebsleitung...</div>';
+
+            try {
+                await ensureSessionsLoaded();
+                const [logsRes, ticketsRes] = await Promise.allSettled([
+                    api.getLogs(currentCity),
+                    api.getTechTickets(currentCity)
+                ]);
+
+                const logs = logsRes.status === 'fulfilled' ? (logsRes.value || []) : [];
+                const tickets = ticketsRes.status === 'fulfilled' ? (ticketsRes.value || []) : [];
+
+                const locSelect = document.getElementById('location-selector');
+                const locName = locSelect?.options[locSelect.selectedIndex]?.text || currentCity.toUpperCase();
+
+                const model = ExecutiveBriefing.buildBriefingModel({
+                    locationName: locName,
+                    locationCode: currentCity,
+                    sessionsToday: GLOBAL_SESSIONS,
+                    logs,
+                    tickets,
+                    mhdItems: [],
+                    inventoryCounts: [],
+                    staffList: []
+                });
+
+                ExecutiveBriefing.renderCockpit('tl-executive-briefing-container', model);
+            } catch (e) {
+                console.error('Error loading TL briefing:', e);
+                container.innerHTML = '<div class="empty-state">Fehler beim Laden des Morgen-Briefings.</div>';
+            }
         }
 
         async function ensureSessionsLoaded() {
@@ -1831,6 +1880,7 @@
         window.sendBroadcast = sendBroadcast;
         window.handleLogImage = handleLogImage;
         window.removeLogImage = removeLogImage;
+        window.loadTlBriefing = loadTlBriefing;
 
         // --- PULL TO REFRESH ---
         let touchStart = 0;
@@ -2019,6 +2069,11 @@
                 setTimeout(() => status.style.display = 'none', 5000);
             }
         }
+
+        // Auto-load briefing on start
+        window.addEventListener('DOMContentLoaded', () => {
+            loadTlBriefing();
+        });
     </script>
 </body>
 </html>
