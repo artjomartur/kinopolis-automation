@@ -2729,6 +2729,82 @@ function resetAndTestOli() {
         }
         window.closeModal = closeModal;
 
+        // --- IN-APP TL LIVE MONITORING ---
+        function openTlMonitoring() {
+            const modal = document.getElementById('tl-monitoring-modal');
+            if (!modal) return;
+
+            const city = currentCity ? currentCity.toUpperCase() : 'KP';
+            const subTitle = document.getElementById('tl-modal-subtitle');
+            if (subTitle) subTitle.innerText = `Kinopolis ${city} • Live Schichtleitung`;
+
+            // Calculate live staff & tasks progress
+            const tasksCompleted = (completedAuslaesse.size + completedPosters.size + completedCleaning.size);
+            const totalTasksEstimated = Math.max(12, tasksCompleted + 4);
+            const taskPct = Math.min(100, Math.round((tasksCompleted / totalTasksEstimated) * 100));
+
+            const taskProgressEl = document.getElementById('tl-task-progress');
+            if (taskProgressEl) taskProgressEl.innerText = `${taskPct}%`;
+
+            // Open restock feed
+            const restockFeed = document.getElementById('tl-restock-feed');
+            if (restockFeed) {
+                const logs = safeParse('mhd_check_logs', []);
+                if (logs && logs.length > 0) {
+                    restockFeed.innerHTML = logs.slice(0, 3).map(l => `
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--surface-border); padding: 0.6rem 0.8rem; border-radius: 8px; font-size: 0.82rem; display: flex; justify-content: space-between; align-items: center;">
+                            <span>${l.entry}</span>
+                            <span style="color: var(--text-muted); font-size: 0.72rem;">${l.time}</span>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            modal.style.display = 'flex';
+            if (window.SOUND) SOUND.playSuccess();
+        }
+        window.openTlMonitoring = openTlMonitoring;
+
+        // --- IN-APP BL COCKPIT & CONTROLLING ---
+        function openBlMonitoring() {
+            const modal = document.getElementById('bl-monitoring-modal');
+            if (!modal) return;
+
+            const city = currentCity ? currentCity.toUpperCase() : 'KP';
+            const subTitle = document.getElementById('bl-modal-subtitle');
+            if (subTitle) subTitle.innerText = `Kinopolis ${city} • Betriebs-Cockpit & Controlling`;
+
+            // Calculate aggregated statistics from lastData
+            let totalGuests = 0;
+            let totalCapacity = 0;
+
+            if (lastData && Array.isArray(lastData)) {
+                lastData.forEach(hall => {
+                    const sessions = hall.sessions || [];
+                    sessions.forEach(s => {
+                        totalGuests += (s.sold || 0);
+                        totalCapacity += (s.capacity || 0);
+                    });
+                });
+            }
+
+            const totalGuestsEl = document.getElementById('bl-total-guests');
+            if (totalGuestsEl) totalGuestsEl.innerText = `${totalGuests} Tickets`;
+
+            const avgOccupancy = totalCapacity > 0 ? Math.round((totalGuests / totalCapacity) * 100) : 0;
+            const avgOccupancyEl = document.getElementById('bl-avg-occupancy');
+            if (avgOccupancyEl) avgOccupancyEl.innerText = `${avgOccupancy}%`;
+
+            // Concession forecast approx: 7.50 € per guest
+            const forecastEur = (totalGuests * 7.5).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+            const forecastEl = document.getElementById('bl-concession-forecast');
+            if (forecastEl) forecastEl.innerText = forecastEur;
+
+            modal.style.display = 'flex';
+            if (window.SOUND) SOUND.playSuccess();
+        }
+        window.openBlMonitoring = openBlMonitoring;
+
         window.sendTransferList = sendTransferList;
         window.sendEisTransferList = sendEisTransferList;
         window.sendMhdList = sendMhdList;
