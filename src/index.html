@@ -147,13 +147,16 @@
 <div class="stale-badge" id="stale-warning" style="display: none;">⚠️ Offline-Modus (Veraltete Daten)</div>
 </div>
 </div>
-<div class="ios-banner glass" style="margin-bottom: 1.5rem; padding: 1.5rem; border-radius: 16px; border-left: 4px solid #1cb0f6; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
-    <div>
-        <h3 style="margin: 0; color: #1cb0f6; font-size: 1.1rem; margin-bottom: 0.25rem;">📱 Bald als iOS App!</h3>
-        <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Die offizielle Kinopolis App für dein iPhone ist in Arbeit. Freu dich auf Push-Benachrichtigungen, Offline-Support und mehr!</p>
+<div class="ios-banner glass" id="ios-app-banner" style="margin-bottom: 1.5rem; padding: 1.25rem 1.5rem; border-radius: var(--card-radius); border-left: 3px solid var(--primary-blue); display: flex; align-items: center; justify-content: space-between; gap: 1rem; position: relative;">
+    <div style="padding-right: 1.5rem;">
+        <h3 style="margin: 0; color: var(--primary-blue); font-size: 1.05rem; margin-bottom: 0.25rem; font-weight: 700;">📱 Bald als iOS App!</h3>
+        <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">Die offizielle Kinopolis App für dein iPhone ist in Arbeit. Freu dich auf Push-Benachrichtigungen, Offline-Support und mehr!</p>
     </div>
-    <div style="flex-shrink: 0; width: 60px; height: 60px; background: rgba(28,176,246,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-        <span style="font-size: 1.8rem;">🍏</span>
+    <div style="display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;">
+        <div style="width: 44px; height: 44px; background: rgba(59,130,246,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+            <span style="font-size: 1.4rem;">🍏</span>
+        </div>
+        <button onclick="dismissAppBanner()" aria-label="Banner schließen" title="Ausblenden" style="background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 8px; transition: all 0.15s ease;" onmouseover="this.style.color='#fff'; this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.color='var(--text-muted)'; this.style.background='transparent'">✕</button>
     </div>
 </div>
 <!-- LIVE ALERT BANNER -->

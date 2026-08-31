@@ -1033,6 +1033,9 @@ function resetAndTestOli() {
                     if (sIcon) sIcon.innerText = '☀️';
                 }
 
+                // Check App Disclaimer Banner State
+                if (typeof checkAppBannerState === 'function') checkAppBannerState();
+
 
 
                 // Auth Init
@@ -7147,6 +7150,33 @@ window.submitTagesabschluss = function() {
     }
 };
 
+function dismissAppBanner() {
+    const banner = document.getElementById('ios-app-banner');
+    if (banner) {
+        banner.style.transition = 'opacity 0.2s ease, max-height 0.25s ease, margin 0.25s ease, padding 0.25s ease';
+        banner.style.opacity = '0';
+        banner.style.maxHeight = banner.scrollHeight + 'px';
+        setTimeout(() => {
+            banner.style.maxHeight = '0';
+            banner.style.paddingTop = '0';
+            banner.style.paddingBottom = '0';
+            banner.style.marginTop = '0';
+            banner.style.marginBottom = '0';
+            banner.style.overflow = 'hidden';
+            setTimeout(() => { banner.style.display = 'none'; }, 250);
+        }, 80);
+    }
+    localStorage.setItem('ios_banner_dismissed', 'true');
+}
+
+function checkAppBannerState() {
+    if (localStorage.getItem('ios_banner_dismissed') === 'true') {
+        const banner = document.getElementById('ios-app-banner');
+        if (banner) banner.style.display = 'none';
+    }
+}
+document.addEventListener('DOMContentLoaded', checkAppBannerState);
+
 // Global Window Exports for Inline HTML Handlers
 Object.assign(window, {
     closeHandoverModal,
@@ -7188,6 +7218,7 @@ Object.assign(window, {
     nextOliStep,
     openAiChat,
     closeAiChat,
-    sendChatMessage
+    sendChatMessage,
+    dismissAppBanner
 });
 
