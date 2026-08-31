@@ -1238,25 +1238,83 @@
 
             <!-- PAGE: About -->
             <div class="settings-page" id="settings-page-about">
-                <div class="card-container glass" style="margin-bottom: 2rem;">
-                    <div style="padding: 1.5rem; border-left: 4px solid var(--primary-red); background: rgba(229, 9, 20, 0.03); border-radius: 20px;">
-                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                            <span style="font-size: 1.5rem;">🚀</span>
-                            <h2 style="font-size: 1.25rem;">Über Kinopolis Automation</h2>
+                <!-- App Overview Card with Oli -->
+                <div class="card-container glass" style="margin-bottom: 1.5rem; border-color: rgba(59, 130, 246, 0.3);">
+                    <div style="padding: 1.5rem; display: flex; align-items: center; gap: 1.25rem;">
+                        <div style="width: 72px; height: 72px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: rgba(59,130,246,0.1); border-radius: 16px;">
+                            <img src="/assets/Oli/Oli_1_bgless.png" alt="Oli Kinobär" style="width: 64px; height: 64px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));">
                         </div>
-                        <p style="font-size: 0.95rem; line-height: 1.6; color: #fff; margin-bottom: 1rem;">
-                            <strong>Das Betriebssystem für dein Kino.</strong> Vernetzt, effizient und modern. 
-                        </p>
-                        <p style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
-                            Von Mitarbeitern für Mitarbeiter entwickelt, um den Kinobetrieb ins 21. Jahrhundert zu heben. 
-                            Echtzeit-Kommunikation, intelligente Aufgabenplanung und ein digitales Gedächtnis für jeden Standort. 
-                            Kinopolis Automation ist nicht nur ein Tool – es ist die Zentrale für einen reibungslosen Ablauf hinter den Kulissen.
-                        </p>
-                        <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; font-size: 0.75rem; color: rgba(255,255,255,0.3);">
-                            <span>Version 1.0 (April 2026)</span>
-                            <span>•</span>
-                            <span>Made with ❤️ for Kinopolis</span>
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                                <h2 style="font-size: 1.2rem; margin: 0; color: #fff;">Kinopolis Operations</h2>
+                                <span style="background: rgba(59,130,246,0.2); color: var(--primary-blue); font-size: 0.75rem; font-weight: 800; padding: 2px 8px; border-radius: 6px;">v1.0</span>
+                            </div>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0; line-height: 1.4;">
+                                Das moderne Betriebssystem für den Kinobetrieb. Entwickelt für reibungslose Schichten, schnellen Nachschub und digitale Organisation.
+                            </p>
                         </div>
+                    </div>
+                </div>
+
+                <!-- App Store Screenshots Gallery -->
+                <div class="card-container glass" style="margin-bottom: 1.5rem; padding: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <span style="font-size: 1.3rem;">📱</span>
+                            <h3 style="font-size: 1.1rem; margin: 0; color: #fff;">App Store Vorschau & Features</h3>
+                        </div>
+                        <span style="font-size: 0.8rem; color: var(--primary-blue); font-weight: 600;">5 Screenshots</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.4;">
+                        Tippe auf einen Screenshot, um ihn in voller Auflösung anzusehen:
+                    </p>
+
+                    <!-- Horizontal scroll gallery -->
+                    <div style="display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 0.75rem; scrollbar-width: thin; -webkit-overflow-scrolling: touch;">
+                        <div onclick="window.open('/assets/appstore/appstore_1_live.png', '_blank')" style="flex-shrink: 0; width: 140px; border-radius: 12px; overflow: hidden; border: 1px solid var(--surface-border); cursor: pointer; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.03)'; this.style.borderColor='var(--primary-blue)'" onmouseout="this.style.transform='none'; this.style.borderColor='var(--surface-border)'">
+                            <img src="/assets/appstore/appstore_1_live.png" alt="Saal Monitor" style="width: 100%; height: auto; display: block;">
+                            <div style="padding: 0.5rem; font-size: 0.75rem; text-align: center; font-weight: 700; color: #cbd5e1; background: #0a0a0d;">Saal-Monitor</div>
+                        </div>
+                        <div onclick="window.open('/assets/appstore/appstore_2_funk.png', '_blank')" style="flex-shrink: 0; width: 140px; border-radius: 12px; overflow: hidden; border: 1px solid var(--surface-border); cursor: pointer; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.03)'; this.style.borderColor='var(--primary-blue)'" onmouseout="this.style.transform='none'; this.style.borderColor='var(--surface-border)'">
+                            <img src="/assets/appstore/appstore_2_funk.png" alt="Digitaler Funk" style="width: 100%; height: auto; display: block;">
+                            <div style="padding: 0.5rem; font-size: 0.75rem; text-align: center; font-weight: 700; color: #cbd5e1; background: #0a0a0d;">Funkruf</div>
+                        </div>
+                        <div onclick="window.open('/assets/appstore/appstore_3_scanner.png', '_blank')" style="flex-shrink: 0; width: 140px; border-radius: 12px; overflow: hidden; border: 1px solid var(--surface-border); cursor: pointer; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.03)'; this.style.borderColor='var(--primary-blue)'" onmouseout="this.style.transform='none'; this.style.borderColor='var(--surface-border)'">
+                            <img src="/assets/appstore/appstore_3_scanner.png" alt="Ticket Scanner" style="width: 100%; height: auto; display: block;">
+                            <div style="padding: 0.5rem; font-size: 0.75rem; text-align: center; font-weight: 700; color: #cbd5e1; background: #0a0a0d;">Ticket-Scanner</div>
+                        </div>
+                        <div onclick="window.open('/assets/appstore/appstore_4_action.png', '_blank')" style="flex-shrink: 0; width: 140px; border-radius: 12px; overflow: hidden; border: 1px solid var(--surface-border); cursor: pointer; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.03)'; this.style.borderColor='var(--primary-blue)'" onmouseout="this.style.transform='none'; this.style.borderColor='var(--surface-border)'">
+                            <img src="/assets/appstore/appstore_4_action.png" alt="Team Aktionen" style="width: 100%; height: auto; display: block;">
+                            <div style="padding: 0.5rem; font-size: 0.75rem; text-align: center; font-weight: 700; color: #cbd5e1; background: #0a0a0d;">Checklisten</div>
+                        </div>
+                        <div onclick="window.open('/assets/appstore/appstore_5_mehr.png', '_blank')" style="flex-shrink: 0; width: 140px; border-radius: 12px; overflow: hidden; border: 1px solid var(--surface-border); cursor: pointer; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.03)'; this.style.borderColor='var(--primary-blue)'" onmouseout="this.style.transform='none'; this.style.borderColor='var(--surface-border)'">
+                            <img src="/assets/appstore/appstore_5_mehr.png" alt="Mehr Infos" style="width: 100%; height: auto; display: block;">
+                            <div style="padding: 0.5rem; font-size: 0.75rem; text-align: center; font-weight: 700; color: #cbd5e1; background: #0a0a0d;">Mehr Infos</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature Details Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <div class="card-container glass" style="padding: 1.25rem;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">⚡</div>
+                        <h4 style="color: #fff; font-size: 1rem; margin-bottom: 0.25rem;">Live &amp; Offline-Ready</h4>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0; line-height: 1.4;">Automatischer Cache und PWA-Offline-Modus bei instabilem Netz im Kinosaal.</p>
+                    </div>
+                    <div class="card-container glass" style="padding: 1.25rem;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🔔</div>
+                        <h4 style="color: #fff; font-size: 1rem; margin-bottom: 0.25rem;">Push-Benachrichtigungen</h4>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0; line-height: 1.4;">Sofortige Benachrichtigung bei Nachschub-Rufen und wichtigen Team-Mitteilungen.</p>
+                    </div>
+                    <div class="card-container glass" style="padding: 1.25rem;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🛡️</div>
+                        <h4 style="color: #fff; font-size: 1rem; margin-bottom: 0.25rem;">Sicherheit &amp; DSGVO</h4>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0; line-height: 1.4;">Vollständig abgesicherte Schichtübergaben und interne Notizen.</p>
+                    </div>
+                    <div class="card-container glass" style="padding: 1.25rem;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🖤</div>
+                        <h4 style="color: #fff; font-size: 1rem; margin-bottom: 0.25rem;">OLED True Black</h4>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0; line-height: 1.4;">Blendfreies Design nach HCI-Standards für die Arbeit im abgedunkelten Saal.</p>
                     </div>
                 </div>
             </div>
@@ -1655,8 +1713,8 @@
     <span class="tab-label">Action</span>
   </button>
   <button class="tab-btn" data-tab="mehr" onclick="switchTab('mehr', this)">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    <span class="tab-label">Mehr</span>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <span class="tab-label">Mehr Infos</span>
   </button>
 </nav>
 

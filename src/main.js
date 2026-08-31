@@ -853,7 +853,7 @@ function resetAndTestOli() {
                 loadMHDHistory();
             } else if (view === 'mehr') {
                 document.body.classList.add('mehr-active', 'stats-active', 'kontakte-active', 'info-active', 'einstellungen-active');
-                if (titleEl) titleEl.innerText = 'Mehr & Infos' + suffix;
+                if (titleEl) titleEl.innerText = 'Mehr Infos' + suffix;
                 loadUpcomingMovies();
                 if (window.setSettingsPage) {
                     const activeSubBtn = document.querySelector('.settings-nav-btn.active');
