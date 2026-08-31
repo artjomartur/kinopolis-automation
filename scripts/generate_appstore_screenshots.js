@@ -39,19 +39,12 @@ const { spawn } = require('child_process');
     await page.reload();
     await new Promise(r => setTimeout(r, 2500));
 
-    // Force hide any overlay modals
+    // Force remove any overlay modals and popups
     await page.evaluate(() => {
-        const splash = document.getElementById('splash-screen');
-        if (splash) splash.style.display = 'none';
-        
-        const deptModal = document.getElementById('dept-modal');
-        if (deptModal) deptModal.style.display = 'none';
-        
-        const onboarding = document.getElementById('oli-onboarding-modal');
-        if (onboarding) onboarding.style.display = 'none';
-
-        const handover = document.getElementById('handover-modal');
-        if (handover) handover.style.display = 'none';
+        document.querySelectorAll('.modal, .duo-modal-overlay, #oli-onboarding-modal, #dept-modal, #splash-screen, #handover-modal').forEach(el => {
+            el.remove();
+        });
+        document.body.classList.remove('modal-open');
     });
 
     const capturedScreens = {};
