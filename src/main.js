@@ -226,8 +226,9 @@ function resetAndTestOli() {
         });
 
         // --- GLOBAL FETCH INTERCEPTOR FOR NATIVE IOS (CAPACITOR) ---
-        // Change this URL to your production backend URL (e.g. 'https://kinopolis-api.com')
-        const APP_BACKEND_URL = 'http://10.152.25.199:3001'; 
+        const APP_BACKEND_URL = (window.location && window.location.hostname && !window.location.hostname.includes('localhost')) 
+            ? window.location.origin 
+            : 'https://kinopolis.artjombecker.com'; 
         
         const originalFetch = window.fetch;
         window.fetch = async function() {
@@ -3968,11 +3969,16 @@ function resetAndTestOli() {
                 if (!lastData) {
                     const dashboard = document.getElementById('dashboard');
                     if (dashboard) {
-                         dashboard.innerHTML = `<div class="glass" style="padding: 2rem; text-align: center; border-left: 4px solid var(--accent-red);">
-                            <h3 style="color: var(--accent-red); margin-bottom: 0.5rem;">Netzwerkfehler</h3>
-                            <p>Konnte keine Verbindung zum Server (${APP_BACKEND_URL}) aufbauen.</p>
-                            <p style="font-size: 0.8rem; margin-top: 1rem; opacity: 0.7;">Tipp: Prüfe, ob dein iPhone im gleichen WLAN wie dein Mac ist, und ob die App-Berechtigung fürs lokale Netzwerk erteilt wurde.</p>
-                         </div>`;
+                          dashboard.innerHTML = `<div class="card-container glass" style="padding: 2.5rem 1.5rem; text-align: center; grid-column: 1/-1; border-color: rgba(239, 68, 68, 0.3);">
+                             <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">📡</div>
+                             <h3 style="color: #fff; font-size: 1.15rem; margin-bottom: 0.5rem;">Verbindungsunterbrechung</h3>
+                             <p style="color: var(--text-muted); font-size: 0.85rem; max-width: 400px; margin: 0 auto 1.25rem; line-height: 1.4;">
+                                Die Vorstellungsdaten konnten gerade nicht synchronisiert werden. Bitte Internetverbindung prüfen.
+                             </p>
+                             <button onclick="fetchSessions()" class="btn-primary" style="padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 700; border-radius: 10px; background: var(--primary-blue); border: none; color: #fff; cursor: pointer;">
+                                🔄 Jetzt erneut laden
+                             </button>
+                          </div>`;
                     }
                 }
                 
