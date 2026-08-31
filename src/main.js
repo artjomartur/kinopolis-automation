@@ -6417,14 +6417,7 @@ function resetAndTestOli() {
     
 
 
-        // Subtle animation for help button
-        setInterval(() => {
-            const btn = document.getElementById('help-floating-btn');
-            if (btn) {
-                btn.style.transform = 'scale(1.1)';
-                setTimeout(() => btn.style.transform = 'scale(1)', 500);
-            }
-        }, 5000);
+
     
 
 

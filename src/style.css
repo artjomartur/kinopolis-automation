@@ -3437,9 +3437,6 @@
 body {
   padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
 }
-#help-floating-btn {
-  bottom: calc(100px + env(safe-area-inset-bottom, 0px)) !important;
-}
 .oli-toast {
   bottom: calc(100px + env(safe-area-inset-bottom, 0px)) !important;
 }
