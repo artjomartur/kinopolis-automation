@@ -242,17 +242,23 @@
         <div id="admin-main-content" class="admin-content" style="display: none;">
             
             <!-- Admin Tabs Navigation -->
-            <div class="admin-tabs" style="display: flex; gap: 0.5rem; background: rgba(255,255,255,0.03); padding: 0.5rem; border-radius: 18px; margin-bottom: 2rem; border: 1px solid var(--surface-border);">
-                <button class="admin-tab active" onclick="switchAdminTab('briefing', this)" style="flex: 1; padding: 0.85rem; border-radius: 14px; border: none; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+            <div class="admin-tabs" style="display: flex; gap: 0.5rem; background: rgba(255,255,255,0.03); padding: 0.5rem; border-radius: 18px; margin-bottom: 2rem; border: 1px solid var(--surface-border); overflow-x: auto;">
+                <button class="admin-tab active" onclick="switchAdminTab('briefing', this)" style="flex: 1; padding: 0.85rem; border-radius: 14px; border: none; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; white-space: nowrap;">
                     <span>☕</span> BL-Briefing
                 </button>
-                <button class="admin-tab" onclick="switchAdminTab('team', this)" style="flex: 1; padding: 0.85rem; border-radius: 14px; border: none; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                <button class="admin-tab" onclick="switchAdminTab('radar', this)" style="flex: 1; padding: 0.85rem; border-radius: 14px; border: none; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; white-space: nowrap;">
+                    <span>🌐</span> Multi-Standort
+                </button>
+                <button class="admin-tab" onclick="switchAdminTab('staffing', this)" style="flex: 1; padding: 0.85rem; border-radius: 14px; border: none; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; white-space: nowrap;">
+                    <span>📊</span> Personal-Planer
+                </button>
+                <button class="admin-tab" onclick="switchAdminTab('team', this)" style="flex: 1; padding: 0.85rem; border-radius: 14px; border: none; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; white-space: nowrap;">
                     <span>👥</span> Team & Support
                 </button>
-                <button class="admin-tab" onclick="switchAdminTab('content', this)" style="flex: 1; padding: 0.85rem; border-radius: 14px; border: none; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                <button class="admin-tab" onclick="switchAdminTab('content', this)" style="flex: 1; padding: 0.85rem; border-radius: 14px; border: none; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; white-space: nowrap;">
                     <span>📢</span> Inhalt & Inventar
                 </button>
-                <button class="admin-tab" onclick="switchAdminTab('system', this)" style="flex: 1; padding: 0.85rem; border-radius: 14px; border: none; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                <button class="admin-tab" onclick="switchAdminTab('system', this)" style="flex: 1; padding: 0.85rem; border-radius: 14px; border: none; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; white-space: nowrap;">
                     <span>⚙️</span> System & Export
                 </button>
             </div>
@@ -271,7 +277,21 @@
                 </div>
             </div>
 
-            <!-- TAB 1: TEAM & SUPPORT -->
+            <!-- TAB 1: MULTI-STANDORT RADAR -->
+            <div id="tab-radar" class="admin-tab-page">
+                <div id="admin-multi-radar-container">
+                    <div class="empty-state">Lade Netzwerk- &amp; Standort-Radar...</div>
+                </div>
+            </div>
+
+            <!-- TAB 2: PERSONAL-PLANER -->
+            <div id="tab-staffing" class="admin-tab-page">
+                <div id="admin-staffing-container">
+                    <div class="empty-state">Berechne Personal- &amp; Schichtbedarfe...</div>
+                </div>
+            </div>
+
+            <!-- TAB 3: TEAM & SUPPORT -->
             <div id="tab-team" class="admin-tab-page">
                 <!-- Staff Management Section -->
                 <div class="admin-section">
@@ -522,10 +542,14 @@
 
     <script type="module">
         import { ExecutiveBriefing } from './components/executive-briefing.js';
+        import { MultiLocationRadar } from './components/multi-location-radar.js';
+        import { StaffingOptimizer } from './components/staffing-optimizer.js';
         import { api } from './core/api.js';
         import { showToast, copyToClipboard, triggerHaptic } from './utils/ui.js';
 
         window.ExecutiveBriefing = ExecutiveBriefing;
+        window.MultiLocationRadar = MultiLocationRadar;
+        window.StaffingOptimizer = StaffingOptimizer;
         window.api = api;
         window.showToast = showToast;
         window.copyToClipboard = copyToClipboard;
@@ -695,6 +719,53 @@
             }
         }
 
+        async function loadMultiRadar() {
+            const container = document.getElementById('admin-multi-radar-container');
+            if (!container) return;
+            container.innerHTML = '<div class="empty-state">Lade Live-Daten aller Standorte im Netzwerk...</div>';
+            try {
+                const summary = await MultiLocationRadar.fetchLocationsSummary(['kp', 'cd', 'rx', 'ab', 'vi', 'su', 'bn', 'hh']);
+                MultiLocationRadar.renderRadarWidget('admin-multi-radar-container', summary);
+            } catch (e) {
+                console.error('Error loading multi radar:', e);
+                container.innerHTML = '<div class="empty-state">Fehler beim Laden der Standort-Daten.</div>';
+            }
+        }
+
+        async function loadStaffingPlan() {
+            const container = document.getElementById('admin-staffing-container');
+            if (!container) return;
+            container.innerHTML = '<div class="empty-state">Berechne Personalbedarfe aus Einlasswellen...</div>';
+            try {
+                const halls = await api.getSessions(currentCity);
+                const flatSessions = [];
+                if (Array.isArray(halls)) {
+                    halls.forEach(h => {
+                        (h.sessions || []).forEach(s => {
+                            flatSessions.push({ ...s, hallId: h.name });
+                        });
+                    });
+                }
+                const locSelect = document.getElementById('admin-city');
+                const locName = locSelect?.options[locSelect.selectedIndex]?.text || currentCity.toUpperCase();
+                const plan = StaffingOptimizer.calculateStaffingNeeds(flatSessions, locName);
+                StaffingOptimizer.renderStaffingWidget('admin-staffing-container', plan);
+            } catch (e) {
+                console.error('Error loading staffing plan:', e);
+                container.innerHTML = '<div class="empty-state">Fehler bei der Personalberechnung.</div>';
+            }
+        }
+
+        function onRadarSelectLocation(code) {
+            currentCity = code;
+            localStorage.setItem('admin_city', code);
+            const sel = document.getElementById('admin-city');
+            if (sel) sel.value = code;
+            showToast(`Standort gewechselt zu ${code.toUpperCase()}`);
+            loadExecutiveBriefing();
+            switchAdminTab('briefing', document.querySelector('.admin-tab'));
+        }
+
         function showAdminPanel() {
             document.getElementById('admin-login-gate').style.display = 'none';
             document.getElementById('admin-main-content').style.display = 'block';
@@ -712,6 +783,8 @@
             document.querySelectorAll(".admin-tab-page").forEach(p => p.classList.remove("active")); 
             document.getElementById(`tab-${tabId}`).classList.add("active"); 
             if (tabId === "briefing") loadExecutiveBriefing();
+            if (tabId === "radar") loadMultiRadar();
+            if (tabId === "staffing") loadStaffingPlan();
             if (tabId === "team") loadStaff(); 
             if (tabId === "content") { loadAdminMessages(); loadInventory(); } 
         } 
@@ -719,6 +792,9 @@
         // Expose functions on window for inline onclick handlers
         window.switchAdminTab = switchAdminTab;
         window.loadExecutiveBriefing = loadExecutiveBriefing;
+        window.loadMultiRadar = loadMultiRadar;
+        window.loadStaffingPlan = loadStaffingPlan;
+        window.onRadarSelectLocation = onRadarSelectLocation;
         window.showAdminPanel = showAdminPanel;
         window.onCityChange = onCityChange; 
 

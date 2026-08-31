@@ -577,6 +577,9 @@
         <button class="tl-tab" onclick="switchTlTab('live', this)">
             <span>🚨</span> Live
         </button>
+        <button class="tl-tab" onclick="switchTlTab('staffing', this)">
+            <span>👥</span> Schicht-Bedarf
+        </button>
         <button class="tl-tab" onclick="switchTlTab('analytics', this)">
             <span>📊</span> Analytics
         </button>
@@ -599,6 +602,13 @@
         <div id="page-briefing" class="tl-tab-page active">
             <div id="tl-executive-briefing-container">
                 <div class="empty-state">Lade Morgen-Briefing für Betriebsleitung...</div>
+            </div>
+        </div>
+
+        <!-- TAB: SCHICHT-BEDARF -->
+        <div id="page-staffing" class="tl-tab-page">
+            <div id="tl-staffing-container">
+                <div class="empty-state">Berechne Personalbedarfe aus Einlasswellen...</div>
             </div>
         </div>
 
@@ -858,6 +868,7 @@
 
     <script type="module">
         import { ExecutiveBriefing } from './components/executive-briefing.js';
+        import { StaffingOptimizer } from './components/staffing-optimizer.js';
         import { CinemaAnalytics } from './components/analytics.js';
         import { ShiftReportGenerator } from './components/reports.js';
         import { api } from './core/api.js';
@@ -865,6 +876,7 @@
 
         // Expose modules and utils to window for template compatibility
         window.ExecutiveBriefing = ExecutiveBriefing;
+        window.StaffingOptimizer = StaffingOptimizer;
         window.CinemaAnalytics = CinemaAnalytics;
         window.ShiftReportGenerator = ShiftReportGenerator;
         window.api = api;
@@ -1680,10 +1692,27 @@
             
             // Trigger specific loads if needed
             if (tabId === 'briefing') await loadTlBriefing();
+            if (tabId === 'staffing') await loadTlStaffing();
             if (tabId === 'analytics') await loadAnalyticsTab();
             if (tabId === 'reports') await loadReportsTab();
             if (tabId === 'log') loadLogs();
             if (tabId === 'breaks') loadBreaks();
+        }
+
+        async function loadTlStaffing() {
+            const container = document.getElementById('tl-staffing-container');
+            if (!container) return;
+            container.innerHTML = '<div class="empty-state">Berechne Personalbedarfe aus Einlasswellen...</div>';
+            try {
+                await ensureSessionsLoaded();
+                const locSelect = document.getElementById('location-selector');
+                const locName = locSelect?.options[locSelect.selectedIndex]?.text || currentCity.toUpperCase();
+                const plan = StaffingOptimizer.calculateStaffingNeeds(GLOBAL_SESSIONS, locName);
+                StaffingOptimizer.renderStaffingWidget('tl-staffing-container', plan);
+            } catch (e) {
+                console.error('Error loading TL staffing plan:', e);
+                container.innerHTML = '<div class="empty-state">Fehler bei der Personalberechnung.</div>';
+            }
         }
 
         async function loadTlBriefing() {
@@ -1881,6 +1910,7 @@
         window.handleLogImage = handleLogImage;
         window.removeLogImage = removeLogImage;
         window.loadTlBriefing = loadTlBriefing;
+        window.loadTlStaffing = loadTlStaffing;
 
         // --- PULL TO REFRESH ---
         let touchStart = 0;
