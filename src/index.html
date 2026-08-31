@@ -320,6 +320,22 @@
 </div>
 </div>
 </div>
+
+<!-- Quick Team Broadcast Messages -->
+<div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--surface-border);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <span style="font-size: 0.85rem; font-weight: 700; color: #fff;">💬 Team-Kurzfunk (1-Tap Broadcast)</span>
+        <span style="font-size: 0.72rem; color: var(--text-muted);">Live an alle Kollegen</span>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+        <button onclick="sendQuickBroadcast('🪙 Wechselgeld benötigt', '🪙')" class="btn-secondary" style="padding: 0.6rem 0.85rem; font-size: 0.8rem; border-radius: 20px; background: rgba(255,255,255,0.04); border: 1px solid var(--surface-border); color: #fff; cursor: pointer;">🪙 Wechselgeld</button>
+        <button onclick="sendQuickBroadcast('✅ Saal fertig gereinigt', '✅')" class="btn-secondary" style="padding: 0.6rem 0.85rem; font-size: 0.8rem; border-radius: 20px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); color: #22c55e; cursor: pointer;">✅ Saal gereinigt</button>
+        <button onclick="sendQuickBroadcast('👥 Hoher Andrang', '👥')" class="btn-secondary" style="padding: 0.6rem 0.85rem; font-size: 0.8rem; border-radius: 20px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; cursor: pointer;">👥 Hoher Andrang</button>
+        <button onclick="sendQuickBroadcast('☕ Pause abgelöst', '☕')" class="btn-secondary" style="padding: 0.6rem 0.85rem; font-size: 0.8rem; border-radius: 20px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); color: #f59e0b; cursor: pointer;">☕ Pause abgelöst</button>
+        <button onclick="sendQuickBroadcast('🧹 Saal-Durchgang gestartet', '🧹')" class="btn-secondary" style="padding: 0.6rem 0.85rem; font-size: 0.8rem; border-radius: 20px; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.3); color: #3b82f6; cursor: pointer;">🧹 Saal-Durchgang</button>
+        <button onclick="sendQuickBroadcast('🆘 Teamleiter bitte zur Theke', '🆘')" class="btn-secondary" style="padding: 0.6rem 0.85rem; font-size: 0.8rem; border-radius: 20px; background: rgba(239,68,68,0.15); border: 1px solid #ef4444; color: #fff; font-weight: 700; cursor: pointer;">🆘 TL anfordern</button>
+    </div>
+</div>
 </div>
 </div>
 <!-- WAREN-TRANSFERLISTE -->
@@ -523,6 +539,15 @@
 </button>
 </div>
 <div class="collapsible-content" id="workstation-content" style="padding: 0 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;">
+    <!-- Action Quick Tools -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; margin-bottom: 0.25rem;">
+        <button onclick="exportShiftToCalendar()" class="btn-secondary" style="padding: 0.75rem 0.5rem; font-size: 0.8rem; font-weight: 700; border-radius: 10px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); color: #fff; display: flex; align-items: center; justify-content: center; gap: 0.4rem; cursor: pointer;">
+            <span>📅</span> .ics Kalender
+        </button>
+        <button onclick="openMhdScanner()" class="btn-secondary" style="padding: 0.75rem 0.5rem; font-size: 0.8rem; font-weight: 700; border-radius: 10px; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #fff; display: flex; align-items: center; justify-content: center; gap: 0.4rem; cursor: pointer;">
+            <span>📦</span> MHD-Scanner
+        </button>
+    </div>
 <div style="margin-bottom: 0.5rem;">
 <select class="input-field" id="workstation-selector" onchange="renderWorkstation()" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--surface-border); padding: 0.75rem; border-radius: 8px; font-size: 1.1rem; font-weight: bold; width: 100%;">
 <option selected="" value="theke">🍿 Theke (Checkliste)</option>
@@ -1461,6 +1486,122 @@
 <button class="btn-primary" onclick="closeWelcomeModal()" style="width: 100%; padding: 1.25rem; font-size: 1.1rem; border-radius: 16px; font-weight: 800; background: linear-gradient(135deg, var(--primary-blue), #00d2ff); border: none; color: white;">Verstanden &amp; Loslegen</button>
 </div>
 </div>
+</div>
+
+<!-- Interactive Mini-Saalplan Modal -->
+<div class="modal" id="saalplan-modal" style="display: none; align-items: center; justify-content: center; z-index: 11000;">
+    <div class="modal-content glass" style="max-width: 520px; width: 95%; max-height: 88vh; overflow-y: auto; padding: 1.5rem; border-radius: 20px; background: #0c0c0e; border: 1px solid #222228;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.2rem;">
+                    <span style="font-size: 1.2rem;">🗺️</span>
+                    <h2 id="saalplan-title" style="font-size: 1.15rem; margin: 0; color: #fff; font-weight: 800;">Saal-Plan &amp; Heatmap</h2>
+                </div>
+                <div id="saalplan-subtitle" style="font-size: 0.8rem; color: var(--text-muted);">Kino 1 • 17:45 • Insidious</div>
+            </div>
+            <button onclick="closeModal('saalplan-modal')" style="background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer;">✕</button>
+        </div>
+
+        <!-- Cinema Screen Curve -->
+        <div style="text-align: center; margin: 0.75rem 0 1.25rem;">
+            <div style="width: 75%; height: 6px; margin: 0 auto; background: linear-gradient(to right, transparent, #3b82f6, transparent); border-radius: 50%; box-shadow: 0 0 12px rgba(59,130,246,0.6);"></div>
+            <span style="font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); display: block; margin-top: 0.35rem;">LEINWAND</span>
+        </div>
+
+        <!-- Seat Grid -->
+        <div id="saalplan-grid" style="display: flex; flex-direction: column; gap: 5px; align-items: center; margin-bottom: 1.25rem; overflow-x: auto; padding: 0.5rem 0;">
+            <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Legend -->
+        <div style="display: flex; justify-content: space-around; background: rgba(255,255,255,0.03); border: 1px solid var(--surface-border); border-radius: 10px; padding: 0.6rem; font-size: 0.72rem; margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.35rem;">
+                <span style="width: 9px; height: 9px; border-radius: 2px; background: #22c55e;"></span>
+                <span>Frei</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.35rem;">
+                <span style="width: 9px; height: 9px; border-radius: 2px; background: #ef4444;"></span>
+                <span>Belegt</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.35rem;">
+                <span style="width: 9px; height: 9px; border-radius: 2px; background: #f59e0b;"></span>
+                <span>VIP / D-BOX</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.35rem;">
+                <span style="width: 9px; height: 9px; border-radius: 2px; background: #3b82f6;"></span>
+                <span>Rollstuhl</span>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
+            <div style="background: rgba(255,255,255,0.02); padding: 0.65rem; border-radius: 8px; border: 1px solid var(--surface-border); text-align: center;">
+                <div style="font-size: 0.68rem; color: var(--text-muted);">Auslastung</div>
+                <div id="saalplan-occupancy" style="font-size: 1.05rem; font-weight: 800; color: #fff;">0%</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.02); padding: 0.65rem; border-radius: 8px; border: 1px solid var(--surface-border); text-align: center;">
+                <div style="font-size: 0.68rem; color: var(--text-muted);">Verkaufte Tickets</div>
+                <div id="saalplan-seats-count" style="font-size: 1.05rem; font-weight: 800; color: #3b82f6;">0 / 0</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MHD & Concession Inventory Scanner Modal -->
+<div class="modal" id="mhd-scanner-modal" style="display: none; align-items: center; justify-content: center; z-index: 11000;">
+    <div class="modal-content glass" style="max-width: 480px; width: 95%; max-height: 88vh; overflow-y: auto; padding: 1.5rem; border-radius: 20px; background: #0c0c0e; border: 1px solid #222228;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.2rem;">📦</span>
+                <h2 style="font-size: 1.15rem; margin: 0; color: #fff; font-weight: 800;">MHD- &amp; Inventur-Scanner</h2>
+            </div>
+            <button onclick="closeModal('mhd-scanner-modal')" style="background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer;">✕</button>
+        </div>
+
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.35;">
+            Wähle einen Concession-Artikel oder scanne den Barcode, um das Mindesthaltbarkeitsdatum (MHD) zu prüfen und zu protokollieren.
+        </p>
+
+        <!-- Quick Item Selector -->
+        <div style="margin-bottom: 0.85rem;">
+            <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; font-weight: 600;">Artikel wählen</label>
+            <select id="mhd-product-select" onchange="onMhdProductChange(this.value)" class="input-field" style="width: 100%; padding: 0.7rem; border-radius: 8px; background: #18181b; border: 1px solid var(--surface-border); color: #fff; font-size: 0.88rem;">
+                <option value="popcorn_corn">🍿 Popcornmais Premium Sack 25kg</option>
+                <option value="nacho_cheese">🧀 Nacho Cheese Sauce 3kg Dose</option>
+                <option value="nacho_chips">🌮 Nacho Chips Karton 5x500g</option>
+                <option value="coke_syrup">🥤 Coca-Cola Postmix Bag-in-Box 10L</option>
+                <option value="fanta_syrup">🍊 Fanta Postmix Bag-in-Box 10L</option>
+                <option value="slush_green">🍧 Slush-Eis Konzentrat Waldmeister 5L</option>
+                <option value="slush_red">🍓 Slush-Eis Konzentrat Kirsche 5L</option>
+                <option value="popcorn_oil">🧈 Popcorn-Pflanzenfett 10kg</option>
+            </select>
+        </div>
+
+        <!-- Expiration Date Picker -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; margin-bottom: 1rem;">
+            <div>
+                <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; font-weight: 600;">MHD Datum</label>
+                <input type="date" id="mhd-date-input" class="input-field" onchange="checkMhdStatus()" style="width: 100%; padding: 0.65rem; border-radius: 8px; background: #18181b; border: 1px solid var(--surface-border); color: #fff; font-size: 0.85rem;">
+            </div>
+            <div>
+                <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; font-weight: 600;">Chargennummer / Lot</label>
+                <input type="text" id="mhd-lot-input" placeholder="z.B. L-2026-88" class="input-field" style="width: 100%; padding: 0.65rem; border-radius: 8px; background: #18181b; border: 1px solid var(--surface-border); color: #fff; font-size: 0.85rem;">
+            </div>
+        </div>
+
+        <!-- Status Card -->
+        <div id="mhd-status-card" style="padding: 0.85rem; border-radius: 8px; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); margin-bottom: 1.1rem; display: flex; align-items: center; gap: 0.65rem;">
+            <span id="mhd-status-icon" style="font-size: 1.3rem;">✅</span>
+            <div>
+                <div id="mhd-status-title" style="font-weight: 700; color: #22c55e; font-size: 0.85rem;">MHD Gültig</div>
+                <div id="mhd-status-days" style="font-size: 0.75rem; color: var(--text-muted);">Noch 180 Tage haltbar</div>
+            </div>
+        </div>
+
+        <button onclick="saveMhdCheckEntry()" class="btn-primary" style="width: 100%; padding: 0.85rem; font-size: 0.9rem; font-weight: 800; border-radius: 10px; background: var(--primary-blue); border: none; color: #fff; cursor: pointer;">
+            💾 In Schicht-Checkliste speichern
+        </button>
+    </div>
 </div>
 <div class="global-toast" id="global-toast">
 <span id="toast-icon">✅</span>

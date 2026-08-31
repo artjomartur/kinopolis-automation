@@ -286,6 +286,104 @@ function resetAndTestOli() {
         };
 
 
+        // --- SOUND & HAPTIC FEEDBACK ENGINE (WEB AUDIO API) ---
+        const SOUND = {
+            ctx: null,
+            getCtx() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) this.ctx = new AudioCtx();
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+                return this.ctx;
+            },
+            playChirp() {
+                if (localStorage.getItem('kp_sound_enabled') === 'false') return;
+                this.vibrate([40, 50, 40]);
+                try {
+                    const ctx = this.getCtx();
+                    if (!ctx) return;
+                    const now = ctx.currentTime;
+                    
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, now);
+                    osc.frequency.exponentialRampToValueAtTime(1760, now + 0.08);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.12);
+
+                    const osc2 = ctx.createOscillator();
+                    const gain2 = ctx.createGain();
+                    osc2.type = 'triangle';
+                    osc2.frequency.setValueAtTime(1200, now + 0.14);
+                    osc2.frequency.exponentialRampToValueAtTime(600, now + 0.22);
+                    gain2.gain.setValueAtTime(0.12, now + 0.14);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.24);
+                    osc2.connect(gain2);
+                    gain2.connect(ctx.destination);
+                    osc2.start(now + 0.14);
+                    osc2.stop(now + 0.24);
+                } catch (e) {
+                    console.warn('Audio play failed:', e);
+                }
+            },
+            playSuccess() {
+                if (localStorage.getItem('kp_sound_enabled') === 'false') return;
+                this.vibrate([30]);
+                try {
+                    const ctx = this.getCtx();
+                    if (!ctx) return;
+                    const now = ctx.currentTime;
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(587.33, now); // D5
+                    osc.frequency.setValueAtTime(880, now + 0.08); // A5
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } catch (e) {}
+            },
+            playAlert() {
+                if (localStorage.getItem('kp_sound_enabled') === 'false') return;
+                this.vibrate([100, 50, 100, 50, 200]);
+                try {
+                    const ctx = this.getCtx();
+                    if (!ctx) return;
+                    const now = ctx.currentTime;
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.setValueAtTime(880, now + 0.1);
+                    osc.frequency.setValueAtTime(440, now + 0.2);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } catch (e) {}
+            },
+            vibrate(pattern = [50]) {
+                if (localStorage.getItem('kp_haptics_enabled') === 'false') return;
+                if (navigator.vibrate) {
+                    try { navigator.vibrate(pattern); } catch (e) {}
+                }
+            }
+        };
+        window.SOUND = SOUND;
+
         // --- GLOBAL TOAST ---
         function showToast(msg, isError = false) {
             const t = document.getElementById('global-toast');
@@ -2388,6 +2486,249 @@ function resetAndTestOli() {
         }
         window.triggerRestock = triggerRestock;
 
+        // --- TEAM KURZFUNK (QUICK BROADCAST) ---
+        async function sendQuickBroadcast(msg, icon = '💬') {
+            if (window.SOUND) SOUND.playChirp();
+            const author = localStorage.getItem('kinopolis_shift_name') || localStorage.getItem('username') || 'Mitarbeiter';
+            const location = currentCity;
+            
+            showToast(`${icon} ${msg} gesendet!`);
+            
+            try {
+                await fetch('/api/push/restock', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ item: `${icon} [${author}]: ${msg}`, location })
+                });
+            } catch (e) {
+                console.warn('Broadcast sync fallback:', e);
+            }
+        }
+        window.sendQuickBroadcast = sendQuickBroadcast;
+
+        // --- SCHICHTPLAN .ICS KALENDER EXPORT ---
+        function exportShiftToCalendar() {
+            const role = localStorage.getItem('user_role') || 'Kinopolis Mitarbeiter';
+            const city = currentCity ? currentCity.toUpperCase() : 'KP';
+            const now = new Date();
+            
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            
+            const startStr = `${y}${m}${d}T140000`;
+            const endStr = `${y}${m}${d}T230000`;
+            const createdStr = `${y}${m}${d}T${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}00Z`;
+            
+            const icsContent = [
+                'BEGIN:VCALENDAR',
+                'VERSION:2.0',
+                'PRODID:-//Kinopolis Operations//Schichtplan//DE',
+                'CALSCALE:GREGORIAN',
+                'METHOD:PUBLISH',
+                'BEGIN:VEVENT',
+                `UID:kinopolis-shift-${Date.now()}@kinopolis.de`,
+                `DTSTAMP:${createdStr}`,
+                `DTSTART:${startStr}`,
+                `DTEND:${endStr}`,
+                `SUMMARY:🍿 Kinopolis Schicht (${role})`,
+                `DESCRIPTION:Kinopolis Schichtbetrieb (${city}). Aufgaben und Einlassplanung via Kinopolis Automation.`,
+                `LOCATION:Kinopolis ${city}`,
+                'STATUS:CONFIRMED',
+                'BEGIN:VALARM',
+                'TRIGGER:-PT45M',
+                'ACTION:DISPLAY',
+                'DESCRIPTION:Erinnerung: In 45 Minuten beginnt deine Schicht im Kinopolis!',
+                'END:VALARM',
+                'END:VEVENT',
+                'END:VCALENDAR'
+            ].join('\r\n');
+            
+            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `Kinopolis_Schicht_${y}-${m}-${d}.ics`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            if (window.SOUND) SOUND.playSuccess();
+            showToast('📅 Schichtplan als .ics Kalender-Datei heruntergeladen!');
+        }
+        window.exportShiftToCalendar = exportShiftToCalendar;
+
+        // --- MINI-SAALPLAN & HEATMAP ---
+        function openMiniSaalplan(hallName, movieTitle, time, sold = 0, capacity = 100) {
+            const modal = document.getElementById('saalplan-modal');
+            if (!modal) return;
+            
+            document.getElementById('saalplan-title').innerText = `Saal-Plan • ${hallName}`;
+            document.getElementById('saalplan-subtitle').innerText = `${movieTitle} • ${time} Uhr`;
+            
+            const occupancyPct = Math.min(100, Math.round((sold / Math.max(1, capacity)) * 100));
+            document.getElementById('saalplan-occupancy').innerText = `${occupancyPct}%`;
+            document.getElementById('saalplan-occupancy').style.color = occupancyPct > 80 ? '#ef4444' : (occupancyPct > 50 ? '#f59e0b' : '#22c55e');
+            document.getElementById('saalplan-seats-count').innerText = `${sold} / ${capacity}`;
+            
+            // Build seat rows (Rows A to J)
+            const grid = document.getElementById('saalplan-grid');
+            if (grid) {
+                grid.innerHTML = '';
+                const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+                const seatsPerRow = 14;
+                let soldRemaining = sold;
+                
+                rows.forEach((rowLetter, rIdx) => {
+                    const rowDiv = document.createElement('div');
+                    rowDiv.style.display = 'flex';
+                    rowDiv.style.alignItems = 'center';
+                    rowDiv.style.gap = '4px';
+                    
+                    const label = document.createElement('span');
+                    label.innerText = rowLetter;
+                    label.style.fontSize = '0.65rem';
+                    label.style.width = '14px';
+                    label.style.color = 'var(--text-muted)';
+                    label.style.fontWeight = '700';
+                    rowDiv.appendChild(label);
+                    
+                    for (let s = 1; s <= seatsPerRow; s++) {
+                        const seat = document.createElement('span');
+                        seat.style.width = '16px';
+                        seat.style.height = '14px';
+                        seat.style.borderRadius = '3px 3px 1px 1px';
+                        seat.style.display = 'inline-block';
+                        seat.style.transition = 'all 0.15s';
+                        
+                        // Wheelchair spots in Row A
+                        const isWheelchair = (rIdx === 0 && (s === 1 || s === seatsPerRow));
+                        // VIP spots in middle rows E-G
+                        const isVip = (rIdx >= 4 && rIdx <= 6 && s >= 5 && s <= 10);
+                        
+                        // Seat occupancy calculation based on sold tickets
+                        const isOccupied = (soldRemaining > 0 && Math.random() < 0.65);
+                        if (isOccupied) soldRemaining--;
+                        
+                        if (isOccupied) {
+                            seat.style.background = '#ef4444';
+                            seat.title = `Reihe ${rowLetter} Platz ${s} (Belegt)`;
+                        } else if (isWheelchair) {
+                            seat.style.background = '#3b82f6';
+                            seat.title = `Reihe ${rowLetter} Platz ${s} (Rollstuhl)`;
+                        } else if (isVip) {
+                            seat.style.background = '#f59e0b';
+                            seat.title = `Reihe ${rowLetter} Platz ${s} (VIP / D-BOX)`;
+                        } else {
+                            seat.style.background = '#22c55e';
+                            seat.title = `Reihe ${rowLetter} Platz ${s} (Frei)`;
+                        }
+                        
+                        rowDiv.appendChild(seat);
+                    }
+                    grid.appendChild(rowDiv);
+                });
+            }
+            
+            modal.style.display = 'flex';
+            if (window.SOUND) SOUND.playSuccess();
+        }
+        window.openMiniSaalplan = openMiniSaalplan;
+
+        // --- MHD- & INVENTUR-SCANNER ---
+        function openMhdScanner() {
+            const modal = document.getElementById('mhd-scanner-modal');
+            if (!modal) return;
+            
+            // Set default date to +6 months
+            const defaultDate = new Date();
+            defaultDate.setMonth(defaultDate.getMonth() + 6);
+            const dateInput = document.getElementById('mhd-date-input');
+            if (dateInput) {
+                dateInput.value = defaultDate.toISOString().split('T')[0];
+            }
+            checkMhdStatus();
+            modal.style.display = 'flex';
+            if (window.SOUND) SOUND.playSuccess();
+        }
+        window.openMhdScanner = openMhdScanner;
+
+        function onMhdProductChange(val) {
+            checkMhdStatus();
+        }
+        window.onMhdProductChange = onMhdProductChange;
+
+        function checkMhdStatus() {
+            const dateInput = document.getElementById('mhd-date-input');
+            if (!dateInput || !dateInput.value) return;
+            
+            const expDate = new Date(dateInput.value);
+            const today = new Date();
+            const diffTime = expDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            const card = document.getElementById('mhd-status-card');
+            const icon = document.getElementById('mhd-status-icon');
+            const title = document.getElementById('mhd-status-title');
+            const daysLabel = document.getElementById('mhd-status-days');
+            
+            if (!card) return;
+            
+            if (diffDays < 0) {
+                card.style.background = 'rgba(239, 68, 68, 0.15)';
+                card.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                icon.innerText = '⚠️';
+                title.innerText = 'ABGELAUFEN (MHD überschritten)';
+                title.style.color = '#ef4444';
+                daysLabel.innerText = `Seit ${Math.abs(diffDays)} Tagen abgelaufen! Nicht verwenden.`;
+            } else if (diffDays <= 14) {
+                card.style.background = 'rgba(245, 158, 11, 0.15)';
+                card.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+                icon.innerText = '⏳';
+                title.innerText = 'MHD Läuft bald ab';
+                title.style.color = '#f59e0b';
+                daysLabel.innerText = `Noch ${diffDays} Tage haltbar. Bald verbrauchen.`;
+            } else {
+                card.style.background = 'rgba(34, 197, 94, 0.15)';
+                card.style.borderColor = 'rgba(34, 197, 94, 0.4)';
+                icon.innerText = '✅';
+                title.innerText = 'MHD Gültig & Einwandfrei';
+                title.style.color = '#22c55e';
+                daysLabel.innerText = `Noch ${diffDays} Tage haltbar.`;
+            }
+        }
+        window.checkMhdStatus = checkMhdStatus;
+
+        function saveMhdCheckEntry() {
+            const product = document.getElementById('mhd-product-select');
+            const dateInput = document.getElementById('mhd-date-input');
+            const lotInput = document.getElementById('mhd-lot-input');
+            
+            const productName = product ? product.options[product.selectedIndex].text : 'Artikel';
+            const mhdDate = dateInput ? dateInput.value : '';
+            const lot = lotInput ? lotInput.value : '';
+            
+            const author = localStorage.getItem('kinopolis_shift_name') || 'Mitarbeiter';
+            const entry = `${productName} | MHD: ${mhdDate} | Lot: ${lot || 'k.A.'} (Geprüft von ${author})`;
+            
+            // Save to recent mhd logs
+            let logs = safeParse('mhd_check_logs', []);
+            logs.unshift({ entry, time: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) });
+            localStorage.setItem('mhd_check_logs', JSON.stringify(logs.slice(0, 20)));
+            
+            if (window.SOUND) SOUND.playSuccess();
+            showToast(`✅ MHD erfasst: ${productName}`);
+            closeModal('mhd-scanner-modal');
+        }
+        window.saveMhdCheckEntry = saveMhdCheckEntry;
+
+        function closeModal(modalId) {
+            const m = document.getElementById(modalId);
+            if (m) m.style.display = 'none';
+        }
+        window.closeModal = closeModal;
+
         window.sendTransferList = sendTransferList;
         window.sendEisTransferList = sendEisTransferList;
         window.sendMhdList = sendMhdList;
@@ -4098,11 +4439,11 @@ function resetAndTestOli() {
                                     <span class="duration-text">${s.duration} Min</span>
                                     ${s.date ? `<span class="session-date-badge">${s.date}</span>` : ''}
                                 </div>
-                                <div class="occupancy-wrapper-ios">
+                                <div class="occupancy-wrapper-ios" onclick="openMiniSaalplan('${escapedHall}', '${escapedTitle}', '${s.time}', ${s.sold || 0}, ${s.capacity || 100})" style="cursor: pointer;" title="Saal-Plan &amp; Sitzplatz-Heatmap öffnen">
                                     <div class="occupancy-track-ios">
                                         <div class="occupancy-bar-ios ${barClass}" style="width: ${occupancyPct}%"></div>
                                     </div>
-                                    <span class="occupancy-val-ios">${s.sold}/${s.capacity}</span>
+                                    <span class="occupancy-val-ios">🗺️ ${s.sold}/${s.capacity}</span>
                                 </div>
                             </div>
                         </div>
