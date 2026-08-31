@@ -634,6 +634,53 @@ app.post('/api/push/broadcast', async (req, res) => {
     res.json({ sent, message: 'Nachrichten gesendet (Lokal)' });
 });
 
+// --- RESTOCK CALL API (Lokal) ---
+app.post('/api/push/restock', async (req, res) => {
+    const { location, item } = req.body;
+    if (!item) return res.status(400).json({ error: 'Missing item' });
+
+    const payload = JSON.stringify({
+        title: '🚨 Nachschub benötigt!',
+        body: `${item} an der Theke/Kasse leer! Bitte auffüllen.`,
+        tag: 'restock-alert',
+        data: { url: '/#restock' }
+    });
+
+    for (const subItem of pushSubscriptions) {
+        try {
+            await webpush.sendNotification(subItem.sub, payload);
+        } catch (e) {
+            console.error('Push send error', e);
+        }
+    }
+
+    res.json({ success: true });
+});
+
+// --- TRANSFERLISTE API (Lokal) ---
+app.post('/api/push/transfer', async (req, res) => {
+    const { location, author, items, station } = req.body;
+    if (!items) return res.status(400).json({ error: 'Missing items' });
+
+    const titleStr = station ? `TL-Transferliste (${station})` : 'TL-Transferliste';
+    const payload = JSON.stringify({
+        title: `📝 ${titleStr} - von ${author}`,
+        body: items,
+        tag: 'transfer-alert',
+        data: { url: '/#transfer' }
+    });
+
+    for (const subItem of pushSubscriptions) {
+        try {
+            await webpush.sendNotification(subItem.sub, payload);
+        } catch (e) {
+            console.error('Push send error', e);
+        }
+    }
+
+    res.json({ success: true });
+});
+
 // --- BACKGROUND AUTOMATION (AUTO-PUSH & CHECKLIST) ---
 // Poll every 5 minutes to check for ending sessions
 const AUTOMATION_INTERVAL = 5 * 60 * 1000;

@@ -14,23 +14,23 @@
     </style>
     <style>
         :root {
-            --primary-red: #e50914;
-            --primary-blue: #0078ff;
-            --bg-dark: #0f1014;
-            --surface-color: #1a1b1f;
-            --surface-border: rgba(255, 255, 255, 0.08);
+            --primary-red: #ef4444;
+            --primary-blue: #3b82f6;
+            --bg-dark: #000000;
+            --surface-color: #111114;
+            --surface-border: #222228;
             --text-main: #ffffff;
-            --text-muted: #94a3b8;
-            --accent-glow: rgba(229, 9, 20, 0.3);
-            --blue-glow: rgba(0, 120, 255, 0.3);
-            --glass-bg: rgba(26, 27, 31, 0.7);
+            --text-muted: #8e8e98;
+            --accent-glow: none;
+            --blue-glow: none;
+            --glass-bg: #111114;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Outfit', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
@@ -38,9 +38,8 @@
             color: var(--text-main);
             min-height: 100vh;
             padding: 2rem 2rem 150px;
-            background-image: 
-                radial-gradient(circle at 0% 0%, rgba(229, 9, 20, 0.05) 0%, transparent 25%),
-                radial-gradient(circle at 100% 100%, rgba(0, 120, 255, 0.05) 0%, transparent 25%);
+            background-image: none;
+            -webkit-font-smoothing: antialiased;
         }
 
         header {
@@ -59,42 +58,39 @@
         .logo-box {
             background: #fff;
             padding: 0.4rem 0.75rem;
-            border-radius: 10px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 44px;
+            height: 40px;
         }
 
         .logo-box img {
-            height: 28px;
+            height: 24px;
             width: auto;
             display: block;
         }
 
         .portal-title {
-            font-weight: 800;
-            font-size: 1.5rem;
-            letter-spacing: -0.02em;
-            background: linear-gradient(90deg, #fff, #94a3b8);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            font-size: 1.4rem;
+            letter-spacing: -0.01em;
+            color: #ffffff;
         }
 
         .location-select {
             background: var(--surface-color);
             border: 1px solid var(--surface-border);
             color: white;
-            padding: 0.6rem 2.5rem 0.6rem 1rem;
-            border-radius: 50px;
+            padding: 0.5rem 2.2rem 0.5rem 0.9rem;
+            border-radius: 8px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             appearance: none;
             cursor: pointer;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 1rem center;
+            background-position: right 0.8rem center;
         }
 
         .dashboard-grid {
@@ -110,8 +106,8 @@
         @media (max-width: 600px) {
             body { padding: 1rem; }
             header { flex-direction: column; align-items: flex-start; gap: 0.75rem; padding-bottom: 1rem; }
-            .card { padding: 1rem; border-radius: 16px; margin: 0; }
-            .feed-item { padding: 0.75rem; gap: 0.5rem; grid-template-columns: 36px 1fr auto; border-radius: 12px; }
+            .card { padding: 1rem; border-radius: 12px; margin: 0; }
+            .feed-item { padding: 0.75rem; gap: 0.5rem; grid-template-columns: 36px 1fr auto; border-radius: 8px; }
             .feed-icon { width: 36px; height: 36px; font-size: 1.2rem; }
             .feed-content h3 { font-size: 0.95rem; }
             .feed-content p { font-size: 0.85rem; }
@@ -124,17 +120,16 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%) translateY(-20px);
-            background: rgba(229, 9, 20, 0.9);
-            backdrop-filter: blur(10px);
+            background: #ef4444;
             color: white;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
             z-index: 10000;
             opacity: 0;
             pointer-events: none;
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -145,17 +140,16 @@
         }
 
         .card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
+            background: var(--surface-color);
             border: 1px solid var(--surface-border);
-            border-radius: 24px;
-            padding: 1.75rem;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-            transition: transform 0.3s ease, border-color 0.3s ease;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: none;
+            transition: border-color 0.15s ease;
         }
 
         .card:hover {
-            border-color: rgba(255, 255, 255, 0.15);
+            border-color: #33333e;
         }
 
         .card-header {

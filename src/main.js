@@ -2320,10 +2320,12 @@ function resetAndTestOli() {
                 btn.style.display = 'flex';
             });
         }
+        window.resetFunkView = resetFunkView;
 
         function toggleFunkGlobal(category) {
             const targetId = `funk-${category}-options`;
             const optionsEl = document.getElementById(targetId);
+            if (!optionsEl) return;
             
             if (optionsEl.style.display === 'grid') {
                 resetFunkView();
@@ -2336,6 +2338,7 @@ function resetAndTestOli() {
                 optionsEl.style.display = 'grid';
             }
         }
+        window.toggleFunkGlobal = toggleFunkGlobal;
 
         async function triggerRestock(item) {
             const cityEl = document.getElementById('cinema-selector');
@@ -2357,7 +2360,13 @@ function resetAndTestOli() {
                 showToast('Netzwerkfehler', true);
             }
         }
+        window.triggerRestock = triggerRestock;
 
+        window.sendTransferList = sendTransferList;
+        window.sendEisTransferList = sendEisTransferList;
+        window.sendMhdList = sendMhdList;
+        window.updateTransferCount = updateTransferCount;
+        window.updateEisTransferCount = updateEisTransferCount;
 
         // Init notes
         const notesArea = document.getElementById('staff-notes');
@@ -7115,3 +7124,48 @@ window.submitTagesabschluss = function() {
         confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
     }
 };
+
+// Global Window Exports for Inline HTML Handlers
+Object.assign(window, {
+    closeHandoverModal,
+    snoozePosterUrgentPopup,
+    handleMessageImage,
+    removeMessageImage,
+    closeMessageModal,
+    sendMessage,
+    toggleFunkGlobal,
+    triggerRestock,
+    resetFunkView,
+    sendTransferList,
+    sendEisTransferList,
+    sendMhdList,
+    updateTransferCount,
+    updateEisTransferCount,
+    submitMHD,
+    submitInventoryCount,
+    renderWorkstation,
+    resetChecklist,
+    loadLfItems,
+    openLfModal,
+    closeLfModal,
+    handleLfImageUpload,
+    saveLfItem,
+    submitTechTicket,
+    setTechFilter,
+    toggleTheme,
+    togglePushSubscription,
+    saveTelegramSettings,
+    openFeedback,
+    closeFeedback,
+    sendFeedback,
+    exportPDF,
+    exportExcel,
+    openHelpModal,
+    closeHelpModal,
+    submitHelpRequest,
+    nextOliStep,
+    openAiChat,
+    closeAiChat,
+    sendChatMessage
+});
+
