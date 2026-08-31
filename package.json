@@ -32,5 +32,8 @@
     "vite": "^8.0.1",
     "vite-plugin-pwa": "^1.3.0",
     "wrangler": "^4.76.0"
+  },
+  "optionalDependencies": {
+    "@cloudflare/workerd-darwin-arm64": "^1.20260831.1"
   }
 }
