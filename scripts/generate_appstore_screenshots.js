@@ -1,227 +1,15 @@
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
-const { spawn } = require('child_process');
 
 (async () => {
-    console.log("🚀 Starting local server...");
-    const server = spawn('node', ['server.js'], { cwd: process.cwd(), stdio: 'pipe' });
-    
-    // Wait for server to be ready
-    await new Promise(r => setTimeout(r, 2000));
-
-    console.log("📱 Launching Chromium for App Store screenshots...");
+    console.log("🎨 Generating App Store slides using authentic user screenshots...");
     const browser = await chromium.launch({ headless: true });
     
-    const context = await browser.newContext({
-        viewport: { width: 393, height: 852 },
-        deviceScaleFactor: 3,
-        isMobile: true,
-        hasTouch: true
-    });
-    
-    const page = await context.newPage();
-    
-    // Artifacts directory
     const artifactsDir = '/Users/artjombecker/.gemini/antigravity-ide/brain/63c7c8ad-e20f-482b-b148-10bd7b45d48d';
-    const scratchDir = path.join(artifactsDir, 'scratch');
-    if (!fs.existsSync(scratchDir)) fs.mkdirSync(scratchDir, { recursive: true });
-
-    console.log("🌐 Navigating to app...");
-    await page.goto('http://localhost:3001');
-
-    // Bypass splash, login, modals
-    await page.evaluate(() => {
-        localStorage.setItem('kp_guest_mode', 'true');
-        localStorage.setItem('ios_banner_dismissed', 'true');
-        localStorage.setItem('oli_onboarding_done', 'true');
-    });
-    await page.reload();
-    await new Promise(r => setTimeout(r, 2500));
-
-    // Force remove any overlay modals and popups
-    await page.evaluate(() => {
-        document.querySelectorAll('.modal, .duo-modal-overlay, #oli-onboarding-modal, #dept-modal, #splash-screen, #handover-modal').forEach(el => {
-            el.remove();
-        });
-        document.body.classList.remove('modal-open');
-    });
-
-    const capturedScreens = {};
-
-    // 1. Tab: Live Overview with Rich Mock Movie Sessions
-    console.log("📸 Populating and Capturing Tab: Live...");
-    await page.evaluate(() => {
-        if (window.switchTab) {
-            const btn = document.querySelector('.tab-btn[data-tab="live"]');
-            window.switchTab('live', btn);
-        }
-
-        const now = new Date();
-        const currentH = now.getHours();
-        const t1 = `${String(currentH).padStart(2, '0')}:30`;
-        const t2 = `${String((currentH + 1) % 24).padStart(2, '0')}:00`;
-        const t3 = `${String((currentH + 1) % 24).padStart(2, '0')}:30`;
-        const t4 = `${String((currentH + 2) % 24).padStart(2, '0')}:00`;
-
-        const mockHalls = [
-            {
-                name: 'Kino 1 (Dolby Atmos)',
-                sessions: [
-                    {
-                        title: 'Der Super Mario Galaxy Film',
-                        time: t1,
-                        duration: 110,
-                        fsk: 'FSK 6',
-                        version: '3D Atmos',
-                        seats: { total: 450, occupied: 395, free: 55, occupancyRate: 88 },
-                        poster: '/mario-poster.jpg'
-                    }
-                ]
-            },
-            {
-                name: 'Kino 2 (Laser 4K)',
-                sessions: [
-                    {
-                        title: 'Spider-Man: Beyond the Spider-Verse',
-                        time: t2,
-                        duration: 135,
-                        fsk: 'FSK 12',
-                        version: '2D D-Box',
-                        seats: { total: 280, occupied: 218, free: 62, occupancyRate: 78 },
-                        poster: '/assets/spiderman.jpg'
-                    }
-                ]
-            },
-            {
-                name: 'Kino 3',
-                sessions: [
-                    {
-                        title: 'Dune: Part Two',
-                        time: t3,
-                        duration: 166,
-                        fsk: 'FSK 12',
-                        version: '2D OV',
-                        seats: { total: 190, occupied: 162, free: 28, occupancyRate: 85 },
-                        poster: '/mario-poster.jpg'
-                    }
-                ]
-            },
-            {
-                name: 'Kino 4',
-                sessions: [
-                    {
-                        title: 'Deadpool & Wolverine',
-                        time: t4,
-                        duration: 127,
-                        fsk: 'FSK 16',
-                        version: '2D Dolby 7.1',
-                        seats: { total: 150, occupied: 110, free: 40, occupancyRate: 73 },
-                        poster: '/assets/spiderman.jpg'
-                    }
-                ]
-            }
-        ];
-
-        if (typeof renderDashboard === 'function') {
-            renderDashboard(mockHalls);
-        }
-
-        const occ = document.getElementById('live-occupancy');
-        if (occ) occ.innerText = '885';
-        const occWidget = document.getElementById('occupancy-widget');
-        if (occWidget) occWidget.style.display = 'flex';
-    });
-    await new Promise(r => setTimeout(r, 1500));
-    capturedScreens['live'] = path.join(scratchDir, 'screen_live.png');
-    await page.screenshot({ path: capturedScreens['live'] });
-
-    // 2. Tab: Funk (Digitaler Nachschub-Ruf) with Active Orders
-    console.log("📸 Populating and Capturing Tab: Funk...");
-    await page.evaluate(() => {
-        if (window.switchTab) {
-            const btn = document.querySelector('.tab-btn[data-tab="funk"]');
-            window.switchTab('funk', btn);
-        }
-        if (window.toggleFunkGlobal) {
-            window.toggleFunkGlobal('popcorn');
-        }
-        const popcornCount = document.getElementById('count-popcorn-gross');
-        if (popcornCount) popcornCount.innerText = '2';
-        const nachoCount = document.getElementById('count-nachos-kaese');
-        if (nachoCount) nachoCount.innerText = '1';
-    });
-    await new Promise(r => setTimeout(r, 1200));
-    capturedScreens['funk'] = path.join(scratchDir, 'screen_funk.png');
-    await page.screenshot({ path: capturedScreens['funk'] });
-
-    // 3. Tab: Scanner with Active Validated Ticket Overlay
-    console.log("📸 Populating and Capturing Tab: Scanner...");
-    await page.evaluate(() => {
-        if (window.switchTab) {
-            const btn = document.querySelector('.tab-btn[data-tab="scanner"]');
-            window.switchTab('scanner', btn);
-        }
-        const qrContainer = document.getElementById('qr-reader');
-        if (qrContainer) {
-            qrContainer.innerHTML = `
-                <div style="background: #000; padding: 2rem 1.5rem; text-align: center; border-radius: 12px; border: 1px solid #222228;">
-                    <div style="position: relative; width: 220px; height: 220px; margin: 0 auto 1.5rem; border: 2px dashed #10b981; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: rgba(16,185,129,0.05);">
-                        <span style="font-size: 3.5rem;">🎟️</span>
-                        <div style="position: absolute; top: 10px; right: 10px; background: #10b981; color: black; font-weight: 800; font-size: 0.75rem; padding: 4px 8px; border-radius: 6px;">SCAN AKTIV</div>
-                    </div>
-                    <div style="background: rgba(16,185,129,0.12); border: 1px solid #10b981; border-radius: 12px; padding: 1.25rem; text-align: left;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                            <span style="color: #10b981; font-weight: 800; font-size: 1rem;">✅ TICKET GÜLTIG</span>
-                            <span style="font-size: 0.8rem; color: #8e8e98;">Vor 2s</span>
-                        </div>
-                        <h3 style="margin: 0; font-size: 1.15rem; color: #fff;">Der Super Mario Galaxy Film</h3>
-                        <p style="margin: 0.3rem 0 0; font-size: 0.9rem; color: #cbd5e1;">Kino 1 · Reihe 8 · Platz 14 (Parkett)</p>
-                        <div style="margin-top: 0.75rem; font-size: 0.8rem; color: #8e8e98; display: flex; justify-content: space-between;">
-                            <span>Vorstellung: 19:30 Uhr</span>
-                            <span>Tarif: Normalzahler</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-    });
-    await new Promise(r => setTimeout(r, 1200));
-    capturedScreens['scanner'] = path.join(scratchDir, 'screen_scanner.png');
-    await page.screenshot({ path: capturedScreens['scanner'] });
-
-    // 4. Tab: Action (Team-Aktionen & FSK Rechner)
-    console.log("📸 Populating and Capturing Tab: Action...");
-    await page.evaluate(() => {
-        if (window.switchTab) {
-            const btn = document.querySelector('.tab-btn[data-tab="action"]');
-            window.switchTab('action', btn);
-        }
-        const fskDate = document.getElementById('fsk-birthdate');
-        if (fskDate) {
-            const d = new Date();
-            d.setFullYear(d.getFullYear() - 16);
-            fskDate.value = d.toISOString().split('T')[0];
-        }
-        if (typeof calculateFSK === 'function') calculateFSK();
-    });
-    await new Promise(r => setTimeout(r, 1500));
-    capturedScreens['action'] = path.join(scratchDir, 'screen_action.png');
-    await page.screenshot({ path: capturedScreens['action'] });
-
-    // 5. Tab: Mehr Infos (Die neue Mehr-Infos Ansicht)
-    console.log("📸 Populating and Capturing Tab: Mehr Infos...");
-    await page.evaluate(() => {
-        if (window.switchTab) {
-            const btn = document.querySelector('.tab-btn[data-tab="mehr"]');
-            window.switchTab('mehr', btn);
-        }
-    });
-    await new Promise(r => setTimeout(r, 1800));
-    capturedScreens['mehr'] = path.join(scratchDir, 'screen_mehr.png');
-    await page.screenshot({ path: capturedScreens['mehr'] });
-
-    console.log("🎨 Designing and rendering App Store slides (1290 x 2796)...");
+    const userUploadedDir = path.join(artifactsDir, '.user_uploaded');
+    const publicAppstoreDir = path.join(process.cwd(), 'public', 'assets', 'appstore');
+    if (!fs.existsSync(publicAppstoreDir)) fs.mkdirSync(publicAppstoreDir, { recursive: true });
 
     const slidesConfig = [
         {
@@ -230,7 +18,7 @@ const { spawn } = require('child_process');
             title: 'Säle & Vorstellungen<br><span style="color: #3b82f6;">live im Blick</span>',
             subtitle: 'Auslastung, Einlasszeiten und Restlaufzeiten für alle Kinosäle sekundengenau synchronisiert.',
             oli: 'Oli_4_bgless.png',
-            screen: capturedScreens['live'],
+            screen: path.join(userUploadedDir, 'media_1788193365917.png'),
             accent: '#3b82f6'
         },
         {
@@ -239,7 +27,7 @@ const { spawn } = require('child_process');
             title: 'Nachschub rufen<br><span style="color: #f59e0b;">per Fingertipp</span>',
             subtitle: 'Popcorn, Nachos, Getränke und Becher blitzschnell anfordern – diskret und ohne Funkrauschen.',
             oli: 'Oli_2_bgless.png',
-            screen: capturedScreens['funk'],
+            screen: path.join(userUploadedDir, 'media_1788193365950.png'),
             accent: '#f59e0b'
         },
         {
@@ -248,25 +36,25 @@ const { spawn } = require('child_process');
             title: 'Ticket-Scanner<br><span style="color: #10b981;">direkt am Handy</span>',
             subtitle: 'QR-Codes scannen, Tickets entwerten und Saalzutritte im Handumdrehen prüfen.',
             oli: 'Oli_Security_bgless.png',
-            screen: capturedScreens['scanner'],
+            screen: path.join(userUploadedDir, 'media_1788193365947.png'),
             accent: '#10b981'
         },
         {
             id: 'appstore_4_action',
-            badge: 'DIGITALE SCHICHTORGANISATION',
-            title: 'Team-Aktionen &<br><span style="color: #ef4444;">Checklisten</span>',
-            subtitle: 'FSK & JuSchG Rechner, MHD-Listen, Arbeitsplatz-Checks und Störungsmeldungen ohne Zettelchaos.',
-            oli: 'Oli_5_bgless.png',
-            screen: capturedScreens['action'],
+            badge: 'FSK & JUSCHG RECHNER',
+            title: 'Ausweiskontrolle<br><span style="color: #ef4444;">in Sekunden</span>',
+            subtitle: 'Rechtssichere Alters- und Stichtagsprüfung mit integriertem Kalender ohne Kopfrechnen.',
+            oli: 'Oli_6_bgless.png',
+            screen: path.join(userUploadedDir, 'media_1788193365941.png'),
             accent: '#ef4444'
         },
         {
             id: 'appstore_5_mehr',
-            badge: 'FILME, KONTAKTE & INFOS',
-            title: 'Mehr Infos &<br><span style="color: #8b5cf6;">Kino-Zentrale</span>',
-            subtitle: 'Film-Highlights, Telefonliste, Statistiken und direkte Portal-Zugänge an einem zentralen Ort.',
-            oli: 'Oli_Success_bgless.png',
-            screen: capturedScreens['mehr'],
+            badge: 'DIGITALE SCHICHTORGANISATION',
+            title: 'Team & Aktionen<br><span style="color: #8b5cf6;">ohne Zettelchaos</span>',
+            subtitle: 'Schicht-Zeiterfassung, Waren-Transfers, Reinigungschecks und Aufgaben übersichtlich vereint.',
+            oli: 'Oli_5_bgless.png',
+            screen: path.join(userUploadedDir, 'media_1788193365919.png'),
             accent: '#8b5cf6'
         }
     ];
@@ -283,8 +71,6 @@ const { spawn } = require('child_process');
     };
 
     const logoB64 = getBase64Image(path.join(process.cwd(), 'new_logo.png'));
-
-    const createdSlides = [];
 
     for (let i = 0; i < slidesConfig.length; i++) {
         const cfg = slidesConfig[i];
@@ -314,11 +100,11 @@ const { spawn } = require('child_process');
                 /* Background lighting */
                 .bg-glow {
                     position: absolute;
-                    top: -200px;
+                    top: -150px;
                     left: 50%;
                     transform: translateX(-50%);
                     width: 1200px;
-                    height: 1000px;
+                    height: 900px;
                     background: radial-gradient(circle, ${cfg.accent}25 0%, transparent 65%);
                     filter: blur(120px);
                     pointer-events: none;
@@ -416,12 +202,12 @@ const { spawn } = require('child_process');
                     height: 1840px;
                     background: #18181b;
                     border-radius: 96px;
-                    padding: 20px;
+                    padding: 18px;
                     box-shadow: 
-                        0 40px 100px rgba(0,0,0,0.9),
+                        0 40px 100px rgba(0,0,0,0.95),
                         0 0 0 2px #3f3f46,
                         0 0 0 6px #18181b,
-                        0 0 60px ${cfg.accent}20;
+                        0 0 70px ${cfg.accent}25;
                     z-index: 5;
                 }
 
@@ -439,7 +225,7 @@ const { spawn } = require('child_process');
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
-                    object-position: top;
+                    object-position: top center;
                 }
 
                 /* Dynamic Island */
@@ -501,13 +287,13 @@ const { spawn } = require('child_process');
 
         const outputPath = path.join(artifactsDir, `${cfg.id}.png`);
         await slidePage.screenshot({ path: outputPath, type: 'png' });
-        createdSlides.push(outputPath);
-        console.log(`✅ Saved: ${outputPath}`);
+        
+        // Also copy to public/assets/appstore
+        fs.copyFileSync(outputPath, path.join(publicAppstoreDir, `${cfg.id}.png`));
+        console.log(`✅ Saved & Copied: ${cfg.id}.png`);
     }
 
-    console.log("🏁 All 5 App Store screenshots generated successfully with vibrant realistic app screens!");
-
+    console.log("🏁 All 5 App Store screenshots generated perfectly with genuine user screenshots!");
     await browser.close();
-    server.kill();
     process.exit(0);
 })();
