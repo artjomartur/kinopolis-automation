@@ -68,7 +68,7 @@ class PosterErinnerungViewModel: ObservableObject {
             // Default sample reservations if empty
             self.reservations = [
                 PosterReservation(id: UUID(), movieTitle: "Deadpool & Wolverine", employeeName: "Artjom Becker", size: "DIN A1", dateAdded: Date().addingTimeInterval(-86400 * 3), isReady: true, notes: "Im Büro hinterlegt"),
-                PosterReservation(id: UUID(), movieTitle: "Spider-Man: Brand New Day", employeeName: "Artjom Becker", size: "DIN A0", dateAdded: Date(), isReady: false, notes: "Vorgemerkt für Letztspielung")
+                PosterReservation(id: UUID(), movieTitle: "Gladiator II", employeeName: "Artjom Becker", size: "DIN A0", dateAdded: Date(), isReady: false, notes: "Vorgemerkt für Letztspielung")
             ]
             saveReservations()
         }

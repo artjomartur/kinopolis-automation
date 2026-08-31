@@ -44,7 +44,7 @@ const path = require('path');
                                 </div>
                             </div>
                             <div style="background: rgba(255,255,255,0.03); border: 1px solid #27272a; border-radius: 12px; padding: 16px;">
-                                <div style="font-weight: 700; font-size: 16px; color: #fff;">Spider-Man: Beyond</div>
+                                <div style="font-weight: 700; font-size: 16px; color: #fff;">Gladiator II</div>
                                 <div style="font-size: 13px; color: #a1a1aa; margin-top: 4px;">Saal 3 • 20:15 Uhr • 195/240 Plätze</div>
                                 <div style="margin-top: 12px; background: #27272a; border-radius: 6px; height: 8px; overflow: hidden;">
                                     <div style="width: 81%; height: 100%; background: #10b981;"></div>
