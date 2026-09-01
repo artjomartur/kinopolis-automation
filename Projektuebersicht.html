@@ -82,6 +82,7 @@
             border: 1px solid var(--border);
             border-radius: 10px;
             padding: 20px;
+            page-break-inside: avoid;
         }
 
         .feature-card h3 {
@@ -157,6 +158,7 @@
             padding: 30px;
             border-radius: 12px;
             margin-top: 50px;
+            page-break-inside: avoid;
         }
 
         .vision-section h2 {
@@ -220,8 +222,8 @@
                 size: A4;
                 margin: 0; /* Verhindert, dass der Browser Kopf- und Fußzeilen (wie URL/Titel) druckt */
             }
-            .banner-img { box-shadow: none; border: 1px solid #ddd; max-height: 250px; object-fit: cover; }
-            .comparison-grid { display: flex; flex-direction: column; }
+            .banner-img { box-shadow: none; border: 1px solid #ddd; }
+            .comparison-grid > div { page-break-inside: avoid; }
         }
     </style>
 </head>
