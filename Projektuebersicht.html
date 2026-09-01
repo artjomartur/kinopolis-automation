@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Kinopolis Automation Suite - Projektübersicht</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a202c;
+            --secondary: #2d3748;
+            --accent: #e53e3e;
+            --light-bg: #f7fafc;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--primary);
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        /* Banner & Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 10px 0;
+            letter-spacing: -0.05em;
+        }
+
+        .header p.subtitle {
+            font-size: 1.2rem;
+            color: var(--secondary);
+            font-weight: 300;
+            margin: 0;
+        }
+        
+        .banner-img {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        /* Section Headings */
+        h2 {
+            font-size: 1.75rem;
+            color: var(--accent);
+            border-left: 4px solid var(--accent);
+            padding-left: 15px;
+            margin-top: 50px;
+            margin-bottom: 25px;
+        }
+
+        /* Grid Layout for Features */
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .feature-card {
+            background: var(--light-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            page-break-inside: avoid;
+        }
+
+        .feature-card h3 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-card p, .feature-card ul {
+            font-size: 0.95rem;
+            color: var(--secondary);
+            margin-bottom: 0;
+        }
+
+        .feature-card ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+
+        .demo-access {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-left: 4px solid #f59e0b;
+            padding: 12px 20px;
+            margin-bottom: 30px;
+            border-radius: 6px;
+            color: #92400e;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 0.95rem;
+        }
+
+        .demo-access code {
+            background: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* iOS App Section */
+        .ios-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .ios-item img {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+        }
+
+        .ios-item p {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--secondary);
+            margin: 0;
+        }
+
+        /* Vision Section */
+        .vision-section {
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 50px;
+            page-break-inside: avoid;
+        }
+
+        .vision-section h2 {
+            color: white;
+            border-left-color: var(--accent);
+            margin-top: 0;
+        }
+
+        .vision-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .vision-list li {
+            margin-bottom: 20px;
+            padding-left: 35px;
+            position: relative;
+        }
+
+        .vision-list li::before {
+            content: '🚀';
+            position: absolute;
+            left: 0;
+            top: 2px;
+            font-size: 1.2rem;
+        }
+
+        .vision-list h4 {
+            margin: 0 0 5px 0;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .vision-list p {
+            margin: 0;
+            color: #cbd5e0;
+            font-size: 0.95rem;
+        }
+
+        /* Print Instructions */
+        .print-help {
+            background: #e6fffa;
+            border-left: 4px solid #319795;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+            color: #234e52;
+        }
+
+        @media print {
+            body { 
+                background: white; 
+                padding: 15mm; /* Verschoben vom @page margin hierher */
+            }
+            .container { 
+                padding: 0; 
+                max-width: 100%; 
+            }
+            .print-help { display: none; }
+            @page {
+                size: A4;
+                margin: 0; /* Verhindert, dass der Browser Kopf- und Fußzeilen (wie URL/Titel) druckt */
+            }
+            .banner-img { box-shadow: none; border: 1px solid #ddd; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="print-help">
+            <strong>Tipp:</strong> Drücke <code>Strg + P</code> (oder <code>Cmd + P</code>) und wähle <strong>"Als PDF speichern"</strong>. Im Druckdialog unter "Weitere Einstellungen" am besten <strong>Hintergrundgrafiken aktivieren</strong>.
+        </div>
+
+        <div class="header">
+            <!-- Lokales Bild als Banner einbinden -->
+            <img src="public/assets/web_showcase/web_1_dashboard.png" alt="Kinopolis Dashboard" class="banner-img">
+            <h1>Kinopolis Automation Suite</h1>
+            <p class="subtitle">Modernes Kinobetriebs- & Automations-System</p>
+        </div>
+
+        <div class="demo-access">
+            <span><strong>🔐 Standard-Zugang:</strong></span>
+            <span>Benutzername: <code>admin</code></span>
+            <span>Passwort: <code>admin123</code></span>
+        </div>
+
+        <h2>Was das Projekt kann</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>⚡ Echtzeit-Überwachung</h3>
+                <p>Live-Scraping von Sitzplänen. Echtzeit-Monitoring von Belegungsquoten und Restlaufzeiten aller Säle.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>📊 Smarte Foyer-Analytics</h3>
+                <p>15-Minuten-Timelines zur Vorhersage von Einlass-/Auslass-Wellen und Spitzenzeiten-Erkennung für optimale Personalplanung.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>📑 1-Klick Berichte</h3>
+                <p>Automatisierte Tages- und Schichtabschlüsse als A4-PDF inkl. WhatsApp-Export für schnelle Übergaben.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>🚨 Tech-Tickets & Alerts</h3>
+                <p>Saalspezifische Meldungen (Ton, Licht, Sitze) und Countdowns zur letzten Vorstellung für pünktlichen Plakatwechsel.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>🍿 Gastro-Management</h3>
+                <p>Digitale Zählung von Bechern/Tüten am Schichtende und integrierter MHD-Tracker für Gastro-Waren.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>📱 Mobile-First Apps</h3>
+                <p>Volloptimierte iOS App & PWA mit Saal-Radar, Offline-Modus, FSK-Rechner und Digitalfunk.</p>
+            </div>
+        </div>
+
+    <h2>Die Mobile App</h2>
+    <div class="ios-grid">
+        <div class="ios-item">
+            <img src="public/assets/appstore/appstore_1_live.png" alt="Saal Radar">
+            <p>Saal Radar</p>
+        </div>
+        <div class="ios-item">
+            <img src="public/assets/appstore/appstore_2_funk.png" alt="Funkruf">
+            <p>Digitaler Funk</p>
+        </div>
+        <div class="ios-item">
+            <img src="public/assets/appstore/appstore_3_scanner.png" alt="Ticket Scanner">
+            <p>Ticket-Scanner</p>
+        </div>
+        <div class="ios-item">
+            <img src="public/assets/appstore/appstore_4_action.png" alt="FSK Check">
+            <p>FSK-Rechner</p>
+        </div>
+        <div class="ios-item">
+            <img src="public/assets/appstore/appstore_5_mehr.png" alt="Schichtplan">
+            <p>Schichtplan</p>
+        </div>
+    </div>
+
+    <div class="tech-stack-section">
+        <h2>🛠️ Technische Architektur (Tech Stack)</h2>
+        <div class="features-grid" style="gap: 15px; margin-bottom: 30px;">
+            <div class="feature-card" style="padding: 15px;">
+                <h3 style="color: var(--accent); margin-bottom: 5px;">Frontend & Web</h3>
+                <p>HTML5, Vanilla CSS (Glassmorphism, Dark Mode) & ES-Module für maximale Performance. Gebaut mit <strong>Vite</strong>.</p>
+            </div>
+            <div class="feature-card" style="padding: 15px;">
+                <h3 style="color: var(--accent); margin-bottom: 5px;">Backend & Data</h3>
+                <p><strong>Node.js</strong> & Express mit <strong>Cheerio</strong> für Live-Scraping. Serverless Skalierung via <strong>Cloudflare Workers & D1 (SQLite)</strong>.</p>
+            </div>
+            <div class="feature-card" style="padding: 15px;">
+                <h3 style="color: var(--accent); margin-bottom: 5px;">Mobile (App)</h3>
+                <p>Verpackt via <strong>Capacitor</strong> als echtes iOS Native Target sowie als Progressive Web App (PWA) inkl. Service Worker für Offline-Fähigkeit.</p>
+            </div>
+            <div class="feature-card" style="padding: 15px;">
+                <h3 style="color: var(--accent); margin-bottom: 5px;">Reporting Engine</h3>
+                <p>Maßgeschneiderte <strong>Print-Engine</strong> für millimetergenaue PDF-Reports und ein nativer <strong>WhatsApp Markdown Exporter</strong>.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="future-features-section" style="margin-bottom: 40px;">
+        <h2 style="color: var(--primary); border-left-color: #8b5cf6;">🔮 Geplante Funktionen (Future Features)</h2>
+        <div class="features-grid" style="gap: 15px;">
+            <div class="feature-card" style="border-top: 3px solid #8b5cf6;">
+                <h3 style="color: #6d28d9; margin-bottom: 5px;">ATOSS Ersatz & HR</h3>
+                <p>Vollständige Integration der Personalplanung und Zeiterfassung, um teure externe Systeme (wie ATOSS) mittelfristig komplett abzulösen.</p>
+            </div>
+            <div class="feature-card" style="border-top: 3px solid #8b5cf6;">
+                <h3 style="color: #6d28d9; margin-bottom: 5px;">KI-gestützte Prognosen</h3>
+                <p>Nutzung von historischen Daten, Wettervorhersagen und Ferienkalendern, um den Personal- und Warenbedarf automatisch und präzise vorherzusagen.</p>
+            </div>
+            <div class="feature-card" style="border-top: 3px solid #8b5cf6;">
+                <h3 style="color: #6d28d9; margin-bottom: 5px;">Smart Ordering (Gastro)</h3>
+                <p>Automatisierte Bestellvorschläge für Gastro-Waren (Popcorn, Nachos, Getränke) basierend auf aktuellen Ticketverkäufen und Lagerbeständen.</p>
+            </div>
+            <div class="feature-card" style="border-top: 3px solid #8b5cf6;">
+                <h3 style="color: #6d28d9; margin-bottom: 5px;">Erweiterte API-Anbindungen</h3>
+                <p>Schnittstellen zu weiteren Kassensystemen und Ticketanbietern, um alle Umsätze und Besucherströme in einem Dashboard zu bündeln.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="vision-section">
+            <h2>Die Vision: Was es sein soll</h2>
+            <ul class="vision-list">
+                <li>
+                    <h4>Die zentrale Kommandozentrale ("Single Source of Truth")</h4>
+                    <p>Alle Fäden eines Kinopolis-Standorts laufen hier zusammen. Die App ist der zentrale Dreh- und Angelpunkt für das gesamte Schichtmanagement.</p>
+                </li>
+                <li>
+                    <h4>Das Ende des Papierchaos</h4>
+                    <p>Keine analogen Klemmbretter, unübersichtliche Excel-Listen oder unstrukturierte WhatsApp-Gruppen mehr. Alles ist nahtlos in einer digitalen Umgebung vereint.</p>
+                </li>
+                <li>
+                    <h4>Ein intelligenter Helfer</h4>
+                    <p>Das System protokolliert nicht nur, es denkt mit. Es prognostiziert Spitzenzeiten und hilft dem Personal, den Besucheransturm stressfrei und effizient zu bewältigen.</p>
+                </li>
+                <li>
+                    <h4>Kompromisslose User Experience</h4>
+                    <p>Eine moderne, pfeilschnelle Oberfläche, die dem Personal Spaß macht und durch intuitives Design Einarbeitungszeiten auf ein Minimum reduziert.</p>
+                </li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--secondary); font-size: 0.85rem;">
+            <em>Hinweis: Dieses Projekt ist ein eigenständiges Betriebs- & Automatisierungswerkzeug und steht in keinem offiziellen Zusammenhang mit der Kinopolis Management GmbH.</em>
+        </div>
+    </div>
+</body>
+</html>
