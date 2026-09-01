@@ -214,10 +214,14 @@
             color: #234e52;
         }
 
+        .print-header, .print-footer {
+            display: none;
+        }
+
         @media print {
             body { 
                 background: white; 
-                padding: 15mm; /* Verschoben vom @page margin hierher */
+                padding: 20mm 15mm; /* Platz für Kopf- und Fußzeile */
             }
             .container { 
                 padding: 0; 
@@ -226,14 +230,61 @@
             .print-help { display: none; }
             @page {
                 size: A4;
-                margin: 0; /* Verhindert, dass der Browser Kopf- und Fußzeilen (wie URL/Titel) druckt */
+                margin: 0; /* Verhindert die standardmäßigen Browser-Header (URL etc.) */
             }
+            
+            /* Custom Header & Footer auf jeder Seite */
+            .print-header {
+                display: flex;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8mm 15mm 3mm 15mm;
+                border-bottom: 1px solid #e2e8f0;
+                font-size: 9px;
+                color: #718096;
+                font-weight: 600;
+                background: white;
+            }
+            
+            .print-footer {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                justify-content: space-between;
+                align-items: center;
+                padding: 3mm 15mm 8mm 15mm;
+                border-top: 1px solid #e2e8f0;
+                font-size: 9px;
+                color: #718096;
+                background: white;
+            }
+
             .banner-img { box-shadow: none; border: 1px solid #ddd; }
             .comparison-grid > div { page-break-inside: avoid; }
         }
     </style>
 </head>
 <body>
+    <!-- Eigene Kopf- und Fußzeile für den Druck (auf jeder Seite) -->
+    <div class="print-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <img src="public/oli-favicon.png" alt="Logo" style="width: 16px; height: 16px;">
+            <span>Kinopolis Automation Suite</span>
+        </div>
+        <span>Projektübersicht & Vision</span>
+    </div>
+    
+    <div class="print-footer">
+        <span>© Kinopolis Automation (Intern)</span>
+        <span>🤖 Unterstützt von Antigravity (Google DeepMind AI)</span>
+    </div>
+
     <div class="container">
         <div class="print-help">
             <strong>Tipp:</strong> Drücke <code>Strg + P</code> (oder <code>Cmd + P</code>) und wähle <strong>"Als PDF speichern"</strong>. Im Druckdialog unter "Weitere Einstellungen" am besten <strong>Hintergrundgrafiken aktivieren</strong>.
