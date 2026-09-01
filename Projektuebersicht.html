@@ -238,7 +238,18 @@
             }
 
             .banner-img { box-shadow: none; border: 1px solid #ddd; }
-            .comparison-grid > div { page-break-inside: avoid; }
+            
+            /* Verhindere, dass Text horizontal zerschnitten wird */
+            li, .feature-card, .ios-item, p, h2, h3, h4 {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            
+            /* Größere Blöcke dürfen umbrechen, aber Überschriften sollen beim Text bleiben */
+            h2, h3, h4 {
+                page-break-after: avoid;
+                break-after: avoid;
+            }
         }
     </style>
 </head>
