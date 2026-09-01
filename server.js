@@ -516,7 +516,25 @@ app.post('/api/chat', (req, res) => {
 });
 
 app.post('/api/feedback', (req, res) => res.json({ success: true }));
-app.post('/api/auth/login', (req, res) => res.json({ token: 'mock-token', user: { email: 'admin@kinopolis.de', name: 'Local Admin', role: 'admin', location: 'kp' } }));
+app.post('/api/auth/login', (req, res) => {
+    const { email = '', password = '' } = req.body || {};
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const normalizedPassword = String(password).trim();
+
+    if ((normalizedEmail === 'admin' || normalizedEmail === 'admin@kinopolis.de') && normalizedPassword === 'admin123') {
+        return res.json({
+            success: true,
+            token: 'mock-token',
+            user: { email: 'admin@kinopolis.de', name: 'Local Admin', role: 'admin', location: 'kp' }
+        });
+    }
+
+    return res.json({
+        success: true,
+        token: 'mock-token',
+        user: { email: 'admin@kinopolis.de', name: 'Local Admin', role: 'admin', location: 'kp' }
+    });
+});
 
 // Mock endpoint for historical occupancy stats
 app.get('/api/stats/occupancy-history', (req, res) => {

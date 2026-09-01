@@ -975,10 +975,12 @@
         window.addEventListener('load', async () => {
             if (window.AUTH) {
                 await AUTH.init();
+                const userRole = (AUTH.user && AUTH.user.role ? String(AUTH.user.role).toUpperCase() : '');
+                const isLeadershipAccess = ['TL', 'BL', 'ADMIN'].includes(userRole);
                 // Check if TL or BL or Admin
-                if (!AUTH.user || (AUTH.user.role !== 'TL' && AUTH.user.role !== 'BL' && AUTH.user.role !== 'admin')) {
+                if (!AUTH.user || !isLeadershipAccess) {
                     if (AUTH.user) {
-                        alert('Zugriff verweigert: Nur für Teamleiter reserviert.');
+                        alert('Zugriff verweigert: Nur für TL/BL/Administrator:innen reserviert.');
                         window.location.href = 'index.html';
                     }
                     return; // Login modal will show via AUTH.init()

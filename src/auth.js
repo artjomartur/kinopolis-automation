@@ -321,7 +321,13 @@ const AUTH = {
     showLoginModal() {
         this.injectModal();
         const modal = document.getElementById('auth-modal');
-        if (modal) modal.classList.add('active');
+        if (modal) {
+            const emailInput = document.getElementById('login-email');
+            const passwordInput = document.getElementById('login-password');
+            if (emailInput && !emailInput.value) emailInput.value = 'admin';
+            if (passwordInput && !passwordInput.value) passwordInput.value = 'admin123';
+            modal.classList.add('active');
+        }
     },
 
     hideLoginModal() {

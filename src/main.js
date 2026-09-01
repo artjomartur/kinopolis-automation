@@ -2734,6 +2734,12 @@ function resetAndTestOli() {
             const modal = document.getElementById('tl-monitoring-modal');
             if (!modal) return;
 
+            const userRole = (window.AUTH && AUTH.user && AUTH.user.role ? String(AUTH.user.role).toUpperCase() : '');
+            if (!['TL', 'BL', 'ADMIN'].includes(userRole)) {
+                alert('Zugriff verweigert: Nur für TL/BL/Administrator:innen.');
+                return;
+            }
+
             const city = currentCity ? currentCity.toUpperCase() : 'KP';
             const subTitle = document.getElementById('tl-modal-subtitle');
             if (subTitle) subTitle.innerText = `Kinopolis ${city} • Live Schichtleitung`;
@@ -2769,6 +2775,12 @@ function resetAndTestOli() {
         function openBlMonitoring() {
             const modal = document.getElementById('bl-monitoring-modal');
             if (!modal) return;
+
+            const userRole = (window.AUTH && AUTH.user && AUTH.user.role ? String(AUTH.user.role).toUpperCase() : '');
+            if (!['TL', 'BL', 'ADMIN'].includes(userRole)) {
+                alert('Zugriff verweigert: Nur für TL/BL/Administrator:innen.');
+                return;
+            }
 
             const city = currentCity ? currentCity.toUpperCase() : 'KP';
             const subTitle = document.getElementById('bl-modal-subtitle');
