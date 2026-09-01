@@ -421,7 +421,7 @@ struct LiveView: View {
                 // Fixed Master Header (Collapses on scroll)
                 MasterHeaderView(
                     imageName: "Oli_3_bgless",
-                    subtitle: "Willkommen zurück,",
+                    subtitle: "Willkommen im Einsatz,",
                     title: displayName,
                     shortTitle: "Live",
                     isCollapsed: isHeaderCollapsed

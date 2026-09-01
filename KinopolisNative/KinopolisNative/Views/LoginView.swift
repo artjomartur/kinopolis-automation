@@ -23,14 +23,16 @@ struct LoginView: View {
                         .cornerRadius(24)
                         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 5)
                     
-                    Text("Willkommen zurück")
+                    Text("Willkommen im Kinopolis-Operations Center")
                         .font(.title)
                         .fontWeight(.heavy)
                         .foregroundColor(.primary)
                     
-                    Text("Bitte melde dich an, um fortzufahren.")
+                    Text("Melde dich an, um Live-Saalstatus, Besucherströme, Schichtinformationen und wichtige Betriebsdaten zentral zu steuern. Alles, was du für einen reibungslosen Kinobetrieb brauchst, ist hier an einem Ort gebündelt.")
                         .font(.subheadline)
                         .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 18)
                 }
                 
                 // Error Message
