@@ -20,26 +20,12 @@
 </p>
 
 <p align="center">
-  <a href="#-produktvideos--motion-showcases">🎬 Produktvideos</a> •
   <a href="#-key-features">✨ Key Features</a> •
   <a href="#-desktop--tablet-showcase">🖥️ Desktop Dashboard</a> •
   <a href="#-mobile-app-ios--android--pwa">📱 Mobile App</a> •
   <a href="#-installation--schnellstart">🚀 Quickstart</a> •
   <a href="#-architektur--projektstruktur">🏗️ Architektur</a>
 </p>
-
----
-
-## 🎬 Produktvideos & Motion Showcases
-
-Entdecke die Kinopolis Automation Suite in Aktion – als 16:9 Desktop-Präsentation und als dynamisches 9:16 Social Reel:
-
-| 🖥️ 16:9 Desktop &amp; Tablet Showcase | 📱 9:16 Mobile App Social Reel |
-| :---: | :---: |
-| [![16:9 Showcase](public/assets/videos/showcase_preview.gif)](public/assets/videos/kinopolis_showcase_16x9.mp4) | [![9:16 Reel](public/assets/videos/mobile_preview.gif)](public/assets/videos/kinopolis_mobile_reel_9x16.mp4) |
-| [▶ **Full HD 16:9 Video öffnen (MP4)**](public/assets/videos/kinopolis_showcase_16x9.mp4) | [📱 **9:16 Mobile Reel öffnen (MP4)**](public/assets/videos/kinopolis_mobile_reel_9x16.mp4) |
-
-> 💡 *Beide Videos enthalten einen synchronisierten Synthwave-Track (124 BPM) und animierte Feature-Callouts für Social Media, Messen und GitHub.*
 
 ---
 
@@ -179,7 +165,6 @@ kinopolis-automation/
 │   ├── assets/
 │   │   ├── appstore/                 # Mobile App Screenshots (iPhone 16 Pro Max)
 │   │   ├── web_showcase/             # Desktop Web Showcase Slides (1920x1080)
-│   │   ├── videos/                   # Produktvideos (16:9 & 9:16) & Preview GIFs
 │   │   └── Oli/                      # Maskottchen-Videos & Renderings
 │   ├── oli-favicon.png               # Web Favicon
 │   └── manifest.json                 # PWA Web App Manifest
@@ -194,7 +179,6 @@ kinopolis-automation/
 │   ├── utils/                        # Datum-, Zeit- & UI-Helfer
 │   └── components/                   # Foyer-Analytics & Reporting Engine
 ├── scripts/
-│   ├── generate_product_videos.py    # Generator für 16:9 und 9:16 Produktvideos
 │   ├── generate_appstore_screenshots.js # App Store Screenshot Generator
 │   ├── generate_web_showcases.js     # Web Showcase Generator
 │   ├── archive/                      # Archivierte Hilfsskripte
@@ -213,7 +197,6 @@ kinopolis-automation/
 ## 🏷️ Release Notes: v1.1.0-beta
 
 * 🚀 **Offizieller Beta-Status:** Umstellung auf Version `v1.1.0-beta`.
-* 🎬 **Full-HD Produktvideos:** 16:9 Desktop-Showcase und 9:16 Mobile-Social-Reel inkl. Soundtrack hinzugefügt.
 * 🎨 **Neuer App Icon Hero:** Prominente Integration des iOS-Squircle-Icons in Web und README.
 * 🧹 **Repository Cleanup:** Entfernung veralteter Patches, Archivierung loser Skripte und Löschung gemergter Feature-Branches.
 * ⚡ **Performance:** Optimiertes Asset-Routing, reaktionsschnelleres Foyer-Radar und verbesserte PDF-Druckstile.
