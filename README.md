@@ -29,6 +29,12 @@
 
 ---
 
+<p align="center">
+  <img src="assets/portfolio_hero_bear_cinema_zerog.jpg" width="100%" alt="Kinopolis Automation · Cinema Operations in Zero-Gravity" style="border-radius: 16px;" />
+</p>
+
+---
+
 ## 🚀 Was ist die Kinopolis Automation Suite?
 
 Die **Kinopolis Automation Suite** digitalisiert den täglichen Kinobetrieb an Kinopolis-Standorten. Sie verbindet Live-Kinoinformationen, Saalüberwachung, Foyer-Besucherströme, Team-Kommunikation und Abrechnung in einem nahtlosen Ökosystem:
@@ -156,6 +162,7 @@ npm run build
 kinopolis-automation/
 ├── assets/
 │   ├── app-icon.png                  # Offizielles iOS Squircle App Icon (1024x1024)
+│   ├── portfolio_hero_bear_cinema_zerog.jpg # Zero-G Cinema Bear Hero Artwork
 │   ├── icon.png                      # App Icon Master
 │   └── splash.png                    # Mobile Splash Screen
 ├── docs/
