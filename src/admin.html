@@ -193,28 +193,39 @@
     <div class="admin-container">
         <!-- Header -->
         <div class="admin-header">
-            <div>
-                <h1>Admin Portal</h1>
-                <p style="font-size: 0.8rem; color: var(--text-muted);">Kinopolis Automation</p>
-            </div>
             <div style="display: flex; align-items: center; gap: 1rem;">
-                <select id="admin-city" onchange="onCityChange()" style="background: rgba(255,255,255,0.06); border: 1px solid var(--surface-border); color: var(--text-main); padding: 0.5rem 2rem 0.5rem 0.85rem; border-radius: 50px; font-weight: 600; font-size: 0.85rem; outline: none; cursor: pointer; appearance: none; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right 0.75rem center;">
-                    <option value="kp">Darmstadt</option>
-                    <option value="ab">Aschaffenburg</option>
-                    <option value="bn">Bad Godesberg</option>
-                    <option value="bh">Bad Homburg</option>
-                    <option value="fr">Freiberg</option>
-                    <option value="gi">Gießen</option>
-                    <option value="hh">Hamburg</option>
-                    <option value="hu">Hanau</option>
-                    <option value="ka">Karlsruhe</option>
-                    <option value="ko">Koblenz</option>
-                    <option value="lh">Landshut</option>
-                    <option value="ro">Rosenheim</option>
-                    <option value="su">Sulzbach</option>
-                    <option value="vi">Viernheim</option>
-                </select>
-                <a href="index.html" class="back-link">
+                <a href="index.html" class="logo-box" title="Zum Dashboard" style="background: rgba(255,255,255,0.06); padding: 0.4rem 0.85rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; height: 40px; text-decoration: none;">
+                    <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png?20260323" alt="Kinopolis Logo" style="height: 24px; width: auto; filter: drop-shadow(0 0 10px rgba(229,9,20,0.3));">
+                </a>
+                <div>
+                    <h1 style="display: flex; align-items: center; gap: 0.6rem; margin: 0; font-size: 1.3rem;">
+                        Betriebsleitung (BL) Cockpit
+                        <span style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.05em;">ADMIN COCKPIT</span>
+                    </h1>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.2rem 0 0;">Kinopolis Automation Operations</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 0.35rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 0.4rem 0.85rem; border-radius: 12px;">
+                    <span>📍</span>
+                    <select id="admin-city" onchange="onCityChange()" style="background: transparent; border: none; color: var(--text-main); font-weight: 700; font-size: 0.85rem; outline: none; cursor: pointer;">
+                        <option value="kp">Darmstadt</option>
+                        <option value="ab">Aschaffenburg</option>
+                        <option value="bn">Bad Godesberg</option>
+                        <option value="bh">Bad Homburg</option>
+                        <option value="fr">Freiberg</option>
+                        <option value="gi">Gießen</option>
+                        <option value="hh">Hamburg</option>
+                        <option value="hu">Hanau</option>
+                        <option value="ka">Karlsruhe</option>
+                        <option value="ko">Koblenz</option>
+                        <option value="lh">Landshut</option>
+                        <option value="ro">Rosenheim</option>
+                        <option value="su">Sulzbach</option>
+                        <option value="vi">Viernheim</option>
+                    </select>
+                </div>
+                <a href="index.html" class="back-link" style="text-decoration: none; display: flex; align-items: center; gap: 0.4rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); padding: 0.45rem 1rem; border-radius: 12px; color: #fff; font-size: 0.85rem; font-weight: 700; transition: all 0.2s ease;">
                     <span>🏠</span> Dashboard
                 </a>
             </div>

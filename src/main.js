@@ -2888,7 +2888,74 @@ function resetAndTestOli() {
         }
         window.changeDate = changeDate;
 
+        function setDateOffset(days) {
+            const d = new Date();
+            d.setDate(d.getDate() + days);
+            displayDate = d;
+            updateDateUI();
+            fetchSessions();
+        }
+        window.setDateOffset = setDateOffset;
 
+        function openDatePickerModal() {
+            const input = document.getElementById('nav-date-input');
+            if (input) {
+                const y = displayDate.getFullYear();
+                const m = String(displayDate.getMonth() + 1).padStart(2, '0');
+                const d = String(displayDate.getDate()).padStart(2, '0');
+                input.value = `${y}-${m}-${d}`;
+                if (typeof input.showPicker === 'function') {
+                    input.showPicker();
+                } else {
+                    input.click();
+                }
+            }
+        }
+        window.openDatePickerModal = openDatePickerModal;
+
+        function handleNavDatePick(e) {
+            if (!e.target || !e.target.value) return;
+            const parts = e.target.value.split('-');
+            displayDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            updateDateUI();
+            fetchSessions();
+        }
+        window.handleNavDatePick = handleNavDatePick;
+
+        function triggerNavRefresh() {
+            const btn = document.getElementById('header-refresh-btn');
+            if (btn) btn.classList.add('spinning');
+            if (typeof fetchSessions === 'function') {
+                fetchSessions().finally(() => {
+                    setTimeout(() => {
+                        if (btn) btn.classList.remove('spinning');
+                    }, 500);
+                });
+            }
+        }
+        window.triggerNavRefresh = triggerNavRefresh;
+
+        function openDeptModal() {
+            const modal = document.getElementById('dept-modal');
+            if (modal) {
+                modal.classList.add('active');
+                modal.style.opacity = '1';
+                document.body.classList.add('modal-open');
+            }
+        }
+        window.openDeptModal = openDeptModal;
+
+        function closeDeptModal() {
+            const modal = document.getElementById('dept-modal');
+            if (modal) {
+                modal.style.opacity = '0';
+                setTimeout(() => {
+                    modal.classList.remove('active');
+                    document.body.classList.remove('modal-open');
+                }, 300);
+            }
+        }
+        window.closeDeptModal = closeDeptModal;
 
         function updateDateUI() {
             const today = new Date();
@@ -2915,6 +2982,12 @@ function resetAndTestOli() {
             if (textEl) textEl.innerText = dayName;
             if (subEl) subEl.innerText = dateStr;
             
+            // Sync navbar segmented tabs
+            const tabToday = document.getElementById('tab-date-today');
+            const tabTomorrow = document.getElementById('tab-date-tomorrow');
+            if (tabToday) tabToday.classList.toggle('active', isToday);
+            if (tabTomorrow) tabTomorrow.classList.toggle('active', isTomorrow);
+
             if (settingsTextEl) {
                 settingsTextEl.innerText = `${dayName}, ${dateStr}`;
             }
@@ -4370,12 +4443,50 @@ function resetAndTestOli() {
                 if (staleWarning) staleWarning.style.display = 'none';
 
                 if(sessions.length === 0) {
+                      const isToday = displayDate.toDateString() === new Date().toDateString();
+                      
+                      // Auto-switch to tomorrow on initial boot if today has 0 sessions but tomorrow has program
+                      if (!window._bootAutoDateChecked && isToday && tomSessions.length > 0) {
+                          window._bootAutoDateChecked = true;
+                          setDateOffset(1);
+                          if (typeof showToast === 'function') {
+                              showToast('🌙 Heute laufen keine Vorstellungen mehr – Programm für Morgen wird angezeigt.');
+                          }
+                          return;
+                      }
+
                       const dateStrDisplay = displayDate.toLocaleDateString('de-DE');
-                      document.getElementById('dashboard').innerHTML = `<div class="glass" style="padding: 3rem 1.5rem; text-align: center; grid-column: 1/-1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                          <img src="/assets/Oli/Oli_4_bgless.png" alt="Oli Kino" style="width: 84px; height: 84px; object-fit: contain; margin-bottom: 1rem; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5));">
-                          <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">Keine Vorstellungen gefunden</h3>
-                          <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 420px; line-height: 1.4;">Möglicherweise ist das Kino am ${dateStrDisplay} geschlossen oder das Programm wurde noch nicht veröffentlicht.</p>
-                      </div>`;
+                      const tomDate = new Date();
+                      tomDate.setDate(tomDate.getDate() + 1);
+                      const tomDateFormatted = tomDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+                      const tomCount = Array.isArray(tomSessions) ? tomSessions.length : 0;
+
+                      document.getElementById('dashboard').innerHTML = `
+                          <div class="card-container glass" style="padding: 3rem 2rem; text-align: center; grid-column: 1/-1; max-width: 600px; margin: 2rem auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+                              <img src="/assets/Oli/Oli_4_bgless.png" alt="Oli Mascot" style="width: 88px; height: 88px; object-fit: contain; margin-bottom: 1.25rem; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.6));">
+                              <h3 style="font-size: 1.35rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem;">
+                                  ${isToday ? 'Keine weiteren Vorstellungen für heute' : `Keine Vorstellungen am ${dateStrDisplay}`}
+                              </h3>
+                              <p style="color: var(--text-muted); font-size: 0.92rem; max-width: 440px; margin: 0 auto 1.75rem; line-height: 1.5;">
+                                  ${isToday 
+                                    ? 'Das heutige Kinoprogramm ist entweder bereits abgeschlossen oder für heute sind keine weiteren Vorstellungen im System gelistet.' 
+                                    : `Für ${dateStrDisplay} liegen aktuell keine Spielzeiten vor.`}
+                              </p>
+                              <div style="display: flex; flex-direction: column; gap: 0.85rem; align-items: center;">
+                                  <button type="button" onclick="setDateOffset(1)" class="btn-primary" style="padding: 0.9rem 1.8rem; font-size: 0.95rem; font-weight: 700; border-radius: 14px; gap: 0.5rem; display: inline-flex; align-items: center; box-shadow: 0 10px 25px rgba(229,9,20,0.4);">
+                                      📅 Vorstellungen für Morgen (${tomDateFormatted}) anzeigen ${tomCount > 0 ? `(${tomCount})` : ''}
+                                  </button>
+                                  <div style="display: flex; gap: 0.6rem; margin-top: 0.25rem; flex-wrap: wrap; justify-content: center;">
+                                      <button type="button" onclick="document.getElementById('cinema-selector').focus()" class="btn-secondary" style="padding: 0.6rem 1.25rem; font-size: 0.85rem; border-radius: 10px;">
+                                          📍 Anderen Standort wählen
+                                      </button>
+                                      <button type="button" onclick="fetchSessions()" class="btn-secondary" style="padding: 0.6rem 1.25rem; font-size: 0.85rem; border-radius: 10px;">
+                                          🔄 Neu laden
+                                      </button>
+                                  </div>
+                              </div>
+                          </div>
+                      `;
                       document.getElementById('poster-alerts').innerHTML = '';
                       document.getElementById('auslaesse-list').innerHTML = '';
                       const auslaesseContainer = document.getElementById('auslaesse-section-container');

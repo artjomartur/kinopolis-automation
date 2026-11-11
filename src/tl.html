@@ -47,35 +47,67 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
+            background: rgba(10, 10, 13, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 0.85rem 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
 
         .logo-wrap {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
+            gap: 1rem;
         }
 
         .logo-box {
-            background: #fff;
-            padding: 0.4rem 0.75rem;
-            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 0.4rem 0.85rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
             height: 40px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .logo-box:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
         }
 
         .logo-box img {
-            height: 24px;
+            height: 26px;
             width: auto;
             display: block;
+            filter: drop-shadow(0 0 10px rgba(229, 9, 20, 0.3));
         }
 
         .portal-title {
-            font-weight: 700;
-            font-size: 1.4rem;
+            font-weight: 800;
+            font-size: 1.3rem;
             letter-spacing: -0.01em;
             color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .portal-badge {
+            background: rgba(168, 85, 247, 0.15);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            color: #c084fc;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
         }
 
         .location-select {
@@ -534,31 +566,41 @@
 
     <header>
         <div class="logo-wrap">
-            <div class="logo-box">
+            <a href="index.html" class="logo-box" title="Zum Dashboard">
                 <img src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png?20260323" alt="Kinopolis Logo">
+            </a>
+            <div class="portal-title">
+                Kommandozentrale (TL)
+                <span class="portal-badge">TL MONITORING</span>
             </div>
-            <h1 class="portal-title">Kommandozentrale (TL)</h1>
         </div>
-        <select class="location-select" id="location-selector" onchange="changeCity()" style="display: none;">
-            <option value="kp">Darmstadt (KP)</option>
-            <option value="cd">Darmstadt (CD)</option>
-            <option value="rx">Darmstadt (RX)</option>
-            <option value="ab">Aschaffenburg</option>
-            <option value="bn">Bad Godesberg</option>
-            <option value="bh">Bad Homburg</option>
-            <option value="fr">Freiberg</option>
-            <option value="gi">Gießen</option>
-            <option value="kg">Gießen (KG)</option>
-            <option value="hh">Hamburg</option>
-            <option value="hu">Hanau</option>
-            <option value="ka">Karlsruhe</option>
-            <option value="ko">Koblenz</option>
-            <option value="lh">Landshut</option>
-            <option value="ro">Rosenheim</option>
-            <option value="su">Sulzbach</option>
-            <option value="vi">Viernheim</option>
-        </select>
-        <div id="location-display" style="background: var(--surface-color); border: 1px solid var(--surface-border); color: white; padding: 0.6rem 1.5rem; border-radius: 50px; font-weight: 700; font-size: 0.9rem;">Darmstadt (KP)</div>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 0.35rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 0.4rem 0.85rem; border-radius: 12px;">
+                <span>📍</span>
+                <select class="location-select" id="location-selector" onchange="changeCity()" style="background: transparent; border: none; color: #fff; font-weight: 700; font-size: 0.85rem; outline: none; cursor: pointer;">
+                    <option value="kp">Darmstadt (KP)</option>
+                    <option value="cd">Darmstadt (CD)</option>
+                    <option value="rx">Darmstadt (RX)</option>
+                    <option value="ab">Aschaffenburg</option>
+                    <option value="bn">Bad Godesberg</option>
+                    <option value="bh">Bad Homburg</option>
+                    <option value="fr">Freiberg</option>
+                    <option value="gi">Gießen</option>
+                    <option value="kg">Gießen (KG)</option>
+                    <option value="hh">Hamburg</option>
+                    <option value="hu">Hanau</option>
+                    <option value="ka">Karlsruhe</option>
+                    <option value="ko">Koblenz</option>
+                    <option value="lh">Landshut</option>
+                    <option value="ro">Rosenheim</option>
+                    <option value="su">Sulzbach</option>
+                    <option value="vi">Viernheim</option>
+                </select>
+            </div>
+            <a href="index.html" style="text-decoration: none; display: flex; align-items: center; gap: 0.4rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); padding: 0.45rem 1rem; border-radius: 12px; color: #fff; font-size: 0.85rem; font-weight: 700; transition: all 0.2s ease;">
+                <span>🏠</span> Dashboard
+            </a>
+        </div>
     </header>
 
     <div id="personal-help-banner" style="display: none; margin-bottom: 1.5rem;"></div>

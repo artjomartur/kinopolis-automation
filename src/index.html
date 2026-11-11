@@ -78,7 +78,8 @@
 </div>
 <!-- DEPARTMENT SELECTION MODAL -->
 <div class="modal" id="dept-modal">
-<div class="modal-content glass" style="max-width: 500px; padding: 2.5rem 2rem;">
+<div class="modal-content glass" style="max-width: 500px; padding: 2.5rem 2rem; position: relative;">
+<button type="button" onclick="closeDeptModal()" style="position: absolute; top: 16px; right: 20px; background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer;" title="Schließen">✕</button>
 <span class="welcome-icon">🎬</span>
 <h2 class="modal-title" style="font-size: 1.8rem;">Bereich wählen</h2>
 <p class="modal-text" style="margin-bottom: 2rem;">Welche Station hast du heute? Wir bereiten deine Werkzeuge vor.</p>
@@ -107,23 +108,72 @@
             </div>
         </div>
     </div>
-<header>
+<header class="main-header-navbar">
 <div class="header-inner">
-<div class="brand">
-<div class="logo-container">
-<img alt="Kinopolis" class="logo" id="brand-logo" src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png?20260323">
-</div>
-</div>
-<div class="header-right">
-<div class="occupancy-badge glass" id="occupancy-widget" style="display: none; padding: 0 15px; height: 44px; border-radius: 12px; align-items: center; gap: 8px; font-weight: 700; color: #00ff80; border: 1px solid rgba(0, 255, 128, 0.15);">
-<span style="font-size: 1.1rem;">👥</span>
-<span id="live-occupancy">0</span>
-</div>
-<select class="location-select glass" id="cinema-selector" style="display: none;"></select><div class="location-badge glass" id="cinema-display" style="padding: 0 15px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; border: 1px solid var(--glass-border);">Darmstadt</div>
-<div class="user-profile-btn" id="user-profile-btn" onclick="AUTH.showProfile()" title="Profil &amp; Einstellungen">
-<span>👤</span> Gast
-                </div>
-</div>
+    <!-- BRAND / LOGO & STATUS -->
+    <div class="brand-group">
+        <div class="logo-container" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Kinopolis Dashboard">
+            <img alt="Kinopolis" class="logo" id="brand-logo" src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png?20260323">
+        </div>
+        <div class="header-live-badge" title="Live Operations-Status">
+            <span class="pulse-green-dot"></span>
+            <span class="live-tag">LIVE</span>
+            <span class="version-tag">v1.1.0-beta</span>
+        </div>
+    </div>
+
+    <!-- DATE CONTROLS (CENTER) -->
+    <div class="header-date-nav glass" id="header-date-nav">
+        <div class="date-quick-segmented">
+            <button type="button" class="date-tab-btn active" id="tab-date-today" onclick="setDateOffset(0)" title="Heute anzeigen">Heute</button>
+            <button type="button" class="date-tab-btn" id="tab-date-tomorrow" onclick="setDateOffset(1)" title="Morgen anzeigen">Morgen</button>
+        </div>
+        <div class="date-stepper-box">
+            <button type="button" class="date-nav-arrow" onclick="changeDate(-1)" title="Vorheriger Tag" aria-label="Vorheriger Tag">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <div class="date-label-wrapper" onclick="openDatePickerModal()" title="Klicken für Kalenderauswahl">
+                <span id="display-date-text">Heute</span>
+                <span id="display-date-sub">11.11.</span>
+            </div>
+            <button type="button" class="date-nav-arrow" onclick="changeDate(1)" title="Nächster Tag" aria-label="Nächster Tag">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+        </div>
+        <input type="date" id="nav-date-input" style="display:none;" onchange="handleNavDatePick(event)">
+    </div>
+
+    <!-- RIGHT CONTROLS: LOCATION, DEPT, REFRESH, PROFILE -->
+    <div class="header-right-group">
+        <!-- Live Occupancy (Hidden until active) -->
+        <div class="occupancy-badge glass" id="occupancy-widget" style="display: none;">
+            <span style="font-size: 1rem;">👥</span>
+            <span id="live-occupancy">0</span>
+        </div>
+
+        <!-- Cinema Location Picker -->
+        <div class="location-picker-box glass" title="Standort wechseln">
+            <span class="loc-pin">📍</span>
+            <select class="cinema-selector-dropdown" id="cinema-selector" aria-label="Kino Standort"></select>
+            <span class="dropdown-arrow">▾</span>
+        </div>
+
+        <!-- Station / Department Selector Pill -->
+        <button type="button" class="header-dept-btn glass" id="header-dept-btn" onclick="openDeptModal()" title="Station / Bereich wechseln">
+            <span id="header-dept-icon">🎯</span>
+            <span id="header-dept-text" class="dept-text-label">Bereich</span>
+        </button>
+
+        <!-- Refresh Button -->
+        <button type="button" class="header-refresh-btn glass" id="header-refresh-btn" onclick="triggerNavRefresh()" title="Vorstellungen aktualisieren" aria-label="Aktualisieren">
+            <span class="refresh-icon-rot">🔄</span>
+        </button>
+
+        <!-- User Profile Pill -->
+        <div class="user-profile-btn glass" id="user-profile-btn" onclick="AUTH.showProfile()" title="Profil &amp; Einstellungen">
+            <span>👤</span> <span id="header-user-text">Gast</span>
+        </div>
+    </div>
 </div>
 </header>
 <div id="pull-refresh-indicator" style="display: none; align-items: center; justify-content: center; overflow: hidden; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); color: var(--primary-blue); font-size: 1.5rem; transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05);">
@@ -893,9 +943,9 @@
 
 
 <!-- TABBED SETTINGS PANEL WRAPPER -->
-<div class="einstellungen-section" id="settings-tab-wrapper">
+<div class="einstellungen-section" id="settings-tab-wrapper" onclick="if(event.target === this) { document.body.classList.remove('einstellungen-active', 'mehr-active'); document.body.style.overflow='auto'; }">
     <div class="settings-layout">
-        <button onclick="document.body.classList.remove('einstellungen-active', 'mehr-active'); document.body.style.overflow='auto';" style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 2rem; color: var(--text-muted); cursor: pointer; z-index: 10;">×</button>
+        <button onclick="document.body.classList.remove('einstellungen-active', 'mehr-active'); document.body.style.overflow='auto';" style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 2rem; color: var(--text-muted); cursor: pointer; z-index: 10;" title="Schließen">×</button>
         <!-- Sidebar Navigation -->
         <div class="settings-nav">
             <button class="settings-nav-btn active" onclick="window.setSettingsPage('profile', this); return false;">👤 Profil &amp; Rang</button>

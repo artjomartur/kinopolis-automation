@@ -1272,7 +1272,7 @@ app.get('/api/sessions', async (c) => {
         // Filter out Darmstadt extra events (strict separation KP vs CD)
         const cdHalls = ['helia', 'pali', 'rex', 'classic', 'broadway', 'bambi', 'festival'];
         if (location === 'kp') {
-            sessions = sessions.filter(s => {
+            const strictKp = sessions.filter(s => {
                 const h = (s.hall || '').toLowerCase();
                 if (cdHalls.some(k => h.includes(k))) return false;
                 if (h.includes('onyx')) return false;
@@ -1280,6 +1280,7 @@ app.get('/api/sessions', async (c) => {
                 if (match && parseInt(match[1]) > 8) return false;
                 return true;
             });
+            sessions = strictKp.length > 0 ? strictKp : sessions;
         } else if (location === 'cd') {
             sessions = sessions.filter(s => {
                 const h = (s.hall || '').toLowerCase();
