@@ -1333,7 +1333,7 @@ function resetAndTestOli() {
         function checkAndTriggerIntro() {
             const urlParams = new URLSearchParams(window.location.search);
             const forceIntro = urlParams.get('intro') === '1' || urlParams.get('intro') === 'true' || window.location.hash === '#intro';
-            if (forceIntro || !sessionStorage.getItem('kp_intro_seen')) {
+            if (forceIntro || (!localStorage.getItem('kp_intro_seen') && !sessionStorage.getItem('kp_intro_seen'))) {
                 showCinematicIntro();
             }
         }
@@ -1351,6 +1351,7 @@ function resetAndTestOli() {
         function enterDashboardFromIntro() {
             const intro = document.getElementById('cinematic-hero-intro');
             sessionStorage.setItem('kp_intro_seen', 'true');
+            localStorage.setItem('kp_intro_seen', 'true');
             if (!intro) return;
             intro.classList.add('warp-out');
             document.body.classList.remove('modal-open');
