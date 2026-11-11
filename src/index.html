@@ -33,6 +33,17 @@
 </head>
 <body class="dark-mode">
 <!-- ULTIMATE SPLASH FAILSAFE -->
+<script>
+    setTimeout(function() {
+        var s = document.getElementById('splash-screen');
+        if (s) {
+            s.style.transition = 'opacity 0.6s ease';
+            s.style.opacity = '0';
+            s.style.pointerEvents = 'none';
+            setTimeout(function() { s.style.display = 'none'; }, 600);
+        }
+    }, 1800);
+</script>
 
 <!-- Ambient Background -->
 <div class="liquid-bg">
@@ -66,6 +77,7 @@
 <div id="poster-urgent-modal-body"></div>
 <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; justify-content: flex-end;">
 <button class="btn-secondary" onclick="snoozePosterUrgentPopup()" style="padding: 0.75rem 1.25rem;" type="button">Später (15 Min)</button>
+</div>
 </div>
 </div>
 <!-- CINEMATIC ZERO-G HERO INTRO -->

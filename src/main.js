@@ -1,8 +1,34 @@
 
         // EMERGENCY CACHE CLEAR
         if (window.location.search.includes('reset=true') || window.location.search.includes('clean=true')) {
-            localStorage.clear();
-            sessionStorage.clear();
+            const preservedToken = localStorage.getItem('kp_auth_token');
+            const preservedUser = localStorage.getItem('kp_user');
+            const preservedGuest = localStorage.getItem('kp_guest_mode');
+            const preservedDept = localStorage.getItem('kinopolis_selected_dept');
+            const preservedLoc = localStorage.getItem('kinopolis_selected_location');
+
+            try {
+                sessionStorage.clear();
+                const keys = Object.keys(localStorage);
+                for (const k of keys) {
+                    if (!k.startsWith('kp_auth') && !k.startsWith('kp_user')) {
+                        localStorage.removeItem(k);
+                    }
+                }
+                if (preservedToken) localStorage.setItem('kp_auth_token', preservedToken);
+                if (preservedUser) localStorage.setItem('kp_user', preservedUser);
+                if (preservedGuest) localStorage.setItem('kp_guest_mode', preservedGuest);
+                if (preservedDept) localStorage.setItem('kinopolis_selected_dept', preservedDept);
+                if (preservedLoc) localStorage.setItem('kinopolis_selected_location', preservedLoc);
+
+                // Default to guest mode if not logged in so dashboard is immediately usable
+                if (!preservedToken && !preservedGuest) {
+                    localStorage.setItem('kp_guest_mode', 'true');
+                }
+            } catch (e) {
+                console.warn('Reset storage cleanup error:', e);
+            }
+
             (async () => {
                 try {
                     if ('serviceWorker' in navigator) {
@@ -16,7 +42,7 @@
                 } catch (e) {
                     console.error('Reset error:', e);
                 }
-                window.location.href = window.location.origin + window.location.pathname;
+                window.location.replace(window.location.origin + window.location.pathname);
             })();
         }
     
@@ -177,12 +203,13 @@ function resetAndTestOli() {
         setTimeout(function() {
             var s = document.getElementById('splash-screen');
             if (s) {
-                s.style.transition = 'opacity 0.8s ease';
+                s.style.transition = 'opacity 0.6s ease';
                 s.style.opacity = '0';
-                setTimeout(function() { s.style.display = 'none'; }, 800);
+                s.style.pointerEvents = 'none';
+                setTimeout(function() { s.style.display = 'none'; }, 600);
                 console.log('SPLASH: Early failsafe triggered');
             }
-        }, 4000);
+        }, 1500);
     
 
 
