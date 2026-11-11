@@ -1347,31 +1347,67 @@ function resetAndTestOli() {
         // FEATURE: COUNTDOWN TIMERS
         // ============================================================
         function tickAllCountdowns() {
+            const isToday = !displayDate || displayDate.toDateString() === new Date().toDateString();
+            const timers = document.querySelectorAll('.countdown-timer');
+            if (!isToday) {
+                timers.forEach(t => t.style.display = 'none');
+                return;
+            }
+
             const now = new Date();
             const currentMin = now.getHours() * 60 + now.getMinutes();
-            document.querySelectorAll('.countdown-timer[data-end]').forEach(el => {
-                const endMin = parseInt(el.dataset.end);
-                if (isNaN(endMin) || endMin <= 0) { el.textContent = ''; return; }
-                const minutesLeft = endMin - currentMin;
-                if (minutesLeft < 0) {
-                    el.textContent = 'Auslass fällig';
-                    el.style.color = '#e74c3c';
-                    el.style.fontWeight = '800';
-                } else if (minutesLeft <= 5) {
-                    el.textContent = `🔴 Auslass in ${minutesLeft} Min`;
-                    el.style.color = '#e74c3c';
-                    el.style.fontWeight = '800';
-                } else if (minutesLeft <= 20) {
-                    el.textContent = `🟡 Auslass in ${minutesLeft} Min`;
-                    el.style.color = '#f1c40f';
-                    el.style.fontWeight = '700';
+
+            timers.forEach(timer => {
+                const startMin = parseInt(timer.dataset.start);
+                const endMin = parseInt(timer.dataset.end);
+                if (isNaN(startMin) || isNaN(endMin) || endMin <= 0) {
+                    timer.style.display = 'none';
+                    return;
+                }
+                timer.style.display = 'inline-flex';
+
+                const hallName = timer.dataset.hall || '';
+                const hallId = parseInt(hallName.replace(/\D/g, ''));
+                const isReady = hallId && typeof HALL_STATUS !== 'undefined' && HALL_STATUS[hallId] === 'ready';
+                const card = timer.closest('.session-card-ios') || timer.closest('.session-item');
+
+                const diffStart = startMin - currentMin;
+                const diffEnd = endMin - currentMin;
+
+                if (currentMin < startMin) {
+                    // Movie has not started yet
+                    if (diffStart > 120) {
+                        const h = String(Math.floor(startMin / 60)).padStart(2, '0');
+                        const m = String(startMin % 60).padStart(2, '0');
+                        timer.innerText = `⏳ Start um ${h}:${m}`;
+                    } else {
+                        timer.innerText = `⏳ Start in ${diffStart} Min`;
+                    }
+                    timer.className = 'countdown-timer status-upcoming' + (isReady ? ' hall-ready' : '');
+                    if (card) card.style.opacity = '1';
+                } else if (currentMin < endMin) {
+                    // Movie is running – Auslass is countdown to endMin
+                    if (diffEnd <= 5) {
+                        timer.innerText = `🔴 Auslass in ${diffEnd} Min`;
+                        timer.className = 'countdown-timer status-urgent' + (isReady ? ' hall-ready' : '');
+                    } else if (diffEnd <= 20) {
+                        timer.innerText = `🟡 Auslass in ${diffEnd} Min`;
+                        timer.className = 'countdown-timer status-warning' + (isReady ? ' hall-ready' : '');
+                    } else {
+                        timer.innerText = `🎬 Läuft · Auslass in ${diffEnd} Min`;
+                        timer.className = 'countdown-timer status-running' + (isReady ? ' hall-ready' : '');
+                    }
+                    if (card) card.style.opacity = '1';
                 } else {
-                    el.textContent = `⏱ Auslass in ${minutesLeft} Min`;
-                    el.style.color = 'var(--text-muted)';
-                    el.style.fontWeight = 'normal';
+                    // Movie has ended
+                    timer.innerText = `🏁 Auslass fällig`;
+                    timer.className = 'countdown-timer status-finished';
+                    if (card) card.style.opacity = '0.55';
                 }
             });
         }
+        window.tickAllCountdowns = tickAllCountdowns;
+        window.updateCountdowns = tickAllCountdowns;
 
 
         // --- SHIFT TIMER ---
@@ -2888,37 +2924,7 @@ function resetAndTestOli() {
 
 
         function updateCountdowns() {
-            const isToday = displayDate.toDateString() === new Date().toDateString();
-            const timers = document.querySelectorAll('.countdown-timer');
-            if (!isToday) {
-                timers.forEach(t => t.style.display = 'none');
-                return;
-            }
-            
-            const now = new Date();
-            const currentMin = now.getHours() * 60 + now.getMinutes();
-
-            timers.forEach(timer => {
-                const startMin = parseInt(timer.dataset.start);
-                const endMin = parseInt(timer.dataset.end);
-                const hallName = timer.dataset.hall || '';
-                const hallId = parseInt(hallName.replace(/\D/g, ''));
-                const isReady = hallId && HALL_STATUS[hallId] === 'ready';
-                
-                if (currentMin < startMin) {
-                    const diff = startMin - currentMin;
-                    timer.innerText = `Beginnt in ${diff} Min.`;
-                    timer.className = 'countdown-timer status-upcoming' + (isReady ? ' hall-ready' : '');
-                } else if (currentMin < endMin) {
-                    const diff = endMin - currentMin;
-                    timer.innerText = `Läuft - noch ${diff} Min.`;
-                    timer.className = 'countdown-timer status-running' + (isReady ? ' hall-ready' : '');
-                } else {
-                    timer.innerText = `Beendet`;
-                    timer.className = 'countdown-timer status-finished';
-                    timer.parentElement.closest('.session-item').style.opacity = '0.4';
-                }
-            });
+            tickAllCountdowns();
         }
         function toggleSection(contentId, btnId) {
             const content = document.getElementById(contentId);

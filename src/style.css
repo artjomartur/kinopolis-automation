@@ -2681,59 +2681,65 @@
 
         /* Countdown styling */
         .countdown-timer {
-            font-size: 0.8rem;
-            color: var(--accent);
+            font-size: 0.78rem;
+            color: var(--text-muted);
             font-weight: 700;
-            background: rgba(0, 242, 254, 0.1);
-            padding: 2px 8px;
-            border-radius: 6px;
-            margin-top: 0.25rem;
-            display: inline-block;
-            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3px 9px;
+            border-radius: 8px;
+            margin-top: 0.4rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            width: fit-content;
+            transition: all 0.25s ease;
+            letter-spacing: 0.02em;
         }
 
-        .countdown-timer {
-            font-size: 0.8rem;
-            color: var(--accent);
-            font-weight: 700;
-            background: rgba(0, 242, 254, 0.1);
-            padding: 2px 8px;
-            border-radius: 6px;
-            margin-top: 0.25rem;
-            display: inline-block;
-            transition: all 0.3s ease;
+        .countdown-timer.status-upcoming {
+            color: #60a5fa !important;
+            background: rgba(59, 130, 246, 0.15) !important;
+            border-color: rgba(59, 130, 246, 0.3) !important;
         }
 
-        .status-upcoming {
-            color: #e50914 !important;
-            background: rgba(229, 9, 20, 0.15) !important;
+        .countdown-timer.status-upcoming.hall-ready {
+            color: #34d399 !important;
+            background: rgba(52, 211, 153, 0.15) !important;
+            border-color: rgba(52, 211, 153, 0.35) !important;
         }
 
-        .status-upcoming.hall-ready {
-            color: #2ecc71 !important;
-            background: rgba(46, 204, 113, 0.15) !important;
+        .countdown-timer.status-running {
+            color: #4cd964 !important;
+            background: rgba(52, 199, 89, 0.15) !important;
+            border-color: rgba(52, 199, 89, 0.35) !important;
         }
 
-        .status-running {
+        .countdown-timer.status-warning {
+            color: #fbbf24 !important;
+            background: rgba(245, 158, 11, 0.18) !important;
+            border-color: rgba(245, 158, 11, 0.45) !important;
+            font-weight: 800;
+        }
+
+        .countdown-timer.status-urgent {
             color: #ff4d4d !important;
-            background: rgba(255, 77, 77, 0.15) !important;
+            background: rgba(239, 68, 68, 0.22) !important;
+            border-color: rgba(239, 68, 68, 0.55) !important;
+            font-weight: 800;
             animation: status-blink 1.5s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
         }
 
-        .status-running.hall-ready {
-            color: #2ecc71 !important;
-            background: rgba(46, 204, 113, 0.15) !important;
-            animation: status-blink 1.5s ease-in-out infinite;
-        }
-
-        .status-finished {
-            color: var(--text-muted) !important;
-            background: rgba(255, 255, 255, 0.05) !important;
+        .countdown-timer.status-finished {
+            color: #8e8e93 !important;
+            background: rgba(255, 255, 255, 0.04) !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
         }
 
         @keyframes status-blink {
             0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(0.98); }
+            50% { opacity: 0.7; transform: scale(0.98); }
             100% { opacity: 1; transform: scale(1); }
         }
 
@@ -3923,38 +3929,51 @@ body.light-mode .tab-btn.active {
 .hall-sessions-scroll {
     display: flex;
     overflow-x: auto;
-    gap: 1rem;
-    padding: 0.5rem 1.25rem 1.5rem 1.25rem;
+    flex-wrap: wrap;
+    gap: 1.15rem;
+    padding: 0.75rem 1.25rem 1.5rem 1.25rem;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; /* Firefox */
 }
 .hall-sessions-scroll::-webkit-scrollbar {
-    display: none; /* Chrome, Safari */
+    display: none;
 }
 .session-card-ios {
-    min-width: 240px;
-    max-width: 240px;
+    min-width: 280px;
+    max-width: 360px;
+    flex: 1 1 280px;
     display: flex;
     flex-direction: column;
-    padding: 1rem;
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
-    flex-shrink: 0;
+    padding: 1.15rem;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    box-sizing: border-box;
 }
 .session-card-ios:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    border-color: rgba(255, 255, 255, 0.15);
 }
 .session-card-header {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 0.5rem;
     margin-bottom: 0.75rem;
+}
+@media (max-width: 768px) {
+    .hall-sessions-scroll {
+        flex-wrap: nowrap;
+        scrollbar-width: none;
+    }
+    .session-card-ios {
+        min-width: 250px;
+        max-width: 280px;
+        flex-shrink: 0;
+    }
 }
 .time-badge {
     font-size: 0.75rem;
