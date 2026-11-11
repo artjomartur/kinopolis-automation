@@ -1298,7 +1298,9 @@ function resetAndTestOli() {
 
         // --- CINEMATIC ZERO-G HERO INTRO CONTROLLER ---
         function checkAndTriggerIntro() {
-            if (!sessionStorage.getItem('kp_intro_seen')) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const forceIntro = urlParams.get('intro') === '1' || urlParams.get('intro') === 'true' || window.location.hash === '#intro';
+            if (forceIntro || !sessionStorage.getItem('kp_intro_seen')) {
                 showCinematicIntro();
             }
         }
