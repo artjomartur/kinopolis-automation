@@ -4061,13 +4061,40 @@ body.light-mode .hall-name-ios { color: #1c1c1e; }
     height: 100vh;
     z-index: 99999;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: center;
-    padding: 3rem 1.5rem 5rem;
+    padding: 2rem 1.5rem;
     box-sizing: border-box;
     overflow: hidden;
-    background: #000;
+    background: radial-gradient(circle at center, #181822 0%, #050508 100%);
     transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
+}
+
+.cinematic-close-btn {
+    position: absolute;
+    top: 24px;
+    right: 28px;
+    z-index: 30;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    transition: all 0.2s ease;
+}
+
+.cinematic-close-btn:hover {
+    background: rgba(229, 9, 20, 0.35);
+    border-color: rgba(229, 9, 20, 0.6);
+    transform: scale(1.1);
 }
 
 .cinematic-intro-overlay.warp-out {

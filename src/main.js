@@ -1,17 +1,23 @@
 
         // EMERGENCY CACHE CLEAR
-        if (window.location.search.includes('reset=true')) {
+        if (window.location.search.includes('reset=true') || window.location.search.includes('clean=true')) {
             localStorage.clear();
             sessionStorage.clear();
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(regs => {
-                    for (let reg of regs) reg.unregister();
-                });
-            }
-            caches.keys().then(names => {
-                for (let name of names) caches.delete(name);
-            });
-            window.location.href = window.location.pathname;
+            (async () => {
+                try {
+                    if ('serviceWorker' in navigator) {
+                        const regs = await navigator.serviceWorker.getRegistrations();
+                        for (let reg of regs) await reg.unregister();
+                    }
+                    if ('caches' in window) {
+                        const names = await caches.keys();
+                        for (let name of names) await caches.delete(name);
+                    }
+                } catch (e) {
+                    console.error('Reset error:', e);
+                }
+                window.location.href = window.location.origin + window.location.pathname;
+            })();
         }
     
 function resetAndTestOli() {
@@ -1328,6 +1334,15 @@ function resetAndTestOli() {
         }
         window.enterDashboardFromIntro = enterDashboardFromIntro;
 
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const intro = document.getElementById('cinematic-hero-intro');
+                if (intro && intro.style.display !== 'none') {
+                    enterDashboardFromIntro();
+                }
+            }
+        });
+
         // ============================================================
         // FEATURE: COUNTDOWN TIMERS
         // ============================================================
@@ -1832,7 +1847,8 @@ function resetAndTestOli() {
                         installingWorker.onstatechange = () => {
                             if (installingWorker.state === 'installed') {
                                 if (navigator.serviceWorker.controller) {
-                                    console.log('New content is available; please refresh.');
+                                    console.log('Neue Version verfügbar – aktiviere sofort...');
+                                    installingWorker.postMessage({ type: 'SKIP_WAITING' });
                                 }
                             }
                         };

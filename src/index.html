@@ -69,7 +69,8 @@
 </div>
 </div>
 <!-- CINEMATIC ZERO-G HERO INTRO -->
-<div id="cinematic-hero-intro" class="cinematic-intro-overlay" style="display: none;">
+<div id="cinematic-hero-intro" class="cinematic-intro-overlay" style="display: none;" onclick="if(event.target === this || event.target.classList.contains('cinematic-intro-bg') || event.target.classList.contains('cinematic-cosmic-glow')) enterDashboardFromIntro()">
+    <button type="button" class="cinematic-close-btn" onclick="enterDashboardFromIntro()" title="Intro schließen (ESC)">✕</button>
     <div class="cinematic-intro-bg" style="background-image: url('/assets/portfolio_hero_bear_cinema_zerog.jpg');"></div>
     <div class="cinematic-cosmic-glow"></div>
     
