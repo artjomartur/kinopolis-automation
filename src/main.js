@@ -1279,6 +1279,11 @@ function resetAndTestOli() {
 
 
 
+                // Check and trigger cinematic hero intro if first visit in session
+                setTimeout(() => {
+                    checkAndTriggerIntro();
+                }, 300);
+
                 // Popcorn-Animation auslösen, falls ein erfolgreicher Login stattgefunden hat
                 if (sessionStorage.getItem('trigger_login_popcorn') === 'true') {
                     sessionStorage.removeItem('trigger_login_popcorn');
@@ -1290,6 +1295,36 @@ function resetAndTestOli() {
                 }
             }
         }
+
+        // --- CINEMATIC ZERO-G HERO INTRO CONTROLLER ---
+        function checkAndTriggerIntro() {
+            if (!sessionStorage.getItem('kp_intro_seen')) {
+                showCinematicIntro();
+            }
+        }
+
+        function showCinematicIntro() {
+            const intro = document.getElementById('cinematic-hero-intro');
+            if (!intro) return;
+            intro.classList.remove('warp-out');
+            intro.style.display = 'flex';
+            document.body.classList.add('modal-open');
+            document.body.style.overflow = 'hidden';
+        }
+        window.showCinematicIntro = showCinematicIntro;
+
+        function enterDashboardFromIntro() {
+            const intro = document.getElementById('cinematic-hero-intro');
+            sessionStorage.setItem('kp_intro_seen', 'true');
+            if (!intro) return;
+            intro.classList.add('warp-out');
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = 'auto';
+            setTimeout(() => {
+                intro.style.display = 'none';
+            }, 800);
+        }
+        window.enterDashboardFromIntro = enterDashboardFromIntro;
 
         // ============================================================
         // FEATURE: COUNTDOWN TIMERS

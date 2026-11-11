@@ -68,7 +68,27 @@
 <button class="btn-secondary" onclick="snoozePosterUrgentPopup()" style="padding: 0.75rem 1.25rem;" type="button">Später (15 Min)</button>
 </div>
 </div>
+<!-- CINEMATIC ZERO-G HERO INTRO -->
+<div id="cinematic-hero-intro" class="cinematic-intro-overlay" style="display: none;">
+    <div class="cinematic-intro-bg" style="background-image: url('/assets/portfolio_hero_bear_cinema_zerog.jpg');"></div>
+    <div class="cinematic-cosmic-glow"></div>
+    
+    <div class="cinematic-content-card glass">
+        <div class="cinematic-badge">
+            <span class="pulse-green-dot"></span>
+            <span>KINOPOLIS AUTOMATION • V1.1.0-BETA</span>
+        </div>
+        <h1 class="cinematic-title">Operations <span class="gradient-text">Center</span></h1>
+        <p class="cinematic-desc">Live-Saalauslastung, digitale Schichtaufgaben, Automatisierung &amp; Kino-Steuerung auf höchstem Niveau.</p>
+        
+        <div class="cinematic-actions">
+            <button type="button" class="btn-primary cinematic-enter-btn" onclick="enterDashboardFromIntro()">
+                <span>🚀 Operations Center betreten</span>
+            </button>
+        </div>
+    </div>
 </div>
+
 <div id="splash-screen">
 <div class="splash-glow"></div>
 <div class="splash-logo-container">
@@ -1337,6 +1357,11 @@
                                 Das moderne Betriebssystem für deinen Kinobetrieb: Funkruf, Live-Saalmonitor, Einlass &amp; Schicht-Tools.
                             </p>
                         </div>
+                    </div>
+                    <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.85rem;">
+                        <button type="button" class="btn-primary" onclick="document.body.classList.remove('einstellungen-active', 'mehr-active'); showCinematicIntro();" style="width: 100%; padding: 0.8rem; border-radius: 12px; font-weight: 700; font-size: 0.88rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #e50914, #ff3d47); cursor: pointer;">
+                            <span>🎬</span> Zero-G Hero-Intro ansehen
+                        </button>
                     </div>
                 </div>
 
