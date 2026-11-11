@@ -1329,7 +1329,8 @@ function resetAndTestOli() {
             }
         }
 
-        // --- CINEMATIC ZERO-G HERO INTRO CONTROLLER ---
+        // --- ANIMATED FLYING OLI BEAR INTRO CONTROLLER ---
+        let _flyingBearTimer = null;
         function checkAndTriggerIntro() {
             const urlParams = new URLSearchParams(window.location.search);
             const forceIntro = urlParams.get('intro') === '1' || urlParams.get('intro') === 'true' || window.location.hash === '#intro';
@@ -1341,24 +1342,38 @@ function resetAndTestOli() {
         function showCinematicIntro() {
             const intro = document.getElementById('cinematic-hero-intro');
             if (!intro) return;
-            intro.classList.remove('warp-out');
-            intro.style.display = 'flex';
-            document.body.classList.add('modal-open');
-            document.body.style.overflow = 'hidden';
+
+            if (_flyingBearTimer) clearTimeout(_flyingBearTimer);
+
+            // Reset animation by toggling display & trigger reflow
+            intro.style.display = 'none';
+            void intro.offsetWidth;
+            intro.style.display = 'block';
+            intro.style.opacity = '1';
+
+            // Auto-complete after exactly 2.25 seconds without blocking user
+            _flyingBearTimer = setTimeout(() => {
+                enterDashboardFromIntro();
+            }, 2250);
         }
         window.showCinematicIntro = showCinematicIntro;
 
         function enterDashboardFromIntro() {
+            if (_flyingBearTimer) {
+                clearTimeout(_flyingBearTimer);
+                _flyingBearTimer = null;
+            }
             const intro = document.getElementById('cinematic-hero-intro');
             sessionStorage.setItem('kp_intro_seen', 'true');
             localStorage.setItem('kp_intro_seen', 'true');
-            if (!intro) return;
-            intro.classList.add('warp-out');
-            document.body.classList.remove('modal-open');
-            document.body.style.overflow = 'auto';
-            setTimeout(() => {
-                intro.style.display = 'none';
-            }, 800);
+            if (intro) {
+                intro.style.transition = 'opacity 0.25s ease';
+                intro.style.opacity = '0';
+                setTimeout(() => {
+                    intro.style.display = 'none';
+                    intro.style.opacity = '1';
+                }, 250);
+            }
         }
         window.enterDashboardFromIntro = enterDashboardFromIntro;
 

@@ -80,26 +80,22 @@
 </div>
 </div>
 </div>
-<!-- CINEMATIC ZERO-G HERO INTRO -->
-<div id="cinematic-hero-intro" class="cinematic-intro-overlay" style="display: none;" onclick="if(event.target === this || event.target.classList.contains('cinematic-intro-bg') || event.target.classList.contains('cinematic-cosmic-glow')) enterDashboardFromIntro()">
-    <button type="button" class="cinematic-close-btn" onclick="enterDashboardFromIntro()" title="Intro schließen (ESC)">✕</button>
-    <div class="cinematic-intro-bg" style="background-image: url('/assets/portfolio_hero_bear_cinema_zerog.jpg');"></div>
-    <div class="cinematic-cosmic-glow"></div>
-    
-    <div class="cinematic-content-card glass">
-        <div class="cinematic-badge">
-            <span class="pulse-green-dot"></span>
-            <span>KINOPOLIS AUTOMATION • V1.1.0-BETA</span>
-        </div>
-        <h1 class="cinematic-title">Operations <span class="gradient-text">Center</span></h1>
-        <p class="cinematic-desc">Live-Saalauslastung, digitale Schichtaufgaben, Automatisierung &amp; Kino-Steuerung auf höchstem Niveau.</p>
-        
-        <div class="cinematic-actions">
-            <button type="button" class="btn-primary cinematic-enter-btn" onclick="enterDashboardFromIntro()">
-                <span>🚀 Operations Center betreten</span>
-            </button>
+<!-- ANIMATED FLYING OLI BEAR INTRO (2-second flight across screen) -->
+<div id="cinematic-hero-intro" class="cinematic-intro-overlay" style="display: none;" onclick="enterDashboardFromIntro()">
+    <div class="flying-bear-backdrop"></div>
+    <div class="flying-bear-track">
+        <div class="flying-bear-character">
+            <img src="/assets/oli_fly_open.png" class="bear-frame frame-open" alt="Oli">
+            <img src="/assets/oli_fly_wink.png" class="bear-frame frame-wink" alt="Oli zwinkert">
+            <div class="flying-trail">
+                <span class="particle p1">✨</span>
+                <span class="particle p2">🍿</span>
+                <span class="particle p3">⭐</span>
+                <span class="particle p4">✨</span>
+            </div>
         </div>
     </div>
+    <button type="button" class="flying-bear-hint" onclick="enterDashboardFromIntro()" title="Überspringen (ESC)">Tippen zum Überspringen ✕</button>
 </div>
 
 <div id="splash-screen">

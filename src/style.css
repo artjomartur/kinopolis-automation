@@ -4071,7 +4071,7 @@ body.light-mode .occupancy-track-ios { background: rgba(0, 0, 0, 0.06); }
 body.light-mode .occupancy-val-ios { color: #3a3a3c; }
 body.light-mode .hall-name-ios { color: #1c1c1e; }
 
-/* --- CINEMATIC ZERO-G HERO INTRO --- */
+/* --- ANIMATED FLYING OLI BEAR INTRO (2s zero-G flight with wink & wave) --- */
 .cinematic-intro-overlay {
     position: fixed;
     top: 0;
@@ -4079,169 +4079,241 @@ body.light-mode .hall-name-ios { color: #1c1c1e; }
     width: 100vw;
     height: 100vh;
     z-index: 99999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem 1.5rem;
-    box-sizing: border-box;
-    overflow: hidden;
-    background: radial-gradient(circle at center, #181822 0%, #050508 100%);
-    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
-}
-
-.cinematic-close-btn {
-    position: absolute;
-    top: 24px;
-    right: 28px;
-    z-index: 30;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
-    font-size: 1.2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    transition: all 0.2s ease;
-}
-
-.cinematic-close-btn:hover {
-    background: rgba(229, 9, 20, 0.35);
-    border-color: rgba(229, 9, 20, 0.6);
-    transform: scale(1.1);
-}
-
-.cinematic-intro-overlay.warp-out {
-    opacity: 0;
-    visibility: hidden;
-    transform: scale(1.15);
     pointer-events: none;
+    overflow: hidden;
+    display: none;
+    background: transparent;
 }
 
-.cinematic-intro-bg {
-    position: absolute;
-    top: -5%;
-    left: -5%;
-    width: 110%;
-    height: 110%;
-    background-size: cover;
-    background-position: center;
-    animation: zeroGBearFloat 8s ease-in-out infinite alternate;
-    will-change: transform;
-}
-
-@keyframes zeroGBearFloat {
-    0% {
-        transform: scale(1) translate(0, 0) rotate(0deg);
-    }
-    50% {
-        transform: scale(1.03) translate(-10px, -15px) rotate(0.8deg);
-    }
-    100% {
-        transform: scale(1.05) translate(8px, -25px) rotate(-0.6deg);
-    }
-}
-
-.cinematic-cosmic-glow {
+.flying-bear-backdrop {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at 50% 40%, rgba(229, 9, 20, 0.15) 0%, rgba(0, 120, 255, 0.1) 40%, rgba(10, 10, 13, 0.85) 90%);
+    background: radial-gradient(circle at 50% 50%, rgba(229, 9, 20, 0.08) 0%, rgba(0, 0, 0, 0.45) 100%);
+    opacity: 0;
+    animation: bearBackdropFade 2.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     pointer-events: none;
 }
 
-.cinematic-content-card {
-    position: relative;
-    z-index: 10;
-    max-width: 580px;
-    width: 100%;
-    padding: 2.25rem;
-    border-radius: 24px;
-    text-align: center;
-    background: rgba(15, 15, 20, 0.75);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 40px rgba(229, 9, 20, 0.25);
-    animation: cinematicCardEnter 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+@keyframes bearBackdropFade {
+    0% { opacity: 0; }
+    15% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
 }
 
-@keyframes cinematicCardEnter {
-    from {
+/* Flight Track across the screen */
+.flying-bear-track {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 340px;
+    height: 340px;
+    will-change: transform, opacity;
+    animation: bearFlightPath 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes bearFlightPath {
+    0% {
+        transform: translate3d(-380px, 75vh, 0) scale(0.65) rotate(-18deg);
         opacity: 0;
-        transform: translateY(30px) scale(0.95);
     }
-    to {
+    12% {
         opacity: 1;
-        transform: translateY(0) scale(1);
+    }
+    42% {
+        /* Reaches center, banks up slightly for friendly greeting */
+        transform: translate3d(calc(50vw - 170px), calc(38vh - 170px), 0) scale(1.18) rotate(3deg);
+        opacity: 1;
+    }
+    58% {
+        /* Winks and waves paw */
+        transform: translate3d(calc(54vw - 170px), calc(34vh - 170px), 0) scale(1.2) rotate(-4deg);
+        opacity: 1;
+    }
+    82% {
+        transform: translate3d(calc(85vw - 170px), calc(18vh - 170px), 0) scale(0.95) rotate(12deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translate3d(calc(115vw), -220px, 0) scale(0.65) rotate(24deg);
+        opacity: 0;
     }
 }
 
-.cinematic-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    padding: 0.35rem 0.85rem;
-    border-radius: 50px;
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.1em;
-    color: #fff;
-    margin-bottom: 1rem;
-}
-
-.cinematic-title {
-    font-family: 'Outfit', sans-serif;
-    font-size: 2.2rem;
-    font-weight: 800;
-    line-height: 1.2;
-    color: #fff;
-    margin-bottom: 0.75rem;
-    letter-spacing: -0.02em;
-}
-
-.gradient-text {
-    background: linear-gradient(135deg, #ffffff 20%, #e50914 80%, #ff4d4d 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.cinematic-desc {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.95rem;
-    line-height: 1.6;
-    margin-bottom: 1.75rem;
-}
-
-.cinematic-enter-btn {
+/* Zero-G weightless bobbing */
+.flying-bear-character {
+    position: relative;
     width: 100%;
-    padding: 1.15rem 2rem;
-    font-size: 1.05rem;
-    font-weight: 800;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #e50914, #ff3d47);
-    color: #fff;
-    box-shadow: 0 10px 30px rgba(229, 9, 20, 0.5), 0 0 20px rgba(229, 9, 20, 0.3);
+    height: 100%;
+    animation: bearBobbing 0.65s ease-in-out infinite alternate;
+}
+
+@keyframes bearBobbing {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-14px) rotate(-2.5deg); }
+}
+
+.flying-bear-character .bear-frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 20px 35px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 40px rgba(229, 9, 20, 0.4));
+    will-change: opacity, transform;
+}
+
+/* Frame 1: Open eyes & smiling */
+.flying-bear-character .frame-open {
+    opacity: 1;
+    animation: switchFrameOpen 2.2s steps(1) forwards;
+}
+
+/* Frame 2: Winking eye 😉 & sparkles */
+.flying-bear-character .frame-wink {
+    opacity: 0;
+    animation: switchFrameWink 2.2s steps(1) forwards;
+}
+
+@keyframes switchFrameOpen {
+    0% { opacity: 1; }
+    38% { opacity: 0; }
+    75% { opacity: 1; }
+    100% { opacity: 1; }
+}
+
+@keyframes switchFrameWink {
+    0% { opacity: 0; }
+    38% { opacity: 1; }
+    75% { opacity: 0; }
+    100% { opacity: 0; }
+}
+
+/* Sparkles & Popcorn trail behind bear */
+.flying-trail {
+    position: absolute;
+    bottom: 40px;
+    left: 30px;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.flying-trail .particle {
+    position: absolute;
+    user-select: none;
+    will-change: transform, opacity;
+}
+
+.flying-trail .p1 {
+    font-size: 2rem;
+    left: -20px;
+    bottom: 50px;
+    animation: particleFloat1 1s ease-out infinite;
+}
+
+.flying-trail .p2 {
+    font-size: 1.6rem;
+    left: -40px;
+    bottom: 90px;
+    animation: particleFloat2 1.1s ease-out 0.2s infinite;
+}
+
+.flying-trail .p3 {
+    font-size: 1.8rem;
+    left: -30px;
+    bottom: 30px;
+    animation: particleFloat1 1.2s ease-out 0.4s infinite;
+}
+
+.flying-trail .p4 {
+    font-size: 1.5rem;
+    left: -60px;
+    bottom: 70px;
+    animation: particleFloat2 0.9s ease-out 0.6s infinite;
+}
+
+@keyframes particleFloat1 {
+    0% { transform: scale(0.3) translate(0, 0); opacity: 0; }
+    30% { opacity: 1; transform: scale(1.1) translate(-15px, 10px); }
+    100% { transform: scale(0.2) translate(-50px, 35px) rotate(45deg); opacity: 0; }
+}
+
+@keyframes particleFloat2 {
+    0% { transform: scale(0.3) translate(0, 0); opacity: 0; }
+    35% { opacity: 1; transform: scale(1.2) translate(-20px, 15px); }
+    100% { transform: scale(0.2) translate(-65px, 50px) rotate(-40deg); opacity: 0; }
+}
+
+/* Skip hint */
+.flying-bear-hint {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 15, 20, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    opacity: 0;
+    animation: hintFade 2.2s ease forwards;
+    pointer-events: auto;
     cursor: pointer;
-    transition: all 0.25s ease;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transition: all 0.2s ease;
 }
 
-.cinematic-enter-btn:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 15px 40px rgba(229, 9, 20, 0.7), 0 0 30px rgba(229, 9, 20, 0.5);
-    filter: brightness(1.1);
+.flying-bear-hint:hover {
+    background: rgba(229, 9, 20, 0.3);
+    border-color: rgba(229, 9, 20, 0.5);
+    color: #fff;
+    transform: translateX(-50%) scale(1.05);
 }
 
-.cinematic-enter-btn:active {
-    transform: translateY(0) scale(0.98);
+@keyframes hintFade {
+    0%, 20% { opacity: 0; }
+    30%, 80% { opacity: 0.85; }
+    100% { opacity: 0; }
+}
+
+@media (max-width: 768px) {
+    .flying-bear-track {
+        width: 240px;
+        height: 240px;
+    }
+    @keyframes bearFlightPath {
+        0% {
+            transform: translate3d(-260px, 70vh, 0) scale(0.65) rotate(-18deg);
+            opacity: 0;
+        }
+        12% {
+            opacity: 1;
+        }
+        42% {
+            transform: translate3d(calc(50vw - 120px), calc(38vh - 120px), 0) scale(1.15) rotate(3deg);
+            opacity: 1;
+        }
+        58% {
+            transform: translate3d(calc(52vw - 120px), calc(35vh - 120px), 0) scale(1.18) rotate(-4deg);
+            opacity: 1;
+        }
+        82% {
+            transform: translate3d(calc(85vw - 120px), calc(18vh - 120px), 0) scale(0.95) rotate(12deg);
+            opacity: 1;
+        }
+        100% {
+            transform: translate3d(calc(120vw), -180px, 0) scale(0.65) rotate(24deg);
+            opacity: 0;
+        }
+    }
 }
