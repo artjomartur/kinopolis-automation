@@ -5220,9 +5220,9 @@ function resetAndTestOli() {
 
             grid.innerHTML = `
                 <div class="stat-card">
-                    <div class="stat-label">System-Status</div>
-                    <div class="stat-value" style="font-size: 1.2rem; color: #3498db;">SYSTEM OK</div>
-                    <div class="stat-subtext" style="font-family: monospace; font-size: 0.7rem; opacity: 0.6;">${SYSTEM_VERSION}</div>
+                    <div class="stat-label">Stoßzeit (Peak)</div>
+                    <div class="stat-value" style="font-size: 1.2rem; color: #fff;">${peakHour.time} Uhr</div>
+                    <div class="stat-subtext">${peakHour.sold} Besucher</div>
                 </div>
                 <div class="stat-card">
                     <span class="stat-label">Gesamtbesucher</span>

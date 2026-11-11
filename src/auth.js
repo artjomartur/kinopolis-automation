@@ -74,7 +74,7 @@ const AUTH = {
                         <div style="width: 80px; height: 80px; background: rgba(229, 9, 20, 0.1); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
                             <span style="font-size: 2.5rem;">🍿</span>
                         </div>
-                        <h2 style="font-size: 1.5rem; font-weight: 800;">Willkommen im Kinopolis-Operations Center <span style="font-size: 0.7rem; vertical-align: middle; opacity: 0.7; color: #f59e0b; font-weight: bold;">v1.1.0-beta</span></h2>
+                        <h2 style="font-size: 1.5rem; font-weight: 800;">Willkommen im Kinopolis-Operations Center</h2>
                         <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem; line-height: 1.6;">Melde dich an, um Live-Saalstatus, Besucherströme, Schichtinformationen und wichtige Betriebsdaten zentral zu steuern. Alles, was du für einen reibungslosen Kinobetrieb brauchst, ist hier an einem Ort gebündelt.</p>
                     </div>
                     <div style="background: linear-gradient(135deg, rgba(229, 9, 20, 0.15), rgba(229, 9, 20, 0.05)); border: 1px solid rgba(229, 9, 20, 0.3); border-radius: 14px; padding: 1rem; margin-bottom: 2rem; text-align: left; display: flex; align-items: flex-start; gap: 1rem;">

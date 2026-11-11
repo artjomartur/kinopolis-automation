@@ -3,7 +3,7 @@
 
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
-<title>Kinopolis Operations Suite · v1.1.0-beta</title>
+<title>Kinopolis Operations</title>
 <!-- Favicon: Kinopolis Logo -->
 <link href="/oli-favicon.png" rel="icon" type="image/png">
 <link href="/oli-favicon.png" rel="apple-touch-icon">
@@ -87,15 +87,8 @@
         <div class="flying-bear-character">
             <img src="/assets/oli_fly_open.png" class="bear-frame frame-open" alt="Oli">
             <img src="/assets/oli_fly_wink.png" class="bear-frame frame-wink" alt="Oli zwinkert">
-            <div class="flying-trail">
-                <span class="particle p1">✨</span>
-                <span class="particle p2">🍿</span>
-                <span class="particle p3">⭐</span>
-                <span class="particle p4">✨</span>
-            </div>
         </div>
     </div>
-    <button type="button" class="flying-bear-hint" onclick="enterDashboardFromIntro()" title="Überspringen (ESC)">Tippen zum Überspringen ✕</button>
 </div>
 
 <div id="splash-screen">
@@ -139,17 +132,12 @@
     </div>
 <header class="main-header-navbar">
 <div class="header-inner">
-    <!-- BRAND / LOGO & STATUS -->
+    <!-- BRAND / LOGO & ACTION -->
     <div class="brand-group">
         <div class="logo-container" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Kinopolis Dashboard">
             <img alt="Kinopolis" class="logo" id="brand-logo" src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png?20260323">
         </div>
-        <div class="header-live-badge" title="Live Operations-Status">
-            <span class="pulse-green-dot"></span>
-            <span class="live-tag">LIVE</span>
-            <span class="version-tag">v1.1.0-beta</span>
-        </div>
-        <button type="button" class="header-intro-trigger-btn glass" onclick="showCinematicIntro()" title="🎬 Zero-G Hero-Intro ansehen">
+        <button type="button" class="header-intro-trigger-btn glass" onclick="showCinematicIntro()" title="Intro abspielen">
             <span class="intro-icon">🎬</span>
             <span class="intro-label">Intro</span>
         </button>
@@ -222,11 +210,11 @@
 <h2 class="dashboard-title" id="main-title">Live Overview</h2>
 <div class="location-badge" id="location-name">Darmstadt: KINOPOLIS</div>
 </div>
-<div class="sync-status">
+<div class="sync-status" style="display: none !important;">
 <div class="status-dot" id="status-indicator"></div>
-<span id="current-time-display">Verbinde...</span>
+<span id="current-time-display"></span>
 <span class="last-update" id="last-update-display"></span>
-<div class="stale-badge" id="stale-warning" style="display: none;">⚠️ Offline-Modus (Veraltete Daten)</div>
+<div class="stale-badge" id="stale-warning" style="display: none;"></div>
 </div>
 </div>
 <div class="ios-banner glass" id="ios-app-banner" style="margin-bottom: 1.5rem; padding: 1.25rem 1.5rem; border-radius: var(--card-radius); border-left: 3px solid var(--primary-blue); display: flex; align-items: center; justify-content: space-between; gap: 1rem; position: relative;">
@@ -1364,7 +1352,6 @@
                         <div style="flex: 1; min-width: 0;">
                             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.2rem;">
                                 <h2 style="font-size: 1.1rem; margin: 0; color: #fff;">Kinopolis Operations</h2>
-                                <span style="background: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid rgba(245,158,11,0.4); font-size: 0.7rem; font-weight: 800; padding: 2px 7px; border-radius: 6px; letter-spacing: 0.5px;">v1.1.0-beta</span>
                             </div>
                             <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0; line-height: 1.35;">
                                 Das moderne Betriebssystem für deinen Kinobetrieb: Funkruf, Live-Saalmonitor, Einlass &amp; Schicht-Tools.
@@ -1373,7 +1360,7 @@
                     </div>
                     <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.85rem;">
                         <button type="button" class="btn-primary" onclick="document.body.classList.remove('einstellungen-active', 'mehr-active'); showCinematicIntro();" style="width: 100%; padding: 0.8rem; border-radius: 12px; font-weight: 700; font-size: 0.88rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #e50914, #ff3d47); cursor: pointer;">
-                            <span>🎬</span> Zero-G Hero-Intro ansehen
+                            <span>🎬</span> Hero-Intro ansehen
                         </button>
                     </div>
                 </div>
@@ -1964,8 +1951,8 @@
 </div>
 <!-- MOBILE NAVIGATION (iOS Style) -->
 
-<div style="text-align: center; padding: 1.5rem 1rem 5rem; font-size: 0.7rem; color: var(--text-muted); opacity: 0.5;">
-            System-Version: v1.1.0-beta · © 2026 Kinopolis Automation
+<div style="text-align: center; padding: 1.5rem 1rem 5rem; font-size: 0.75rem; color: var(--text-muted); opacity: 0.5;">
+            &copy; 2026 Kinopolis Automation
         </div>
 <!-- Dev Info Modal (Welcome Style) -->
 <div class="modal" id="dev-info-modal">
