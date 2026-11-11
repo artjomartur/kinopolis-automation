@@ -80,16 +80,6 @@
 </div>
 </div>
 </div>
-<!-- ANIMATED FLYING OLI BEAR INTRO (2-second flight across screen) -->
-<div id="cinematic-hero-intro" class="cinematic-intro-overlay" style="display: none;" onclick="enterDashboardFromIntro()">
-    <div class="flying-bear-backdrop"></div>
-    <div class="flying-bear-track">
-        <div class="flying-bear-character">
-            <img src="/assets/oli_fly_open.png" class="bear-frame frame-open" alt="Oli">
-            <img src="/assets/oli_fly_wink.png" class="bear-frame frame-wink" alt="Oli zwinkert">
-        </div>
-    </div>
-</div>
 
 <div id="splash-screen">
 <div class="splash-glow"></div>
@@ -137,10 +127,6 @@
         <div class="logo-container" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Kinopolis Dashboard">
             <img alt="Kinopolis" class="logo" id="brand-logo" src="https://trailer.kinopolis.de/media/img/logos/kinopolis.png?20260323">
         </div>
-        <button type="button" class="header-intro-trigger-btn glass" onclick="showCinematicIntro()" title="Intro abspielen">
-            <span class="intro-icon">🎬</span>
-            <span class="intro-label">Intro</span>
-        </button>
     </div>
 
     <!-- DATE CONTROLS (CENTER) -->
@@ -1357,11 +1343,6 @@
                                 Das moderne Betriebssystem für deinen Kinobetrieb: Funkruf, Live-Saalmonitor, Einlass &amp; Schicht-Tools.
                             </p>
                         </div>
-                    </div>
-                    <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.85rem;">
-                        <button type="button" class="btn-primary" onclick="document.body.classList.remove('einstellungen-active', 'mehr-active'); showCinematicIntro();" style="width: 100%; padding: 0.8rem; border-radius: 12px; font-weight: 700; font-size: 0.88rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #e50914, #ff3d47); cursor: pointer;">
-                            <span>🎬</span> Hero-Intro ansehen
-                        </button>
                     </div>
                 </div>
 

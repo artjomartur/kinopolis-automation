@@ -1312,11 +1312,6 @@ function resetAndTestOli() {
 
 
 
-                // Check and trigger cinematic hero intro if first visit in session
-                setTimeout(() => {
-                    checkAndTriggerIntro();
-                }, 300);
-
                 // Popcorn-Animation auslösen, falls ein erfolgreicher Login stattgefunden hat
                 if (sessionStorage.getItem('trigger_login_popcorn') === 'true') {
                     sessionStorage.removeItem('trigger_login_popcorn');
@@ -1329,62 +1324,12 @@ function resetAndTestOli() {
             }
         }
 
-        // --- ANIMATED FLYING OLI BEAR INTRO CONTROLLER ---
-        let _flyingBearTimer = null;
-        function checkAndTriggerIntro() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const forceIntro = urlParams.get('intro') === '1' || urlParams.get('intro') === 'true' || window.location.hash === '#intro';
-            if (forceIntro || (!localStorage.getItem('kp_intro_seen') && !sessionStorage.getItem('kp_intro_seen'))) {
-                showCinematicIntro();
-            }
-        }
-
-        function showCinematicIntro() {
-            const intro = document.getElementById('cinematic-hero-intro');
-            if (!intro) return;
-
-            if (_flyingBearTimer) clearTimeout(_flyingBearTimer);
-
-            // Reset animation by toggling display & trigger reflow
-            intro.style.display = 'none';
-            void intro.offsetWidth;
-            intro.style.display = 'block';
-            intro.style.opacity = '1';
-
-            // Auto-complete after exactly 2.25 seconds without blocking user
-            _flyingBearTimer = setTimeout(() => {
-                enterDashboardFromIntro();
-            }, 2250);
-        }
+        // --- INTRO DISABLED ---
+        function checkAndTriggerIntro() {}
+        function showCinematicIntro() {}
+        function enterDashboardFromIntro() {}
         window.showCinematicIntro = showCinematicIntro;
-
-        function enterDashboardFromIntro() {
-            if (_flyingBearTimer) {
-                clearTimeout(_flyingBearTimer);
-                _flyingBearTimer = null;
-            }
-            const intro = document.getElementById('cinematic-hero-intro');
-            sessionStorage.setItem('kp_intro_seen', 'true');
-            localStorage.setItem('kp_intro_seen', 'true');
-            if (intro) {
-                intro.style.transition = 'opacity 0.25s ease';
-                intro.style.opacity = '0';
-                setTimeout(() => {
-                    intro.style.display = 'none';
-                    intro.style.opacity = '1';
-                }, 250);
-            }
-        }
         window.enterDashboardFromIntro = enterDashboardFromIntro;
-
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                const intro = document.getElementById('cinematic-hero-intro');
-                if (intro && intro.style.display !== 'none') {
-                    enterDashboardFromIntro();
-                }
-            }
-        });
 
         // ============================================================
         // FEATURE: COUNTDOWN TIMERS
