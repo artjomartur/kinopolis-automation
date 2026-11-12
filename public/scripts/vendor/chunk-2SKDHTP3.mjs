@@ -4,7 +4,7 @@ function t(e, a) {
       "Echtzeit-Saalüberwachung, CPL-Lichtautomation, digitaler Funkruf und Popcorn-Bedarfsprognose für alle 18 Kinopolis Standorte deutschlandweit.",
     favicon: "../../assets/images/jVzdtAD9o6BI6NMRELVABll04.png",
     socialImage: "../../assets/images/JU4ZMUmDnssHkHLTf52KqSCBhg.png",
-    title: "Free SaaS Website Kit",
+    title: "Kinopolis Automation Suite • Die Kino-Operations-Plattform",
   };
 }
 export { t as a };

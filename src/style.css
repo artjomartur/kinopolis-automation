@@ -2037,3 +2037,50 @@ body.mode-dashboard .app-columns-container {
   }
 }
 
+/* ==========================================================================
+   MODULE CARDS & NAVBAR ENHANCEMENTS
+   ========================================================================== */
+.framer-QM750 {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+}
+
+.framer-Zrdb3 .framer-1utt5jd,
+.framer-Zrdb3 .framer-gq7wpd,
+.framer-Zrdb3 .framer-3a6ypp {
+  flex-wrap: wrap !important;
+  overflow: visible !important;
+  align-items: baseline !important;
+  gap: 8px !important;
+  height: auto !important;
+}
+
+.framer-Zrdb3 .framer-1r0v4rz h2,
+.framer-Zrdb3 .framer-8ahn3w h2,
+.framer-Zrdb3 .framer-1kj4fnt h2 {
+  font-size: 38px !important;
+  line-height: 1.1 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.framer-Zrdb3 .framer-nxhcxe h5,
+.framer-Zrdb3 .framer-ebs76m h5,
+.framer-Zrdb3 .framer-1rayqi8 h5 {
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  opacity: 0.75 !important;
+  white-space: nowrap !important;
+}
+
+.framer-hwsf3f-container {
+  max-width: 100% !important;
+  overflow: visible !important;
+}
+
+.framer-hwsf3f-container p {
+  white-space: nowrap !important;
+  font-size: 12px !important;
+}
+

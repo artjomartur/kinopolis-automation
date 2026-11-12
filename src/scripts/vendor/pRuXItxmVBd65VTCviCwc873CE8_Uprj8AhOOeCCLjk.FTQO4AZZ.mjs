@@ -594,7 +594,7 @@ var Br = {
                                 UsLusPFRg: "rgb(0, 0, 0)",
                                 variant: "ohXdB0YgU",
                                 width: "100%",
-                                yTZZaFOb3: "https://framer.link/ZQ2l2Kk",
+                                yTZZaFOb3: "/dashboard",
                               }),
                             }),
                           }),

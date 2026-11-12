@@ -846,7 +846,7 @@ var lr = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spr
                         id: "laUbX75PQ",
                         ik9I5qIGz: !1,
                         J0LC2FGV8: !1,
-                        KJK1sV1GB: "Get for free",
+                        KJK1sV1GB: "Dashboard starten",
                         layoutId: "laUbX75PQ",
                         RmkZjgJwi: "ArrowRight",
                         UsLusPFRg: "rgb(0, 0, 0)",

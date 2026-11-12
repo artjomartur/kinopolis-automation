@@ -277,7 +277,7 @@ var pe = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spr
                             id: "E4pihRaKD",
                             ik9I5qIGz: !1,
                             J0LC2FGV8: !1,
-                            KJK1sV1GB: "Get for free",
+                            KJK1sV1GB: "Dashboard starten",
                             layoutId: "E4pihRaKD",
                             RmkZjgJwi: "ArrowRight",
                             UsLusPFRg: "rgb(0, 0, 0)",

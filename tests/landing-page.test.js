@@ -72,4 +72,24 @@ describe('Landing Page Copy & Structure', () => {
     const dashboardLinks = $('a[href="/dashboard"]');
     expect(dashboardLinks.length).toBeGreaterThan(3);
   });
+
+  it('has authentic Kinopolis OpenGraph and Twitter titles', () => {
+    expect($('meta[property="og:title"]').attr('content')).toContain('Kinopolis Automation Suite');
+    expect($('meta[name="twitter:title"]').attr('content')).toContain('Kinopolis Automation Suite');
+    expect(html).not.toContain('Free SaaS Website Kit');
+  });
+
+  it('contains clean unclipped module card labels', () => {
+    const bodyText = $('#main').text();
+    expect(bodyText).toContain('Foyer & Service');
+    expect(bodyText).toContain('Einlass');
+    expect(bodyText).toContain('Live');
+    expect(bodyText).toContain('Theaterleitung');
+    expect(bodyText).toContain('Empfohlen');
+    expect(bodyText).toContain('Leitung');
+    expect(bodyText).toContain('Schicht');
+    expect(bodyText).toContain('Vorführtechnik');
+    expect(bodyText).toContain('Technik');
+    expect(bodyText).toContain('BWR');
+  });
 });

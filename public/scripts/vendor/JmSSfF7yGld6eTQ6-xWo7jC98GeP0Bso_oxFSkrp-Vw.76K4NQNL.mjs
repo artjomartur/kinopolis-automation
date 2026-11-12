@@ -1719,7 +1719,7 @@ var ba = {
                                     children: r("h5", {
                                       className: "framer-styles-preset-13rf66x",
                                       "data-styles-preset": "GPDKd6Ic6",
-                                      children: "Live-Ampel",
+                                      children: "Live",
                                     }),
                                   }),
                                   className: "framer-nxhcxe",
@@ -1743,6 +1743,7 @@ var ba = {
                                 UsLusPFRg: "rgb(0, 0, 0)",
                                 variant: "PqgBulBPi",
                                 width: "100%",
+                                yTZZaFOb3: "/dashboard",
                               }),
                             }),
                             e("div", {
@@ -1838,7 +1839,7 @@ var ba = {
                                   children: r(H, {
                                     GmAhv_WVa: 1,
                                     height: "100%",
-                                    hSgW9f2ir: "Empfohlen für Schichtleiter",
+                                    hSgW9f2ir: "Empfohlen",
                                     id: "p0Ln7ezJS",
                                     layoutId: "p0Ln7ezJS",
                                     p2xmGpLux: "Read more",
@@ -1874,7 +1875,7 @@ var ba = {
                                       className: "framer-styles-preset-13rf66x",
                                       "data-styles-preset": "GPDKd6Ic6",
                                       style: { "--framer-text-color": "rgb(255, 255, 255)" },
-                                      children: "Schichtbuch",
+                                      children: "Schicht",
                                     }),
                                   }),
                                   className: "framer-ebs76m",
@@ -1898,6 +1899,7 @@ var ba = {
                                 UsLusPFRg: "rgb(0, 0, 0)",
                                 variant: "zb8n5Cev9",
                                 width: "100%",
+                                yTZZaFOb3: "/dashboard",
                               }),
                             }),
                             e("div", {
@@ -2030,7 +2032,7 @@ var ba = {
                                     children: r("h5", {
                                       className: "framer-styles-preset-13rf66x",
                                       "data-styles-preset": "GPDKd6Ic6",
-                                      children: "Automation",
+                                      children: "BWR",
                                     }),
                                   }),
                                   className: "framer-1rayqi8",
@@ -2054,6 +2056,7 @@ var ba = {
                                 UsLusPFRg: "rgb(0, 0, 0)",
                                 variant: "PqgBulBPi",
                                 width: "100%",
+                                yTZZaFOb3: "/dashboard",
                               }),
                             }),
                             e("div", {
