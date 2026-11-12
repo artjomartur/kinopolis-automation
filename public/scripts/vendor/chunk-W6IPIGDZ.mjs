@@ -85,10 +85,10 @@ var ge = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spr
       BFuTBK47u:
         (I = v ?? t.BFuTBK47u) !== null && I !== void 0
           ? I
-          : "Enhance your productivity by connecting with your favorite tools, keeping all your essentials in one place.",
+          : "Direkte Anbindung an alle Kinosäle: MTZ Sulzbach, Mathäser München, HafenCity, Darmstadt, Hanau, Viernheim und 12 weitere Häuser.",
       cX1P9xQse: x ?? t.cX1P9xQse,
       jFgwazo_q: (F = h ?? t.jFgwazo_q) !== null && F !== void 0 ? F : "rgb(255, 255, 255)",
-      oc_8kOa9a: (k = b ?? t.oc_8kOa9a) !== null && k !== void 0 ? k : "Integration ecosystem",
+      oc_8kOa9a: (k = b ?? t.oc_8kOa9a) !== null && k !== void 0 ? k : "18 Kinopolis Standorte live",
       OLqpcuIeL: g ?? t.OLqpcuIeL,
       PFec_i8Ff:
         (C = y ?? t.PFec_i8Ff) !== null && C !== void 0
@@ -98,7 +98,7 @@ var ge = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spr
               srcSet:
                 "https://framerusercontent.com/images/WwuSEtN77IMXeoOP6vheQadgDRA.jpg?scale-down-to=512 512w,https://framerusercontent.com/images/WwuSEtN77IMXeoOP6vheQadgDRA.jpg?scale-down-to=1024 1024w,https://framerusercontent.com/images/WwuSEtN77IMXeoOP6vheQadgDRA.jpg?scale-down-to=2048 2048w,https://framerusercontent.com/images/WwuSEtN77IMXeoOP6vheQadgDRA.jpg?scale-down-to=4096 4096w,https://framerusercontent.com/images/WwuSEtN77IMXeoOP6vheQadgDRA.jpg 9600w",
             },
-      qkbS0bCx8: (p = a ?? t.qkbS0bCx8) !== null && p !== void 0 ? p : "Learn more",
+      qkbS0bCx8: (p = a ?? t.qkbS0bCx8) !== null && p !== void 0 ? p : "Funktionen entdecken",
       UaS05r1yh: (X = m ?? t.UaS05r1yh) !== null && X !== void 0 ? X : "rgb(0, 0, 0)",
       variant:
         (s = (u = be[t.variant]) !== null && u !== void 0 ? u : t.variant) !== null && s !== void 0
@@ -285,7 +285,7 @@ var ge = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spr
                         style: {
                           "--framer-text-color": "var(--extracted-1lwpl3i, hsl(0, 0%, 0%))",
                         },
-                        children: "Integration ecosystem",
+                        children: "18 Kinopolis Standorte live",
                       }),
                     }),
                     className: "framer-1qfo9mb",
@@ -316,7 +316,7 @@ var ge = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spr
                                 "--framer-text-color":
                                   "var(--extracted-1lwpl3i, rgb(255, 255, 255))",
                               },
-                              children: "Integration ecosystem",
+                              children: "18 Kinopolis Standorte live",
                             }),
                           }),
                         },
@@ -329,7 +329,7 @@ var ge = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spr
                                 "--framer-text-alignment": "left",
                                 "--framer-text-color": "var(--extracted-1lwpl3i, rgb(0, 0, 0))",
                               },
-                              children: "Integration ecosystem",
+                              children: "18 Kinopolis Standorte live",
                             }),
                           }),
                         },
@@ -342,7 +342,7 @@ var ge = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spr
                                 "--framer-text-color":
                                   "var(--extracted-1lwpl3i, rgb(255, 255, 255))",
                               },
-                              children: "Integration ecosystem",
+                              children: "18 Kinopolis Standorte live",
                             }),
                           }),
                         },
@@ -362,7 +362,7 @@ var ge = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spr
                           "--framer-text-color": "var(--extracted-r6o4lv, hsl(0, 0%, 0%))",
                         },
                         children:
-                          "Enhance your productivity by connecting with your favorite tools, keeping all your essentials in one place.",
+                          "Direkte Anbindung an alle Kinosäle: MTZ Sulzbach, Mathäser München, HafenCity, Darmstadt, Hanau, Viernheim und 12 weitere Häuser.",
                       }),
                     }),
                     className: "framer-mz35j0",
@@ -395,7 +395,7 @@ var ge = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spr
                                   "var(--extracted-r6o4lv, rgb(255, 255, 255))",
                               },
                               children:
-                                "Enhance your productivity by connecting with your favorite tools, keeping all your essentials in one place.",
+                                "Direkte Anbindung an alle Kinosäle: MTZ Sulzbach, Mathäser München, HafenCity, Darmstadt, Hanau, Viernheim und 12 weitere Häuser.",
                             }),
                           }),
                         },
@@ -409,7 +409,7 @@ var ge = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spr
                                 "--framer-text-color": "var(--extracted-r6o4lv, rgb(0, 0, 0))",
                               },
                               children:
-                                "Enhance your productivity by connecting with your favorite tools, keeping all your essentials in one place.",
+                                "Direkte Anbindung an alle Kinosäle: MTZ Sulzbach, Mathäser München, HafenCity, Darmstadt, Hanau, Viernheim und 12 weitere Häuser.",
                             }),
                           }),
                         },
@@ -424,7 +424,7 @@ var ge = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spr
                                   "var(--extracted-r6o4lv, rgb(255, 255, 255))",
                               },
                               children:
-                                "Enhance your productivity by connecting with your favorite tools, keeping all your essentials in one place.",
+                                "Direkte Anbindung an alle Kinosäle: MTZ Sulzbach, Mathäser München, HafenCity, Darmstadt, Hanau, Viernheim und 12 weitere Häuser.",
                             }),
                           }),
                         },
@@ -508,20 +508,20 @@ A(_, {
   UaS05r1yh: { defaultValue: "rgb(0, 0, 0)", title: "Icon Background", type: n.Color },
   jFgwazo_q: { defaultValue: "rgb(255, 255, 255)", title: "Icon", type: n.Color },
   oc_8kOa9a: {
-    defaultValue: "Integration ecosystem",
+    defaultValue: "18 Kinopolis Standorte live",
     displayTextArea: !0,
     title: "Title",
     type: n.String,
   },
   BFuTBK47u: {
     defaultValue:
-      "Enhance your productivity by connecting with your favorite tools, keeping all your essentials in one place.",
+      "Direkte Anbindung an alle Kinosäle: MTZ Sulzbach, Mathäser München, HafenCity, Darmstadt, Hanau, Viernheim und 12 weitere Häuser.",
     displayTextArea: !0,
     title: "Text",
     type: n.String,
   },
   ZA2T3dGW4: { defaultValue: !1, title: "CTA", type: n.Boolean },
-  qkbS0bCx8: { defaultValue: "Learn more", displayTextArea: !1, title: "CTA", type: n.String },
+  qkbS0bCx8: { defaultValue: "Funktionen entdecken", displayTextArea: !1, title: "CTA", type: n.String },
   cX1P9xQse: { title: "Link", type: n.Link },
 });
 $(_, [...fe, ...me, ...re, ...oe]);

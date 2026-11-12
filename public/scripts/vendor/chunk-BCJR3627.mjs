@@ -39,7 +39,7 @@ var J = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spri
     var s, i, l;
     return {
       ...a,
-      jTcf_EQ_W: (s = n ?? a.jTcf_EQ_W) !== null && s !== void 0 ? s : "Up to 5 project members",
+      jTcf_EQ_W: (s = n ?? a.jTcf_EQ_W) !== null && s !== void 0 ? s : "Live-Saalbelegung & Einlassampel",
       pbavLymla: (i = o ?? a.pbavLymla) !== null && i !== void 0 ? i : "Check",
       T2CsNbFcm: (l = e ?? a.T2CsNbFcm) !== null && l !== void 0 ? l : "rgb(0, 0, 0)",
     };
@@ -125,7 +125,7 @@ var J = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spri
                       "--framer-text-color":
                         "var(--extracted-r6o4lv, var(--variable-reference-T2CsNbFcm-PzjKYwnhA))",
                     },
-                    children: "Up to 5 project members",
+                    children: "Live-Saalbelegung & Einlassampel",
                   }),
                 }),
                 className: "framer-12uzk4n",
@@ -172,7 +172,7 @@ N(f, {
     title: "Icon",
   },
   jTcf_EQ_W: {
-    defaultValue: "Up to 5 project members",
+    defaultValue: "Live-Saalbelegung & Einlassampel",
     displayTextArea: !0,
     title: "Title",
     type: b.String,

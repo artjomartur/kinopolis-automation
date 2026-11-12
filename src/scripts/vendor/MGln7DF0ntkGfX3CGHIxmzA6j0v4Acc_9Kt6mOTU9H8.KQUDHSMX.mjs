@@ -142,7 +142,7 @@ var ie = {
                                 children: e(c, {
                                   GmAhv_WVa: 1,
                                   height: "100%",
-                                  hSgW9f2ir: "Version 2.0 is here!",
+                                  hSgW9f2ir: "Kinopolis Suite v2.4 • 18 Standorte live",
                                   id: "VvgEY74gF",
                                   layoutId: "VvgEY74gF",
                                   p2xmGpLux: "Read more",
@@ -162,7 +162,7 @@ var ie = {
                                       "--framer-text-alignment": "left",
                                       "--framer-text-color": "rgb(0, 0, 0)",
                                     },
-                                    children: "Pathway to productivity",
+                                    children: "Die smarte Schaltzentrale für dein Filmtheater",
                                   }),
                                 }),
                                 className: "framer-1l9gkzn",
@@ -177,7 +177,7 @@ var ie = {
                                     "data-styles-preset": "dGJYq65Lz",
                                     style: { "--framer-text-alignment": "left" },
                                     children:
-                                      "Celebrate the joy of accomplishment with an app designed to track your progress, motivate your efforts, and celebrate your successes.",
+                                      "Echtzeit-Saalstatus, CPL-Vorführtechnik, digitaler Funkruf und präzise Popcorn-Bedarfsprognose – von Hamburg HafenCity bis München Mathäser.",
                                   }),
                                 }),
                                 className: "framer-56m5km",
@@ -195,7 +195,7 @@ var ie = {
                                       id: "z0PYUSybf",
                                       ik9I5qIGz: !1,
                                       J0LC2FGV8: !1,
-                                      KJK1sV1GB: "Get started",
+                                      KJK1sV1GB: "Dashboard starten →",
                                       layoutId: "z0PYUSybf",
                                       RmkZjgJwi: "ArrowRight",
                                       UsLusPFRg: "rgb(0, 0, 0)",
@@ -206,7 +206,7 @@ var ie = {
                                   e(m, {
                                     className: "framer-1mnnpxi-container",
                                     children: e(w, {
-                                      bVToBLBTS: "Learn more",
+                                      bVToBLBTS: "Funktionen entdecken",
                                       height: "100%",
                                       id: "wV9BlQb0N",
                                       KqeH5xil_: "rgb(0, 0, 0)",
@@ -659,7 +659,7 @@ var ie = {
                                   id: "UwgvfhKWY",
                                   ik9I5qIGz: !1,
                                   J0LC2FGV8: !1,
-                                  KJK1sV1GB: "Get started",
+                                  KJK1sV1GB: "Dashboard starten →",
                                   layoutId: "UwgvfhKWY",
                                   RmkZjgJwi: "ArrowRight",
                                   UsLusPFRg: "rgb(0, 0, 0)",
@@ -691,7 +691,7 @@ var ie = {
                               children: e(c, {
                                 GmAhv_WVa: 1,
                                 height: "100%",
-                                hSgW9f2ir: "Version 2.0 is here!",
+                                hSgW9f2ir: "Kinopolis Suite v2.4 • 18 Standorte live",
                                 id: "cXs3EhrB_",
                                 layoutId: "cXs3EhrB_",
                                 p2xmGpLux: "Read more",
@@ -729,7 +729,7 @@ var ie = {
                                   "data-styles-preset": "dGJYq65Lz",
                                   style: { "--framer-text-alignment": "center" },
                                   children:
-                                    "Celebrate the joy of accomplishment with an app designed to track your progress, motivate your efforts, and celebrate your successes.",
+                                    "Echtzeit-Saalstatus, CPL-Vorführtechnik, digitaler Funkruf und präzise Popcorn-Bedarfsprognose – von Hamburg HafenCity bis München Mathäser.",
                                 }),
                               }),
                               className: "framer-1mn6esi",
@@ -747,7 +747,7 @@ var ie = {
                                     id: "HXcbp3RTc",
                                     ik9I5qIGz: !1,
                                     J0LC2FGV8: !1,
-                                    KJK1sV1GB: "Get started",
+                                    KJK1sV1GB: "Dashboard starten →",
                                     layoutId: "HXcbp3RTc",
                                     RmkZjgJwi: "ArrowRight",
                                     UsLusPFRg: "rgb(0, 0, 0)",
@@ -758,7 +758,7 @@ var ie = {
                                 e(m, {
                                   className: "framer-9hva7h-container",
                                   children: e(w, {
-                                    bVToBLBTS: "Learn more",
+                                    bVToBLBTS: "Funktionen entdecken",
                                     height: "100%",
                                     id: "a6LJ2k3Hu",
                                     KqeH5xil_: "rgb(0, 0, 0)",
@@ -967,7 +967,7 @@ var ie = {
                                     "--framer-text-color": "rgb(255, 255, 255)",
                                   },
                                   children:
-                                    "Celebrate the joy of accomplishment with an app designed to track your progress, motivate your efforts, and celebrate your successes.",
+                                    "Echtzeit-Saalstatus, CPL-Vorführtechnik, digitaler Funkruf und präzise Popcorn-Bedarfsprognose – von Hamburg HafenCity bis München Mathäser.",
                                 }),
                               }),
                               className: "framer-1wabsc2",
@@ -1158,7 +1158,7 @@ var ie = {
                                       id: "vCNIac0Yu",
                                       ik9I5qIGz: !1,
                                       J0LC2FGV8: !1,
-                                      KJK1sV1GB: "Get started",
+                                      KJK1sV1GB: "Dashboard starten →",
                                       layoutId: "vCNIac0Yu",
                                       RmkZjgJwi: "ArrowRight",
                                       UsLusPFRg: "rgb(0, 0, 0)",
@@ -1170,7 +1170,7 @@ var ie = {
                                 e(m, {
                                   className: "framer-2jmt1b-container",
                                   children: e(w, {
-                                    bVToBLBTS: "Learn more",
+                                    bVToBLBTS: "Funktionen entdecken",
                                     height: "100%",
                                     id: "OsCevi2Qa",
                                     KqeH5xil_: "rgb(255, 255, 255)",

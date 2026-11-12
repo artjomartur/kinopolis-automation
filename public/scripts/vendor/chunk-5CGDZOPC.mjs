@@ -56,15 +56,15 @@ var le = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spr
     return {
       ...a,
       ET3uJSa1F: (m = s ?? a.ET3uJSa1F) !== null && m !== void 0 ? m : "Leaf",
-      iHqIagJOF: (p = i ?? a.iHqIagJOF) !== null && p !== void 0 ? p : "Learn more",
+      iHqIagJOF: (p = i ?? a.iHqIagJOF) !== null && p !== void 0 ? p : "Funktionen entdecken",
       Pzs4GcH4x: (u = r ?? a.Pzs4GcH4x) !== null && u !== void 0 ? u : "rgb(0, 0, 0)",
       RsSBbXcyG: l ?? a.RsSBbXcyG,
-      Z6hiuC6BW: (h = o ?? a.Z6hiuC6BW) !== null && h !== void 0 ? h : "Integration ecosystem",
+      Z6hiuC6BW: (h = o ?? a.Z6hiuC6BW) !== null && h !== void 0 ? h : "18 Kinopolis Standorte live",
       ZdZM7np2V: (y = t ?? a.ZdZM7np2V) !== null && y !== void 0 ? y : !0,
       ZfP85W1Qa:
         (w = f ?? a.ZfP85W1Qa) !== null && w !== void 0
           ? w
-          : "Track your progress and motivate your efforts everyday.",
+          : "Echtzeit-Synchronisation aller Säle und Vorführungen.",
     };
   },
   me = (r, t) => t.join("-") + r.layoutDependency,
@@ -158,7 +158,7 @@ var le = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spr
                           "--framer-text-color":
                             "var(--extracted-1lwpl3i, var(--variable-reference-Pzs4GcH4x-IMm2i7xki))",
                         },
-                        children: "Integration ecosystem",
+                        children: "18 Kinopolis Standorte live",
                       }),
                     }),
                     className: "framer-1o6909d",
@@ -184,7 +184,7 @@ var le = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spr
                           "--framer-text-color":
                             "var(--extracted-r6o4lv, var(--variable-reference-Pzs4GcH4x-IMm2i7xki))",
                         },
-                        children: "Track your progress and motivate your efforts everyday.",
+                        children: "Echtzeit-Synchronisation aller Säle und Vorführungen.",
                       }),
                     }),
                     className: "framer-10t8vj0",
@@ -253,19 +253,19 @@ G(g, {
     title: "Icon",
   },
   Z6hiuC6BW: {
-    defaultValue: "Integration ecosystem",
+    defaultValue: "18 Kinopolis Standorte live",
     displayTextArea: !0,
     title: "Title",
     type: d.String,
   },
   ZfP85W1Qa: {
-    defaultValue: "Track your progress and motivate your efforts everyday.",
+    defaultValue: "Echtzeit-Synchronisation aller Säle und Vorführungen.",
     displayTextArea: !0,
     title: "Text",
     type: d.String,
   },
   ZdZM7np2V: { defaultValue: !0, title: "CTA", type: d.Boolean },
-  iHqIagJOF: { defaultValue: "Learn more", displayTextArea: !1, title: "CTA", type: d.String },
+  iHqIagJOF: { defaultValue: "Funktionen entdecken", displayTextArea: !1, title: "CTA", type: d.String },
   RsSBbXcyG: { title: "Link", type: d.Link },
 });
 W(g, [...ae, ...oe, ...j, ...q]);
