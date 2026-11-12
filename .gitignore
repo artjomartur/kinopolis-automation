@@ -60,3 +60,4 @@ local_dev*.log
 
 # Temporary files
 temp_*
+src/legacy_backup/
