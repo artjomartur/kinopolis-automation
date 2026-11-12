@@ -1,0 +1,39 @@
+name: CI - Kinopolis Automation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-build:
+    name: 🧪 Run Logic Tests & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 20 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm install
+
+      - name: 🧪 Run Logic & Unit Tests (Vitest)
+        run: npm test
+
+      - name: 🏗️ Build Production Bundle (Vite)
+        run: npm run build
+
+      - name: ☁️ Validate Cloudflare Worker Bundle (Wrangler Dry-Run)
+        run: npx wrangler deploy --dry-run

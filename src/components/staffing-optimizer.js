@@ -13,6 +13,7 @@ export class StaffingOptimizer {
     static calculateStaffingNeeds(sessions, locationName = 'Standort') {
         if (!sessions || sessions.length === 0) {
             return {
+                locationName,
                 hourlyPlan: [],
                 peakWindow: '--:--',
                 peakStaffTotal: 0,
