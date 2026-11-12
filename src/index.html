@@ -200,7 +200,7 @@
 
           <!-- Column 2: Clean Category Sidebar -->
           <div class="col-sidebar">
-            <!-- Group 1 -->
+            <!-- Group 1: Programm & Säle -->
             <div>
               <div class="sidebar-group-title">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -210,88 +210,107 @@
               </div>
               <ul class="sidebar-items">
                 <li>
-                  <button class="sidebar-item-btn active" onclick="window.appDashboard.switchCategory('Saal 1 – IMAX & Dolby Atmos', 'Programm & Säle', this)">
+                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchView('all_halls', 'Alle Säle', 'Programm & Säle')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-                    <span>Saal 1 (IMAX)</span>
+                    <span>Alle Säle (Übersicht)</span>
                   </button>
                 </li>
                 <li>
-                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchCategory('Saal 2 – Dolby Atmos', 'Programm & Säle', this)">
+                  <button class="sidebar-item-btn active" onclick="window.appDashboard.switchHall('Kino 1 (IMAX & Atmos)')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
-                    <span>Saal 2 (Dolby Atmos)</span>
+                    <span>Kino 1 (IMAX & Atmos)</span>
+                    <span style="margin-left: auto; font-size: 11px; color: #a1a1aa;">3</span>
                   </button>
                 </li>
                 <li>
-                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchCategory('Saal 3 – D-Box Motion', 'Programm & Säle', this)">
+                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchHall('Kino 2 (Dolby Atmos)')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+                    <span>Kino 2 (Dolby Atmos)</span>
+                    <span style="margin-left: auto; font-size: 11px; color: #a1a1aa;">3</span>
+                  </button>
+                </li>
+                <li>
+                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchHall('Kino 3 (D-Box Motion)')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6Z"/></svg>
-                    <span>Saal 3 (D-Box)</span>
+                    <span>Kino 3 (D-Box Motion)</span>
+                    <span style="margin-left: auto; font-size: 11px; color: #a1a1aa;">3</span>
                   </button>
                 </li>
                 <li>
-                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchCategory('Säle 4 – 8 (Standard & Komfort)', 'Programm & Säle', this)">
+                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchHall('Kino 4 (Komfort Loge)')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-                    <span>Säle 4 – 8</span>
+                    <span>Kino 4 (Komfort Loge)</span>
+                    <span style="margin-left: auto; font-size: 11px; color: #a1a1aa;">3</span>
+                  </button>
+                </li>
+                <li>
+                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchHall('Kino 5 (Standard)')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    <span>Kino 5 (Standard)</span>
+                    <span style="margin-left: auto; font-size: 11px; color: #a1a1aa;">2</span>
+                  </button>
+                </li>
+                <li>
+                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchHall('Kino 6 – 8 (Standard Säle)')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    <span>Kino 6 – 8 (Standard Säle)</span>
+                    <span style="margin-left: auto; font-size: 11px; color: #a1a1aa;">2</span>
                   </button>
                 </li>
               </ul>
             </div>
 
-            <!-- Group 2 -->
+            <!-- Group 2: Personal & Stationen -->
             <div>
               <div class="sidebar-group-title">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
-                <span>Personal & Schichten</span>
+                <span>Personal & Stationen</span>
               </div>
               <ul class="sidebar-items">
                 <li>
-                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchCategory('Einlass & Ticketing', 'Personal & Schichten', this)">
+                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchView('einlass', 'Einlass & Foyer', 'Personal & Stationen')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg>
-                    <span>Einlass & Kasse</span>
+                    <span>Einlass & Foyer</span>
                   </button>
                 </li>
                 <li>
-                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchCategory('Concession & Popcorn-Bar', 'Personal & Schichten', this)">
+                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchView('concession', 'Concession & Bar', 'Personal & Stationen')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
                     <span>Concession & Bar</span>
                   </button>
                 </li>
                 <li>
-                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchCategory('Vorführraum & Lasertechnik', 'Personal & Schichten', this)">
+                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchView('tech', 'Vorführraum & Laser', 'Personal & Stationen')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M12 2v2M12 20v2m-10-10h2m16 0h2"/></svg>
-                    <span>Vorführraum</span>
+                    <span>Vorführraum & Laser</span>
                   </button>
                 </li>
               </ul>
             </div>
 
-            <!-- Group 3 -->
+            <!-- Group 3: Funkruf & Alarmierung -->
             <div>
               <div class="sidebar-group-title">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                 </svg>
-                <span>Technik & Wartung</span>
+                <span>Funkruf & Alarmierung</span>
               </div>
               <ul class="sidebar-items">
                 <li>
-                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchCategory('Projektoren & Laser-Optik', 'Technik & Wartung', this)">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/></svg>
-                    <span>Laser-Projektoren</span>
-                  </button>
-                </li>
-                <li>
-                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchCategory('Audio-Prozessoren & CP950', 'Technik & Wartung', this)">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-                    <span>Tonanlagen</span>
+                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchView('funk', 'Digitaler Funkruf', 'Funkruf & Alarmierung')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 18-5v12L3 14v-3z"/></svg>
+                    <span>Funkruf senden</span>
                   </button>
                 </li>
               </ul>
             </div>
 
-            <!-- Group 4 -->
+            <!-- Group 4: Berichte & Logs -->
             <div>
               <div class="sidebar-group-title">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -299,27 +318,27 @@
                   <line x1="12" y1="20" x2="12" y2="4"></line>
                   <line x1="6" y1="20" x2="6" y2="14"></line>
                 </svg>
-                <span>Berichte</span>
+                <span>Berichte & Logs</span>
               </div>
               <ul class="sidebar-items">
                 <li>
-                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchCategory('Tagesabschluss & Kassenprüfung', 'Berichte', this)">
+                  <button class="sidebar-item-btn" onclick="window.appDashboard.switchView('report', 'Tagesabschluss', 'Berichte & Logs')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    <span>Tagesbericht</span>
+                    <span>Tagesabschluss</span>
                   </button>
                 </li>
               </ul>
             </div>
           </div>
 
-          <!-- Column 3: Main Workspace (Exact Framer Task List) -->
+          <!-- Column 3: Main Workspace (Exact Framer Cinema Checklist) -->
           <div class="col-workspace">
             <!-- Breadcrumbs -->
             <div class="workspace-top-bar">
               <div class="workspace-breadcrumbs">
                 <span id="crumb-group">Programm & Säle</span>
                 <span>/</span>
-                <span class="active-crumb" id="crumb-current">Saal 1 (IMAX)</span>
+                <span class="active-crumb" id="crumb-current">Kino 1 (IMAX & Atmos)</span>
               </div>
               <div class="workspace-top-actions">
                 <button class="icon-btn-subtle" title="Ansicht teilen">
@@ -333,7 +352,7 @@
 
             <!-- Page Title Row -->
             <div class="workspace-title-row">
-              <h2 class="workspace-title" id="workspace-heading">Launch</h2>
+              <h2 class="workspace-title" id="workspace-heading">Kino 1 (IMAX & Atmos) – Vorführungen & Checks</h2>
               <div class="workspace-controls">
                 <button class="icon-btn-subtle" title="Filter" onclick="window.appDashboard.toggleDoneFilter()">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -362,161 +381,124 @@
             <!-- Dynamic Tasks Container -->
             <div id="workspace-content">
               
-              <!-- GROUP 1: DESIGN / VORBEREITUNG -->
+              <!-- GROUP 1: HEUTIGE VORSTELLUNGEN (LIVE) -->
               <div class="task-group">
-                <h3 class="task-group-title">Design</h3>
-                <div class="task-list" id="group-design-list">
-                  
-                  <div class="task-row is-done" data-task-id="t1">
-                    <div class="custom-checkbox checked" onclick="window.appDashboard.toggleCheck(this)">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    </div>
-                    <span class="task-label" onclick="window.appDashboard.toggleCheckFromLabel(this)">Define color scheme & typography</span>
-                    <span class="date-pill">📅 Mar 23</span>
-                    <span class="status-pill done">Done</span>
-                    <img src="/assets/3d/avatar-1.png" class="task-avatar" alt="Avatar">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                  <h3 class="task-group-title" style="margin-bottom: 0;">Heutige Vorstellungen (Live aus Kinopolis API)</h3>
+                  <div class="date-toggle-group">
+                    <button class="date-toggle-btn active" onclick="window.appDashboard.setDateMode(false)">Heute</button>
+                    <button class="date-toggle-btn" onclick="window.appDashboard.setDateMode(true)">Morgen</button>
                   </div>
-
-                  <div class="task-row is-done" data-task-id="t2">
-                    <div class="custom-checkbox checked" onclick="window.appDashboard.toggleCheck(this)">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    </div>
-                    <span class="task-label" onclick="window.appDashboard.toggleCheckFromLabel(this)">Design homepage</span>
-                    <span class="date-pill">📅 Mar 28</span>
-                    <span class="status-pill done">Done</span>
-                    <img src="/assets/3d/avatar-2.png" class="task-avatar" alt="Avatar">
-                  </div>
-
-                  <div class="task-row" data-task-id="t3">
-                    <div class="custom-checkbox" onclick="window.appDashboard.toggleCheck(this)">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    </div>
-                    <span class="task-label" onclick="window.appDashboard.toggleCheckFromLabel(this)">Design responsive layouts for mobile and tablet views</span>
-                    <span class="date-pill">📅 Apr 12</span>
-                    <span class="status-pill in-progress">In progress</span>
-                    <img src="/assets/3d/avatar-3.png" class="task-avatar" alt="Avatar">
-                  </div>
-
-                  <div class="task-row" data-task-id="t4">
-                    <div class="custom-checkbox" onclick="window.appDashboard.toggleCheck(this)">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    </div>
-                    <span class="task-label" onclick="window.appDashboard.toggleCheckFromLabel(this)">Implement navigation with dropdowns</span>
-                    <span class="date-pill">📅 Apr 18</span>
-                    <span class="status-pill in-progress">In progress</span>
-                    <img src="/assets/Oli/Oli_1_bgless.png" class="task-avatar" alt="Oli">
-                  </div>
-
-                  <div class="task-row" data-task-id="t5">
-                    <div class="custom-checkbox" onclick="window.appDashboard.toggleCheck(this)">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    </div>
-                    <span class="task-label" onclick="window.appDashboard.toggleCheckFromLabel(this)">Add animations</span>
-                    <span class="date-pill">📅 Apr 22</span>
-                    <span class="status-pill in-progress">In progress</span>
-                    <img src="/assets/3d/avatar-2.png" class="task-avatar" alt="Avatar">
-                  </div>
-
-                  <div class="task-row is-done" data-task-id="t6">
-                    <div class="custom-checkbox checked" onclick="window.appDashboard.toggleCheck(this)">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    </div>
-                    <span class="task-label" onclick="window.appDashboard.toggleCheckFromLabel(this)">Include CTAs</span>
-                    <span class="date-pill">📅 Mar 29</span>
-                    <span class="status-pill done">Done</span>
-                    <img src="/assets/3d/avatar-1.png" class="task-avatar" alt="Avatar">
-                  </div>
-
                 </div>
-              </div>
-
-              <!-- GROUP 2: SEO & VORFÜHRUNG -->
-              <div class="task-group">
-                <h3 class="task-group-title">SEO</h3>
-                <div class="task-list" id="group-seo-list">
-                  
-                  <div class="task-row is-done" data-task-id="s1">
-                    <div class="custom-checkbox checked" onclick="window.appDashboard.toggleCheck(this)">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    </div>
-                    <span class="task-label" onclick="window.appDashboard.toggleCheckFromLabel(this)">Research and integrate relevant keywords</span>
-                    <span class="date-pill">📅 Mar 21</span>
-                    <span class="status-pill done">Done</span>
-                    <img src="/assets/3d/avatar-2.png" class="task-avatar" alt="Avatar">
-                  </div>
-
-                  <div class="task-row" data-task-id="s2">
-                    <div class="custom-checkbox" onclick="window.appDashboard.toggleCheck(this)">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    </div>
-                    <span class="task-label" onclick="window.appDashboard.toggleCheckFromLabel(this)">Ensure all pages have meta titles and descriptions</span>
-                    <span class="date-pill">📅 Apr 12</span>
-                    <span class="status-pill in-progress">In progress</span>
-                    <img src="/assets/3d/avatar-3.png" class="task-avatar" alt="Avatar">
-                  </div>
-
-                  <div class="task-row is-done" data-task-id="s3">
-                    <div class="custom-checkbox checked" onclick="window.appDashboard.toggleCheck(this)">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    </div>
-                    <span class="task-label" onclick="window.appDashboard.toggleCheckFromLabel(this)">Set up Google Analytics</span>
-                    <span class="date-pill">📅 Mar 29</span>
-                    <span class="status-pill done">Done</span>
-                    <img src="/assets/3d/avatar-1.png" class="task-avatar" alt="Avatar">
-                  </div>
-
-                </div>
-              </div>
-
-              <!-- GROUP 3: TESTING -->
-              <div class="task-group">
-                <h3 class="task-group-title">Testing</h3>
-                <div class="task-list" id="group-testing-list">
-                  
-                  <div class="task-row" data-task-id="tst1">
-                    <div class="custom-checkbox" onclick="window.appDashboard.toggleCheck(this)">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    </div>
-                    <span class="task-label" onclick="window.appDashboard.toggleCheckFromLabel(this)">Conduct usability testing with a small group of users</span>
-                    <span class="date-pill">📅 Apr 28</span>
-                    <span class="status-pill in-progress">In progress</span>
-                    <img src="/assets/3d/avatar-2.png" class="task-avatar" alt="Avatar">
-                  </div>
-
-                </div>
-              </div>
-
-              <!-- GROUP 4: LIVE KINOPOLIS VORSTELLUNGEN (AUTOMATICALLY FETCHED) -->
-              <div class="task-group" id="live-sessions-group">
-                <h3 class="task-group-title">Heutige Vorstellungen (Live aus Kinopolis API)</h3>
                 <div class="task-list" id="live-sessions-list">
-                  <!-- Populated by main.js -->
-                  <div class="task-row">
-                    <div class="custom-checkbox checked">
+                  <div class="task-row" data-task-id="sess_kp_gladiator">
+                    <div class="custom-checkbox" onclick="window.appDashboard.toggleCheck(this)">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                     </div>
-                    <span class="task-label">Gladiator II (IMAX Laser 3D) – Saal 1</span>
+                    <div class="task-label-wrapper" onclick="window.appDashboard.toggleCheckFromLabel(this)">
+                      <span class="task-label">Gladiator II</span>
+                      <span class="task-sub">148 Min • FSK 16 • Kino 1 (IMAX & Atmos)</span>
+                    </div>
                     <span class="date-pill">📅 14:30 Uhr</span>
-                    <span class="status-pill done">Done</span>
-                    <img src="/assets/Oli/Oli_Success_bgless.png" class="task-avatar" alt="Oli">
+                    <span class="status-pill geplant">Geplant</span>
+                    <img src="/assets/3d/hero-cube.png" class="task-avatar" alt="Cover">
                   </div>
-                  <div class="task-row">
-                    <div class="custom-checkbox">
+
+                  <div class="task-row" data-task-id="sess_kp_wicked">
+                    <div class="custom-checkbox" onclick="window.appDashboard.toggleCheck(this)">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                     </div>
-                    <span class="task-label">Wicked (Dolby Atmos / OV) – Saal 1</span>
+                    <div class="task-label-wrapper" onclick="window.appDashboard.toggleCheckFromLabel(this)">
+                      <span class="task-label">Wicked</span>
+                      <span class="task-sub">160 Min • FSK 6 • Kino 1 (IMAX & Atmos)</span>
+                    </div>
                     <span class="date-pill">📅 17:45 Uhr</span>
-                    <span class="status-pill in-progress">In progress</span>
-                    <img src="/assets/Oli/Oli_1_bgless.png" class="task-avatar" alt="Oli">
+                    <span class="status-pill geplant">Geplant</span>
+                    <img src="/assets/3d/hero-ring.png" class="task-avatar" alt="Cover">
                   </div>
-                  <div class="task-row">
-                    <div class="custom-checkbox">
+
+                  <div class="task-row" data-task-id="sess_kp_dune">
+                    <div class="custom-checkbox" onclick="window.appDashboard.toggleCheck(this)">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                     </div>
-                    <span class="task-label">Dune: Part Two (IMAX Experience) – Saal 1</span>
+                    <div class="task-label-wrapper" onclick="window.appDashboard.toggleCheckFromLabel(this)">
+                      <span class="task-label">Dune: Part Two (IMAX Re-Release)</span>
+                      <span class="task-sub">166 Min • FSK 12 • Kino 1 (IMAX & Atmos)</span>
+                    </div>
                     <span class="date-pill">📅 21:00 Uhr</span>
                     <span class="status-pill geplant">Geplant</span>
-                    <img src="/assets/Oli/Oli_Security_bgless.png" class="task-avatar" alt="Oli">
+                    <img src="/assets/3d/hero-cube.png" class="task-avatar" alt="Cover">
+                  </div>
+                </div>
+              </div>
+
+              <!-- GROUP 2: SAAL-CHECKLISTE & ABNAHME -->
+              <div class="task-group">
+                <h3 class="task-group-title">Saal-Checkliste & Abnahme</h3>
+                <div class="task-list">
+                  <div class="task-row" data-task-id="check_laser">
+                    <div class="custom-checkbox" onclick="window.appDashboard.toggleCheck(this)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <div class="task-label-wrapper" onclick="window.appDashboard.toggleCheckFromLabel(this)">
+                      <span class="task-label">Barco / Christie Laser-Projektor Automation prüfen (CPL geladen)</span>
+                      <span class="task-sub">Vorführungs-Routine • Kino 1 (IMAX & Atmos)</span>
+                    </div>
+                    <span class="date-pill">📅 Heute</span>
+                    <span class="status-pill in-progress">In progress</span>
+                    <img src="/assets/Oli/Oli_1_bgless.png" class="task-avatar" alt="Oli">
+                  </div>
+
+                  <div class="task-row" data-task-id="check_atmos">
+                    <div class="custom-checkbox" onclick="window.appDashboard.toggleCheck(this)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <div class="task-label-wrapper" onclick="window.appDashboard.toggleCheckFromLabel(this)">
+                      <span class="task-label">Dolby Atmos / CP950 Audio-Pegel auf Referenz 7.0 kalibriert</span>
+                      <span class="task-sub">Vorführungs-Routine • Kino 1 (IMAX & Atmos)</span>
+                    </div>
+                    <span class="date-pill">📅 Heute</span>
+                    <span class="status-pill in-progress">In progress</span>
+                    <img src="/assets/Oli/Oli_1_bgless.png" class="task-avatar" alt="Oli">
+                  </div>
+
+                  <div class="task-row" data-task-id="check_light">
+                    <div class="custom-checkbox" onclick="window.appDashboard.toggleCheck(this)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <div class="task-label-wrapper" onclick="window.appDashboard.toggleCheckFromLabel(this)">
+                      <span class="task-label">Saallicht & Notausgangsbeleuchtung Automatikfunktionstest</span>
+                      <span class="task-sub">Vorführungs-Routine • Kino 1 (IMAX & Atmos)</span>
+                    </div>
+                    <span class="date-pill">📅 Heute</span>
+                    <span class="status-pill in-progress">In progress</span>
+                    <img src="/assets/Oli/Oli_1_bgless.png" class="task-avatar" alt="Oli">
+                  </div>
+
+                  <div class="task-row" data-task-id="check_dbox">
+                    <div class="custom-checkbox" onclick="window.appDashboard.toggleCheck(this)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <div class="task-label-wrapper" onclick="window.appDashboard.toggleCheckFromLabel(this)">
+                      <span class="task-label">D-Box Motion Sitze & VIP Loge Funktionstest durchgeführt</span>
+                      <span class="task-sub">Vorführungs-Routine • Kino 1 (IMAX & Atmos)</span>
+                    </div>
+                    <span class="date-pill">📅 Heute</span>
+                    <span class="status-pill in-progress">In progress</span>
+                    <img src="/assets/Oli/Oli_1_bgless.png" class="task-avatar" alt="Oli">
+                  </div>
+
+                  <div class="task-row" data-task-id="check_cleaning">
+                    <div class="custom-checkbox" onclick="window.appDashboard.toggleCheck(this)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <div class="task-label-wrapper" onclick="window.appDashboard.toggleCheckFromLabel(this)">
+                      <span class="task-label">Saalabnahme & Becherhalter nach Vorstellung kontrolliert</span>
+                      <span class="task-sub">Vorführungs-Routine • Kino 1 (IMAX & Atmos)</span>
+                    </div>
+                    <span class="date-pill">📅 Heute</span>
+                    <span class="status-pill in-progress">In progress</span>
+                    <img src="/assets/Oli/Oli_1_bgless.png" class="task-avatar" alt="Oli">
                   </div>
                 </div>
               </div>
