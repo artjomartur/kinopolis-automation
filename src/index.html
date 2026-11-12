@@ -117,8 +117,18 @@
           </div>
 
           <div class="window-topbar-actions">
-            <button class="window-topbar-btn" onclick="window.appRouter.openDashboard()">
-              <span>Vollbild</span>
+            <select id="hero-location-select" onchange="window.appDashboard.handleLocationSelect(this.value)" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff; font-size: 12px; padding: 4px 8px; border-radius: 6px; outline: none; cursor: pointer;">
+              <option value="kp" style="background: #18181b; color: #fff;">Main-Taunus (MTZ)</option>
+              <option value="da" style="background: #18181b; color: #fff;">Darmstadt</option>
+              <option value="gi" style="background: #18181b; color: #fff;">Gießen</option>
+              <option value="ab" style="background: #18181b; color: #fff;">Aschaffenburg</option>
+              <option value="bn" style="background: #18181b; color: #fff;">Bonn</option>
+              <option value="ko" style="background: #18181b; color: #fff;">Koblenz</option>
+              <option value="rnz" style="background: #18181b; color: #fff;">Viernheim</option>
+            </select>
+
+            <button class="window-topbar-btn" id="btn-toggle-view" onclick="window.appRouter.toggleMode()">
+              <span id="txt-toggle-view">Vollbild</span>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="15 3 21 3 21 9"></polyline>
                 <polyline points="9 21 3 21 3 15"></polyline>
@@ -734,55 +744,6 @@
     </footer>
 
   </main>
-
-  <!-- ========================================================================
-       FULLSCREEN SAAS APP DASHBOARD VIEW (MATCHING EXACT SCREENSHOT)
-       ======================================================================== -->
-  <div id="dashboard-view">
-    <div class="app-window-frame">
-      
-      <!-- Window Chrome Topbar -->
-      <div class="window-topbar">
-        <div class="window-dots">
-          <span class="window-dot dot-red"></span>
-          <span class="window-dot dot-yellow"></span>
-          <span class="window-dot dot-green"></span>
-        </div>
-
-        <div class="window-search-container">
-          <div class="window-search-bar">
-            <input type="text" id="dash-search-input" placeholder="Search tasks, sessions or halls..." oninput="window.appDashboard.handleSearch(this.value)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-          </div>
-        </div>
-
-        <div class="window-topbar-actions">
-          <select id="dash-location-select" onchange="window.appDashboard.handleLocationSelect(this.value)" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff; font-size: 12px; padding: 4px 8px; border-radius: 6px; outline: none; cursor: pointer;">
-            <option value="kp" style="background: #18181b; color: #fff;">Main-Taunus (MTZ)</option>
-            <option value="da" style="background: #18181b; color: #fff;">Darmstadt</option>
-            <option value="gi" style="background: #18181b; color: #fff;">Gießen</option>
-            <option value="ab" style="background: #18181b; color: #fff;">Aschaffenburg</option>
-            <option value="bn" style="background: #18181b; color: #fff;">Bonn</option>
-            <option value="ko" style="background: #18181b; color: #fff;">Koblenz</option>
-            <option value="rnz" style="background: #18181b; color: #fff;">Viernheim</option>
-          </select>
-
-          <button class="window-topbar-btn" onclick="window.appRouter.openOverview()">
-            <span>← Zurück zur Übersicht</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- 3-Column SaaS Architecture Container (Mirrored for full screen) -->
-      <div class="app-columns-container" id="dash-app-columns">
-        <!-- Content will sync with the workspace -->
-      </div>
-
-    </div>
-  </div>
 
   <!-- Main JavaScript Bundle -->
   <script type="module" src="/main.js"></script>
