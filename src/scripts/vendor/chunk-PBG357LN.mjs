@@ -214,7 +214,7 @@ var A = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spri
                           "--framer-text-color":
                             "var(--extracted-r6o4lv, var(--variable-reference-QPpn2xZty-DtRGLx0ml))",
                         },
-                        children: "SaaS Website Kit",
+                        children: "Kinopolis Automation",
                       }),
                     }),
                     className: "framer-3bw603",

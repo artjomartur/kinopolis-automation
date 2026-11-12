@@ -161,7 +161,7 @@ var Br = {
                             className: "framer-styles-preset-1dts917",
                             "data-styles-preset": "hgKudGhZ5",
                             style: { "--framer-text-color": "rgb(0, 0, 0)" },
-                            children: "This page is included in a free SaaS Website Kit.",
+                            children: "Kinopolis Automation Suite • Live-Saalüberwachung, Vorführ-Checks & Popcorn-Prognose",
                           }),
                         }),
                         className: "framer-1pjuc9a hidden-15gyq9a",
@@ -171,12 +171,12 @@ var Br = {
                     r(f, {
                       className: "framer-19vmq59-container",
                       children: r(M, {
-                        bVToBLBTS: "View the complete kit",
+                        bVToBLBTS: "Dashboard starten →",
                         height: "100%",
                         id: "JVkJRs3Ww",
                         KqeH5xil_: "rgb(0, 0, 0)",
                         layoutId: "JVkJRs3Ww",
-                        MJWWsEY26: "www.framer.com/free-saas-ui-kit/#elements",
+                        MJWWsEY26: "/dashboard",
                         variant: "I27BjI0db",
                         width: "100%",
                       }),
