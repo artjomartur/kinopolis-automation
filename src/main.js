@@ -657,7 +657,7 @@ window.appDashboard = {
             </div>
             <span class="date-pill">📅 ${state.isTomorrow ? 'Morgen' : 'Heute'}</span>
             <span class="status-pill ${isDone ? 'done' : 'in-progress'}">${isDone ? 'Done' : 'In progress'}</span>
-            <img src="/assets/Oli/Oli_1_bgless.png" class="task-avatar" alt="Oli">
+            <img src="/assets/Oli/oli_logo_tight.png" class="task-avatar" alt="Oli">
           </div>
         `;
       });
@@ -1254,7 +1254,7 @@ window.appDashboard = {
                 </div>
                 <span class="date-pill">📅 ${s.time} Uhr</span>
                 <span class="status-pill ${diff <= 25 ? 'in-progress' : 'geplant'}">${diff <= 25 ? 'Einlass läuft' : 'Start in ' + diff + 'm'}</span>
-                <img src="${s.poster || '/assets/Oli/Oli_1_bgless.png'}" class="task-avatar" alt="Poster">
+                <img src="${s.poster || '/assets/Oli/oli_logo_tight.png'}" class="task-avatar" alt="Poster">
               </div>
             `;
           }
