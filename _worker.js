@@ -44,23 +44,24 @@ async function fetchKinopolis(url) {
 
 app.get('/api/locations', (c) => {
     const locations = [
+        { name: 'Sulzbach / MTZ: KINOPOLIS', slug: 'su' },
+        { name: 'Darmstadt: KINOPOLIS', slug: 'kp' },
+        { name: 'Darmstadt: Citydome', slug: 'cd' },
+        { name: 'Darmstadt: programmkino rex', slug: 'rx' },
+        { name: 'München: Mathäser Filmpalast', slug: 'mm' },
+        { name: 'München: Gloria Palast', slug: 'gp' },
+        { name: 'Hamburg HafenCity: KINOPOLIS', slug: 'hh' },
+        { name: 'Hanau: KINOPOLIS', slug: 'hu' },
+        { name: 'Viernheim / RNZ: KINOPOLIS', slug: 'vi' },
         { name: 'Aschaffenburg: KINOPOLIS', slug: 'ab' },
         { name: 'Bad Godesberg: KINOPOLIS', slug: 'bn' },
         { name: 'Bad Homburg: KINOPOLIS', slug: 'bh' },
-        { name: 'Darmstadt: KINOPOLIS', slug: 'kp' },
-        { name: 'Darmstadt: Citydome', slug: 'cd' },
-        { name: 'Darmstadt: Rex', slug: 'rx' },
-        { name: 'Freiberg: KINOPOLIS', slug: 'fr' },
         { name: 'Gießen: Kinocenter', slug: 'gi' },
         { name: 'Gießen: KINOPOLIS', slug: 'kg' },
-        { name: 'Hamburg HafenCity: KINOPOLIS', slug: 'hh' },
-        { name: 'Hanau: KINOPOLIS', slug: 'hu' },
-        { name: 'Karlsruhe: Universum-City', slug: 'ka' },
         { name: 'Koblenz: KINOPOLIS', slug: 'ko' },
         { name: 'Landshut: KINOPOLIS', slug: 'lh' },
         { name: 'Rosenheim: KINOPOLIS', slug: 'ro' },
-        { name: 'Sulzbach / MTZ: KINOPOLIS', slug: 'su' },
-        { name: 'Viernheim / RNZ: KINOPOLIS', slug: 'vi' }
+        { name: 'Freiberg: KINOPOLIS', slug: 'fr' }
     ];
     return c.json(locations);
 });
@@ -1071,9 +1072,14 @@ app.get('/api/movie-details', async (c) => {
 
 
 app.get('/api/sessions', async (c) => {
-    const location = c.req.query('location') || 'kp';
+    const location = c.req.query('location') || 'su';
     const dateStr = c.req.query('date') || new Date().toISOString().split('T')[0];
-    const targetUrl = `https://www.kinopolis.de/${location}/programm?date=${dateStr}`;
+    let targetUrl = `https://www.kinopolis.de/${location}/programm?date=${dateStr}`;
+    if (location === 'mm') {
+        targetUrl = `https://www.mathaeser.de/mm/programm?date=${dateStr}`;
+    } else if (location === 'gp') {
+        targetUrl = `https://www.gloria-palast.de/gp/programm?date=${dateStr}`;
+    }
     
     console.log(`Fetching sessions for ${location} on ${dateStr}`);
     
@@ -1290,7 +1296,13 @@ app.get('/api/sessions', async (c) => {
 
         const halls = {};
         sessions.forEach(s => { if (!halls[s.hall]) halls[s.hall] = []; halls[s.hall].push(s); });
-        const sortedHalls = Object.keys(halls).sort().map(name => {
+        const sortedHalls = Object.keys(halls).sort((a, b) => {
+            const isPremA = /dolby|laser|imax|gloria/i.test(a);
+            const isPremB = /dolby|laser|imax|gloria/i.test(b);
+            if (isPremA && !isPremB) return -1;
+            if (!isPremA && isPremB) return 1;
+            return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+        }).map(name => {
             const sorted = halls[name].sort((a, b) => a.time.localeCompare(b.time));
             return { name, sessions: sorted };
         });

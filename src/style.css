@@ -1295,6 +1295,351 @@ body.mode-dashboard .app-columns-container {
 }
 
 /* ==========================================================================
+   INTERACTIVE RAIL MODULES & VIEWS
+   ========================================================================== */
+
+/* Toast Feedback */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast-message {
+  background: #09090b;
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Filter Pill Row */
+.filter-pill-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.filter-pill-btn {
+  background: #f4f4f5;
+  border: 1px solid #e4e4e7;
+  color: #52525b;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.filter-pill-btn:hover {
+  background: #ebebeb;
+  color: #09090b;
+}
+
+.filter-pill-btn.active {
+  background: #09090b;
+  border-color: #09090b;
+  color: #ffffff;
+}
+
+/* Calendar Slot Sections */
+.calendar-slot-group {
+  margin-bottom: 24px;
+}
+
+.calendar-slot-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #71717a;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.calendar-card {
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  gap: 12px;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.calendar-card:hover {
+  border-color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.calendar-card-poster {
+  width: 50px;
+  height: 70px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #f4f4f5;
+  flex-shrink: 0;
+}
+
+.calendar-card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+  flex: 1;
+}
+
+.calendar-card-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #09090b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calendar-card-meta {
+  font-size: 11.5px;
+  color: #71717a;
+  margin-top: 2px;
+}
+
+.calendar-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+/* Tech Quick Action Grid */
+.quick-action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.quick-action-btn {
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.quick-action-btn:hover {
+  border-color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.quick-action-icon {
+  font-size: 22px;
+}
+
+.quick-action-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #09090b;
+}
+
+.quick-action-desc {
+  font-size: 11.5px;
+  color: #71717a;
+}
+
+/* Hardware Status Tiles */
+.hardware-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.hardware-status-card {
+  background: #fbfbfb;
+  border: 1px solid #e4e4e7;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.hardware-status-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.hardware-status-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #18181b;
+}
+
+.live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #15803d;
+  background: #dcfce7;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.live-indicator-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: pulseDot 1.5s infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.hardware-metric-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #71717a;
+  margin-top: 6px;
+}
+
+.hardware-metric-row span:last-child {
+  font-weight: 600;
+  color: #09090b;
+}
+
+/* Occupancy Progress Bar */
+.occupancy-bar-wrapper {
+  margin-top: 8px;
+}
+
+.occupancy-bar-bg {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: #f4f4f5;
+  overflow: hidden;
+}
+
+.occupancy-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.occupancy-fill-low { background: #22c55e; }
+.occupancy-fill-mid { background: #eab308; }
+.occupancy-fill-high { background: #ec4899; }
+
+/* Handover Book Box */
+.handover-box {
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.handover-input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 140px;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.handover-input {
+  background: #fcfcfd;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #09090b;
+  outline: none;
+}
+
+.handover-input:focus {
+  border-color: #09090b;
+  background: #ffffff;
+}
+
+.handover-textarea {
+  width: 100%;
+  background: #fcfcfd;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #09090b;
+  outline: none;
+  resize: vertical;
+  min-height: 60px;
+  margin-bottom: 10px;
+}
+
+.handover-textarea:focus {
+  border-color: #09090b;
+  background: #ffffff;
+}
+
+.btn-primary-small {
+  background: #09090b;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.btn-primary-small:hover {
+  opacity: 0.85;
+}
+
+/* ==========================================================================
    RESPONSIVE STYLES
    ========================================================================== */
 @media (max-width: 1024px) {

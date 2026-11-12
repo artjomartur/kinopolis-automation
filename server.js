@@ -32,7 +32,12 @@ app.get('/api/sessions', async (req, res) => {
         dateStr = targetDate.toISOString().split('T')[0];
     }
 
-    const url = `https://www.kinopolis.de/${location}/programm?date=${dateStr}`;
+    let url = `https://www.kinopolis.de/${location}/programm?date=${dateStr}`;
+    if (location === 'mm') {
+        url = `https://www.mathaeser.de/mm/programm?date=${dateStr}`;
+    } else if (location === 'gp') {
+        url = `https://www.gloria-palast.de/gp/programm?date=${dateStr}`;
+    }
 
     try {
         const response = await fetch(url, {
@@ -215,7 +220,13 @@ app.get('/api/sessions', async (req, res) => {
         console.log(`Found ${sessions.length} sessions for ${location}`);
         const halls = {};
         sessions.forEach(s => { if (!halls[s.hall]) halls[s.hall] = []; halls[s.hall].push(s); });
-        const sortedHalls = Object.keys(halls).sort().map(name => ({ name, sessions: halls[name].sort((a, b) => a.time.localeCompare(b.time)) }));
+        const sortedHalls = Object.keys(halls).sort((a, b) => {
+            const isPremA = /dolby|laser|imax|gloria/i.test(a);
+            const isPremB = /dolby|laser|imax|gloria/i.test(b);
+            if (isPremA && !isPremB) return -1;
+            if (!isPremA && isPremB) return 1;
+            return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+        }).map(name => ({ name, sessions: halls[name].sort((a, b) => a.time.localeCompare(b.time)) }));
 
         res.json(sortedHalls);
     } catch (error) {
@@ -295,22 +306,24 @@ app.get('/api/messages', (req, res) => {
 });
 
 const locations = [
-    { name: "Sulzbach / Main-Taunus", slug: "su" },
-    { name: "Bonn", slug: "bn" },
-    { name: "Aschaffenburg", slug: "ab" },
-    { name: "Bad Homburg", slug: "bh" },
+    { name: "Sulzbach / MTZ: KINOPOLIS", slug: "su" },
     { name: "Darmstadt: KINOPOLIS", slug: "kp" },
     { name: "Darmstadt: Citydome", slug: "cd" },
-    { name: "Darmstadt: Rex", slug: "rx" },
-    { name: "Freiberg", slug: "fr" },
-    { name: "Gießen", slug: "gi" },
-    { name: "Hanau", slug: "hu" },
-    { name: "Koblenz", slug: "ko" },
-    { name: "Landshut", slug: "lh" },
-    { name: "Rhein-Neckar / Viernheim", slug: "vi" },
-    { name: "Mönchengladbach", slug: "mg" },
-    { name: "Karlsruhe", slug: "ka" },
-    { name: "Rosenheim", slug: "ro" }
+    { name: "Darmstadt: programmkino rex", slug: "rx" },
+    { name: "München: Mathäser Filmpalast", slug: "mm" },
+    { name: "München: Gloria Palast", slug: "gp" },
+    { name: "Hamburg HafenCity: KINOPOLIS", slug: "hh" },
+    { name: "Hanau: KINOPOLIS", slug: "hu" },
+    { name: "Viernheim / RNZ: KINOPOLIS", slug: "vi" },
+    { name: "Aschaffenburg: KINOPOLIS", slug: "ab" },
+    { name: "Bad Godesberg: KINOPOLIS", slug: "bn" },
+    { name: "Bad Homburg: KINOPOLIS", slug: "bh" },
+    { name: "Gießen: Kinocenter", slug: "gi" },
+    { name: "Gießen: KINOPOLIS", slug: "kg" },
+    { name: "Koblenz: KINOPOLIS", slug: "ko" },
+    { name: "Landshut: KINOPOLIS", slug: "lh" },
+    { name: "Rosenheim: KINOPOLIS", slug: "ro" },
+    { name: "Freiberg: KINOPOLIS", slug: "fr" }
 ];
 
 app.get('/api/locations', (req, res) => {
