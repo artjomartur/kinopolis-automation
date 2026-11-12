@@ -52,7 +52,10 @@ describe('Landing Page Copy & Structure', () => {
     const bodyText = $('#main').text();
     expect(bodyText).toContain('Dolby Atmos');
     expect(bodyText).toContain('Barco Laser');
-    expect(bodyText).toContain('Christie 4K');
+    expect(bodyText).toContain('Christie Digital');
+    expect(bodyText).toContain('Samsung Onyx');
+    expect(bodyText).toContain('D-BOX Motion');
+    expect(bodyText).toContain('IMAX');
     expect(bodyText).toContain('Kinopolis Gruppe');
   });
 
