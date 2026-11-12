@@ -1,14 +1,26 @@
 /**
  * Kinopolis Operations Platform
- * Framer SaaS Architecture with Full Cinema Business Logic & 5 Multi-Function Modules
+ * Framer SaaS Architecture with Full Cinema Business Logic & Operational Service Tools
  */
 
 import { ApiClient } from './core/api.js';
-import { KINOPOLIS_LOCATIONS, getFallbackHalls, sortHallsNaturally, calculatePopcornDemand } from './utils/cinema-logic.js';
+import {
+  KINOPOLIS_LOCATIONS,
+  getFallbackHalls,
+  sortHallsNaturally,
+  calculatePopcornDemand,
+  detectPosterChanges,
+  detectAuslaesse,
+  checkFskCompliance
+} from './utils/cinema-logic.js';
 
 const api = new ApiClient();
 const TASK_STORAGE_KEY = 'kp_saas_task_states_v3';
 const HANDOVER_STORAGE_KEY = 'kp_handover_notes_v1';
+const POSTER_STORAGE_KEY = 'completed_posters';
+const AUSLASS_STORAGE_KEY = 'completed_auslaesse';
+const LOSTFOUND_STORAGE_KEY = 'kinopolis_lostfound';
+const MHD_STORAGE_KEY = 'kinopolis_mhd';
 
 // Initial Handover notes if empty
 function getInitialHandoverNotes() {
@@ -24,6 +36,45 @@ function getInitialHandoverNotes() {
   ];
 }
 
+function getInitialLostFound() {
+  try {
+    const stored = localStorage.getItem(LOSTFOUND_STORAGE_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch(e) {}
+
+  return [
+    { id: 'lf-1', hall: 'Kino 1', category: 'Kleidung', desc: 'Schwarzer Wollschal (Zara)', finder: 'Reinigungsteam', date: 'Heute, 14:10 Uhr', status: 'im_tresor' },
+    { id: 'lf-2', hall: 'Kino 3', category: 'Elektronik', desc: 'AirPods Pro Ladecase (weiß)', finder: 'Sarah (Einlass)', date: 'Heute, 16:30 Uhr', status: 'im_tresor' },
+    { id: 'lf-3', hall: 'Foyer / Bar', category: 'Wertsachen', desc: 'Geldbörse Leder braun mit Personalausweis', finder: 'Lukas (Theke)', date: 'Gestern, 21:15 Uhr', status: 'ausgegeben' }
+  ];
+}
+
+function getInitialMhdList() {
+  try {
+    const stored = localStorage.getItem(MHD_STORAGE_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch(e) {}
+
+  return [
+    { id: 'mhd-1', item: 'Nacho Käsesauce (3kg Beutel)', date: '2026-11-28', location: 'Kühlhaus 1', loggedBy: 'Sarah' },
+    { id: 'mhd-2', item: 'Slush-Sirup Waldmeister (5L)', date: '2026-12-15', location: 'Gondel Theke 2', loggedBy: 'Lukas' },
+    { id: 'mhd-3', item: 'Popcorn Kokosfett (Palmin)', date: '2027-01-30', location: 'Popcornküche', loggedBy: 'Markus' }
+  ];
+}
+
+function getContactsForLocation(citySlug) {
+  return [
+    { id: 1, role: 'Bildwerferraum (BWR)', name: 'Vorführraum & Lasertechnik', ext: '101', icon: '📽️', funkCh: 'Kanal 1', note: 'Projektion, Automation & Audio-CPL' },
+    { id: 2, role: 'Kasse & Counter', name: 'Zentralkasse / Vorverkauf', ext: '102', icon: '🎟️', funkCh: 'Kanal 2', note: 'Ticketrücknahme, Gutscheine, Stornos' },
+    { id: 3, role: 'Einlass & Saalaufsicht', name: 'Haupteinlass 1. OG', ext: '103', icon: '🚪', funkCh: 'Kanal 3', note: 'Einlasskontrolle, Saalöffnung, FSK-Check' },
+    { id: 4, role: 'Teamleiter (TL) Mobil', name: 'Schichtleitung vom Dienst', ext: '100', icon: '👔', funkCh: 'Kanal 1 / 4', note: 'Diensthandy: 0171-8849201 • Notfälle' },
+    { id: 5, role: 'Concession / Bar', name: 'Haupttheke & Popcornküche', ext: '104', icon: '🍿', funkCh: 'Kanal 2', note: 'Nachschub-Ruf, Sirup & Becher-Lager' },
+    { id: 6, role: 'Haustechnik & Facility', name: 'Gebäudeleittechnik (GLT)', ext: '105', icon: '🛠️', funkCh: 'Kanal 4', note: 'Klima/Lüftung, Sanitär, Brandschutztüren' },
+    { id: 7, role: 'Betriebsleitung (BL)', name: 'Theaterleitung Büro', ext: '110', icon: '🏢', funkCh: 'Kanal 1', note: 'Geschäftsführung & Administration' },
+    { id: 8, role: 'Notruf & Feuerwehr', name: 'Leitstelle / Polizei', ext: '112 / 110', icon: '🚨', funkCh: 'Telefon', note: 'Akute Notfälle & Brandmeldeanlage' }
+  ];
+}
+
 // Application State
 const state = {
   currentCity: localStorage.getItem('current_city') || 'su',
@@ -31,13 +82,19 @@ const state = {
   isTomorrow: false,
   hallsData: [],
   hallStatus: {},
-  activeRail: 'shows', // 'shows', 'calendar', 'alerts', 'tech', 'stats', 'settings'
-  activeView: 'all_halls', // 'all_halls', 'hall', 'calendar', 'alerts', 'tech', 'stats', 'concession', 'einlass', 'report', 'settings'
+  tomorrowSessions: [],
+  activeRail: 'shows', // 'shows', 'tasks', 'calendar', 'alerts', 'tech', 'stats', 'settings'
+  activeView: 'all_halls', // 'all_halls', 'hall', 'poster', 'auslaesse', 'lostfound', 'contacts', 'fsk', 'mhd', 'calendar', 'alerts', 'tech', 'stats', 'concession', 'einlass', 'report', 'settings'
   activeHallName: null,
   activeGroupName: 'Programm & Säle',
   filterHideDone: false,
   searchQuery: '',
   calendarFilter: 'all', // 'all', '2d', '3d', 'atmos', 'dbox', 'ov'
+  posterFilter: 'all', // 'all', 'pending', 'done'
+  completedPosters: new Set(JSON.parse(localStorage.getItem(POSTER_STORAGE_KEY) || '[]')),
+  completedAuslaesse: new Set(JSON.parse(localStorage.getItem(AUSLASS_STORAGE_KEY) || '[]')),
+  lostAndFoundItems: getInitialLostFound(),
+  mhdItems: getInitialMhdList(),
   handoverNotes: getInitialHandoverNotes()
 };
 
@@ -260,7 +317,20 @@ window.appDashboard = {
     if (!sidebarEl) return;
 
     // 1. Shows & Halls Rail
-    if (state.activeRail === 'shows') {
+    // 1. Shows, Halls & Tasks Rail
+    if (state.activeRail === 'shows' || state.activeRail === 'tasks') {
+      const posterCheck = detectPosterChanges(state.hallsData, state.tomorrowSessions, state.completedPosters);
+      const pendingCount = posterCheck.pendingCount;
+      const pendingBadge = pendingCount > 0 
+        ? `<span class="kpi-pill urgent" style="margin-left: auto; padding: 1px 6px; font-size: 10.5px;">${pendingCount} offen</span>`
+        : `<span class="kpi-pill success" style="margin-left: auto; padding: 1px 6px; font-size: 10.5px;">Aktuell</span>`;
+
+      // Update badge dot on rail icon
+      const railBadge = document.getElementById('rail-tasks-badge');
+      if (railBadge) {
+        railBadge.style.display = pendingCount > 0 ? 'block' : 'none';
+      }
+
       let hallsHtml = `
         <li>
           <button class="sidebar-item-btn ${state.activeView === 'all_halls' ? 'active' : ''}" onclick="window.appDashboard.switchView('all_halls', 'Alle Säle', 'Programm & Säle')">
@@ -287,6 +357,54 @@ window.appDashboard = {
       }
 
       sidebarEl.innerHTML = `
+        <!-- Kino-Service & Aufgaben -->
+        <div>
+          <div class="sidebar-group-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>Kino-Service & Aufgaben</span>
+          </div>
+          <ul class="sidebar-items">
+            <li>
+              <button class="sidebar-item-btn ${state.activeView === 'poster' ? 'active' : ''}" onclick="window.appDashboard.switchView('poster', 'Posterwechsel & Schaukästen', 'Kino-Service & Aufgaben')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <span>Posterwechsel & Schaukästen</span>
+                ${pendingBadge}
+              </button>
+            </li>
+            <li>
+              <button class="sidebar-item-btn ${state.activeView === 'auslaesse' ? 'active' : ''}" onclick="window.appDashboard.switchView('auslaesse', 'Saalauslässe & Reinigung', 'Kino-Service & Aufgaben')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>Saalauslässe & Reinigung</span>
+              </button>
+            </li>
+            <li>
+              <button class="sidebar-item-btn ${state.activeView === 'lostfound' ? 'active' : ''}" onclick="window.appDashboard.switchView('lostfound', 'Digitales Fundbüro', 'Kino-Service & Aufgaben')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                <span>Digitales Fundbüro</span>
+                <span style="margin-left: auto; font-size: 11px; color: #a1a1aa;">${state.lostAndFoundItems.filter(i => i.status === 'im_tresor').length}</span>
+              </button>
+            </li>
+            <li>
+              <button class="sidebar-item-btn ${state.activeView === 'contacts' ? 'active' : ''}" onclick="window.appDashboard.switchView('contacts', 'Kurzwahlen & Notfallkontakte', 'Kino-Service & Aufgaben')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <span>Kurzwahlen & Telefonliste</span>
+              </button>
+            </li>
+            <li>
+              <button class="sidebar-item-btn ${state.activeView === 'fsk' ? 'active' : ''}" onclick="window.appDashboard.switchView('fsk', 'FSK & Jugendschutz-Prüfung', 'Kino-Service & Aufgaben')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                <span>FSK & Jugendschutz-Check</span>
+              </button>
+            </li>
+            <li>
+              <button class="sidebar-item-btn ${state.activeView === 'mhd' ? 'active' : ''}" onclick="window.appDashboard.switchView('mhd', 'MHD-Erfassung & Ware', 'Kino-Service & Aufgaben')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>MHD-Erfassung & Transfer</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+
         <!-- Programm & Säle -->
         <div>
           <div class="sidebar-group-title">
@@ -523,7 +641,7 @@ window.appDashboard = {
     });
   },
 
-  // Switch Icon Rail (5 Multi-Function Buttons)
+  // Switch Icon Rail (Multi-Function Buttons)
   switchRail(railName, btnEl) {
     state.activeRail = railName;
     document.querySelectorAll('.rail-icon-btn').forEach(b => b.classList.remove('active'));
@@ -531,6 +649,8 @@ window.appDashboard = {
 
     if (railName === 'shows') {
       this.switchView('all_halls', 'Alle Säle (Übersicht)', 'Programm & Säle');
+    } else if (railName === 'tasks') {
+      this.switchView('poster', 'Posterwechsel & Schaukästen', 'Kino-Service & Aufgaben');
     } else if (railName === 'calendar') {
       this.switchView('calendar', 'Spielzeiten-Kalender & Timeline', 'Kalender & Spielzeiten');
     } else if (railName === 'alerts') {
@@ -720,6 +840,487 @@ window.appDashboard = {
             </div>
           </div>
           <div class="task-list">${hallsRows}</div>
+        </div>
+      `;
+    }
+
+    // 2b. POSTERWECHSEL & SCHAUKÄSTEN VIEW
+    else if (state.activeView === 'poster') {
+      if (crumbGroup) crumbGroup.textContent = 'Kino-Service & Aufgaben';
+      if (crumbCurrent) crumbCurrent.textContent = 'Posterwechsel & Schaukästen';
+      if (heading) heading.textContent = 'Schaukästen-Posterwechsel & Zwischeneinleger (ZE)';
+
+      const posterData = detectPosterChanges(state.hallsData, state.tomorrowSessions, state.completedPosters);
+      const allChanges = posterData.allChanges;
+      const completedCount = allChanges.filter(c => c.isCompleted).length;
+      const zeCount = allChanges.filter(c => c.needsZe).length;
+
+      let filteredChanges = allChanges;
+      if (state.posterFilter === 'pending') {
+        filteredChanges = allChanges.filter(c => !c.isCompleted);
+      } else if (state.posterFilter === 'done') {
+        filteredChanges = allChanges.filter(c => c.isCompleted);
+      }
+
+      let cardsHtml = '';
+      if (filteredChanges.length === 0) {
+        cardsHtml = `
+          <div style="grid-column: 1 / -1; padding: 48px; text-align: center; color: #71717a; background: #fbfbfb; border-radius: 12px; border: 1px dashed var(--border-subtle);">
+            <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+            <div style="font-size: 15px; font-weight: 600; color: #18181b;">Keine Plakatwechsel für diesen Filter</div>
+            <div style="font-size: 13px; color: #71717a; margin-top: 4px;">Alle Schaukästen stimmen mit den aktuellen Vorführungen überein.</div>
+          </div>
+        `;
+      } else {
+        filteredChanges.forEach(change => {
+          const curPoster = (change.currentMovie && change.currentMovie.poster) || '/assets/3d/hero-cube.png';
+          const nextPoster = (change.nextMovie && change.nextMovie.poster) || '/assets/3d/hero-ring.png';
+          const isDone = change.isCompleted;
+
+          cardsHtml += `
+            <div class="poster-change-card ${isDone ? 'is-completed' : ''}" data-alert-id="${change.alertId}">
+              <div class="poster-card-top">
+                <div class="poster-hall-badge">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                  <span>${change.hallName}</span>
+                </div>
+                ${isDone 
+                  ? '<span class="kpi-pill success">✅ Erledigt</span>' 
+                  : (change.isReadyNow 
+                      ? '<span class="kpi-pill urgent">🔴 Jetzt wechseln! (Film läuft)</span>' 
+                      : `<span class="kpi-pill" style="color: #71717a;">🕒 Bereit ab ${change.swapReadyTime} Uhr</span>`)}
+              </div>
+
+              <!-- Poster Flow Comparison -->
+              <div class="poster-comparison-flow">
+                <!-- Current Poster -->
+                <div class="poster-box">
+                  <span class="poster-box-role">Aktuell im Kasten</span>
+                  <img src="${curPoster}" class="poster-thumb" alt="${change.currentMovie ? change.currentMovie.title : 'Aktuell'}">
+                  <div class="poster-box-title" title="${change.currentMovie ? change.currentMovie.title : ''}">${change.currentMovie ? change.currentMovie.title : '–'}</div>
+                  <div class="poster-box-meta">Start: ${change.currentMovie ? change.currentMovie.time : ''} Uhr</div>
+                </div>
+
+                <!-- Arrow -->
+                <div class="poster-arrow-col">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </div>
+
+                <!-- Next Poster -->
+                <div class="poster-box">
+                  <span class="poster-box-role" style="color: #4f46e5;">Nächstes Plakat</span>
+                  <img src="${nextPoster}" class="poster-thumb" style="border-color: #6366f1;" alt="${change.nextMovie ? change.nextMovie.title : 'Nächster'}">
+                  <div class="poster-box-title" title="${change.nextMovie ? change.nextMovie.title : ''}">${change.nextMovie ? change.nextMovie.title : '–'}</div>
+                  <div class="poster-box-meta">${change.isEndDay ? 'Start: Morgen früh' : 'Start: ' + (change.nextMovie ? change.nextMovie.time : '') + ' Uhr'}</div>
+                </div>
+              </div>
+
+              <!-- Tags / ZE indicator -->
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                <div>
+                  ${change.needsZe ? '<span class="ze-badge-tag">🏷️ Zwischeneinleger (ZE) erforderlich</span>' : '<span style="font-size: 11px; color: #a1a1aa;">Kein ZE nötig</span>'}
+                </div>
+                ${change.isEndDay ? '<span style="font-size: 11px; font-weight: 600; color: #8b5cf6;">🌙 Letzte Vorstellung (Tagesende)</span>' : ''}
+              </div>
+
+              <!-- Actions -->
+              <div class="poster-card-actions">
+                ${isDone 
+                  ? `<button class="btn-poster-done done" onclick="window.appDashboard.unmarkPosterDone('${change.alertId}')">↩️ Zurücksetzen</button>`
+                  : `<button class="btn-poster-done" onclick="window.appDashboard.markPosterDone('${change.alertId}')">✅ Als gewechselt markieren</button>`}
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      content.innerHTML = `
+        <div class="service-header-banner">
+          <div>
+            <h3 style="font-size: 16px; font-weight: 700; color: #09090b; margin: 0;">Plakatwechsel-Übersicht für Saal-Schaukästen</h3>
+            <p style="font-size: 12.5px; color: #71717a; margin-top: 3px;">
+              Regel: 20 Min. nach Vorstellungsbeginn kann das Plakat im Schaukasten für den nächsten Film getauscht werden.
+            </p>
+          </div>
+          <div class="kpi-pills-row">
+            <span class="kpi-pill urgent">🔴 ${posterData.pendingCount} Fällig zum Wechsel</span>
+            <span class="kpi-pill badge-ze">🏷️ ${zeCount} mit Zwischeneinleger (ZE)</span>
+            <span class="kpi-pill success">✅ ${completedCount} Gewechselt</span>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+          <div class="date-toggle-group">
+            <button class="date-toggle-btn ${state.posterFilter === 'all' ? 'active' : ''}" onclick="window.appDashboard.setPosterFilter('all')">Alle (${allChanges.length})</button>
+            <button class="date-toggle-btn ${state.posterFilter === 'pending' ? 'active' : ''}" onclick="window.appDashboard.setPosterFilter('pending')">Nur fällige (${posterData.pendingCount})</button>
+            <button class="date-toggle-btn ${state.posterFilter === 'done' ? 'active' : ''}" onclick="window.appDashboard.setPosterFilter('done')">Erledigte (${completedCount})</button>
+          </div>
+          <span style="font-size: 12px; color: #71717a;">Standort: <strong>${this.getLocationName(state.currentCity)}</strong></span>
+        </div>
+
+        <div class="poster-change-grid">
+          ${cardsHtml}
+        </div>
+      `;
+    }
+
+    // 2c. SAALAUSLÄSSE & REINIGUNG VIEW
+    else if (state.activeView === 'auslaesse') {
+      if (crumbGroup) crumbGroup.textContent = 'Kino-Service & Aufgaben';
+      if (crumbCurrent) crumbCurrent.textContent = 'Saalauslässe & Reinigung';
+      if (heading) heading.textContent = 'Saalauslässe, Countdown & Saal-Reinigung';
+
+      const auslaesse = detectAuslaesse(state.hallsData, null, state.completedAuslaesse);
+
+      let auslassCards = '';
+      if (auslaesse.length === 0) {
+        auslassCards = `
+          <div style="grid-column: 1 / -1; padding: 48px; text-align: center; color: #71717a; background: #fbfbfb; border-radius: 12px; border: 1px dashed var(--border-subtle);">
+            <div style="font-size: 32px; margin-bottom: 8px;">🚪</div>
+            <div style="font-size: 15px; font-weight: 600; color: #18181b;">Keine anstehenden Saalauslässe</div>
+            <div style="font-size: 13px; color: #71717a; margin-top: 4px;">In den nächsten 90 Minuten enden keine Vorführungen.</div>
+          </div>
+        `;
+      } else {
+        auslaesse.forEach(item => {
+          const isDone = item.isCompleted;
+          const isImminent = item.minUntilEnd <= 10 && item.minUntilEnd >= -15;
+
+          auslassCards += `
+            <div class="auslass-card" style="${isDone ? 'opacity: 0.65;' : ''}">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="poster-hall-badge">${item.hallName}</span>
+                <span class="kpi-pill ${isImminent ? 'urgent' : ''}">
+                  ${item.minUntilEnd <= 0 ? '⚠️ Auslass läuft jetzt' : `Ende in ${item.minUntilEnd} Min.`}
+                </span>
+              </div>
+
+              <div>
+                <h4 style="font-size: 14.5px; font-weight: 700; color: #09090b;">${item.session.title}</h4>
+                <div style="font-size: 12px; color: #71717a; margin-top: 2px;">
+                  Vorstellung: ${item.session.time} – ${item.endTimeStr} Uhr • Dauer: ${item.session.duration || 110} Min.
+                </div>
+              </div>
+
+              <div style="background: #fcfcfc; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px; font-size: 12px; line-height: 1.5; color: #52525b;">
+                <strong>Aufgaben für Einlass & Service:</strong><br>
+                • Saaltüren öffnen & Lichtsteuerung auf Ausgangsstufe<br>
+                • Besucherführung Foyer & Mülltrennung unterstützen<br>
+                • Reihendurchgang & Sichtprüfung auf vergessene Gegenstände
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
+                ${isDone
+                  ? `<button class="btn-poster-done done" onclick="window.appDashboard.unmarkAuslassDone('${item.id}')">✓ Gereinigt (Rückgängig)</button>`
+                  : `<button class="btn-poster-done" onclick="window.appDashboard.markAuslassDone('${item.id}')">🧹 Saal gereinigt & freigegeben</button>`}
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      content.innerHTML = `
+        <div class="service-header-banner">
+          <div>
+            <h3 style="font-size: 16px; font-weight: 700; color: #09090b; margin: 0;">Saalauslässe & Reinigungstaktung</h3>
+            <p style="font-size: 12.5px; color: #71717a; margin-top: 3px;">
+              Echtzeit-Berechnung aus Vorstellungs-Beginn und Filmlänge inklusive automatischer Reinigungsfenster.
+            </p>
+          </div>
+          <div class="kpi-pills-row">
+            <span class="kpi-pill">🚪 ${auslaesse.length} Anstehende Auslässe</span>
+            <span class="kpi-pill success">🧹 ${state.completedAuslaesse.size} Gereinigt</span>
+          </div>
+        </div>
+
+        <div class="auslass-grid">
+          ${auslassCards}
+        </div>
+      `;
+    }
+
+    // 2d. DIGITALES FUNDBÜRO
+    else if (state.activeView === 'lostfound') {
+      if (crumbGroup) crumbGroup.textContent = 'Kino-Service & Aufgaben';
+      if (crumbCurrent) crumbCurrent.textContent = 'Digitales Fundbüro';
+      if (heading) heading.textContent = 'Digitales Fundbüro (Lost & Found)';
+
+      let rowsHtml = '';
+      state.lostAndFoundItems.forEach(item => {
+        const isTresor = item.status === 'im_tresor';
+        rowsHtml += `
+          <tr>
+            <td style="font-weight: 600;">${item.hall}</td>
+            <td><span class="kpi-pill" style="font-size: 11px;">${item.category}</span></td>
+            <td><strong>${item.desc}</strong></td>
+            <td style="color: #71717a;">${item.finder}</td>
+            <td style="color: #71717a;">${item.date}</td>
+            <td>
+              <span class="status-pill ${isTresor ? 'geplant' : 'done'}" style="cursor: pointer;" onclick="window.appDashboard.toggleLostFoundStatus('${item.id}')">
+                ${isTresor ? '🔒 Im Tresor' : '✅ An Gast ausgegeben'}
+              </span>
+            </td>
+            <td>
+              <button class="icon-btn-subtle" title="Status wechseln" onclick="window.appDashboard.toggleLostFoundStatus('${item.id}')">
+                ${isTresor ? 'Ausgeben' : 'Widerrufen'}
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+
+      content.innerHTML = `
+        <div class="service-header-banner">
+          <div>
+            <h3 style="font-size: 16px; font-weight: 700; color: #09090b; margin: 0;">Gefundene Gegenstände & Wertgegenstände</h3>
+            <p style="font-size: 12.5px; color: #71717a; margin-top: 3px;">
+              Zentrale Erfassung für Foyer, Einlass und Saalkontrolle.
+            </p>
+          </div>
+          <div class="kpi-pills-row">
+            <span class="kpi-pill">🎒 ${state.lostAndFoundItems.length} Erfasst</span>
+            <span class="kpi-pill urgent">🔒 ${state.lostAndFoundItems.filter(i => i.status === 'im_tresor').length} Im Safe</span>
+          </div>
+        </div>
+
+        <!-- Quick Entry Form -->
+        <div style="background: #ffffff; border: 1px solid var(--border-subtle); border-radius: 12px; padding: 18px; margin-bottom: 20px;">
+          <h4 style="font-size: 14px; font-weight: 700; color: #09090b; margin-bottom: 12px;">➕ Neuen Fundgegenstand erfassen</h4>
+          <form onsubmit="window.appDashboard.addLostFoundItem(event); return false;" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) 120px; gap: 10px; align-items: flex-end;">
+            <div>
+              <label style="font-size: 11.5px; color: #71717a; display: block; margin-bottom: 4px;">Fundort / Saal</label>
+              <select id="lf-input-hall" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-subtle); font-size: 13px;">
+                ${(state.hallsData || []).map(h => `<option value="${h.name}">${h.name}</option>`).join('')}
+                <option value="Foyer / Kasse">Foyer / Kasse</option>
+                <option value="Toiletten">Sanitäranlagen</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 11.5px; color: #71717a; display: block; margin-bottom: 4px;">Kategorie</label>
+              <select id="lf-input-cat" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-subtle); font-size: 13px;">
+                <option value="Wertsachen">💎 Wertsachen</option>
+                <option value="Elektronik">📱 Elektronik / Smartphone</option>
+                <option value="Kleidung">🧥 Kleidung & Schals</option>
+                <option value="Schlüssel">🔑 Schlüssel</option>
+                <option value="Sonstiges">📦 Sonstiges</option>
+              </select>
+            </div>
+            <div style="grid-column: span 2;">
+              <label style="font-size: 11.5px; color: #71717a; display: block; margin-bottom: 4px;">Genaue Beschreibung</label>
+              <input type="text" id="lf-input-desc" placeholder="z.B. Schwarzer Rucksack mit Trinkflasche" required style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-subtle); font-size: 13px;">
+            </div>
+            <div>
+              <label style="font-size: 11.5px; color: #71717a; display: block; margin-bottom: 4px;">Gefunden von</label>
+              <input type="text" id="lf-input-finder" placeholder="Dein Name" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-subtle); font-size: 13px;">
+            </div>
+            <button type="submit" class="btn-primary-small" style="height: 35px;">Erfassen</button>
+          </form>
+        </div>
+
+        <!-- Table -->
+        <div style="background: #ffffff; border: 1px solid var(--border-subtle); border-radius: 12px; overflow: hidden;">
+          <table class="lostfound-table">
+            <thead>
+              <tr>
+                <th>Ort</th>
+                <th>Kategorie</th>
+                <th>Beschreibung</th>
+                <th>Finder</th>
+                <th>Datum / Uhrzeit</th>
+                <th>Status</th>
+                <th>Aktion</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // 2e. KURZWAHLEN & TELEFONLISTE
+    else if (state.activeView === 'contacts') {
+      if (crumbGroup) crumbGroup.textContent = 'Kino-Service & Aufgaben';
+      if (crumbCurrent) crumbCurrent.textContent = 'Kurzwahlen & Telefonliste';
+      if (heading) heading.textContent = `Interne Kurzwahlen & Notfallkontakte • ${this.getLocationName(state.currentCity)}`;
+
+      const contacts = getContactsForLocation(state.currentCity);
+      let cardsHtml = '';
+      contacts.forEach(c => {
+        cardsHtml += `
+          <div class="contact-card">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="contact-avatar">${c.icon}</div>
+              <div class="contact-info">
+                <h4>${c.role}</h4>
+                <p>${c.name} • ${c.funkCh}</p>
+                <div style="font-size: 11px; color: #a1a1aa; margin-top: 2px;">${c.note}</div>
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+              <a href="tel:${c.ext}" class="contact-dial-badge">📞 Ext. ${c.ext}</a>
+              <button class="icon-btn-subtle" style="font-size: 11.5px; height: 26px; padding: 2px 8px;" onclick="window.appDashboard.sendFunkruf('${c.role}', 'Bitte Rückruf oder Support')">Funkruf</button>
+            </div>
+          </div>
+        `;
+      });
+
+      content.innerHTML = `
+        <div class="service-header-banner">
+          <div>
+            <h3 style="font-size: 16px; font-weight: 700; color: #09090b; margin: 0;">Telefon- & Funkverzeichnis</h3>
+            <p style="font-size: 12.5px; color: #71717a; margin-top: 3px;">
+              Direkte Durchwahlen zu allen Stationen am Standort <strong>${this.getLocationName(state.currentCity)}</strong>.
+            </p>
+          </div>
+          <span class="kpi-pill success">Live Standleitung aktiv</span>
+        </div>
+
+        <div class="contacts-grid">
+          ${cardsHtml}
+        </div>
+      `;
+    }
+
+    // 2f. FSK & JUGENDSCHUTZ VIEW
+    else if (state.activeView === 'fsk') {
+      if (crumbGroup) crumbGroup.textContent = 'Kino-Service & Aufgaben';
+      if (crumbCurrent) crumbCurrent.textContent = 'FSK-Prüfung';
+      if (heading) heading.textContent = 'FSK- & Jugendschutz-Schnellprüfung (§11 JuSchG)';
+
+      content.innerHTML = `
+        <div class="fsk-calc-card">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+            <img src="/assets/Oli/oli_logo_tight.png" alt="Oli" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover;">
+            <div>
+              <h3 style="font-size: 16px; font-weight: 700; color: #09090b; margin: 0;">Rechtliche Einlassprüfung nach §11 JuSchG</h3>
+              <p style="font-size: 12px; color: #71717a; margin-top: 2px;">Direkte Gesetzesprüfung für Counter, Einlass und Saaleinlasser.</p>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div>
+              <label style="font-size: 12px; font-weight: 600; color: #18181b; display: block; margin-bottom: 6px;">🎂 Geburtsdatum des Gastes</label>
+              <input type="date" id="fsk-birth-calc" onchange="window.appDashboard.checkFskLive()" style="width: 100%; padding: 10px 12px; border: 1.5px solid var(--border-subtle); border-radius: 8px; font-size: 15px; font-weight: 600;">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div>
+                <label style="font-size: 12px; font-weight: 600; color: #18181b; display: block; margin-bottom: 6px;">🎬 FSK-Freigabe des Films</label>
+                <select id="fsk-rating-calc" onchange="window.appDashboard.checkFskLive()" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-subtle); border-radius: 8px; font-size: 14px;">
+                  <option value="0">FSK 0 (Ohne Altersbeschränkung)</option>
+                  <option value="6">FSK 6</option>
+                  <option value="12" selected>FSK 12</option>
+                  <option value="16">FSK 16</option>
+                  <option value="18">FSK 18 (Keine Jugendfreigabe)</option>
+                </select>
+              </div>
+
+              <div>
+                <label style="font-size: 12px; font-weight: 600; color: #18181b; display: block; margin-bottom: 6px;">👨‍👩‍👧 Begleitung durch Eltern?</label>
+                <label style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border-subtle); border-radius: 8px; font-size: 13px; cursor: pointer; background: #fafafa;">
+                  <input type="checkbox" id="fsk-parent-calc" onchange="window.appDashboard.checkFskLive()">
+                  <span>Erziehungsberechtigte dabei</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Live Verdict Display -->
+            <div id="fsk-live-verdict" class="fsk-verdict-box">
+              <span style="color: #71717a;">⏳ Bitte Geburtsdatum auswählen für verbindliches Ergebnis</span>
+            </div>
+
+            <div style="background: #fbfbfb; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px; font-size: 11.5px; line-height: 1.5; color: #71717a; margin-top: 8px;">
+              <strong>Wichtiger rechtlicher Hinweis:</strong><br>
+              • Bei <strong>FSK 12</strong> dürfen Kinder ab 6 Jahren in Begleitung von personensorgeberechtigten Personen (Eltern) eingelassen werden (PG-Regelung § 11 Abs. 2 JuSchG).<br>
+              • Bei <strong>FSK 16 und FSK 18</strong> gibt es keine Ausnahmen – auch nicht mit Einverständniserklärung („Muttizettel“) oder in Begleitung der Eltern!
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 2g. MHD ERFASSUNG & TRANSFER
+    else if (state.activeView === 'mhd') {
+      if (crumbGroup) crumbGroup.textContent = 'Kino-Service & Aufgaben';
+      if (crumbCurrent) crumbCurrent.textContent = 'MHD-Erfassung & Transfer';
+      if (heading) heading.textContent = 'MHD-Erfassung & Waren-Transfer';
+
+      let mhdRows = '';
+      state.mhdItems.forEach(item => {
+        const today = new Date();
+        const mhdDate = new Date(item.date);
+        const diffDays = Math.ceil((mhdDate - today) / (1000 * 60 * 60 * 24));
+        const badgeClass = diffDays <= 7 ? 'urgent' : (diffDays <= 30 ? 'badge-ze' : 'success');
+
+        mhdRows += `
+          <tr>
+            <td style="font-weight: 600;">${item.item}</td>
+            <td>${item.date}</td>
+            <td><span class="kpi-pill ${badgeClass}">${diffDays > 0 ? diffDays + ' Tage übrig' : 'ABGELAUFEN'}</span></td>
+            <td>${item.location}</td>
+            <td style="color: #71717a;">${item.loggedBy}</td>
+          </tr>
+        `;
+      });
+
+      content.innerHTML = `
+        <div class="service-header-banner">
+          <div>
+            <h3 style="font-size: 16px; font-weight: 700; color: #09090b; margin: 0;">Mindesthaltbarkeitsdaten (MHD) & Kühlung</h3>
+            <p style="font-size: 12.5px; color: #71717a; margin-top: 3px;">
+              Überwachung von Concession-Artikeln, Sirupen, Saucen und Tiefkühlware.
+            </p>
+          </div>
+          <span class="kpi-pill">${state.mhdItems.length} Artikel erfasst</span>
+        </div>
+
+        <!-- Add Form -->
+        <div style="background: #ffffff; border: 1px solid var(--border-subtle); border-radius: 12px; padding: 18px; margin-bottom: 20px;">
+          <h4 style="font-size: 14px; font-weight: 700; color: #09090b; margin-bottom: 12px;">📅 Neues Mindesthaltbarkeitsdatum erfassen</h4>
+          <form onsubmit="window.appDashboard.addMhdItem(event); return false;" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)) 120px; gap: 10px; align-items: flex-end;">
+            <div>
+              <label style="font-size: 11.5px; color: #71717a; display: block; margin-bottom: 4px;">Artikelbezeichnung</label>
+              <input type="text" id="mhd-input-item" placeholder="z.B. Nacho Käsesauce" required style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-subtle); font-size: 13px;">
+            </div>
+            <div>
+              <label style="font-size: 11.5px; color: #71717a; display: block; margin-bottom: 4px;">Mindesthaltbarkeitsdatum</label>
+              <input type="date" id="mhd-input-date" required style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-subtle); font-size: 13px;">
+            </div>
+            <div>
+              <label style="font-size: 11.5px; color: #71717a; display: block; margin-bottom: 4px;">Lagerort</label>
+              <select id="mhd-input-loc" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-subtle); font-size: 13px;">
+                <option value="Kühlhaus 1">Kühlhaus 1</option>
+                <option value="Kühlhaus 2">Kühlhaus 2</option>
+                <option value="Gondel Theke">Gondel Theke</option>
+                <option value="Popcornküche">Popcornküche</option>
+                <option value="Tiefkühlung">Tiefkühlung (-18°C)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 11.5px; color: #71717a; display: block; margin-bottom: 4px;">Erfasst von</label>
+              <input type="text" id="mhd-input-by" placeholder="Name" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-subtle); font-size: 13px;">
+            </div>
+            <button type="submit" class="btn-primary-small" style="height: 35px;">Speichern</button>
+          </form>
+        </div>
+
+        <div style="background: #ffffff; border: 1px solid var(--border-subtle); border-radius: 12px; overflow: hidden;">
+          <table class="lostfound-table">
+            <thead>
+              <tr>
+                <th>Artikel</th>
+                <th>MHD Datum</th>
+                <th>Status / Restlaufzeit</th>
+                <th>Lagerort</th>
+                <th>Erfasst von</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${mhdRows}
+            </tbody>
+          </table>
         </div>
       `;
     }
@@ -1439,8 +2040,152 @@ window.appDashboard = {
 
   // Update countdown badges every minute
   updateLiveCountdowns() {
-    if (state.activeView === 'hall' || state.activeView === 'calendar') {
+    if (state.activeView === 'hall' || state.activeView === 'calendar' || state.activeView === 'poster' || state.activeView === 'auslaesse') {
+      this.renderSidebar();
       this.renderWorkspace();
+    }
+  },
+
+  // Poster Management Actions
+  markPosterDone(alertId) {
+    state.completedPosters.add(alertId);
+    try {
+      localStorage.setItem('completed_posters', JSON.stringify([...state.completedPosters]));
+    } catch(e) {}
+    this.showToast('Plakatwechsel als erledigt markiert!', '✅');
+    this.renderSidebar();
+    this.renderWorkspace();
+  },
+
+  unmarkPosterDone(alertId) {
+    state.completedPosters.delete(alertId);
+    try {
+      localStorage.setItem('completed_posters', JSON.stringify([...state.completedPosters]));
+    } catch(e) {}
+    this.showToast('Plakatwechsel zurückgesetzt', '↩️');
+    this.renderSidebar();
+    this.renderWorkspace();
+  },
+
+  setPosterFilter(filter) {
+    state.posterFilter = filter;
+    this.renderWorkspace();
+  },
+
+  // Auslass / Cleaning Actions
+  markAuslassDone(auslassId) {
+    state.completedAuslaesse.add(auslassId);
+    try {
+      localStorage.setItem('completed_auslaesse', JSON.stringify([...state.completedAuslaesse]));
+    } catch(e) {}
+    this.showToast('Saalreinigung erfolgreich bestätigt!', '🧹');
+    this.renderWorkspace();
+  },
+
+  unmarkAuslassDone(auslassId) {
+    state.completedAuslaesse.delete(auslassId);
+    try {
+      localStorage.setItem('completed_auslaesse', JSON.stringify([...state.completedAuslaesse]));
+    } catch(e) {}
+    this.showToast('Saalreinigung zurückgesetzt', '↩️');
+    this.renderWorkspace();
+  },
+
+  // Lost & Found Actions
+  addLostFoundItem(event) {
+    if (event) event.preventDefault();
+    const hall = document.getElementById('lf-input-hall')?.value || 'Kino 1';
+    const category = document.getElementById('lf-input-cat')?.value || 'Sonstiges';
+    const desc = document.getElementById('lf-input-desc')?.value?.trim();
+    const finder = document.getElementById('lf-input-finder')?.value?.trim() || 'Mitarbeiter';
+    if (!desc) {
+      this.showToast('Bitte eine Beschreibung des Fundstücks angeben', '⚠️');
+      return;
+    }
+    const newItem = {
+      id: 'lf-' + Date.now(),
+      hall,
+      category,
+      desc,
+      finder,
+      date: 'Heute, ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr',
+      status: 'im_tresor'
+    };
+    state.lostAndFoundItems.unshift(newItem);
+    try {
+      localStorage.setItem('kinopolis_lostfound', JSON.stringify(state.lostAndFoundItems));
+    } catch(e) {}
+    this.showToast('Fundgegenstand erfasst & im Safe hinterlegt', '🎒');
+    this.renderSidebar();
+    this.renderWorkspace();
+  },
+
+  toggleLostFoundStatus(id) {
+    const item = state.lostAndFoundItems.find(i => i.id === id);
+    if (item) {
+      item.status = item.status === 'im_tresor' ? 'ausgegeben' : 'im_tresor';
+      try {
+        localStorage.setItem('kinopolis_lostfound', JSON.stringify(state.lostAndFoundItems));
+      } catch(e) {}
+      this.showToast(`Status: ${item.status === 'ausgegeben' ? 'An Gast übergeben' : 'Im Tresor'}`, '📦');
+      this.renderSidebar();
+      this.renderWorkspace();
+    }
+  },
+
+  // MHD Erfassung
+  addMhdItem(event) {
+    if (event) event.preventDefault();
+    const item = document.getElementById('mhd-input-item')?.value?.trim();
+    const date = document.getElementById('mhd-input-date')?.value;
+    const location = document.getElementById('mhd-input-loc')?.value || 'Kühlhaus';
+    const loggedBy = document.getElementById('mhd-input-by')?.value?.trim() || 'Schichtleiter';
+    if (!item || !date) {
+      this.showToast('Bitte Artikel und Mindesthaltbarkeitsdatum angeben', '⚠️');
+      return;
+    }
+    const newMhd = {
+      id: 'mhd-' + Date.now(),
+      item,
+      date,
+      location,
+      loggedBy
+    };
+    state.mhdItems.unshift(newMhd);
+    try {
+      localStorage.setItem('kinopolis_mhd', JSON.stringify(state.mhdItems));
+    } catch(e) {}
+    this.showToast('MHD erfolgreich erfasst!', '📅');
+    this.renderWorkspace();
+  },
+
+  // FSK Interactive Live Evaluation
+  checkFskLive() {
+    const birthVal = document.getElementById('fsk-birth-calc')?.value;
+    const fskVal = document.getElementById('fsk-rating-calc')?.value || '12';
+    const parentVal = document.getElementById('fsk-parent-calc')?.checked || false;
+    const resultBox = document.getElementById('fsk-live-verdict');
+    if (!resultBox) return;
+
+    if (!birthVal) {
+      resultBox.className = 'fsk-verdict-box';
+      resultBox.innerHTML = '<span style="color: #71717a;">⏳ Bitte Geburtsdatum auswählen für verbindliches Ergebnis</span>';
+      return;
+    }
+
+    const evaluation = checkFskCompliance(birthVal, fskVal, parentVal);
+    if (evaluation.allowed) {
+      resultBox.className = 'fsk-verdict-box allowed';
+      resultBox.innerHTML = `
+        <div style="font-size: 22px; margin-bottom: 4px;">✅ EINLASS ERLAUBT</div>
+        <div style="font-size: 13.5px; font-weight: 500;">${evaluation.reason}</div>
+      `;
+    } else {
+      resultBox.className = 'fsk-verdict-box denied';
+      resultBox.innerHTML = `
+        <div style="font-size: 22px; margin-bottom: 4px;">🚫 EINLASS VERWEHRT</div>
+        <div style="font-size: 13.5px; font-weight: 500;">${evaluation.reason}</div>
+      `;
     }
   }
 };

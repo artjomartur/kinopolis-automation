@@ -4,7 +4,10 @@ import {
     determineHallPhase,
     parseDurationFromText,
     parseFskFromText,
-    calculateOccupancy
+    calculateOccupancy,
+    detectPosterChanges,
+    detectAuslaesse,
+    checkFskCompliance
 } from '../src/utils/cinema-logic.js';
 
 describe('Cinema Core Business Logic', () => {
@@ -161,4 +164,80 @@ describe('Cinema Core Business Logic', () => {
             expect(calculateOccupancy(10, 0)).toBe(0);
         });
     });
+
+    describe('detectPosterChanges', () => {
+        const mockHalls = [
+            {
+                name: 'Kino 1',
+                sessions: [
+                    { title: 'Gladiator II', time: '14:30', duration: 148 },
+                    { title: 'Wicked (3D)', time: '17:45', duration: 160 },
+                    { title: 'Wicked (3D)', time: '21:00', duration: 160 } // Same movie - no swap!
+                ]
+            }
+        ];
+
+        it('should detect movie swap between different titles and skip identical titles', () => {
+            // At 15:00 (900 min): Gladiator started at 14:30 (870 min). 20 min passed (890 min), so swap is ready!
+            const res = detectPosterChanges(mockHalls, [], [], 900);
+            expect(res.allChanges.length).toBe(1);
+            expect(res.allChanges[0].currentMovie.title).toBe('Gladiator II');
+            expect(res.allChanges[0].nextMovie.title).toBe('Wicked (3D)');
+            expect(res.allChanges[0].needsZe).toBe(true); // 3D triggers ZE
+            expect(res.allChanges[0].isReadyNow).toBe(true);
+            expect(res.pendingCount).toBe(1);
+        });
+
+        it('should exclude completed posters from pending count', () => {
+            const res = detectPosterChanges(mockHalls, [], ['poster-Kino-1-Wicked-(3D)-17:45'], 900);
+            expect(res.allChanges.length).toBe(1);
+            expect(res.allChanges[0].isCompleted).toBe(true);
+            expect(res.pendingCount).toBe(0);
+        });
+
+        it('should detect last session of the day against tomorrow session', () => {
+            const tomSessions = [{ hall: 'Kino 1', title: 'Dune: Part Two', time: '14:00' }];
+            const res = detectPosterChanges(mockHalls, tomSessions, [], 1300); // 21:40 (21:00 + 20 = 21:20 ready)
+            // Expect 2 changes: Gladiator -> Wicked, and Wicked -> Dune (tomorrow)
+            expect(res.allChanges.length).toBe(2);
+            const lastChange = res.allChanges.find(c => c.isEndDay);
+            expect(lastChange).toBeDefined();
+            expect(lastChange.nextMovie.title).toBe('Dune: Part Two');
+            expect(lastChange.needsZe).toBe(true);
+        });
+    });
+
+    describe('checkFskCompliance', () => {
+        it('should allow admission if guest meets age requirement', () => {
+            const adultBirth = '2000-01-01';
+            const res = checkFskCompliance(adultBirth, 'FSK 16');
+            expect(res.allowed).toBe(true);
+            expect(res.badgeCss).toBe('done');
+        });
+
+        it('should forbid admission if guest is below age requirement without parental guidance', () => {
+            const childBirth = '2016-01-01'; // ~10 years old
+            const res = checkFskCompliance(childBirth, 'FSK 16', false);
+            expect(res.allowed).toBe(false);
+            expect(res.badgeCss).toBe('in-progress');
+            expect(res.reason).toContain('Einlass VERBOTEN');
+        });
+
+        it('should grant PG exception for 6-11 year olds for FSK 12 if accompanied by legal guardian (§11 Abs. 2 JuSchG)', () => {
+            // Born 10 years ago
+            const tenYearsAgo = new Date();
+            tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
+            const birthStr = tenYearsAgo.toISOString().split('T')[0];
+
+            // Without parent: forbidden
+            const withoutParent = checkFskCompliance(birthStr, 'FSK 12', false);
+            expect(withoutParent.allowed).toBe(false);
+
+            // With parent: permitted under §11 Abs. 2 JuSchG
+            const withParent = checkFskCompliance(birthStr, 'FSK 12', true);
+            expect(withParent.allowed).toBe(true);
+            expect(withParent.reason).toContain('§11 Abs. 2 JuSchG');
+        });
+    });
 });
+

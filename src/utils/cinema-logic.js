@@ -411,3 +411,212 @@ export function getFallbackHalls(city = 'su') {
     ];
 }
 
+/**
+ * Detects pending and shift-wide poster changes for each cinema hall showcase.
+ * 
+ * @param {Array} hallsGrouped - List of halls with sessions
+ * @param {Array} tomSessionsFlat - Flat list of tomorrow's sessions
+ * @param {Array|Set} completedPosterIds - IDs already marked completed
+ * @param {number} [currentMinutes] - Minute of the day (e.g. 14*60 + 30)
+ * @returns {Object} { allChanges, pendingChanges, pendingCount }
+ */
+export function detectPosterChanges(hallsGrouped = [], tomSessionsFlat = [], completedPosterIds = [], currentMinutes = null) {
+    const completedSet = completedPosterIds instanceof Set ? completedPosterIds : new Set(completedPosterIds || []);
+    
+    if (currentMinutes === null) {
+        const now = new Date();
+        currentMinutes = now.getHours() * 60 + now.getMinutes();
+    }
+
+    const allChanges = [];
+    const pendingChanges = [];
+
+    (hallsGrouped || []).forEach(hall => {
+        const hallName = hall.name || 'Saal';
+        const sessions = (hall.sessions || [])
+            .filter(s => s && s.time && s.time.includes(':'))
+            .sort((a, b) => a.time.localeCompare(b.time));
+
+        if (sessions.length === 0) return;
+
+        sessions.forEach((s, idx) => {
+            const [sh, sm] = s.time.split(':').map(Number);
+            const startMin = (sh || 0) * 60 + (sm || 0);
+            const swapReadyMin = startMin + 20;
+
+            if (idx < sessions.length - 1) {
+                const nextMovie = sessions[idx + 1];
+                if (s.title === nextMovie.title) return;
+
+                const alertId = `poster-${hallName}-${nextMovie.title}-${nextMovie.time}`.replace(/\s+/g, '-');
+                const isCompleted = completedSet.has(alertId);
+                const isZe = /3D|OV|OmU|D-Box|Atmos|IMAX/i.test(nextMovie.title) || 
+                             /3D|OV|OmU|D-Box|Atmos|IMAX/i.test(s.title);
+
+                const changeObj = {
+                    alertId,
+                    hallName,
+                    currentMovie: s,
+                    nextMovie,
+                    isEndDay: false,
+                    swapReadyMin,
+                    swapReadyTime: `${String(Math.floor(swapReadyMin / 60) % 24).padStart(2, '0')}:${String(swapReadyMin % 60).padStart(2, '0')}`,
+                    isReadyNow: currentMinutes >= swapReadyMin,
+                    isCompleted,
+                    needsZe: isZe
+                };
+
+                allChanges.push(changeObj);
+                if (changeObj.isReadyNow && !isCompleted) {
+                    pendingChanges.push(changeObj);
+                }
+            } else {
+                const nextMovie = (tomSessionsFlat || [])
+                    .filter(ts => ts.hall === hallName || ts.hall === hallName.split(' ')[0])
+                    .sort((a, b) => (a.time || '').localeCompare(b.time || ''))[0];
+
+                if (nextMovie && nextMovie.title !== s.title) {
+                    const alertId = `poster-last-${hallName}-${nextMovie.title}`.replace(/\s+/g, '-');
+                    const isCompleted = completedSet.has(alertId);
+
+                    const changeObj = {
+                        alertId,
+                        hallName,
+                        currentMovie: s,
+                        nextMovie,
+                        isEndDay: true,
+                        swapReadyMin,
+                        swapReadyTime: `${String(Math.floor(swapReadyMin / 60) % 24).padStart(2, '0')}:${String(swapReadyMin % 60).padStart(2, '0')}`,
+                        isReadyNow: currentMinutes >= swapReadyMin,
+                        isCompleted,
+                        needsZe: true
+                    };
+
+                    allChanges.push(changeObj);
+                    if (changeObj.isReadyNow && !isCompleted) {
+                        pendingChanges.push(changeObj);
+                    }
+                }
+            }
+        });
+    });
+
+    return {
+        allChanges,
+        pendingChanges,
+        pendingCount: pendingChanges.length
+    };
+}
+
+/**
+ * Detects session exits (Saalauslässe) with countdown to doors open & cleaning window.
+ * 
+ * @param {Array} hallsGrouped
+ * @param {number} [currentMinutes]
+ * @param {Array|Set} [completedAuslassIds]
+ * @returns {Array} List of upcoming exits sorted by end time
+ */
+export function detectAuslaesse(hallsGrouped = [], currentMinutes = null, completedAuslassIds = []) {
+    const completedSet = completedAuslassIds instanceof Set ? completedAuslassIds : new Set(completedAuslassIds || []);
+    
+    if (currentMinutes === null) {
+        const now = new Date();
+        currentMinutes = now.getHours() * 60 + now.getMinutes();
+    }
+
+    const auslaesse = [];
+
+    (hallsGrouped || []).forEach(hall => {
+        (hall.sessions || []).forEach(s => {
+            if (!s || !s.time || !s.time.includes(':')) return;
+            const [sh, sm] = s.time.split(':').map(Number);
+            const startMin = (sh || 0) * 60 + (sm || 0);
+            const duration = s.duration || 110;
+            const endMin = startMin + duration;
+            const minUntilEnd = endMin - currentMinutes;
+
+            const id = `auslass-${hall.name}-${s.title}-${s.time}`.replace(/\s+/g, '-');
+            const isCompleted = completedSet.has(id);
+
+            if (minUntilEnd >= -30 && minUntilEnd <= 120) {
+                auslaesse.push({
+                    id,
+                    hallName: hall.name,
+                    session: s,
+                    startMin,
+                    endMin,
+                    endTimeStr: `${String(Math.floor(endMin / 60) % 24).padStart(2, '0')}:${String(endMin % 60).padStart(2, '0')}`,
+                    minUntilEnd,
+                    isCompleted,
+                    statusText: minUntilEnd <= 0 ? 'Auslass läuft jetzt' : `Auslass in ${minUntilEnd} Min.`
+                });
+            }
+        });
+    });
+
+    return auslaesse.sort((a, b) => a.endMin - b.endMin);
+}
+
+/**
+ * Verifies age suitability and §11 JuSchG compliance.
+ * 
+ * @param {string} birthDateStr - YYYY-MM-DD
+ * @param {string|number} movieFsk - 'FSK 0', 'FSK 6', 'FSK 12', 'FSK 16', 'FSK 18'
+ * @param {boolean} isAccompanied - Accompanied by legal guardian
+ * @returns {Object} { allowed: boolean, age: number, reason: string, badgeCss: string }
+ */
+export function checkFskCompliance(birthDateStr, movieFsk, isAccompanied = false) {
+    if (!birthDateStr) {
+        return { allowed: false, age: 0, reason: 'Bitte Geburtsdatum eingeben', badgeCss: 'geplant' };
+    }
+
+    const birth = new Date(birthDateStr);
+    if (isNaN(birth.getTime())) {
+        return { allowed: false, age: 0, reason: 'Ungültiges Geburtsdatum', badgeCss: 'geplant' };
+    }
+
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+    }
+
+    let requiredAge = 0;
+    if (typeof movieFsk === 'number') requiredAge = movieFsk;
+    else if (typeof movieFsk === 'string') {
+        const m = movieFsk.match(/\d+/);
+        requiredAge = m ? parseInt(m[0], 10) : 0;
+    }
+
+    // §11 Abs. 2 JuSchG Parental Guidance for FSK 12 (6-11 years allowed with parent)
+    if (requiredAge === 12 && age >= 6 && age < 12 && isAccompanied) {
+        return {
+            allowed: true,
+            age,
+            requiredAge,
+            reason: `Einlass ERLAUBT (§11 Abs. 2 JuSchG: PG-Regelung für 6–11-Jährige mit Erziehungsberechtigten)`,
+            badgeCss: 'done'
+        };
+    }
+
+    if (age >= requiredAge) {
+        return {
+            allowed: true,
+            age,
+            requiredAge,
+            reason: `Einlass ERLAUBT (Gast ist ${age} Jahre alt, Anforderung: FSK ${requiredAge})`,
+            badgeCss: 'done'
+        };
+    } else {
+        return {
+            allowed: false,
+            age,
+            requiredAge,
+            reason: `Einlass VERBOTEN (Gast ist erst ${age} Jahre alt, Anforderung: FSK ${requiredAge})`,
+            badgeCss: 'in-progress'
+        };
+    }
+}
+
+
