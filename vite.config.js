@@ -26,6 +26,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve('src/index.html'),
+        dashboard: resolve('src/dashboard.html'),
         admin: resolve('src/admin.html'),
         archive: resolve('src/archive.html'),
         cinemaxxArchiv: resolve('src/cinemaxx-archiv.html'),

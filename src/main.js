@@ -255,6 +255,10 @@ window.appRouter = {
   },
 
   openOverview() {
+    if (window.location.pathname.includes('dashboard')) {
+      window.location.href = '/';
+      return;
+    }
     document.body.classList.remove('mode-dashboard');
     window.location.hash = '#overview';
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -273,7 +277,7 @@ window.appRouter = {
 
   init() {
     const checkHash = () => {
-      if (window.location.hash === '#dashboard') {
+      if (window.location.hash === '#dashboard' || window.location.pathname.includes('dashboard')) {
         this.openDashboard();
       } else {
         this.openOverview();

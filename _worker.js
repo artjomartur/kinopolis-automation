@@ -3010,6 +3010,11 @@ export default {
         
         try {
             if (env.ASSETS) {
+                const url = new URL(request.url);
+                if (url.pathname === '/dashboard' || url.pathname === '/dashboard/') {
+                    const dashUrl = new URL('/dashboard.html', request.url);
+                    return await env.ASSETS.fetch(new Request(dashUrl, request));
+                }
                 const response = await env.ASSETS.fetch(request);
                 if (response.status !== 404) return response;
             }
