@@ -171,7 +171,7 @@ var Br = {
                     r(f, {
                       className: "framer-19vmq59-container",
                       children: r(M, {
-                        bVToBLBTS: "Dashboard starten →",
+                        bVToBLBTS: "Dashboard starten",
                         height: "100%",
                         id: "JVkJRs3Ww",
                         KqeH5xil_: "rgb(0, 0, 0)",
@@ -588,7 +588,7 @@ var Br = {
                                 id: "VcQ6nEsZd",
                                 ik9I5qIGz: !1,
                                 J0LC2FGV8: !1,
-                                KJK1sV1GB: "Dashboard starten →",
+                                KJK1sV1GB: "Dashboard starten",
                                 layoutId: "VcQ6nEsZd",
                                 RmkZjgJwi: "ArrowRight",
                                 UsLusPFRg: "rgb(0, 0, 0)",
