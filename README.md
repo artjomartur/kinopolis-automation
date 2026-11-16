@@ -12,7 +12,9 @@
 </p>
 
 <p align="center">
+  <a href="https://kinopolis-automation.5zm9ccr6m9.workers.dev"><img src="https://img.shields.io/badge/Live_Demo-Online-10b981?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Live Demo"></a>
   <a href="https://github.com/artjomartur/kinopolis-automation/releases"><img src="https://img.shields.io/badge/Release-v1.1.0--beta-f59e0b?style=for-the-badge&logo=rocket&logoColor=white" alt="Beta Release"></a>
+  <a href="https://github.com/artjomartur/kinopolis-automation/actions/workflows/ci.yml"><img src="https://img.shields.io/badge/CI-Passing-brightgreen?style=for-the-badge&logo=githubactions&logoColor=white" alt="CI Status"></a>
   <a href="#"><img src="https://img.shields.io/badge/Platform-iOS_%7C_Android_%7C_Web-1192E8?style=for-the-badge&logo=apple&logoColor=white" alt="Platform"></a>
   <a href="https://workers.cloudflare.com/"><img src="https://img.shields.io/badge/Backend-Cloudflare_Workers-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare Workers"></a>
   <a href="https://vitejs.dev/"><img src="https://img.shields.io/badge/Frontend-Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite"></a>
