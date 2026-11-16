@@ -2422,4 +2422,399 @@ html {
   scroll-behavior: smooth;
 }
 
+/* ==========================================================================
+   MODULE CARDS ENHANCED CINEMA AESTHETICS ("DAS SCHÖNER")
+   ========================================================================== */
+
+/* Section Breathing Room & Background */
+#standorte,
+.framer-Zrdb3 .framer-3ek2ar {
+  padding: 80px 24px 100px 24px !important;
+  background: #fafafc !important;
+  width: 100% !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+}
+
+/* Section Header Typography */
+.framer-Zrdb3 .framer-1i4qayq {
+  margin-bottom: 44px !important;
+  text-align: center !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+.framer-Zrdb3 .framer-1i4qayq::before {
+  content: "KINO-OPERATIONS-SUITE";
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #e50914;
+  background: rgba(229, 9, 20, 0.08);
+  border: 1px solid rgba(229, 9, 20, 0.2);
+  padding: 4px 12px;
+  border-radius: 9999px;
+  margin-bottom: 12px;
+}
+
+.framer-Zrdb3 .framer-3sqizy h2 {
+  font-size: 38px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.03em !important;
+  color: #09090b !important;
+  line-height: 1.15 !important;
+  margin: 0 !important;
+}
+
+.framer-Zrdb3 .framer-kw4ubu p {
+  font-size: 16px !important;
+  color: #52525b !important;
+  max-width: 560px !important;
+  margin: 10px auto 0 auto !important;
+  line-height: 1.5 !important;
+}
+
+/* 1. Container Alignment: Top-aligned and unified height */
+.framer-Zrdb3 .framer-1r3nvrv {
+  place-content: center !important;
+  align-items: stretch !important; /* CRITICAL: Ensures all 3 cards start at the exact same horizontal top! */
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 24px !important;
+  height: auto !important;
+  max-width: 1140px !important;
+  margin: 0 auto !important;
+  overflow: visible !important;
+  padding: 10px 0 30px 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* 2. Unified Card Dimensions, Shadows & Corner Radius */
+.framer-Zrdb3 .framer-1xfoud,
+.framer-Zrdb3 .framer-rttdj0,
+.framer-Zrdb3 .framer-1kpsy9i {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  flex: 1 1 320px !important;
+  max-width: 350px !important;
+  min-width: 280px !important;
+  height: auto !important;
+  border-radius: 24px !important;
+  padding: 34px 30px !important;
+  box-sizing: border-box !important;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease !important;
+}
+
+/* Card 1: Foyer & Service (Clean High-Contrast White) */
+.framer-Zrdb3 .framer-1xfoud {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.03) !important;
+}
+
+.framer-Zrdb3 .framer-1xfoud:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Card 2: Theaterleitung (Centerpiece Kinopolis Dark Featured Card) */
+.framer-Zrdb3 .framer-rttdj0 {
+  background: linear-gradient(180deg, #18181b 0%, #09090b 100%) !important;
+  border: 1.5px solid rgba(229, 9, 20, 0.45) !important;
+  box-shadow: 0 20px 50px -12px rgba(229, 9, 20, 0.22), 0 12px 28px -6px rgba(0, 0, 0, 0.5) !important;
+  transform: scale(1.03) !important;
+  z-index: 2 !important;
+}
+
+.framer-Zrdb3 .framer-rttdj0:hover {
+  transform: scale(1.05) translateY(-4px) !important;
+  box-shadow: 0 26px 60px -12px rgba(229, 9, 20, 0.32), 0 16px 32px -6px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Card 3: BWR & Vorführtechnik (Clean High-Contrast White) */
+.framer-Zrdb3 .framer-1kpsy9i {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.03) !important;
+}
+
+.framer-Zrdb3 .framer-1kpsy9i:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* 3. Category Eyebrows */
+.framer-Zrdb3 .framer-17pqp7d h5,
+.framer-Zrdb3 .framer-b19vqz h5 {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: #64748b !important;
+  margin: 0 !important;
+}
+
+.framer-Zrdb3 .framer-43pc7z h5 {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: #a1a1aa !important;
+  margin: 0 !important;
+}
+
+/* Card 2 Header Row with Empfohlen Badge */
+.framer-Zrdb3 .framer-1x5rbd {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+}
+
+.framer-Zrdb3 .framer-hwsf3f-container {
+  background: rgba(229, 9, 20, 0.15) !important;
+  border: 1px solid rgba(229, 9, 20, 0.4) !important;
+  border-radius: 9999px !important;
+  padding: 3px 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  max-width: fit-content !important;
+}
+
+.framer-Zrdb3 .framer-hwsf3f-container p {
+  color: #ff4d4d !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  margin: 0 !important;
+}
+
+/* 4. Title Row & Status Badges (Replacing ugly $19/mo pricing layout) */
+.framer-Zrdb3 .framer-1utt5jd,
+.framer-Zrdb3 .framer-gq7wpd,
+.framer-Zrdb3 .framer-3a6ypp {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  margin: 10px 0 16px 0 !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* Card Titles */
+.framer-Zrdb3 .framer-1r0v4rz h2,
+.framer-Zrdb3 .framer-8ahn3w h2,
+.framer-Zrdb3 .framer-1kj4fnt h2 {
+  font-size: 27px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  letter-spacing: -0.02em !important;
+  margin: 0 !important;
+}
+
+.framer-Zrdb3 .framer-1r0v4rz h2,
+.framer-Zrdb3 .framer-1kj4fnt h2 {
+  color: #09090b !important;
+}
+
+.framer-Zrdb3 .framer-8ahn3w h2 {
+  color: #ffffff !important;
+}
+
+/* Status Badges */
+.framer-Zrdb3 .framer-nxhcxe {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 3px 9px !important;
+  border-radius: 9999px !important;
+  background: rgba(16, 185, 129, 0.1) !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+}
+
+.framer-Zrdb3 .framer-nxhcxe h5 {
+  color: #059669 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  margin: 0 !important;
+}
+
+.framer-Zrdb3 .framer-nxhcxe h5::before {
+  content: "●";
+  margin-right: 4px;
+  font-size: 8px;
+}
+
+.framer-Zrdb3 .framer-ebs76m {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 3px 9px !important;
+  border-radius: 9999px !important;
+  background: rgba(229, 9, 20, 0.15) !important;
+  border: 1px solid rgba(229, 9, 20, 0.35) !important;
+}
+
+.framer-Zrdb3 .framer-ebs76m h5 {
+  color: #ff4d4d !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  margin: 0 !important;
+}
+
+.framer-Zrdb3 .framer-ebs76m h5::before {
+  content: "●";
+  margin-right: 4px;
+  font-size: 8px;
+}
+
+.framer-Zrdb3 .framer-1rayqi8 {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 3px 9px !important;
+  border-radius: 9999px !important;
+  background: rgba(59, 130, 246, 0.1) !important;
+  border: 1px solid rgba(59, 130, 246, 0.25) !important;
+}
+
+.framer-Zrdb3 .framer-1rayqi8 h5 {
+  color: #2563eb !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  margin: 0 !important;
+}
+
+.framer-Zrdb3 .framer-1rayqi8 h5::before {
+  content: "⚡";
+  margin-right: 3px;
+  font-size: 10px;
+}
+
+/* 5. Button Containers & High-End Pill Buttons */
+.framer-Zrdb3 .framer-1x6a63l-container,
+.framer-Zrdb3 .framer-i4an7y-container,
+.framer-Zrdb3 .framer-f7shzs-container {
+  width: 100% !important;
+  margin: 14px 0 24px 0 !important;
+}
+
+.framer-Zrdb3 .framer-1x6a63l-container a,
+.framer-Zrdb3 .framer-f7shzs-container a {
+  background: #09090b !important;
+  color: #ffffff !important;
+  border-radius: 12px !important;
+  height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.2s ease !important;
+}
+
+.framer-Zrdb3 .framer-1x6a63l-container a:hover,
+.framer-Zrdb3 .framer-f7shzs-container a:hover {
+  background: #18181b !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16) !important;
+}
+
+.framer-Zrdb3 .framer-i4an7y-container a {
+  background: #ffffff !important;
+  color: #09090b !important;
+  border-radius: 12px !important;
+  height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  transition: all 0.2s ease !important;
+}
+
+.framer-Zrdb3 .framer-i4an7y-container a:hover {
+  background: #f4f4f5 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 22px rgba(255, 255, 255, 0.25) !important;
+}
+
+.framer-Zrdb3 .framer-i4an7y-container a p,
+.framer-Zrdb3 .framer-i4an7y-container a span {
+  color: #09090b !important;
+  font-weight: 700 !important;
+}
+
+/* 6. Checklist Rows Polish */
+.framer-Zrdb3 .framer-xzfbyn,
+.framer-Zrdb3 .framer-1k8g8t,
+.framer-Zrdb3 .framer-1hjtlqe {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  width: 100% !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+  padding-top: 20px !important;
+}
+
+.framer-Zrdb3 .framer-1k8g8t {
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.framer-Zrdb3 .framer-xzfbyn p,
+.framer-Zrdb3 .framer-1hjtlqe p {
+  color: #374151 !important;
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+  font-weight: 500 !important;
+}
+
+.framer-Zrdb3 .framer-1k8g8t p {
+  color: #e4e4e7 !important;
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+  font-weight: 500 !important;
+}
+
+/* 7. Harmonize Card 3 item count to match Card 2 (7 items) */
+.framer-Zrdb3 .framer-qx4kro-container,
+.framer-Zrdb3 .framer-1w95i6b-container,
+.framer-Zrdb3 .framer-qqugi3-container {
+  display: none !important;
+}
+
+/* Responsive adjustment for module cards */
+@media (max-width: 960px) {
+  .framer-Zrdb3 .framer-1r3nvrv {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 32px !important;
+  }
+
+  .framer-Zrdb3 .framer-1xfoud,
+  .framer-Zrdb3 .framer-rttdj0,
+  .framer-Zrdb3 .framer-1kpsy9i {
+    max-width: 440px !important;
+    width: 100% !important;
+    transform: none !important;
+  }
+
+  .framer-Zrdb3 .framer-rttdj0:hover {
+    transform: translateY(-4px) !important;
+  }
+}
+
+
 
