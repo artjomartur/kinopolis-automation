@@ -3023,9 +3023,18 @@ export default {
         try {
             if (env.ASSETS) {
                 const url = new URL(request.url);
-                if (url.pathname === '/dashboard' || url.pathname === '/dashboard/') {
-                    const dashUrl = new URL('/dashboard.html', request.url);
-                    return await env.ASSETS.fetch(new Request(dashUrl, request));
+                const cleanRoutes = {
+                    '/dashboard': '/dashboard.html',
+                    '/tl': '/tl.html',
+                    '/admin': '/admin.html',
+                    '/archive': '/archive.html',
+                    '/cinemaxx-archiv': '/cinemaxx-archiv.html',
+                    '/reset-password': '/reset-password.html'
+                };
+                const cleanPath = url.pathname.replace(/\/$/, '') || '/';
+                if (cleanRoutes[cleanPath]) {
+                    const targetUrl = new URL(cleanRoutes[cleanPath] + url.search, request.url);
+                    return await env.ASSETS.fetch(new Request(targetUrl, request));
                 }
                 const response = await env.ASSETS.fetch(request);
                 if (response.status !== 404) return response;

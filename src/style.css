@@ -2084,3 +2084,63 @@ body.mode-dashboard .app-columns-container {
   font-size: 12px !important;
 }
 
+.framer-1x7lfs8, [data-framer-name="Stimmen aus den Kinos"] {
+  display: none !important;
+}
+
+/* Kinopolis Logo Branding */
+.framer-QM750 .framer-1x9f04c-container,
+.framer-Zrdb3 .framer-1986kyw-container {
+  width: 72px !important;
+  height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+}
+
+.framer-JOeno.framer-9jrmwf {
+  width: 72px !important;
+  height: 36px !important;
+}
+
+.framer-JOeno .framer-vx2wjf {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+  bottom: unset !important;
+  top: unset !important;
+  left: unset !important;
+  right: unset !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+}
+
+.kinopolis-logo-img {
+  width: auto !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  height: 32px !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+/* Footer Link Styles */
+.footer-link {
+  text-decoration: none !important;
+  color: inherit !important;
+  transition: opacity 0.2s ease !important;
+  display: inline-block !important;
+}
+
+.footer-link:hover {
+  opacity: 0.75 !important;
+  text-decoration: underline !important;
+}
+
+/* Smooth anchor scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+

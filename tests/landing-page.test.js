@@ -59,13 +59,50 @@ describe('Landing Page Copy & Structure', () => {
     expect(bodyText).toContain('Kinopolis Gruppe');
   });
 
-  it('features authentic Kinopolis locations in footer and testimonials', () => {
+  it('features authentic Kinopolis locations in footer and highlights', () => {
     const bodyText = $('#main').text();
-    expect(bodyText).toContain('Sulzbach MTZ');
+    expect(bodyText).toContain('MTZ Sulzbach');
     expect(bodyText).toContain('Mathäser München');
     expect(bodyText).toContain('Hamburg HafenCity');
     expect(bodyText).toContain('Darmstadt');
-    expect(bodyText).toContain('Koblenz');
+    expect(bodyText).toContain('Hanau');
+    expect(bodyText).toContain('Viernheim');
+  });
+
+  it('renders official Kinopolis logo and dark variant in footer', () => {
+    const logoImgs = $('img[src*="kinopolis-logo"]');
+    expect(logoImgs.length).toBeGreaterThanOrEqual(2);
+    expect(html).toContain('/assets/images/kinopolis-logo-dark.png');
+  });
+
+  it('provides smooth navigation section anchors and working links', () => {
+    expect($('#saele').length).toBe(1);
+    expect($('#funktionen').length).toBe(1);
+    expect($('#standorte').length).toBe(1);
+    expect($('a[href="#saele"]').length).toBeGreaterThanOrEqual(1);
+    expect($('a[href="#funktionen"]').length).toBeGreaterThanOrEqual(1);
+    expect($('a[href="#standorte"]').length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('renders authentic portal links in footer', () => {
+    expect($('a[href="/tl"]').length).toBeGreaterThanOrEqual(1);
+    expect($('a[href="/admin"]').length).toBeGreaterThanOrEqual(1);
+    expect($('a[href="/archive.html"]').length).toBeGreaterThanOrEqual(1);
+    expect($('a[href="/cinemaxx-archiv.html"]').length).toBeGreaterThanOrEqual(1);
+    expect($('a[href="https://www.kinopolis.de/datenschutz"]').length).toBeGreaterThanOrEqual(1);
+    expect($('a[href="https://www.kinopolis.de/impressum"]').length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('does not contain fake employee testimonials or placeholder quotes', () => {
+    const bodyText = $('#main').text();
+    expect(bodyText).not.toContain('Tobias Wagner');
+    expect(bodyText).not.toContain('Julia Hartmann');
+    expect(bodyText).not.toContain('Melanie Krause');
+    expect(bodyText).not.toContain('Laura Sommer');
+    expect(bodyText).not.toContain('Dennis Richter');
+    expect(bodyText).not.toContain('Maximilian Weber');
+    expect(bodyText).not.toContain('Christian Wolf');
+    expect(bodyText).not.toContain("Our team's productivity has skyrocketed");
   });
 
   it('ensures primary CTA buttons link to the operational dashboard', () => {

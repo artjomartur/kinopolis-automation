@@ -1194,6 +1194,7 @@ var ba = {
                   }),
                 }),
                 e("div", {
+                  id: "saele",
                   className: "framer-q09ih6",
                   "data-framer-name": "Features Product",
                   name: "Features Product",
@@ -1422,6 +1423,7 @@ var ba = {
                   ],
                 }),
                 e("div", {
+                  id: "funktionen",
                   className: "framer-4ycmxk",
                   "data-framer-name": "Features",
                   name: "Features",
@@ -1640,6 +1642,7 @@ var ba = {
                   ],
                 }),
                 e("div", {
+                  id: "standorte",
                   className: "framer-3ek2ar",
                   "data-framer-name": "Pricing",
                   name: "Pricing",
@@ -2191,381 +2194,6 @@ var ba = {
                   ],
                 }),
                 e("div", {
-                  className: "framer-1x7lfs8",
-                  "data-framer-name": "Stimmen aus den Kinos",
-                  name: "Stimmen aus den Kinos",
-                  children: [
-                    e("div", {
-                      className: "framer-123gfcs",
-                      children: [
-                        r(t, {
-                          className: "framer-1xhi7ba-container",
-                          children: r(H, {
-                            GmAhv_WVa: 1,
-                            height: "100%",
-                            hSgW9f2ir: "Stimmen aus den Kinos",
-                            id: "PgCP0BWuC",
-                            layoutId: "PgCP0BWuC",
-                            p2xmGpLux: "Read more",
-                            ToKaS18SW: !1,
-                            variant: "Z2wjynIFK",
-                            width: "100%",
-                            Z69PPXt7v: !1,
-                          }),
-                        }),
-                        r(i, {
-                          __fromCanvasComponent: !0,
-                          children: r(a, {
-                            children: r("h2", {
-                              className: "framer-styles-preset-4m6e0d",
-                              "data-styles-preset": "Bgl_uNKYX",
-                              style: { "--framer-text-color": "rgb(0, 0, 0)" },
-                              children: "Bewährt in 18 Kinopolis Filmtheatern",
-                            }),
-                          }),
-                          className: "framer-evujq6",
-                          verticalAlignment: "top",
-                          withExternalLayout: !0,
-                        }),
-                      ],
-                    }),
-                    e("div", {
-                      className: "framer-1tuuztk",
-                      children: [
-                        x() &&
-                          r(t, {
-                            className: "framer-18brw3d-container hidden-1sysy87",
-                            children: r(z, {
-                              alignment: "center",
-                              direction: "top",
-                              fadeOptions: {
-                                fadeAlpha: 0,
-                                fadeContent: !1,
-                                fadeInset: 0,
-                                fadeWidth: 25,
-                                overflow: !0,
-                              },
-                              gap: 0,
-                              height: "100%",
-                              hoverFactor: 1,
-                              id: "sPlCK_JWr",
-                              layoutId: "sPlCK_JWr",
-                              padding: 0,
-                              paddingBottom: 0,
-                              paddingLeft: 0,
-                              paddingPerSide: !1,
-                              paddingRight: 0,
-                              paddingTop: 0,
-                              sizingOptions: { heightType: !0, widthType: !0 },
-                              slots: [
-                                e(f.div, {
-                                  className: "framer-mmmpg2",
-                                  children: [
-                                    r(t, {
-                                      className: "framer-1tgruun-container",
-                                      children: r(y, {
-                                        aY3NDFicr: S(
-                                          {
-                                            src: "../../assets/images/xfpZdEkllcJogTOUKAbP3Wde1Q.png",
-                                          },
-                                          ""
-                                        ),
-                                        bErIHJkdI:
-                                          "Die Popcorn-Bedarfsberechnung spart uns an besucherstarken Samstagen enorm viel Ausschuss und Wartezeit am Concession-Stand.",
-                                        height: "100%",
-                                        iblTMwOmJ: "Theaterleitung • Kinopolis MTZ Sulzbach",
-                                        id: "NGcpgKcb2",
-                                        layoutId: "NGcpgKcb2",
-                                        oVU8J_Br4: "Maximilian Weber",
-                                        style: { width: "100%" },
-                                        tbHzgMiO7: !0,
-                                        variant: "UpZj3qjIx",
-                                        width: "100%",
-                                        yhkvJJf0e: !0,
-                                      }),
-                                    }),
-                                    r(t, {
-                                      className: "framer-tebbei-container",
-                                      children: r(y, {
-                                        aY3NDFicr: S(
-                                          {
-                                            src: "../../assets/images/Q6Uhycj3JpWbL2X82AeTSpMX47w-772160.png",
-                                            srcSet:
-                                              "../../assets/images/Q6Uhycj3JpWbL2X82AeTSpMX47w.png 512w, ../../assets/images/Q6Uhycj3JpWbL2X82AeTSpMX47w-772160.png 1019w",
-                                          },
-                                          ""
-                                        ),
-                                        bErIHJkdI:
-                                          "Our team\u2019s productivity has skyrocketed since we started using this tool. ",
-                                        height: "100%",
-                                        iblTMwOmJ: "Schichtleitung • Mathäser München",
-                                        id: "f1S_oiTxI",
-                                        layoutId: "f1S_oiTxI",
-                                        oVU8J_Br4: "Sarah Lindemann",
-                                        style: { width: "100%" },
-                                        tbHzgMiO7: !0,
-                                        variant: "UpZj3qjIx",
-                                        width: "100%",
-                                        yhkvJJf0e: !0,
-                                      }),
-                                    }),
-                                    r(t, {
-                                      className: "framer-12rhsw0-container",
-                                      children: r(y, {
-                                        aY3NDFicr: S(
-                                          {
-                                            src: "../../assets/images/ZH32UpSO1tvXxr1NY9a51GDeVI.png",
-                                            srcSet:
-                                              "../../assets/images/ZH32UpSO1tvXxr1NY9a51GDeVI.png 516w",
-                                          },
-                                          ""
-                                        ),
-                                        bErIHJkdI:
-                                          "Die zentrale Timeline für alle 14 Kinosäle in Koblenz gibt unserem Vorführteam maximale Planungssicherheit bei Filmwechseln.",
-                                        height: "100%",
-                                        iblTMwOmJ: "Technischer Leiter • KINOPOLIS Koblenz",
-                                        id: "AqAV7mm8D",
-                                        layoutId: "AqAV7mm8D",
-                                        oVU8J_Br4: "Tobias Wagner",
-                                        style: { width: "100%" },
-                                        tbHzgMiO7: !0,
-                                        variant: "UpZj3qjIx",
-                                        width: "100%",
-                                        yhkvJJf0e: !0,
-                                      }),
-                                    }),
-                                  ],
-                                }),
-                              ],
-                              speed: 25,
-                              style: { height: "100%", width: "100%" },
-                              width: "100%",
-                            }),
-                          }),
-                        r(t, {
-                          className: "framer-ehuljc-container",
-                          children: r(z, {
-                            alignment: "center",
-                            direction: "top",
-                            fadeOptions: {
-                              fadeAlpha: 0,
-                              fadeContent: !1,
-                              fadeInset: 0,
-                              fadeWidth: 25,
-                              overflow: !0,
-                            },
-                            gap: 0,
-                            height: "100%",
-                            hoverFactor: 1,
-                            id: "zgBk9SYEG",
-                            layoutId: "zgBk9SYEG",
-                            padding: 0,
-                            paddingBottom: 0,
-                            paddingLeft: 0,
-                            paddingPerSide: !1,
-                            paddingRight: 0,
-                            paddingTop: 0,
-                            sizingOptions: { heightType: !0, widthType: !0 },
-                            slots: [
-                              e(f.div, {
-                                className: "framer-66ftot",
-                                children: [
-                                  r(t, {
-                                    className: "framer-p9trvb-container",
-                                    children: r(y, {
-                                      aY3NDFicr: S(
-                                        {
-                                          src: "../../assets/images/fQ49j4qCQ0znA55jDxwRf6YCY.png",
-                                          srcSet:
-                                            "../../assets/images/fQ49j4qCQ0znA55jDxwRf6YCY.png 500w",
-                                        },
-                                        ""
-                                      ),
-                                      bErIHJkdI:
-                                        "Die 1-Klick-Lichtsteuerung für Einlass- und Showlicht funktioniert absolut zuverlässig in all unseren 8 Sälen.",
-                                      height: "100%",
-                                      iblTMwOmJ: "Chef-Vorführer • KINOPOLIS Darmstadt",
-                                      id: "DAkM4XPGb",
-                                      layoutId: "DAkM4XPGb",
-                                      oVU8J_Br4: "Florian Becker",
-                                      style: { width: "100%" },
-                                      tbHzgMiO7: !0,
-                                      variant: "UpZj3qjIx",
-                                      width: "100%",
-                                      yhkvJJf0e: !0,
-                                    }),
-                                  }),
-                                  r(t, {
-                                    className: "framer-181ke4c-container",
-                                    children: r(y, {
-                                      aY3NDFicr: S(
-                                        {
-                                          src: "../../assets/images/XilZd34usNa99pSJgB5veq7gr8E-66bc7c.png",
-                                          srcSet:
-                                            "../../assets/images/XilZd34usNa99pSJgB5veq7gr8E.png 512w, ../../assets/images/XilZd34usNa99pSJgB5veq7gr8E-66bc7c.png 1003w",
-                                        },
-                                        ""
-                                      ),
-                                      bErIHJkdI:
-                                        "Sonderveranstaltungen, Premieren und Marathons lassen sich dank der individuellen Saal-Presets sekundengenau durchtakten.",
-                                      height: "100%",
-                                      iblTMwOmJ: "Event- & Kinomanagerin • Mathäser München",
-                                      id: "ZHYSGxSRY",
-                                      layoutId: "ZHYSGxSRY",
-                                      oVU8J_Br4: "Julia Hartmann",
-                                      style: { width: "100%" },
-                                      tbHzgMiO7: !0,
-                                      variant: "UpZj3qjIx",
-                                      width: "100%",
-                                      yhkvJJf0e: !0,
-                                    }),
-                                  }),
-                                  r(t, {
-                                    className: "framer-1nubmcl-container",
-                                    children: r(y, {
-                                      aY3NDFicr: S(
-                                        {
-                                          src: "../../assets/images/2ocGPytBkELnTT9wbPbMdBn6HT0.png",
-                                        },
-                                        ""
-                                      ),
-                                      bErIHJkdI:
-                                        "Besonders in der HafenCity mit Dolby Cinema und Laser-Projektion gibt uns das Live-Dashboard die perfekte Kontrolle über jeden Saal.",
-                                      height: "100%",
-                                      iblTMwOmJ: "Operations Managerin • Hamburg HafenCity",
-                                      id: "qoxDyDq43",
-                                      layoutId: "qoxDyDq43",
-                                      oVU8J_Br4: "Laura Sommer",
-                                      style: { width: "100%" },
-                                      tbHzgMiO7: !0,
-                                      variant: "UpZj3qjIx",
-                                      width: "100%",
-                                      yhkvJJf0e: !0,
-                                    }),
-                                  }),
-                                ],
-                              }),
-                            ],
-                            speed: 35,
-                            style: { height: "100%", width: "100%" },
-                            width: "100%",
-                          }),
-                        }),
-                        x() &&
-                          r(t, {
-                            className: "framer-sqbk9x-container hidden-1sysy87",
-                            children: r(z, {
-                              alignment: "center",
-                              direction: "top",
-                              fadeOptions: {
-                                fadeAlpha: 0,
-                                fadeContent: !1,
-                                fadeInset: 0,
-                                fadeWidth: 25,
-                                overflow: !0,
-                              },
-                              gap: 0,
-                              height: "100%",
-                              hoverFactor: 1,
-                              id: "Xx7el7x7c",
-                              layoutId: "Xx7el7x7c",
-                              padding: 0,
-                              paddingBottom: 0,
-                              paddingLeft: 0,
-                              paddingPerSide: !1,
-                              paddingRight: 0,
-                              paddingTop: 0,
-                              sizingOptions: { heightType: !0, widthType: !0 },
-                              slots: [
-                                e(f.div, {
-                                  className: "framer-1rwayw9",
-                                  children: [
-                                    r(t, {
-                                      className: "framer-1glix58-container",
-                                      children: r(y, {
-                                        aY3NDFicr: S(
-                                          {
-                                            src: "../../assets/images/KzPCxcCNNsNcLrXuaue6BreIY.jpg",
-                                            srcSet:
-                                              "../../assets/images/KzPCxcCNNsNcLrXuaue6BreIY.jpg 964w",
-                                          },
-                                          ""
-                                        ),
-                                        bErIHJkdI:
-                                          "Das digitale Schichtbuch verhindert Informationsverlust zwischen Früh- und Spätschicht. Ein riesiger Gewinn für den Kinobetrieb. ",
-                                        height: "100%",
-                                        iblTMwOmJ: "Stellv. Theaterleitung • Hanau",
-                                        id: "qrI_ElRUa",
-                                        layoutId: "qrI_ElRUa",
-                                        oVU8J_Br4: "Dennis Richter",
-                                        style: { width: "100%" },
-                                        tbHzgMiO7: !0,
-                                        variant: "UpZj3qjIx",
-                                        width: "100%",
-                                        yhkvJJf0e: !0,
-                                      }),
-                                    }),
-                                    r(t, {
-                                      className: "framer-1fjfldz-container",
-                                      children: r(y, {
-                                        aY3NDFicr: S(
-                                          {
-                                            src: "../../assets/images/YvAgqeFHbVFjbeBlkFOrYz9HcjU.png",
-                                          },
-                                          ""
-                                        ),
-                                        bErIHJkdI:
-                                          "Die Auslastungsübersicht mit visuellen Fortschrittsbalken und Besuchervorhersage hilft uns bei der flexiblen Personaleinteilung.",
-                                        height: "100%",
-                                        iblTMwOmJ: "Serviceleitung • Viernheim RNZ",
-                                        id: "FVhsNfQ7P",
-                                        layoutId: "FVhsNfQ7P",
-                                        oVU8J_Br4: "Christian Wolf",
-                                        style: { width: "100%" },
-                                        tbHzgMiO7: !0,
-                                        variant: "UpZj3qjIx",
-                                        width: "100%",
-                                        yhkvJJf0e: !0,
-                                      }),
-                                    }),
-                                    r(t, {
-                                      className: "framer-mo155o-container",
-                                      children: r(y, {
-                                        aY3NDFicr: S(
-                                          {
-                                            src: "../../assets/images/nHriSM7CMKJ2KsdXD2MIZk3KI.png",
-                                          },
-                                          ""
-                                        ),
-                                        bErIHJkdI:
-                                          " Intuitiv zu bedienen auf Tablets und Smartphones – Oli der Kinobär sorgt zusätzlich für gute Laune im Team!",
-                                        height: "100%",
-                                        iblTMwOmJ: "Teamleitung • Aschaffenburg",
-                                        id: "pvNZc4rRk",
-                                        layoutId: "pvNZc4rRk",
-                                        oVU8J_Br4: "Melanie Krause",
-                                        style: { width: "100%" },
-                                        tbHzgMiO7: !0,
-                                        variant: "UpZj3qjIx",
-                                        width: "100%",
-                                        yhkvJJf0e: !0,
-                                      }),
-                                    }),
-                                  ],
-                                }),
-                              ],
-                              speed: 25,
-                              style: { height: "100%", width: "100%" },
-                              width: "100%",
-                            }),
-                          }),
-                        r("div", { className: "framer-10scesw" }),
-                        r("div", { className: "framer-1st1yan" }),
-                      ],
-                    }),
-                  ],
-                }),
-                e("div", {
                   className: "framer-1kgs4b4",
                   "data-framer-name": "CTA Day",
                   name: "CTA Day",
@@ -2739,7 +2367,7 @@ var ba = {
                             className: "framer-co6105",
                             children: [
                               r(A, {
-                                href: "x.com/framer",
+                                href: "https://www.kinopolis.de",
                                 children: r(f.a, {
                                   className: "framer-qx87jz framer-6rh4wo",
                                   "data-framer-name": "X",
@@ -2764,7 +2392,7 @@ var ba = {
                                 }),
                               }),
                               r(A, {
-                                href: "https://www.instagram.com/framer/",
+                                href: "https://www.instagram.com/kinopolis.de/",
                                 children: r(f.a, {
                                   className: "framer-1ld69fm framer-6rh4wo",
                                   "data-framer-name": "Instagram",
@@ -2789,7 +2417,7 @@ var ba = {
                                 }),
                               }),
                               r(A, {
-                                href: "pinterest.com/framer_app/",
+                                href: "/dashboard",
                                 children: r(f.a, {
                                   className: "framer-9m8owv framer-6rh4wo",
                                   "data-framer-name": "Pinterest",
@@ -2814,7 +2442,7 @@ var ba = {
                                 }),
                               }),
                               r(A, {
-                                href: "https://www.linkedin.com/company/framer",
+                                href: "https://www.linkedin.com/company/kinopolis-gruppe",
                                 children: r(f.a, {
                                   className: "framer-15ddgct framer-6rh4wo",
                                   "data-framer-name": "LinkedIn",
@@ -2839,7 +2467,7 @@ var ba = {
                                 }),
                               }),
                               r(A, {
-                                href: "https://www.tiktok.com/@framer",
+                                href: "/tl",
                                 children: r(f.a, {
                                   className: "framer-1h92yyb framer-6rh4wo",
                                   "data-framer-name": "TikTok",
@@ -2864,7 +2492,7 @@ var ba = {
                                 }),
                               }),
                               r(A, {
-                                href: "https://www.youtube.com/channel/UCW5gUZ7lKGrAbLOkHv2xfbw",
+                                href: "https://www.youtube.com/@kinopolis_de",
                                 children: r(f.a, {
                                   className: "framer-b0rly framer-6rh4wo",
                                   "data-framer-name": "YouTube",
@@ -2924,11 +2552,15 @@ var ba = {
                               r(i, {
                                 __fromCanvasComponent: !0,
                                 children: r(a, {
-                                  children: r("p", {
-                                    className: "framer-styles-preset-1dts917",
-                                    "data-styles-preset": "hgKudGhZ5",
-                                    style: { "--framer-text-color": "rgb(255, 255, 255)" },
-                                    children: "MTZ Sulzbach",
+                                  children: r("a", {
+                                    href: "/dashboard?loc=su",
+                                    className: "footer-link",
+                                    children: r("p", {
+                                      className: "framer-styles-preset-1dts917",
+                                      "data-styles-preset": "hgKudGhZ5",
+                                      style: { "--framer-text-color": "rgb(255, 255, 255)" },
+                                      children: "MTZ Sulzbach",
+                                    }),
                                   }),
                                 }),
                                 className: "framer-x3xyn5",
@@ -2938,11 +2570,15 @@ var ba = {
                               r(i, {
                                 __fromCanvasComponent: !0,
                                 children: r(a, {
-                                  children: r("p", {
-                                    className: "framer-styles-preset-1dts917",
-                                    "data-styles-preset": "hgKudGhZ5",
-                                    style: { "--framer-text-color": "rgb(255, 255, 255)" },
-                                    children: "Mathäser München",
+                                  children: r("a", {
+                                    href: "/dashboard?loc=mm",
+                                    className: "footer-link",
+                                    children: r("p", {
+                                      className: "framer-styles-preset-1dts917",
+                                      "data-styles-preset": "hgKudGhZ5",
+                                      style: { "--framer-text-color": "rgb(255, 255, 255)" },
+                                      children: "Mathäser München",
+                                    }),
                                   }),
                                 }),
                                 className: "framer-1wyc5ac",
@@ -2952,11 +2588,15 @@ var ba = {
                               r(i, {
                                 __fromCanvasComponent: !0,
                                 children: r(a, {
-                                  children: r("p", {
-                                    className: "framer-styles-preset-1dts917",
-                                    "data-styles-preset": "hgKudGhZ5",
-                                    style: { "--framer-text-color": "rgb(255, 255, 255)" },
-                                    children: "Hamburg HafenCity",
+                                  children: r("a", {
+                                    href: "/dashboard?loc=hh",
+                                    className: "footer-link",
+                                    children: r("p", {
+                                      className: "framer-styles-preset-1dts917",
+                                      "data-styles-preset": "hgKudGhZ5",
+                                      style: { "--framer-text-color": "rgb(255, 255, 255)" },
+                                      children: "Hamburg HafenCity",
+                                    }),
                                   }),
                                 }),
                                 className: "framer-1igqzxz",
@@ -2966,11 +2606,15 @@ var ba = {
                               r(i, {
                                 __fromCanvasComponent: !0,
                                 children: r(a, {
-                                  children: r("p", {
-                                    className: "framer-styles-preset-1dts917",
-                                    "data-styles-preset": "hgKudGhZ5",
-                                    style: { "--framer-text-color": "rgb(255, 255, 255)" },
-                                    children: "Status: Live",
+                                  children: r("a", {
+                                    href: "/dashboard?loc=kp",
+                                    className: "footer-link",
+                                    children: r("p", {
+                                      className: "framer-styles-preset-1dts917",
+                                      "data-styles-preset": "hgKudGhZ5",
+                                      style: { "--framer-text-color": "rgb(255, 255, 255)" },
+                                      children: "Darmstadt KINOPOLIS",
+                                    }),
                                   }),
                                 }),
                                 className: "framer-1vw21xq",
@@ -2980,11 +2624,15 @@ var ba = {
                               r(i, {
                                 __fromCanvasComponent: !0,
                                 children: r(a, {
-                                  children: r("p", {
-                                    className: "framer-styles-preset-1dts917",
-                                    "data-styles-preset": "hgKudGhZ5",
-                                    style: { "--framer-text-color": "rgb(255, 255, 255)" },
-                                    children: "Pricing",
+                                  children: r("a", {
+                                    href: "/dashboard",
+                                    className: "footer-link",
+                                    children: r("p", {
+                                      className: "framer-styles-preset-1dts917",
+                                      "data-styles-preset": "hgKudGhZ5",
+                                      style: { "--framer-text-color": "rgb(255, 255, 255)" },
+                                      children: "Alle 18 Standorte",
+                                    }),
                                   }),
                                 }),
                                 className: "framer-11392hq",
@@ -3022,11 +2670,15 @@ var ba = {
                               r(i, {
                                 __fromCanvasComponent: !0,
                                 children: r(a, {
-                                  children: r("p", {
-                                    className: "framer-styles-preset-1dts917",
-                                    "data-styles-preset": "hgKudGhZ5",
-                                    style: { "--framer-text-color": "rgb(255, 255, 255)" },
-                                    children: "Live-Saalampel",
+                                  children: r("a", {
+                                    href: "/dashboard",
+                                    className: "footer-link",
+                                    children: r("p", {
+                                      className: "framer-styles-preset-1dts917",
+                                      "data-styles-preset": "hgKudGhZ5",
+                                      style: { "--framer-text-color": "rgb(255, 255, 255)" },
+                                      children: "Live-Saalampel",
+                                    }),
                                   }),
                                 }),
                                 className: "framer-80nlvc",
@@ -3036,11 +2688,15 @@ var ba = {
                               r(i, {
                                 __fromCanvasComponent: !0,
                                 children: r(a, {
-                                  children: r("p", {
-                                    className: "framer-styles-preset-1dts917",
-                                    "data-styles-preset": "hgKudGhZ5",
-                                    style: { "--framer-text-color": "rgb(255, 255, 255)" },
-                                    children: "Laser & CPL Automation",
+                                  children: r("a", {
+                                    href: "/dashboard",
+                                    className: "footer-link",
+                                    children: r("p", {
+                                      className: "framer-styles-preset-1dts917",
+                                      "data-styles-preset": "hgKudGhZ5",
+                                      style: { "--framer-text-color": "rgb(255, 255, 255)" },
+                                      children: "Laser & CPL Automation",
+                                    }),
                                   }),
                                 }),
                                 className: "framer-3w13jl",
@@ -3050,11 +2706,15 @@ var ba = {
                               r(i, {
                                 __fromCanvasComponent: !0,
                                 children: r(a, {
-                                  children: r("p", {
-                                    className: "framer-styles-preset-1dts917",
-                                    "data-styles-preset": "hgKudGhZ5",
-                                    style: { "--framer-text-color": "rgb(255, 255, 255)" },
-                                    children: "Popcorn-Rechner",
+                                  children: r("a", {
+                                    href: "/dashboard",
+                                    className: "footer-link",
+                                    children: r("p", {
+                                      className: "framer-styles-preset-1dts917",
+                                      "data-styles-preset": "hgKudGhZ5",
+                                      style: { "--framer-text-color": "rgb(255, 255, 255)" },
+                                      children: "Popcorn-Rechner",
+                                    }),
                                   }),
                                 }),
                                 className: "framer-m9djku",
@@ -3064,11 +2724,15 @@ var ba = {
                               r(i, {
                                 __fromCanvasComponent: !0,
                                 children: r(a, {
-                                  children: r("p", {
-                                    className: "framer-styles-preset-1dts917",
-                                    "data-styles-preset": "hgKudGhZ5",
-                                    style: { "--framer-text-color": "rgb(255, 255, 255)" },
-                                    children: "Digitaler Funkruf",
+                                  children: r("a", {
+                                    href: "/dashboard",
+                                    className: "footer-link",
+                                    children: r("p", {
+                                      className: "framer-styles-preset-1dts917",
+                                      "data-styles-preset": "hgKudGhZ5",
+                                      style: { "--framer-text-color": "rgb(255, 255, 255)" },
+                                      children: "Digitaler Funkruf",
+                                    }),
                                   }),
                                 }),
                                 className: "framer-4ttkoj",
@@ -3078,11 +2742,15 @@ var ba = {
                               r(i, {
                                 __fromCanvasComponent: !0,
                                 children: r(a, {
-                                  children: r("p", {
-                                    className: "framer-styles-preset-1dts917",
-                                    "data-styles-preset": "hgKudGhZ5",
-                                    style: { "--framer-text-color": "rgb(255, 255, 255)" },
-                                    children: "Schicht-Übergabebuch",
+                                  children: r("a", {
+                                    href: "/dashboard",
+                                    className: "footer-link",
+                                    children: r("p", {
+                                      className: "framer-styles-preset-1dts917",
+                                      "data-styles-preset": "hgKudGhZ5",
+                                      style: { "--framer-text-color": "rgb(255, 255, 255)" },
+                                      children: "Schicht-Übergabebuch",
+                                    }),
                                   }),
                                 }),
                                 className: "framer-11yhzjp",
@@ -3092,11 +2760,15 @@ var ba = {
                               r(i, {
                                 __fromCanvasComponent: !0,
                                 children: r(a, {
-                                  children: r("p", {
-                                    className: "framer-styles-preset-1dts917",
-                                    "data-styles-preset": "hgKudGhZ5",
-                                    style: { "--framer-text-color": "rgb(255, 255, 255)" },
-                                    children: "Auslastungs-KPIs",
+                                  children: r("a", {
+                                    href: "/dashboard",
+                                    className: "footer-link",
+                                    children: r("p", {
+                                      className: "framer-styles-preset-1dts917",
+                                      "data-styles-preset": "hgKudGhZ5",
+                                      style: { "--framer-text-color": "rgb(255, 255, 255)" },
+                                      children: "Auslastungs-KPIs",
+                                    }),
                                   }),
                                 }),
                                 className: "framer-1h911lu",
@@ -3123,7 +2795,7 @@ var ba = {
                                       "--framer-text-alignment": "center",
                                       "--framer-text-color": "rgb(255, 255, 255)",
                                     },
-                                    children: "Kinotechnik",
+                                    children: "Portale & Steuerung",
                                   }),
                                 }),
                                 className: "framer-1fs7dng",
@@ -3134,11 +2806,15 @@ var ba = {
                               r(i, {
                                 __fromCanvasComponent: !0,
                                 children: r(a, {
-                                  children: r("p", {
-                                    className: "framer-styles-preset-1dts917",
-                                    "data-styles-preset": "hgKudGhZ5",
-                                    style: { "--framer-text-color": "rgb(255, 255, 255)" },
-                                    children: "Dolby Atmos / CP950",
+                                  children: r("a", {
+                                    href: "/dashboard",
+                                    className: "footer-link",
+                                    children: r("p", {
+                                      className: "framer-styles-preset-1dts917",
+                                      "data-styles-preset": "hgKudGhZ5",
+                                      style: { "--framer-text-color": "rgb(255, 255, 255)" },
+                                      children: "Live-Dashboard",
+                                    }),
                                   }),
                                 }),
                                 className: "framer-1szo09a",
@@ -3148,11 +2824,15 @@ var ba = {
                               r(i, {
                                 __fromCanvasComponent: !0,
                                 children: r(a, {
-                                  children: r("p", {
-                                    className: "framer-styles-preset-1dts917",
-                                    "data-styles-preset": "hgKudGhZ5",
-                                    style: { "--framer-text-color": "rgb(255, 255, 255)" },
-                                    children: "Barco Laser-Telemetrie",
+                                  children: r("a", {
+                                    href: "/tl",
+                                    className: "footer-link",
+                                    children: r("p", {
+                                      className: "framer-styles-preset-1dts917",
+                                      "data-styles-preset": "hgKudGhZ5",
+                                      style: { "--framer-text-color": "rgb(255, 255, 255)" },
+                                      children: "Theaterleitung (TL)",
+                                    }),
                                   }),
                                 }),
                                 className: "framer-1fj9snu",
@@ -3162,11 +2842,15 @@ var ba = {
                               r(i, {
                                 __fromCanvasComponent: !0,
                                 children: r(a, {
-                                  children: r("p", {
-                                    className: "framer-styles-preset-1dts917",
-                                    "data-styles-preset": "hgKudGhZ5",
-                                    style: { "--framer-text-color": "rgb(255, 255, 255)" },
-                                    children: "Christie 4K Projektion",
+                                  children: r("a", {
+                                    href: "/admin",
+                                    className: "footer-link",
+                                    children: r("p", {
+                                      className: "framer-styles-preset-1dts917",
+                                      "data-styles-preset": "hgKudGhZ5",
+                                      style: { "--framer-text-color": "rgb(255, 255, 255)" },
+                                      children: "Admin-Konsole",
+                                    }),
                                   }),
                                 }),
                                 className: "framer-b5wxw4",
@@ -3176,11 +2860,33 @@ var ba = {
                               r(i, {
                                 __fromCanvasComponent: !0,
                                 children: r(a, {
-                                  children: r("p", {
-                                    className: "framer-styles-preset-1dts917",
-                                    "data-styles-preset": "hgKudGhZ5",
-                                    style: { "--framer-text-color": "rgb(255, 255, 255)" },
-                                    children: "Samsung Onyx LED",
+                                  children: r("a", {
+                                    href: "/archive.html",
+                                    className: "footer-link",
+                                    children: r("p", {
+                                      className: "framer-styles-preset-1dts917",
+                                      "data-styles-preset": "hgKudGhZ5",
+                                      style: { "--framer-text-color": "rgb(255, 255, 255)" },
+                                      children: "Darmstadt Archiv",
+                                    }),
+                                  }),
+                                }),
+                                className: "framer-1rwo1jm",
+                                verticalAlignment: "top",
+                                withExternalLayout: !0,
+                              }),
+                              r(i, {
+                                __fromCanvasComponent: !0,
+                                children: r(a, {
+                                  children: r("a", {
+                                    href: "/cinemaxx-archiv.html",
+                                    className: "footer-link",
+                                    children: r("p", {
+                                      className: "framer-styles-preset-1dts917",
+                                      "data-styles-preset": "hgKudGhZ5",
+                                      style: { "--framer-text-color": "rgb(255, 255, 255)" },
+                                      children: "CinemaxX Darmstadt Historie",
+                                    }),
                                   }),
                                 }),
                                 className: "framer-1rwo1jm",
@@ -3218,11 +2924,17 @@ var ba = {
                               r(i, {
                                 __fromCanvasComponent: !0,
                                 children: r(a, {
-                                  children: r("p", {
-                                    className: "framer-styles-preset-1dts917",
-                                    "data-styles-preset": "hgKudGhZ5",
-                                    style: { "--framer-text-color": "rgb(255, 255, 255)" },
-                                    children: "Datenschutz",
+                                  children: r("a", {
+                                    href: "https://www.kinopolis.de/datenschutz",
+                                    target: "_blank",
+                                    rel: "noopener noreferrer",
+                                    className: "footer-link",
+                                    children: r("p", {
+                                      className: "framer-styles-preset-1dts917",
+                                      "data-styles-preset": "hgKudGhZ5",
+                                      style: { "--framer-text-color": "rgb(255, 255, 255)" },
+                                      children: "Datenschutz",
+                                    }),
                                   }),
                                 }),
                                 className: "framer-7t3bjx",
@@ -3232,11 +2944,17 @@ var ba = {
                               r(i, {
                                 __fromCanvasComponent: !0,
                                 children: r(a, {
-                                  children: r("p", {
-                                    className: "framer-styles-preset-1dts917",
-                                    "data-styles-preset": "hgKudGhZ5",
-                                    style: { "--framer-text-color": "rgb(255, 255, 255)" },
-                                    children: "Impressum",
+                                  children: r("a", {
+                                    href: "https://www.kinopolis.de/impressum",
+                                    target: "_blank",
+                                    rel: "noopener noreferrer",
+                                    className: "footer-link",
+                                    children: r("p", {
+                                      className: "framer-styles-preset-1dts917",
+                                      "data-styles-preset": "hgKudGhZ5",
+                                      style: { "--framer-text-color": "rgb(255, 255, 255)" },
+                                      children: "Impressum",
+                                    }),
                                   }),
                                 }),
                                 className: "framer-xjk24o",
@@ -3246,11 +2964,17 @@ var ba = {
                               r(i, {
                                 __fromCanvasComponent: !0,
                                 children: r(a, {
-                                  children: r("p", {
-                                    className: "framer-styles-preset-1dts917",
-                                    "data-styles-preset": "hgKudGhZ5",
-                                    style: { "--framer-text-color": "rgb(255, 255, 255)" },
-                                    children: "Kinopolis Gruppe",
+                                  children: r("a", {
+                                    href: "https://www.kinopolis.de",
+                                    target: "_blank",
+                                    rel: "noopener noreferrer",
+                                    className: "footer-link",
+                                    children: r("p", {
+                                      className: "framer-styles-preset-1dts917",
+                                      "data-styles-preset": "hgKudGhZ5",
+                                      style: { "--framer-text-color": "rgb(255, 255, 255)" },
+                                      children: "Kinopolis Gruppe",
+                                    }),
                                   }),
                                 }),
                                 className: "framer-1qweskb",
