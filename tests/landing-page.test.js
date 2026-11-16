@@ -129,4 +129,26 @@ describe('Landing Page Copy & Structure', () => {
     expect(bodyText).toContain('Technik');
     expect(bodyText).toContain('BWR');
   });
+
+  it('configures modern mobile viewport and web app meta tags', () => {
+    const viewport = $('meta[name="viewport"]').attr('content');
+    expect(viewport).toContain('width=device-width');
+    expect(viewport).toContain('viewport-fit=cover');
+    expect($('meta[name="apple-mobile-web-app-capable"]').attr('content')).toBe('yes');
+  });
+
+  it('includes mobile responsiveness rules in stylesheet', () => {
+    const cssPath = path.resolve(__dirname, '../src/style.css');
+    const css = fs.readFileSync(cssPath, 'utf8');
+    expect(css).toContain('@media (max-width: 809px)');
+    expect(css).toContain('max-width: 100vw');
+    expect(css).toContain('overflow-x: hidden');
+  });
+
+  it('integrates mobile drawer navigation and CTA button in navbar bundle', () => {
+    const navPath = path.resolve(__dirname, '../src/scripts/vendor/chunk-APG5SWKV.mjs');
+    const navCode = fs.readFileSync(navPath, 'utf8');
+    expect(navCode).toContain('E4pihRaKD-mobile');
+    expect(navCode).toContain('Dashboard starten');
+  });
 });

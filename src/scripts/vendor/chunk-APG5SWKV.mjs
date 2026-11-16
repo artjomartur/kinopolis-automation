@@ -331,6 +331,11 @@ var pe = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spr
                   className: "framer-4bjjip",
                   layoutDependency: a,
                   layoutId: "tNLARxRIT",
+                  onClick: (ev) => {
+                    if (ev.target.closest("a")) {
+                      D("onuwv4s61");
+                    }
+                  },
                   children: b(r.div, {
                     className: "framer-6yy0gv",
                     layoutDependency: a,
@@ -409,6 +414,26 @@ var pe = { default: { damping: 60, delay: 0, mass: 1, stiffness: 500, type: "spr
                           layoutId: "HvMJIxe3K",
                           variant: "AY2iJjz0z",
                           width: "100%",
+                        }),
+                      }),
+                      e(r.div, {
+                        className: "framer-149sc7l-container",
+                        layoutDependency: a,
+                        layoutId: "E4pihRaKD-mobile-container",
+                        style: { width: "100%", marginTop: "16px" },
+                        children: e(z, {
+                          eszixBaDA: 10,
+                          height: 44,
+                          id: "E4pihRaKD-mobile",
+                          ik9I5qIGz: !1,
+                          J0LC2FGV8: !1,
+                          KJK1sV1GB: "Dashboard starten",
+                          layoutId: "E4pihRaKD-mobile",
+                          RmkZjgJwi: "ArrowRight",
+                          UsLusPFRg: "rgb(0, 0, 0)",
+                          variant: u,
+                          width: "100%",
+                          yTZZaFOb3: "/dashboard",
                         }),
                       }),
                     ],
