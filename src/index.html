@@ -1057,6 +1057,15 @@ navigationcontainer [data-framer-component-type="NavigationContainer"] > *, [dat
 [data-hide-scrollbars="true"]::-webkit-scrollbar { width: 0px; height: 0px; }
 [data-hide-scrollbars="true"]::-webkit-scrollbar-thumb { background: transparent; }</style>
     <style>
+      /* Smooth scrolling & global polish */
+      html {
+        scroll-behavior: smooth;
+      }
+      ::selection {
+        background: rgba(229, 9, 20, 0.2);
+        color: #09090b;
+      }
+
       .framer-ltiz0n {
         background-color: #000 !important;
         background-image: url("/assets/Oli/oli_logo_tight.png") !important;
@@ -1076,14 +1085,118 @@ navigationcontainer [data-framer-component-type="NavigationContainer"] > *, [dat
       img[src*="jAdX8uaR6A5HyXv1vyMU2C0Ufw"]:hover {
         filter: brightness(1.02);
       }
-      /* Sticky Navbar Frosted Glass Backdrop */
-      .framer-QM750 {
-        background-color: rgba(255, 255, 255, 0.88) !important;
-        backdrop-filter: blur(16px) !important;
-        -webkit-backdrop-filter: blur(16px) !important;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+
+      /* 1. Top Announcement Banner Polish */
+      .framer-Zrdb3 .framer-4ope2u {
+        background: linear-gradient(90deg, #09090b 0%, #18181b 50%, #09090b 100%) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.22) !important;
       }
-      /* Module / Operations Suite Cards Typography & Layout Fixes */
+      .framer-Zrdb3 .framer-13vje9k p {
+        font-weight: 500 !important;
+        letter-spacing: -0.01em !important;
+      }
+      .framer-Zrdb3 .framer-1gdtu54-container a {
+        background: rgba(255, 255, 255, 0.12) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border-radius: 9999px !important;
+        padding: 4px 14px !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      }
+      .framer-Zrdb3 .framer-1gdtu54-container a:hover {
+        background: rgba(255, 255, 255, 0.22) !important;
+        transform: translateX(2px) !important;
+        box-shadow: 0 0 12px rgba(255, 255, 255, 0.15) !important;
+      }
+
+      /* 2. Sticky Navbar Frosted Glass Backdrop & Links */
+      .framer-QM750 {
+        background-color: rgba(255, 255, 255, 0.85) !important;
+        backdrop-filter: blur(20px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+        box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.04) !important;
+      }
+      .framer-QM750 .framer-1brz4np a:not(.framer-LWxof) {
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        border-radius: 8px !important;
+        padding: 6px 12px !important;
+      }
+      .framer-QM750 .framer-1brz4np a:not(.framer-LWxof):hover {
+        background: rgba(0, 0, 0, 0.04) !important;
+      }
+      .framer-QM750 .framer-1brz4np a:not(.framer-LWxof):hover p {
+        color: #000000 !important;
+        opacity: 1 !important;
+      }
+      .framer-QM750 .framer-149sc7l-container a {
+        border-radius: 9999px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      }
+      .framer-QM750 .framer-149sc7l-container a:hover {
+        transform: translateY(-1px) scale(1.02) !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+      }
+
+      /* 3. Hero Section Tag & Preview Window */
+      .framer-Zrdb3 .framer-1laqlns-container .framer-11Hp4 {
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        background: rgba(255, 255, 255, 0.65) !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+        transition: all 0.2s ease !important;
+      }
+      .framer-Zrdb3 .framer-1laqlns-container .framer-11Hp4:hover {
+        background: rgba(255, 255, 255, 0.9) !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
+      }
+      .framer-Zrdb3 .framer-19nvram {
+        border-radius: 14px !important;
+        box-shadow: 0 28px 80px -16px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.08) !important;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      }
+      .framer-Zrdb3 .framer-19nvram:hover {
+        transform: perspective(1200px) translateX(0px) translateY(112px) scale(1.01) rotateX(15deg) !important;
+        box-shadow: 0 36px 90px -16px rgba(15, 23, 42, 0.28), 0 0 0 1px rgba(0, 0, 0, 0.12) !important;
+      }
+
+      /* 4. Logo Marquee Partner Ticker */
+      .framer-Zrdb3 .framer-1c3xe56 > div {
+        transition: opacity 0.25s ease, transform 0.25s ease !important;
+      }
+      .framer-Zrdb3 .framer-1c3xe56 > div:hover {
+        opacity: 0.95 !important;
+        transform: scale(1.04) !important;
+      }
+
+      /* 5. Feature Highlight Cards (#funktionen) */
+      .framer-Zrdb3 .framer-acg8fm,
+      .framer-Zrdb3 .framer-1pw6z08 {
+        border: 1px solid rgba(0, 0, 0, 0.07) !important;
+        border-radius: 20px !important;
+        box-shadow: 0 10px 30px -6px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.03) !important;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease !important;
+        background: #ffffff !important;
+      }
+      .framer-Zrdb3 .framer-acg8fm:hover,
+      .framer-Zrdb3 .framer-1pw6z08:hover {
+        transform: translateY(-4px) !important;
+        box-shadow: 0 20px 42px -8px rgba(0, 0, 0, 0.09), 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+        border-color: rgba(0, 0, 0, 0.12) !important;
+      }
+      .framer-Zrdb3 .framer-OzXAg {
+        padding: 16px !important;
+        border-radius: 14px !important;
+        transition: background-color 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      }
+      .framer-Zrdb3 .framer-OzXAg:hover {
+        background-color: rgba(0, 0, 0, 0.02) !important;
+        transform: translateY(-2px) !important;
+      }
+
+      /* 6. Module / Operations Suite Cards Typography & Layout Fixes */
       .framer-Zrdb3 .framer-1r3nvrv {
         align-items: stretch !important;
         gap: 24px !important;
@@ -1106,11 +1219,44 @@ navigationcontainer [data-framer-component-type="NavigationContainer"] > *, [dat
         box-sizing: border-box !important;
         overflow: visible !important;
         max-height: none !important;
+        transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease !important;
       }
-      .framer-Zrdb3 .framer-rttdj0 {
+
+      /* Card 1: Foyer & Service */
+      .framer-Zrdb3 .framer-1xfoud {
         background: #ffffff !important;
-        border: 1.5px solid rgba(229, 9, 20, 0.45) !important;
-        box-shadow: 0 16px 36px -8px rgba(229, 9, 20, 0.14), 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        box-shadow: 0 10px 28px -8px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02) !important;
+      }
+      .framer-Zrdb3 .framer-1xfoud:hover {
+        transform: translateY(-5px) !important;
+        box-shadow: 0 20px 42px -10px rgba(0, 0, 0, 0.11), 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+        border-color: rgba(0, 0, 0, 0.14) !important;
+      }
+
+      /* Card 2: Theaterleitung (Kinopolis Red Centerpiece) */
+      .framer-Zrdb3 .framer-rttdj0 {
+        background: linear-gradient(180deg, #ffffff 0%, #fffcfc 100%) !important;
+        border: 1.5px solid rgba(229, 9, 20, 0.48) !important;
+        box-shadow: 0 16px 36px -8px rgba(229, 9, 20, 0.16), 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+        z-index: 2 !important;
+      }
+      .framer-Zrdb3 .framer-rttdj0:hover {
+        transform: translateY(-6px) !important;
+        box-shadow: 0 24px 50px -10px rgba(229, 9, 20, 0.26), 0 6px 20px rgba(0, 0, 0, 0.06) !important;
+        border-color: rgba(229, 9, 20, 0.75) !important;
+      }
+
+      /* Card 3: BWR & Vorführtechnik */
+      .framer-Zrdb3 .framer-1kpsy9i {
+        background: #ffffff !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        box-shadow: 0 10px 28px -8px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02) !important;
+      }
+      .framer-Zrdb3 .framer-1kpsy9i:hover {
+        transform: translateY(-5px) !important;
+        box-shadow: 0 20px 42px -10px rgba(0, 0, 0, 0.11), 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+        border-color: rgba(0, 0, 0, 0.14) !important;
       }
       .framer-Zrdb3 .framer-1kpsy9i,
       .framer-Zrdb3 .framer-1kpsy9i *,
@@ -1119,6 +1265,8 @@ navigationcontainer [data-framer-component-type="NavigationContainer"] > *, [dat
         max-height: none !important;
         scrollbar-width: none !important;
       }
+
+      /* Eyebrow Rows - Exactly 28px tall */
       .framer-Zrdb3 .framer-17pqp7d,
       .framer-Zrdb3 .framer-1x5rbd,
       .framer-Zrdb3 .framer-b19vqz {
@@ -1129,13 +1277,27 @@ navigationcontainer [data-framer-component-type="NavigationContainer"] > *, [dat
         justify-content: space-between !important;
         margin: 0 0 10px 0 !important;
       }
+      .framer-Zrdb3 .framer-17pqp7d h5,
+      .framer-Zrdb3 .framer-43pc7z h5,
+      .framer-Zrdb3 .framer-b19vqz h5 {
+        font-size: 11.5px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.08em !important;
+        color: #64748b !important;
+        margin: 0 !important;
+        line-height: 1 !important;
+      }
+
+      /* Empfohlen Pill Badge on Card 2 */
       .framer-Zrdb3 .framer-hwsf3f-container {
-        background: rgba(229, 9, 20, 0.08) !important;
-        border: 1px solid rgba(229, 9, 20, 0.28) !important;
+        background: linear-gradient(135deg, rgba(229, 9, 20, 0.12), rgba(229, 9, 20, 0.05)) !important;
+        border: 1px solid rgba(229, 9, 20, 0.32) !important;
         border-radius: 9999px !important;
         padding: 3px 9px !important;
         display: inline-flex !important;
         align-items: center !important;
+        box-shadow: 0 2px 8px rgba(229, 9, 20, 0.12) !important;
       }
       .framer-Zrdb3 .framer-hwsf3f-container p {
         color: #e50914 !important;
@@ -1145,6 +1307,8 @@ navigationcontainer [data-framer-component-type="NavigationContainer"] > *, [dat
         text-transform: uppercase !important;
         margin: 0 !important;
       }
+
+      /* Title Rows - Exactly 44px tall */
       .framer-Zrdb3 .framer-1utt5jd,
       .framer-Zrdb3 .framer-gq7wpd,
       .framer-Zrdb3 .framer-3a6ypp {
@@ -1168,23 +1332,88 @@ navigationcontainer [data-framer-component-type="NavigationContainer"] > *, [dat
         color: #09090b !important;
         margin: 0 !important;
       }
-      .framer-Zrdb3 .framer-nxhcxe,
-      .framer-Zrdb3 .framer-ebs76m,
-      .framer-Zrdb3 .framer-1rayqi8 {
+
+      /* Status Badges with Pulse Effects */
+      @keyframes pulseDotLive {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(0.8); }
+      }
+      @keyframes pulseDotRuby {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(0.8); }
+      }
+
+      .framer-Zrdb3 .framer-nxhcxe {
         display: inline-flex !important;
         align-items: center !important;
         padding: 3px 9px !important;
         border-radius: 9999px !important;
+        background: rgba(16, 185, 129, 0.1) !important;
+        border: 1px solid rgba(16, 185, 129, 0.3) !important;
       }
-      .framer-Zrdb3 .framer-nxhcxe h5,
-      .framer-Zrdb3 .framer-ebs76m h5,
-      .framer-Zrdb3 .framer-1rayqi8 h5 {
+      .framer-Zrdb3 .framer-nxhcxe h5 {
+        color: #059669 !important;
         font-size: 11px !important;
         font-weight: 700 !important;
         letter-spacing: 0.06em !important;
         text-transform: uppercase !important;
         margin: 0 !important;
       }
+      .framer-Zrdb3 .framer-nxhcxe h5::before {
+        content: "●";
+        margin-right: 5px;
+        font-size: 8px;
+        display: inline-block;
+        animation: pulseDotLive 2s infinite ease-in-out;
+      }
+
+      .framer-Zrdb3 .framer-ebs76m {
+        display: inline-flex !important;
+        align-items: center !important;
+        padding: 3px 9px !important;
+        border-radius: 9999px !important;
+        background: rgba(229, 9, 20, 0.09) !important;
+        border: 1px solid rgba(229, 9, 20, 0.3) !important;
+      }
+      .framer-Zrdb3 .framer-ebs76m h5 {
+        color: #e50914 !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.06em !important;
+        text-transform: uppercase !important;
+        margin: 0 !important;
+      }
+      .framer-Zrdb3 .framer-ebs76m h5::before {
+        content: "●";
+        margin-right: 5px;
+        font-size: 8px;
+        display: inline-block;
+        animation: pulseDotRuby 2s infinite ease-in-out;
+      }
+
+      .framer-Zrdb3 .framer-1rayqi8 {
+        display: inline-flex !important;
+        align-items: center !important;
+        padding: 3px 9px !important;
+        border-radius: 9999px !important;
+        background: rgba(2, 132, 199, 0.1) !important;
+        border: 1px solid rgba(2, 132, 199, 0.3) !important;
+      }
+      .framer-Zrdb3 .framer-1rayqi8 h5 {
+        color: #0284c7 !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.06em !important;
+        text-transform: uppercase !important;
+        margin: 0 !important;
+      }
+      .framer-Zrdb3 .framer-1rayqi8 h5::before {
+        content: "⚡";
+        margin-right: 4px;
+        font-size: 10px;
+      }
+
+      /* Card Buttons Polish */
       .framer-Zrdb3 .framer-1x6a63l-container,
       .framer-Zrdb3 .framer-i4an7y-container,
       .framer-Zrdb3 .framer-f7shzs-container {
@@ -1192,31 +1421,124 @@ navigationcontainer [data-framer-component-type="NavigationContainer"] > *, [dat
         min-height: 44px !important;
         margin: 0 0 24px 0 !important;
       }
-      .framer-Zrdb3 .framer-i4an7y-container a {
-        background: #e50914 !important;
+      .framer-Zrdb3 .framer-1x6a63l-container a,
+      .framer-Zrdb3 .framer-f7shzs-container a {
+        background: #09090b !important;
         color: #ffffff !important;
-        border: 1px solid #e50914 !important;
-        box-shadow: 0 4px 16px rgba(229, 9, 20, 0.28) !important;
+        border-radius: 12px !important;
+        height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      }
+      .framer-Zrdb3 .framer-1x6a63l-container a:hover,
+      .framer-Zrdb3 .framer-f7shzs-container a:hover {
+        background: #18181b !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+      }
+      .framer-Zrdb3 .framer-1x6a63l-container a:active,
+      .framer-Zrdb3 .framer-f7shzs-container a:active {
+        transform: translateY(0px) scale(0.99) !important;
+      }
+
+      .framer-Zrdb3 .framer-i4an7y-container a {
+        background: linear-gradient(180deg, #ea1822 0%, #ce0712 100%) !important;
+        color: #ffffff !important;
+        border-radius: 12px !important;
+        height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 4px 16px rgba(229, 9, 20, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+        border: 1px solid rgba(229, 9, 20, 0.6) !important;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      }
+      .framer-Zrdb3 .framer-i4an7y-container a:hover {
+        background: linear-gradient(180deg, #f5222b 0%, #db0b15 100%) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 24px rgba(229, 9, 20, 0.44), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+      }
+      .framer-Zrdb3 .framer-i4an7y-container a:active {
+        transform: translateY(0px) scale(0.99) !important;
       }
       .framer-Zrdb3 .framer-i4an7y-container a p,
       .framer-Zrdb3 .framer-i4an7y-container a span {
         color: #ffffff !important;
+        font-weight: 700 !important;
       }
-      .framer-Zrdb3 .framer-1k8g8t p {
+
+      /* Checklist Rows Polish */
+      .framer-Zrdb3 .framer-xzfbyn,
+      .framer-Zrdb3 .framer-1k8g8t,
+      .framer-Zrdb3 .framer-1hjtlqe {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        width: 100% !important;
+        border-top: 1px solid rgba(0, 0, 0, 0.07) !important;
+        padding-top: 20px !important;
+        overflow: visible !important;
+      }
+      .framer-Zrdb3 .framer-xzfbyn p,
+      .framer-Zrdb3 .framer-1k8g8t p,
+      .framer-Zrdb3 .framer-1hjtlqe p {
         color: #374151 !important;
+        font-size: 13.5px !important;
+        line-height: 1.45 !important;
+        font-weight: 500 !important;
+      }
+      .framer-Zrdb3 .framer-fyBQO {
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease !important;
+        border-radius: 6px !important;
+        padding: 3px 6px !important;
+        margin: -3px -6px !important;
+      }
+      .framer-Zrdb3 .framer-fyBQO:hover {
+        background-color: rgba(0, 0, 0, 0.025) !important;
+        transform: translateX(4px) !important;
+      }
+
+      /* Checkmark icon colors */
+      .framer-Zrdb3 .framer-xzfbyn svg,
+      .framer-Zrdb3 .framer-xzfbyn [data-framer-component-type="SVG"] path {
+        fill: #059669 !important;
       }
       .framer-Zrdb3 .framer-1k8g8t svg,
       .framer-Zrdb3 .framer-1k8g8t [data-framer-component-type="SVG"] path {
         fill: #e50914 !important;
       }
+      .framer-Zrdb3 .framer-1hjtlqe svg,
+      .framer-Zrdb3 .framer-1hjtlqe [data-framer-component-type="SVG"] path {
+        fill: #0284c7 !important;
+      }
+
+      /* Hidden redundant items on Card 3 */
       .framer-Zrdb3 .framer-qx4kro-container,
       .framer-Zrdb3 .framer-1w95i6b-container,
       .framer-Zrdb3 .framer-qqugi3-container {
         display: none !important;
       }
+
       /* Remove Testimonials Section */
       .framer-1x7lfs8, [data-framer-name="Stimmen aus den Kinos"] {
         display: none !important;
+      }
+
+      /* 7. Footer Polish */
+      .framer-Zrdb3 .framer-lpuq9d {
+        background: #09090b !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+      }
+      .framer-Zrdb3 .framer-lpuq9d a {
+        transition: color 0.15s ease, opacity 0.15s ease !important;
+      }
+      .framer-Zrdb3 .framer-lpuq9d a:hover {
+        color: #ffffff !important;
+        opacity: 1 !important;
       }
     </style>
     <!-- End of headEnd -->

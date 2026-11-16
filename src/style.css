@@ -2512,7 +2512,7 @@ html {
   overflow: visible !important;
   max-height: none !important;
   scrollbar-width: none !important;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease !important;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease !important;
 }
 
 /* Card 1: Foyer & Service */
@@ -2523,22 +2523,24 @@ html {
 }
 
 .framer-Zrdb3 .framer-1xfoud:hover {
-  transform: translateY(-4px) !important;
-  box-shadow: 0 18px 36px -8px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-5px) !important;
+  box-shadow: 0 20px 42px -10px rgba(0, 0, 0, 0.11), 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.14) !important;
 }
 
 /* Card 2: Theaterleitung (Refined Centerpiece - Harmonie mit Kinopolis Red) */
 .framer-Zrdb3 .framer-rttdj0 {
-  background: #ffffff !important;
-  border: 1.5px solid rgba(229, 9, 20, 0.45) !important;
-  box-shadow: 0 16px 36px -8px rgba(229, 9, 20, 0.14), 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #fffcfc 100%) !important;
+  border: 1.5px solid rgba(229, 9, 20, 0.48) !important;
+  box-shadow: 0 16px 36px -8px rgba(229, 9, 20, 0.16), 0 4px 16px rgba(0, 0, 0, 0.04) !important;
   transform: none !important;
   z-index: 2 !important;
 }
 
 .framer-Zrdb3 .framer-rttdj0:hover {
-  transform: translateY(-4px) !important;
-  box-shadow: 0 22px 44px -8px rgba(229, 9, 20, 0.22), 0 6px 20px rgba(0, 0, 0, 0.06) !important;
+  transform: translateY(-6px) !important;
+  box-shadow: 0 24px 50px -10px rgba(229, 9, 20, 0.26), 0 6px 20px rgba(0, 0, 0, 0.06) !important;
+  border-color: rgba(229, 9, 20, 0.75) !important;
 }
 
 /* Card 3: BWR & Vorführtechnik */
@@ -2549,8 +2551,9 @@ html {
 }
 
 .framer-Zrdb3 .framer-1kpsy9i:hover {
-  transform: translateY(-4px) !important;
-  box-shadow: 0 18px 36px -8px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-5px) !important;
+  box-shadow: 0 20px 42px -10px rgba(0, 0, 0, 0.11), 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.14) !important;
 }
 
 /* Kill scrollbar on Card 3 permanently */
@@ -2596,13 +2599,14 @@ html {
 
 /* Empfohlen Pill Badge on Card 2 */
 .framer-Zrdb3 .framer-hwsf3f-container {
-  background: rgba(229, 9, 20, 0.08) !important;
-  border: 1px solid rgba(229, 9, 20, 0.28) !important;
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.12), rgba(229, 9, 20, 0.05)) !important;
+  border: 1px solid rgba(229, 9, 20, 0.32) !important;
   border-radius: 9999px !important;
   padding: 3px 9px !important;
   display: inline-flex !important;
   align-items: center !important;
   max-width: fit-content !important;
+  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.12) !important;
 }
 
 .framer-Zrdb3 .framer-hwsf3f-container p {
@@ -2642,14 +2646,23 @@ html {
   margin: 0 !important;
 }
 
-/* Status Badges */
+/* Status Badges with Pulse Effects */
+@keyframes pulseDotLive {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+@keyframes pulseDotRuby {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
 .framer-Zrdb3 .framer-nxhcxe {
   display: inline-flex !important;
   align-items: center !important;
   padding: 3px 9px !important;
   border-radius: 9999px !important;
   background: rgba(16, 185, 129, 0.1) !important;
-  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
 }
 
 .framer-Zrdb3 .framer-nxhcxe h5 {
@@ -2663,8 +2676,10 @@ html {
 
 .framer-Zrdb3 .framer-nxhcxe h5::before {
   content: "●";
-  margin-right: 4px;
+  margin-right: 5px;
   font-size: 8px;
+  display: inline-block;
+  animation: pulseDotLive 2s infinite ease-in-out;
 }
 
 .framer-Zrdb3 .framer-ebs76m {
@@ -2673,7 +2688,7 @@ html {
   padding: 3px 9px !important;
   border-radius: 9999px !important;
   background: rgba(229, 9, 20, 0.09) !important;
-  border: 1px solid rgba(229, 9, 20, 0.28) !important;
+  border: 1px solid rgba(229, 9, 20, 0.3) !important;
 }
 
 .framer-Zrdb3 .framer-ebs76m h5 {
@@ -2687,8 +2702,10 @@ html {
 
 .framer-Zrdb3 .framer-ebs76m h5::before {
   content: "●";
-  margin-right: 4px;
+  margin-right: 5px;
   font-size: 8px;
+  display: inline-block;
+  animation: pulseDotRuby 2s infinite ease-in-out;
 }
 
 .framer-Zrdb3 .framer-1rayqi8 {
@@ -2696,12 +2713,12 @@ html {
   align-items: center !important;
   padding: 3px 9px !important;
   border-radius: 9999px !important;
-  background: rgba(59, 130, 246, 0.1) !important;
-  border: 1px solid rgba(59, 130, 246, 0.25) !important;
+  background: rgba(2, 132, 199, 0.1) !important;
+  border: 1px solid rgba(2, 132, 199, 0.3) !important;
 }
 
 .framer-Zrdb3 .framer-1rayqi8 h5 {
-  color: #2563eb !important;
+  color: #0284c7 !important;
   font-size: 11px !important;
   font-weight: 700 !important;
   letter-spacing: 0.06em !important;
@@ -2711,7 +2728,7 @@ html {
 
 .framer-Zrdb3 .framer-1rayqi8 h5::before {
   content: "⚡";
-  margin-right: 3px;
+  margin-right: 4px;
   font-size: 10px;
 }
 
@@ -2734,35 +2751,44 @@ html {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  transition: all 0.2s ease !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .framer-Zrdb3 .framer-1x6a63l-container a:hover,
 .framer-Zrdb3 .framer-f7shzs-container a:hover {
   background: #18181b !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+.framer-Zrdb3 .framer-1x6a63l-container a:active,
+.framer-Zrdb3 .framer-f7shzs-container a:active {
+  transform: translateY(0px) scale(0.99) !important;
 }
 
 .framer-Zrdb3 .framer-i4an7y-container a {
-  background: #e50914 !important;
+  background: linear-gradient(180deg, #ea1822 0%, #ce0712 100%) !important;
   color: #ffffff !important;
   border-radius: 12px !important;
   height: 44px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  box-shadow: 0 4px 16px rgba(229, 9, 20, 0.28) !important;
-  border: 1px solid #e50914 !important;
-  transition: all 0.2s ease !important;
+  box-shadow: 0 4px 16px rgba(229, 9, 20, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+  border: 1px solid rgba(229, 9, 20, 0.6) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .framer-Zrdb3 .framer-i4an7y-container a:hover {
-  background: #c80813 !important;
+  background: linear-gradient(180deg, #f5222b 0%, #db0b15 100%) !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 8px 22px rgba(229, 9, 20, 0.38) !important;
+  box-shadow: 0 8px 24px rgba(229, 9, 20, 0.44), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+.framer-Zrdb3 .framer-i4an7y-container a:active {
+  transform: translateY(0px) scale(0.99) !important;
 }
 
 .framer-Zrdb3 .framer-i4an7y-container a p,
@@ -2793,9 +2819,31 @@ html {
   font-weight: 500 !important;
 }
 
+.framer-Zrdb3 .framer-fyBQO {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease !important;
+  border-radius: 6px !important;
+  padding: 3px 6px !important;
+  margin: -3px -6px !important;
+}
+
+.framer-Zrdb3 .framer-fyBQO:hover {
+  background-color: rgba(0, 0, 0, 0.025) !important;
+  transform: translateX(4px) !important;
+}
+
+.framer-Zrdb3 .framer-xzfbyn svg,
+.framer-Zrdb3 .framer-xzfbyn [data-framer-component-type="SVG"] path {
+  fill: #059669 !important;
+}
+
 .framer-Zrdb3 .framer-1k8g8t svg,
 .framer-Zrdb3 .framer-1k8g8t [data-framer-component-type="SVG"] path {
   fill: #e50914 !important;
+}
+
+.framer-Zrdb3 .framer-1hjtlqe svg,
+.framer-Zrdb3 .framer-1hjtlqe [data-framer-component-type="SVG"] path {
+  fill: #0284c7 !important;
 }
 
 /* 7. Harmonize Card 3 item count to match Card 1 & Card 2 (7 items each) */
